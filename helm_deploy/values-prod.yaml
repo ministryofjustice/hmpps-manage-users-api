@@ -1,0 +1,8 @@
+---
+# Per environment values which override defaults in hmpps-manage-users-api/values.yaml
+
+generic-service:
+  replicaCount: 4
+
+  ingress:
+    host: hmpps-manage-users-api.hmpps.service.justice.gov.uk
