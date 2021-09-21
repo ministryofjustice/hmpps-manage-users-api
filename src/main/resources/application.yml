@@ -1,5 +1,5 @@
 info.app:
-  name: Hmpps Manage Users Api
+  name: Manage Users Api
   version: 1.0
 
 spring:
@@ -7,6 +7,17 @@ spring:
     name: hmpps-manage-users-api
   codec:
     max-in-memory-size: 10MB
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${api.base.url.oauth}/.well-known/jwks.json
+
+      client:
+        provider:
+          hmpps-auth:
+            token-uri: ${api.base.url.oauth}/oauth/token
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
