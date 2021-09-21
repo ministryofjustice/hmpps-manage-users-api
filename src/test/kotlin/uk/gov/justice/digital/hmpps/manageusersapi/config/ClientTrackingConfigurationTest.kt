@@ -80,4 +80,13 @@ class ClientTrackingConfigurationTest {
     val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
     assertThat(insightTelemetry).contains(entry("clientIpAddress", SOME_IP_ADDRESS))
   }
+
+  @Test
+  fun shouldAddClientIpToInsightTelemetry_IPV6() {
+    val SOME_IP_ADDRESS = "2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF"
+    req.remoteAddr = SOME_IP_ADDRESS
+    clientTrackingInterceptor.preHandle(req, res, "null")
+    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
+    assertThat(insightTelemetry).contains(entry("clientIpAddress", SOME_IP_ADDRESS))
+  }
 }
