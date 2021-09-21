@@ -20,19 +20,27 @@ import javax.servlet.http.HttpServletResponse
 @ConditionalOnExpression("T(org.apache.commons.lang3.StringUtils).isNotBlank('\${applicationinsights.connection.string:}')")
 class ClientTrackingConfiguration(private val clientTrackingInterceptor: ClientTrackingInterceptor) : WebMvcConfigurer {
   override fun addInterceptors(registry: InterceptorRegistry) {
+    log.info("Adding application insights client tracking interceptor")
     registry.addInterceptor(clientTrackingInterceptor).addPathPatterns("/**")
+  }
+
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 
 @Configuration
 class ClientTrackingInterceptor : HandlerInterceptor {
   override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+    val properties = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
+    val addr = retrieveIpFromRemoteAddr(request)
+    properties["clientIpAddress"] = addr
+
     val token = request.getHeader(HttpHeaders.AUTHORIZATION)
     val bearer = "Bearer "
     if (StringUtils.startsWithIgnoreCase(token, bearer)) {
       try {
         val jwtBody = getClaimsFromJWT(token)
-        val properties = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
         val user = Optional.ofNullable(jwtBody.getClaim("user_name"))
         user.map { it.toString() }.ifPresent { properties["username"] = it }
         properties["clientId"] = jwtBody.getClaim("client_id").toString()
@@ -48,6 +56,12 @@ class ClientTrackingInterceptor : HandlerInterceptor {
     SignedJWT.parse(token.replace("Bearer ", "")).jwtClaimsSet
 
   companion object {
-    private val log = LoggerFactory.getLogger(ClientTrackingInterceptor::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
+}
+
+fun retrieveIpFromRemoteAddr(request: HttpServletRequest): String {
+  val remoteAddr = request.remoteAddr
+  val colonCount = remoteAddr.count { it == ':' }
+  return if (colonCount == 1) remoteAddr.split(":")[0] else remoteAddr
 }

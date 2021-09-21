@@ -11,10 +11,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
-  implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("org.apache.commons:commons-lang3:3.12.0")
 
-  implementation("com.google.code.gson:gson:2.8.8")
   implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
   implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.5.10")
