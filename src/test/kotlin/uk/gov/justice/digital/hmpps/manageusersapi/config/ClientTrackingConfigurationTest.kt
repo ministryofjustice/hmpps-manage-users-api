@@ -62,4 +62,22 @@ class ClientTrackingConfigurationTest {
     val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
     assertThat(insightTelemetry).contains(entry("username", "Fred"), entry("clientId", "hmpps-manage-users"))
   }
+
+  @Test
+  fun shouldAddClientIpToInsightTelemetry() {
+    val SOME_IP_ADDRESS = "12.13.14.15"
+    req.remoteAddr = SOME_IP_ADDRESS
+    clientTrackingInterceptor.preHandle(req, res, "null")
+    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
+    assertThat(insightTelemetry).contains(entry("clientIpAddress", SOME_IP_ADDRESS))
+  }
+
+  @Test
+  fun shouldAddClientIpToInsightTelemetryWithoutPortNumber() {
+    val SOME_IP_ADDRESS = "12.13.14.15"
+    req.remoteAddr = "$SOME_IP_ADDRESS:6789"
+    clientTrackingInterceptor.preHandle(req, res, "null")
+    val insightTelemetry = ThreadContext.getRequestTelemetryContext().httpRequestTelemetry.properties
+    assertThat(insightTelemetry).contains(entry("clientIpAddress", SOME_IP_ADDRESS))
+  }
 }

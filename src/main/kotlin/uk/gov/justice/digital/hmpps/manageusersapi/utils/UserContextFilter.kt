@@ -13,7 +13,7 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 
 @Component
-@Order(4)
+@Order(2)
 class UserContextFilter : Filter {
   @Throws(IOException::class, ServletException::class)
   override fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {

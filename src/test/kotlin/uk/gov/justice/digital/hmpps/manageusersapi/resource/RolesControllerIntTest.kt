@@ -24,6 +24,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `access forbidden when wrong role`() {
+
+    webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
+      .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
   fun `get role`() {
     hmppsAuth.stubGetRolesDetails()
     webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")

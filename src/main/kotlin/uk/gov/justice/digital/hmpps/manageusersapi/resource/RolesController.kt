@@ -23,8 +23,8 @@ class RolesController(
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
-    summary = "Get all audit events",
-    description = "Get all audit events, role required is ROLE_AUDIT",
+    summary = "Get role details",
+    description = "Get role details, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     responses = [
       ApiResponse(

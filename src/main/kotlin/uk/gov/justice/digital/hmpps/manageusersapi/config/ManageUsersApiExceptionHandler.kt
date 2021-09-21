@@ -106,14 +106,12 @@ data class ErrorResponse(
   val errorCode: Int? = null,
   val userMessage: String? = null,
   val developerMessage: String? = null,
-  val moreInfo: String? = null
 ) {
   constructor(
     status: HttpStatus,
     errorCode: Int? = null,
     userMessage: String? = null,
     developerMessage: String? = null,
-    moreInfo: String? = null
   ) :
-    this(status.value(), errorCode, userMessage, developerMessage, moreInfo)
+    this(status.value(), errorCode, userMessage, developerMessage)
 }
