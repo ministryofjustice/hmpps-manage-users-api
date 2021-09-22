@@ -6,3 +6,6 @@ generic-service:
 
   ingress:
     host: hmpps-manage-users-api.hmpps.service.justice.gov.uk
+
+  env:
+    API_BASE_URL_OAUTH: https://sign-in.hmpps.service.justice.gov.uk/auth
