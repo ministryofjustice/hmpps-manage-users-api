@@ -8,4 +8,4 @@ generic-service:
     host: hmpps-manage-users-api.hmpps.service.justice.gov.uk
 
   env:
-    api_base_url_oauth: https://sign-in.hmpps.service.justice.gov.uk/auth
+    API_BASE_URL_OAUTH: https://sign-in.hmpps.service.justice.gov.uk/auth
