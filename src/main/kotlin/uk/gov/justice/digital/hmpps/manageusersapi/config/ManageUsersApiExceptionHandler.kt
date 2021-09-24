@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -69,19 +70,15 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
-  fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-    val field = if (e.allErrors.size > 0) e.allErrors[0].objectName else "none"
+  fun handleValidationAnyException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse?>? {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
-      .body(
-        ErrorResponse(
-          status = BAD_REQUEST,
-          userMessage = "Validation failure: $field",
-          developerMessage = e.message
-        )
-      )
+      .body(ErrorResponse(status = BAD_REQUEST, developerMessage = e.message, errors = e.asErrorList()))
   }
+
+  private fun MethodArgumentNotValidException.asErrorList(): List<String> =
+    this.allErrors.mapNotNull { it.defaultMessage }
 
   @ExceptionHandler(MissingServletRequestParameterException::class)
   fun handleValidationException(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> {
@@ -124,17 +121,20 @@ class HmppsManageUsersApiExceptionHandler {
   }
 }
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class ErrorResponse(
   val status: Int,
   val errorCode: Int? = null,
   val userMessage: String? = null,
   val developerMessage: String? = null,
+  val errors: List<String>? = null
 ) {
   constructor(
     status: HttpStatus,
     errorCode: Int? = null,
     userMessage: String? = null,
     developerMessage: String? = null,
+    errors: List<String>? = null,
   ) :
-    this(status.value(), errorCode, userMessage, developerMessage)
+    this(status.value(), errorCode, userMessage, developerMessage, errors)
 }

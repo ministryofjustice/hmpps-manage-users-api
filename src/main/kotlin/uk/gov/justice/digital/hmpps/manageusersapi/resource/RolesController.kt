@@ -130,7 +130,7 @@ data class Role(
 data class RoleNameAmendment(
   @Schema(required = true, description = "Role Name", example = "[\"DPS_ADM\"]")
   @field:NotBlank(message = "Role name must be supplied")
-  @field:Size(min = 4, max = 100)
-  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  @field:Size(min = 4, max = 100, message = "Role name must be between 4 and 100 characters")
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$", message = "Role name must only contain 0-9, a-z and ( ) & , - . '  characters")
   val roleName: String
 )
