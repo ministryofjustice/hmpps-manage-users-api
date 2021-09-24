@@ -77,4 +77,31 @@ class RolesControllerTest {
         .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
+
+  @Nested
+  inner class AmendRoleDescription {
+    @Test
+    fun `amend role description`() {
+      val roleAmendment = RoleDescriptionAmendment("roleDesc")
+      rolesController.amendRoleDescription("role1", roleAmendment)
+      verify(rolesService).updateRoleDescription("role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role description if no description set`() {
+      val roleAmendment = RoleDescriptionAmendment(null)
+      rolesController.amendRoleDescription("role1", roleAmendment)
+      verify(rolesService).updateRoleDescription("role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role description with no match throws exception`() {
+      whenever(rolesService.updateRoleDescription(ArgumentMatchers.anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      val roleAmendment = RoleDescriptionAmendment("role description")
+
+      Assertions.assertThatThrownBy { rolesController.amendRoleDescription("NoRole", roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
+    }
+  }
 }
