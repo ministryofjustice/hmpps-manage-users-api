@@ -3,10 +3,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.config
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -22,8 +24,14 @@ class HmppsManageUsersApiExceptionHandler {
   fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
     log.debug("Forbidden (403) returned with message {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.FORBIDDEN)
-      .body(ErrorResponse(status = (HttpStatus.FORBIDDEN.value())))
+      .status(FORBIDDEN)
+      .body(
+        ErrorResponse(
+          status = FORBIDDEN,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
   }
 
   @ExceptionHandler(WebClientResponseException::class)
@@ -42,8 +50,8 @@ class HmppsManageUsersApiExceptionHandler {
   fun handleWebClientException(e: WebClientException): ResponseEntity<ErrorResponse> {
     log.error("Unexpected exception", e)
     return ResponseEntity
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(ErrorResponse(status = (HttpStatus.INTERNAL_SERVER_ERROR.value()), developerMessage = (e.message)))
+      .status(INTERNAL_SERVER_ERROR)
+      .body(ErrorResponse(status = (INTERNAL_SERVER_ERROR.value()), developerMessage = (e.message)))
   }
 
   @ExceptionHandler(ValidationException::class)
@@ -55,6 +63,21 @@ class HmppsManageUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException::class)
+  fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+    val field = if (e.allErrors.size > 0) e.allErrors[0].objectName else "none"
+    log.info("Validation exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Validation failure: $field",
           developerMessage = e.message
         )
       )

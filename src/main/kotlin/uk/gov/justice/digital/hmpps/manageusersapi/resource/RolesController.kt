@@ -10,10 +10,16 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
+import javax.validation.Valid
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Pattern
+import javax.validation.constraints.Size
 
 @Validated
 @RestController
@@ -56,6 +62,42 @@ class RolesController(
   ): Role {
     return Role(rolesService.getRoleDetail(role))
   }
+
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Amend role name",
+    description = "Amend the role name, role required is ROLE_ROLES_ADMIN",
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Role name updated"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "The role trying to update does not exist",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      )
+    ]
+  )
+  @PutMapping("/roles/{roleCode}")
+  fun amendRoleName(
+    @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
+    @PathVariable roleCode: String,
+    @Valid @RequestBody roleAmendment: RoleNameAmendment
+  ) {
+    rolesService.updateRoleName(roleCode, roleAmendment)
+  }
 }
 
 @Schema(description = "Role Details")
@@ -83,3 +125,12 @@ data class Role(
     r.adminType
   )
 }
+
+@Schema(description = "Update Role Name")
+data class RoleNameAmendment(
+  @Schema(required = true, description = "Role Name", example = "[\"DPS_ADM\"]")
+  @field:NotBlank(message = "Role name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  val roleName: String
+)

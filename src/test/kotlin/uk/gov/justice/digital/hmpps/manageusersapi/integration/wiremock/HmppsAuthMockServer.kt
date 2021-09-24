@@ -4,12 +4,15 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.put
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.springframework.http.HttpStatus
 
 class HmppsAuthApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
   companion object {
@@ -39,7 +42,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGrantToken() {
     stubFor(
-      WireMock.post(WireMock.urlEqualTo("/auth/oauth/token"))
+      WireMock.post(urlEqualTo("/auth/oauth/token"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -67,7 +70,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetRolesDetails() {
     stubFor(
-      get(WireMock.urlEqualTo("/auth/api/roles/AUTH_GROUP_MANAGER"))
+      get(urlEqualTo("/auth/api/roles/AUTH_GROUP_MANAGER"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -85,6 +88,28 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
               """.trimIndent()
             )
+        )
+    )
+  }
+
+  fun stubPutRoleName(roleCode: String) {
+    stubFor(
+      put("/auth/api/roles/$roleCode")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleNameFail(roleCode: String, status: Int) {
+    stubFor(
+      put("/auth/api/roles/$roleCode")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status)
         )
     )
   }
