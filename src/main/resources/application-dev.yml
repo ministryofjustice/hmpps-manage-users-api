@@ -1,5 +1,6 @@
 server:
   shutdown: immediate
+  port: 9091
 
 api:
   base:
