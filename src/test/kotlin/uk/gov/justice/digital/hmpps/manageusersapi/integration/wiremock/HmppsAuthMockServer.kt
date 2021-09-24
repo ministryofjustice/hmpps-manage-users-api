@@ -113,4 +113,26 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubPutRoleDescription(roleCode: String) {
+    stubFor(
+      put("/auth/api/roles/$roleCode/description")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleDescriptionFail(roleCode: String, status: Int) {
+    stubFor(
+      put("/auth/api/roles/$roleCode/description")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status)
+        )
+    )
+  }
 }

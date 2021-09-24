@@ -169,4 +169,121 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
     }
   }
+
+  @Nested
+  inner class AmendRoleDescription {
+
+    @Test
+    fun `Change role description endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/roles/ANY_ROLE/description")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role description endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/roles/ANY_ROLE/description")
+        .headers(setAuthorisation("bob"))
+        .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          mapOf("status" to "403")
+        }
+    }
+
+    @Test
+    fun `Change role description returns error when role not found`() {
+      hmppsAuth.stubPutRoleDescriptionFail("Not_A_Role", 404)
+      webTestClient
+        .put().uri("/roles/Not_A_Role/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to get role: Not_A_Role with reason: notfound")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to get role: Not_A_Role with reason: notfound")
+        }
+    }
+
+    @Test
+    fun `Change role description returns error when length too long`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "12345".repeat(205) + "y")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role description must be no more than 1024 characters")
+        )
+    }
+
+    @Test
+    fun `Change role description failed regex`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "a\$here")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("errors").value(
+          hasItems("Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters")
+        )
+    }
+
+    @Test
+    fun `Change role description success`() {
+      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description returns success for empty roleDescription`() {
+      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description returns success for no role description`() {
+      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to null)))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description passes regex validation`() {
+      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "good's & Role(),.-lineone\r\nlinetwo")))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
 }
