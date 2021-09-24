@@ -1,10 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
 
@@ -77,7 +78,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/ANY_ROLE")
         .headers(setAuthorisation(roles = listOf()))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isForbidden
         .expectBody()
@@ -94,7 +95,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -111,14 +112,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "tim")))
+        .body(fromValue(mapOf("roleName" to "tim")))
         .exchange()
         .expectStatus().isBadRequest
-        .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: roleNameAmendment")
-          assertThat(it["developerMessage"] as String).contains("default message [roleName],100,4]")
-        }
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role name must be between 4 and 100 characters")
+        )
     }
 
     @Test
@@ -126,20 +125,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(
-          BodyInserters.fromValue(
-            mapOf(
-              "roleName" to "12345".repeat(20) + "y",
-            )
-          )
-        )
+        .body(fromValue(mapOf("roleName" to "12345".repeat(20) + "y",)))
         .exchange()
         .expectStatus().isBadRequest
-        .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: roleNameAmendment")
-          assertThat(it["developerMessage"] as String).contains("default message [roleName],100,4]")
-        }
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role name must be between 4 and 100 characters")
+        )
     }
 
     @Test
@@ -147,21 +138,13 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(
-          BodyInserters.fromValue(
-            mapOf(
-              "roleName" to "a\$here",
-            )
-          )
-        )
+        .body(fromValue(mapOf("roleName" to "a\$here")))
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: roleNameAmendment")
-          assertThat(it["developerMessage"] as String).contains("[roleName]")
-          assertThat(it["developerMessage"] as String).contains("[must match \"^[0-9A-Za-z- ,.()'&]*\$\"]]")
-        }
+        .jsonPath("errors").value(
+          hasItems("Role name must only contain 0-9, a-z and ( ) & , - . '  characters")
+        )
     }
 
     @Test
@@ -170,7 +153,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isOk
     }
@@ -181,13 +164,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(
-          BodyInserters.fromValue(
-            mapOf(
-              "roleName" to "good's & Role(),.-"
-            )
-          )
-        )
+        .body(fromValue(mapOf("roleName" to "good's & Role(),.-")))
         .exchange()
         .expectStatus().isOk
     }
