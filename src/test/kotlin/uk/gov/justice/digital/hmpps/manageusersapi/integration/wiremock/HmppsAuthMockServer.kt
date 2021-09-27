@@ -100,13 +100,13 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubPutRoleNameFail(roleCode: String, status: Int) {
+  fun stubPutRoleNameFail(roleCode: String, status: HttpStatus) {
     stubFor(
       put("/auth/api/roles/$roleCode")
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status)
+            .withStatus(status.value())
         )
     )
   }
@@ -122,13 +122,35 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubPutRoleDescriptionFail(roleCode: String, status: Int) {
+  fun stubPutRoleDescriptionFail(roleCode: String, status: HttpStatus) {
     stubFor(
       put("/auth/api/roles/$roleCode/description")
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status)
+            .withStatus(status.value())
+        )
+    )
+  }
+
+  fun stubPutRoleAdminType(roleCode: String) {
+    stubFor(
+      put("/auth/api/roles/$roleCode/admintype")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleAdminTypeFail(roleCode: String, status: HttpStatus) {
+    stubFor(
+      put("/auth/api/roles/$roleCode/admintype")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
         )
     )
   }
