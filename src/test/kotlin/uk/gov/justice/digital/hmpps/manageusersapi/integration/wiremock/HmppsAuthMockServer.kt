@@ -78,13 +78,13 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubCreateRoleFail(status: Int) {
+  fun stubCreateRoleFail(status: HttpStatus) {
     stubFor(
       post(urlEqualTo("/auth/api/roles"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status)
+            .withStatus(status.value())
         )
     )
   }

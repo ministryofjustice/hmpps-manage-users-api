@@ -8,7 +8,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
@@ -41,7 +40,7 @@ class RolesControllerTest {
       )
       val role = CreateRole("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
 
-      Assertions.assertThatThrownBy { rolesController.createRole(role) }
+      assertThatThrownBy { rolesController.createRole(role) }
         .isInstanceOf(RoleExistsException::class.java)
         .withFailMessage("Unable to create role: RO1 with reason: role code already exists")
     }
