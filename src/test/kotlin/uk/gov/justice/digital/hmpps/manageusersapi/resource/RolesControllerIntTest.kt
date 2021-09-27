@@ -82,8 +82,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Change role name returns error when role not found`() {
-      hmppsAuth.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
+    fun `Change role name returns error when role exists`() {
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -107,7 +106,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create role: RC1 with reason: role code already exists")
         }
     }
-    
+
     @Test
     fun `create role returns error when role name failed regex`() {
       webTestClient.post().uri("/roles")
@@ -241,29 +240,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `create role returns error when role name failed regex`() {
-      webTestClient.post().uri("/roles")
-        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(
-          fromValue(
-            mapOf(
-              "roleCode" to "ROLE1",
-              "roleName" to "Role name $%",
-              "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
-        )
-        .exchange()
-        .expectStatus().isBadRequest
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters")
-        )
-    }
-
     fun `Change role description returns error when role not found`() {
-      hmppsAuth.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
+      hmppsAuthMockServer.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -449,7 +427,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
       @Test
       fun `Change role name returns error when role not found`() {
-        hmppsAuthMockServer.stubPutRoleNameFail("Not_A_Role", 404)
+        hmppsAuthMockServer.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
         webTestClient
           .put().uri("/roles/Not_A_Role")
           .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -555,7 +533,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
       @Test
       fun `Change role description returns error when role not found`() {
-        hmppsAuthMockServer.stubPutRoleDescriptionFail("Not_A_Role", 404)
+        hmppsAuthMockServer.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
         webTestClient
           .put().uri("/roles/Not_A_Role/description")
           .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -673,7 +651,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role admin type returns error when role not found`() {
-      hmppsAuth.stubPutRoleAdminTypeFail("Not_A_Role", NOT_FOUND)
+      hmppsAuthMockServer.stubPutRoleAdminTypeFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -714,7 +692,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role admin type returns success`() {
-      hmppsAuth.stubPutRoleAdminType("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
