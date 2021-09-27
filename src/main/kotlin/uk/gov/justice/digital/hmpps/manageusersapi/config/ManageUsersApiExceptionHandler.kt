@@ -102,20 +102,6 @@ class HmppsManageUsersApiExceptionHandler {
       )
   }
 
-  @ExceptionHandler(java.lang.Exception::class)
-  fun handleException(e: java.lang.Exception): ResponseEntity<ErrorResponse?>? {
-    log.error("Unexpected exception", e)
-    return ResponseEntity
-      .status(INTERNAL_SERVER_ERROR)
-      .body(
-        ErrorResponse(
-          status = INTERNAL_SERVER_ERROR,
-          userMessage = "Unexpected error: ${e.message}",
-          developerMessage = e.message
-        )
-      )
-  }
-
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }

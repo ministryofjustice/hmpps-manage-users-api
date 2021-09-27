@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -91,7 +92,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name returns error when role not found`() {
-      hmppsAuth.stubPutRoleNameFail("Not_A_Role", 404)
+      hmppsAuth.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -197,7 +198,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns error when role not found`() {
-      hmppsAuth.stubPutRoleDescriptionFail("Not_A_Role", 404)
+      hmppsAuth.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -286,4 +287,86 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
     }
   }
+
+
+  @Nested
+  inner class AmendRoleAdminType {
+
+    @Test
+    fun `Change role adminType endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/roles/ANY_ROLE/admintype")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role adminType endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/roles/ANY_ROLE/admintype")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          mapOf("status" to "403")
+        }
+    }
+
+    @Test
+    fun `Change role admin type returns error when role not found`() {
+      hmppsAuth.stubPutRoleAdminTypeFail("Not_A_Role", NOT_FOUND)
+      webTestClient
+        .put().uri("/roles/Not_A_Role/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to get role: Not_A_Role with reason: notfound")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to get role: Not_A_Role with reason: notfound")
+        }
+    }
+
+    @Test
+    fun `Change role adminType returns bad request for no admin type`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf<String>())))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("errors").value(
+          hasItems("Admin type cannot be empty")
+        )
+    }
+
+    @Test
+    fun `Change role admin type returns bad request when adminType does not exist`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DOES_NOT_EXIST"))))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `Change role admin type returns success`() {
+      hmppsAuth.stubPutRoleAdminType("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
 }
+
+
+
