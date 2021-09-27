@@ -288,7 +288,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
   }
 
-
   @Nested
   inner class AmendRoleAdminType {
 
@@ -367,6 +366,3 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
   }
 }
-
-
-
