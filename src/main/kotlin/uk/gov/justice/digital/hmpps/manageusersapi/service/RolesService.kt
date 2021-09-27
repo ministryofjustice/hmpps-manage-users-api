@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 
@@ -23,5 +24,10 @@ class RolesService(
   @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
     authService.updateRoleDescription(roleCode, roleAmendment)
+  }
+
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
+    authService.updateRoleAdminType(roleCode, roleAmendment)
   }
 }
