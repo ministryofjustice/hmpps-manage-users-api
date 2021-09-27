@@ -4,12 +4,309 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
 
 class RolesControllerIntTest : IntegrationTestBase() {
+
+  @Nested
+  inner class CreateRole {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `create role`() {
+      hmppsAuthMockServer.stubCreateRole()
+      nomisApiMockServer.stubCreateRole()
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isCreated
+    }
+
+    @Test
+    fun `create role - role already exists`() {
+      hmppsAuthMockServer.stubCreateRoleFail(409)
+      nomisApiMockServer.stubCreateRole()
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to create role: RC1 with reason: role code already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create role: RC1 with reason: role code already exists")
+        }
+    }
+
+    @Test
+    fun `create role returns error when role code length too short`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "R",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role code must be between 2 and 30 characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role code length too long`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "R".repeat(30) + "y",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role code must be between 2 and 30 characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role code failed regex`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "R0L$%",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role code must only contain 0-9, A-Z, a-z and _  characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role name length too short`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "ROLE1",
+              "roleName" to "R",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role name must be between 4 and 100 characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role name length too long`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "ROLE1",
+              "roleName" to "R".repeat(128) + "y",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role name must be between 4 and 100 characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role name failed regex`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "ROLE1",
+              "roleName" to "Role name $%",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role description length too long`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "ROLE1",
+              "roleName" to "Role name",
+              "roleDescription" to "D".repeat(1024) + "y",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role description must be no more than 1024 characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when role description failed regex`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "ROLE1",
+              "roleName" to "Role name",
+              "roleDescription" to "Description <>%",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters")
+        )
+    }
+
+    @Test
+    fun `create role returns error when admin type not present`() {
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleCode" to "R0LE1",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf<String>()
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody().jsonPath("errors").value(
+          hasItems("Admin type cannot be empty")
+        )
+    }
+  }
 
   @Nested
   inner class RoleDetails {
@@ -42,7 +339,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get role`() {
-      hmppsAuth.stubGetRolesDetails()
+      hmppsAuthMockServer.stubGetRolesDetails()
       webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -91,7 +388,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name returns error when role not found`() {
-      hmppsAuth.stubPutRoleNameFail("Not_A_Role", 404)
+      hmppsAuthMockServer.stubPutRoleNameFail("Not_A_Role", 404)
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -149,7 +446,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name success`() {
-      hmppsAuth.stubPutRoleName("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -160,7 +457,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name passes regex validation`() {
-      hmppsAuth.stubPutRoleName("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -197,7 +494,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns error when role not found`() {
-      hmppsAuth.stubPutRoleDescriptionFail("Not_A_Role", 404)
+      hmppsAuthMockServer.stubPutRoleDescriptionFail("Not_A_Role", 404)
       webTestClient
         .put().uri("/roles/Not_A_Role/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -244,7 +541,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description success`() {
-      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -255,7 +552,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns success for empty roleDescription`() {
-      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -266,7 +563,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns success for no role description`() {
-      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -277,7 +574,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description passes regex validation`() {
-      hmppsAuth.stubPutRoleDescription("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

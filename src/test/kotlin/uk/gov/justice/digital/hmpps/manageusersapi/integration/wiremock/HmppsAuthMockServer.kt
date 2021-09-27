@@ -1,39 +1,14 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
-import org.junit.jupiter.api.extension.AfterAllCallback
-import org.junit.jupiter.api.extension.BeforeAllCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
-import org.junit.jupiter.api.extension.ExtensionContext
 import org.springframework.http.HttpStatus
-
-class HmppsAuthApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
-  companion object {
-    @JvmField
-    val hmppsAuth = HmppsAuthMockServer()
-  }
-
-  override fun beforeAll(context: ExtensionContext) {
-    hmppsAuth.start()
-    hmppsAuth.stubGrantToken()
-  }
-
-  override fun beforeEach(context: ExtensionContext) {
-    hmppsAuth.resetRequests()
-    hmppsAuth.stubGrantToken()
-  }
-
-  override fun afterAll(context: ExtensionContext) {
-    hmppsAuth.stop()
-  }
-}
 
 class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -42,7 +17,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGrantToken() {
     stubFor(
-      WireMock.post(urlEqualTo("/auth/oauth/token"))
+      post(urlEqualTo("/auth/oauth/token"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -88,6 +63,28 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
               """.trimIndent()
             )
+        )
+    )
+  }
+
+  fun stubCreateRole() {
+    stubFor(
+      post(urlEqualTo("/auth/api/roles"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubCreateRoleFail(status: Int) {
+    stubFor(
+      post(urlEqualTo("/auth/api/roles"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status)
         )
     )
   }

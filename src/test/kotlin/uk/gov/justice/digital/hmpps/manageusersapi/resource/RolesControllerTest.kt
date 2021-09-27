@@ -6,10 +6,13 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
+import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 
@@ -17,6 +20,31 @@ class RolesControllerTest {
 
   private val rolesService: RolesService = mock()
   private val rolesController = RolesController(rolesService)
+
+  @Nested
+  inner class CreateRole {
+    @Test
+    fun`create role`() {
+      val role = CreateRole("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
+      rolesController.createRole(role)
+      verify(rolesService).createRole(role)
+    }
+
+    @Test
+    fun `amend role name with no match throws exception`() {
+      whenever(rolesService.createRole(any())).thenThrow(
+        RoleExistsException(
+          "RO1",
+          "role code already exists"
+        )
+      )
+      val role = CreateRole("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
+
+      Assertions.assertThatThrownBy { rolesController.createRole(role) }
+        .isInstanceOf(RoleExistsException::class.java)
+        .withFailMessage("Unable to create role: RO1 with reason: role code already exists")
+    }
+  }
 
   @Nested
   inner class RoleDetail {
