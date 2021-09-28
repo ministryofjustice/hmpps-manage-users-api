@@ -11,12 +11,23 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 
 @Configuration
-class WebClientConfiguration(@Value("\${api.base.url.oauth}") val authbaseUri: String) {
+class WebClientConfiguration(
+  @Value("\${api.base.url.oauth}") val authBaseUri: String,
+  @Value("\${api.base.url.nomis}") val nomisBaseUri: String
+) {
 
   @Bean
-  fun webClient(builder: WebClient.Builder): WebClient {
+  fun authWebClient(builder: WebClient.Builder): WebClient {
     return builder
-      .baseUrl(authbaseUri)
+      .baseUrl(authBaseUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+  }
+
+  @Bean
+  fun nomisWebClient(builder: WebClient.Builder): WebClient {
+    return builder
+      .baseUrl(nomisBaseUri)
       .filter(addAuthHeaderFilterFunction())
       .build()
   }

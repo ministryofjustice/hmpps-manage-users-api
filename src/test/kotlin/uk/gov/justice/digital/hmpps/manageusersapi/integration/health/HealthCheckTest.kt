@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.health
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.HmppsAuthApiExtension
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
@@ -12,6 +11,7 @@ class HealthCheckTest : IntegrationTestBase() {
 
   @Test
   fun `Health page reports ok`() {
+    stubPingWithResponse(200)
     webTestClient.get()
       .uri("/health")
       .exchange()
@@ -23,6 +23,7 @@ class HealthCheckTest : IntegrationTestBase() {
 
   @Test
   fun `Health info reports version`() {
+    stubPingWithResponse(200)
     webTestClient.get().uri("/health")
       .exchange()
       .expectStatus().isOk
@@ -73,6 +74,7 @@ class HealthCheckTest : IntegrationTestBase() {
   }
 
   private fun stubPingWithResponse(status: Int) {
-    HmppsAuthApiExtension.hmppsAuth.stubHealthPing(status)
+    hmppsAuthMockServer.stubHealthPing(status)
+    nomisApiMockServer.stubHealthPing(status)
   }
 }
