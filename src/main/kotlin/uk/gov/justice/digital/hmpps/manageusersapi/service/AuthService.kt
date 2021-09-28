@@ -23,7 +23,7 @@ class AuthService(
 
   @Throws(RoleExistsException::class)
   fun createRole(createRole: CreateRole) {
-    log.debug("Create auth role for $createRole.roleCode with {}", createRole)
+    log.debug("Create auth role for {} with {}", createRole.roleCode, createRole)
     try {
       authWebClient.post().uri("/api/roles")
         .bodyValue(
@@ -64,7 +64,7 @@ class AuthService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
-    log.debug("Updating role for $roleCode with {}", roleAmendment)
+    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     try {
       authWebClient.put()
         .uri("/api/roles/$roleCode")
@@ -79,7 +79,7 @@ class AuthService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
-    log.debug("Updating role for $roleCode with {}", roleAmendment)
+    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     try {
       authWebClient.put()
         .uri("/api/roles/$roleCode/description")
@@ -94,7 +94,7 @@ class AuthService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    log.debug("Updating role for $roleCode with {}", roleAmendment)
+    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     try {
       authWebClient.put()
         .uri("/api/roles/$roleCode/admintype")

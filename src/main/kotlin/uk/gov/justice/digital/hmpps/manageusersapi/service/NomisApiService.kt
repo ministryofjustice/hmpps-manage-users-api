@@ -19,7 +19,7 @@ class NomisApiService(
 
   @Throws(RoleExistsException::class)
   fun createRole(createRole: CreateRole) {
-    AuthService.log.debug("Create dps role for $createRole.roleCode with {}", createRole)
+    log.debug("Create dps role for {} with {}", createRole.roleCode, createRole)
     try {
       nomisWebClient.post().uri("/api/access-roles")
         .bodyValue(
@@ -39,5 +39,6 @@ class NomisApiService(
       ) else e
     }
   }
+
   private fun Set<AdminType>.roleFunction(): String = (if (AdminType.DPS_LSA in this) "GENERAL" else "ADMIN")
 }
