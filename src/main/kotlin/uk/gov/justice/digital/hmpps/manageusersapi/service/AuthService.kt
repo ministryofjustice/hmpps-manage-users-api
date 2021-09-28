@@ -31,9 +31,7 @@ class AuthService(
             "roleCode" to createRole.roleCode,
             "roleName" to createRole.roleName,
             "roleDescription" to createRole.roleDescription,
-            "adminType" to createRole.adminType.addDpsAdmTypeIfRequired().map {
-              it.adminTypeCode
-            }.toList(),
+            "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList(),
           )
         )
         .retrieve()
@@ -46,8 +44,6 @@ class AuthService(
       ) else e
     }
   }
-  private fun Set<AdminType>.addDpsAdmTypeIfRequired() =
-    (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
 
   @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role {
@@ -98,7 +94,7 @@ class AuthService(
     try {
       authWebClient.put()
         .uri("/api/roles/$roleCode/admintype")
-        .bodyValue(roleAmendment)
+        .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
         .retrieve()
         .toBodilessEntity()
         .block()
@@ -106,6 +102,8 @@ class AuthService(
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
     }
   }
+  private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
+    (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 }
 
 class RoleNotFoundException(action: String, role: String, errorCode: String) :
