@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.hasItems
