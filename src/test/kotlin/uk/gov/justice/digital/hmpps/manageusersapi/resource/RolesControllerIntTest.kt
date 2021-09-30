@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.nhaarman.mockitokotlin2.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Nested
@@ -358,7 +361,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get role`() {
-      hmppsAuthMockServer.stubGetRolesDetails()
+      hmppsAuthMockServer.stubGetRolesDetails("AUTH_GROUP_MANAGER")
       webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -446,7 +449,39 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Change role name success`() {
+    fun `Change role name returns error when role not found`() {
+      hmppsAuthMockServer.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
+      webTestClient
+        .put().uri("/roles/Not_A_Role")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to get role: Not_A_Role with reason: notfound")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to get role: Not_A_Role with reason: notfound")
+        }
+    }
+
+    @Test
+    fun `Change role name success for DPS Role`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      nomisApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isOk
+      nomisApiMockServer.verify(putRequestedFor(urlEqualTo("/api/access-roles")))
+    }
+
+    @Test
+    fun `Change role name success for non-DPS Role`() {
+      hmppsAuthMockServer.stubGetRolesDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -458,6 +493,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name passes regex validation`() {
+      hmppsAuthMockServer.stubGetRolesDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")

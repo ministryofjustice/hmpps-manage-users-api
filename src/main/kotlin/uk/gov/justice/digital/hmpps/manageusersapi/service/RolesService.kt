@@ -6,6 +6,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 
 @Service
 class RolesService(
@@ -24,8 +26,6 @@ class RolesService(
     }
   }
 
-  private fun Set<AdminType>.isDPSRole(): Boolean = (AdminType.DPS_ADM in this) or (AdminType.DPS_LSA in this)
-
   @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role {
     return authService.getRoleDetail(roleCode)
@@ -33,7 +33,11 @@ class RolesService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
+    val originalRole = getRoleDetail(roleCode)
     authService.updateRoleName(roleCode, roleAmendment)
+    if (originalRole.adminType.isDPSRole()) {
+      nomisApiService.updateRoleName(roleCode, roleAmendment)
+    }
   }
 
   @Throws(RoleNotFoundException::class)
@@ -45,6 +49,10 @@ class RolesService(
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     authService.updateRoleAdminType(roleCode, roleAmendment)
   }
+
+  private fun Set<AdminType>.isDPSRole(): Boolean = (DPS_ADM in this) or (DPS_LSA in this)
+  private fun List<AdminTypeReturn>.isDPSRole(): Boolean =
+    map { it.adminTypeCode }.any { (it == DPS_ADM.adminTypeCode || (it == DPS_LSA.adminTypeCode)) }
 }
 
 class RoleExistsException(role: String, errorCode: String) :

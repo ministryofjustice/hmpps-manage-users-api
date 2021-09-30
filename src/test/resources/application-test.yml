@@ -9,4 +9,4 @@ api:
   base:
     url:
       oauth: http://localhost:8090/auth
-      nomis: http://localhost:8093/api
+      nomis: http://localhost:8093
