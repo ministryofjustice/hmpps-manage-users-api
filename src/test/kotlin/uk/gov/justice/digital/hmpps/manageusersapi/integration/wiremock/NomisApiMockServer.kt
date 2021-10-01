@@ -38,7 +38,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubPutRoleName(roleCode: String) {
+  fun stubPutRole() {
     stubFor(
       put("/api/access-roles")
         .willReturn(

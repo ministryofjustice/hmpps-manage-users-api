@@ -469,7 +469,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     fun `Change role name success for DPS Role`() {
       hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
-      nomisApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      nomisApiMockServer.stubPutRole()
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -648,6 +648,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role admin type returns error when role not found`() {
+      hmppsAuthMockServer.stubGetRolesDetails("Not_A_Role")
       hmppsAuthMockServer.stubPutRoleAdminTypeFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role/admintype")
@@ -688,12 +689,39 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Change role admin type returns success`() {
+    fun `Change role admin type returns success - creating new DPS Role`() {
+      hmppsAuthMockServer.stubGetRolesDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
+      nomisApiMockServer.stubCreateRole()
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role admin type returns success - new External Admin Role`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM", "EXT_ADM"))))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role admin type returns success - becoming different type of DPS Role`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
+      nomisApiMockServer.stubPutRole()
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM", "DPS_LSA"))))
         .exchange()
         .expectStatus().isOk
     }
