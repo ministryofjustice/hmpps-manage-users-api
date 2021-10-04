@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import java.time.Duration
 
 @Service
@@ -116,6 +117,14 @@ class AuthService(
   }
   private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
     (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
+
+  fun getAllRoles(page: Int, size: Int, sort: String): RolesPaged {
+    return authWebClient.get()
+      .uri("/api/roles?page=$page&size=$size&sort=$sort")
+      .retrieve()
+      .bodyToMono(RolesPaged::class.java)
+      .block()
+  }
 }
 
 class RoleNotFoundException(action: String, role: String, errorCode: String) :

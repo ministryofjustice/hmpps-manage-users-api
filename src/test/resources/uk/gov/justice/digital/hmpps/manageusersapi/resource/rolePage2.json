@@ -1,0 +1,45 @@
+{
+  "content": [
+    {
+      "roleCode": "ROLE_8",
+      "roleName": "role 8"
+    },
+    {
+      "roleCode": "ROLE_7",
+      "roleName": "role 7"
+    },
+    {
+      "roleCode": "ROLE_6",
+      "roleName": "role 6"
+    },
+    {
+      "roleCode": "ROLE_5",
+      "roleName": "role 5"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 12,
+    "pageNumber": 3,
+    "pageSize": 4,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 10,
+  "totalElements": 37,
+  "size": 4,
+  "number": 3,
+  "sort": {
+    "empty": false,
+    "sorted": true,
+    "unsorted": false
+  },
+  "numberOfElements": 4,
+  "first": false,
+  "empty": false
+}

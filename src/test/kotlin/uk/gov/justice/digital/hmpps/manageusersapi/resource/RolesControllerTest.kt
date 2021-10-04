@@ -47,6 +47,16 @@ class RolesControllerTest {
   }
 
   @Nested
+  inner class GetAllRoles {
+    @Test
+    fun `Get all roles`() {
+
+      rolesController.getAllRoles(0, 10, "roleName,asc")
+      verify(rolesService).getAllRoles(0, 10, "roleName,asc")
+    }
+  }
+
+  @Nested
   inner class RoleDetail {
     @Test
     fun `Get role details`() {

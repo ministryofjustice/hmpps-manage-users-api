@@ -43,6 +43,142 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetAllRoles() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """{
+                      "content": [
+                          {
+                              "roleCode": "AUDIT_VIEWER",
+                              "roleName": "Audit viewer"
+                          },
+                          {
+                              "roleCode": "AUTH_GROUP_MANAGER",
+                              "roleName": "Auth Group Manager"
+                          },
+                          {
+                              "roleCode": "ROLE_1",
+                              "roleName": "role 1"
+                          },
+                          {
+                              "roleCode": "ROLE_2",
+                              "roleName": "role 2"
+                          },
+                          {
+                              "roleCode": "ROLE_3",
+                              "roleName": "role 3"
+                          },
+                          {
+                              "roleCode": "ROLE_5",
+                              "roleName": "role 5"
+                          },
+                          {
+                              "roleCode": "ROLE_6",
+                              "roleName": "role 6"
+                          },
+                          {
+                              "roleCode": "ROLE_7",
+                              "roleName": "role 7"
+                          },
+                          {
+                              "roleCode": "ROLE_8",
+                              "roleName": "role 8"
+                          }
+                      ],
+                      "pageable": {
+                          "sort": {
+                              "sorted": true,
+                              "unsorted": false,
+                              "empty": false
+                          },
+                          "offset": 0,
+                          "pageNumber": 0,
+                          "pageSize": 10,
+                          "paged": true,
+                          "unpaged": false
+                      },
+                      "last": false,
+                      "totalPages": 4,
+                      "totalElements": 37,
+                      "size": 10,
+                      "number": 0,
+                      "sort": {
+                          "sorted": true,
+                          "unsorted": false,
+                          "empty": false
+                      },
+                      "numberOfElements": 10,
+                      "first": true,
+                      "empty": false
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetAllRolesPage3Descending() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=3&size=4&sort=roleName,desc"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """{
+                      "content": [
+                          {
+                              "roleCode": "ROLE_8",
+                              "roleName": "role 8"
+                          },
+                          {
+                              "roleCode": "ROLE_7",
+                              "roleName": "role 7"
+                          },
+                          {
+                              "roleCode": "ROLE_6",
+                              "roleName": "role 6"
+                          },
+                          {
+                              "roleCode": "ROLE_5",
+                              "roleName": "role 5"
+                          }
+                      ],
+                      "pageable": {
+                          "sort": {
+                              "sorted": true,
+                              "unsorted": false,
+                              "empty": false
+                          },
+                          "offset": 12,
+                          "pageNumber": 3,
+                          "pageSize": 4,
+                          "paged": true,
+                          "unpaged": false
+                      },
+                      "last": false,
+                      "totalPages": 10,
+                      "totalElements": 37,
+                      "size": 4,
+                      "number": 3,
+                      "sort": {
+                          "sorted": true,
+                          "unsorted": false,
+                          "empty": false
+                      },
+                      "numberOfElements": 4,
+                      "first": false,
+                      "empty": false
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubGetRolesDetails(roleCode: String) {
     stubFor(
       get(urlEqualTo("/auth/api/roles/$roleCode"))
