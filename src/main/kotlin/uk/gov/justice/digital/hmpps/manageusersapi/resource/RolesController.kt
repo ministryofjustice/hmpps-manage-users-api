@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
@@ -105,6 +106,41 @@ class RolesController(
   ): Role {
     return Role(rolesService.getRoleDetail(role))
   }
+
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Get all roles",
+    description = "Get all roles, role required is ROLE_ROLES_ADMIN",
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "All Roles Returned",
+        content = [
+          Content(
+            mediaType = "application/json",
+            array = ArraySchema(schema = Schema(implementation = RolesPaged::class))
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      )
+    ]
+  )
+  @GetMapping("/roles")
+  fun getAllRoles(
+    @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
+    @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
+    @RequestParam(value = "sort", defaultValue = "roleName,asc", required = false) sort: String,
+  ): RolesPaged = rolesService.getAllRoles(page, size, sort)
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
@@ -225,7 +261,10 @@ data class CreateRole(
   @Schema(required = true, description = "roleName", example = "Auth Group Manager")
   @field:NotBlank(message = "role name must be supplied")
   @field:Size(min = 4, max = 128, message = "Role name must be between 4 and 100 characters")
-  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$", message = "Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters")
+  @field:Pattern(
+    regexp = "^[0-9A-Za-z- ,.()'&]*\$",
+    message = "Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters"
+  )
   val roleName: String,
 
   @Schema(
@@ -247,6 +286,44 @@ data class CreateRole(
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>,
+)
+
+@Schema(description = "Paged Role Basics")
+data class RolesPaged(
+  val content: List<RoleBasics>,
+  val pageable: RolesPageable,
+  val last: Boolean,
+  val totalPages: Int,
+  val totalElements: Long,
+  val size: Int,
+  val number: Int,
+  val sort: RolesSort,
+  val numberOfElements: Int,
+  val first: Boolean,
+  val empty: Boolean,
+)
+
+@Schema(description = "Basic Role")
+data class RoleBasics(
+  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
+  val roleCode: String,
+  @Schema(required = true, description = "Role Name", example = "Global Search")
+  val roleName: String
+)
+
+data class RolesSort(
+  val sorted: Boolean,
+  val unsorted: Boolean,
+  val empty: Boolean,
+)
+
+data class RolesPageable(
+  val sort: RolesSort,
+  val offset: Int,
+  val pageNumber: Int,
+  val pageSize: Int,
+  val paged: Boolean,
+  val unpaged: Boolean
 )
 
 @Schema(description = "Role Details")

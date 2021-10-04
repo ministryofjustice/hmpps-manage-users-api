@@ -4,12 +4,20 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.verifyNoInteractions
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleBasics
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPageable
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesSort
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.EXT_ADM
@@ -18,6 +26,68 @@ class RolesServiceTest {
   private val authService: AuthService = mock()
   private val nomisService: NomisApiService = mock()
   private val rolesService = RolesService(authService, nomisService)
+
+  @Nested
+  inner class GetAllRoles {
+    @Test
+    fun `get all roles`() {
+      val roles = createRolePaged()
+
+      whenever(authService.getAllRoles(anyInt(), anyInt(), anyString())).thenReturn(roles)
+
+      rolesService.getAllRoles(3, 4, "roleName,asc")
+      val allRoles = authService.getAllRoles(3, 4, "roleName,asc")
+      assertThat(allRoles).isEqualTo(roles)
+      verifyNoMoreInteractions(nomisService)
+    }
+  }
+
+  @Nested
+  inner class GetRoleDetails {
+    @Test
+    fun `get role details`() {
+      val role = Role(
+        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+      )
+
+      whenever(authService.getRoleDetail(anyString())).thenReturn(role)
+      val roleDetails = rolesService.getRoleDetail("RC1")
+
+      assertThat(roleDetails).isEqualTo(role)
+      verifyNoMoreInteractions(nomisService)
+    }
+  }
+
+  @Nested
+  inner class CreateARole {
+    @Test
+    fun `create external role`() {
+      val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM))
+
+      rolesService.createRole(role)
+      verify(authService).createRole(role)
+      verifyNoMoreInteractions(nomisService)
+    }
+
+    @Test
+    fun `create DPS only role`() {
+      val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
+
+      rolesService.createRole(role)
+      verify(authService).createRole(role)
+      verify(nomisService).createRole(role)
+    }
+
+    @Test
+    fun `create DPS and External role`() {
+      val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
+
+      rolesService.createRole(role)
+      verify(authService).createRole(role)
+      verify(nomisService).createRole(role)
+    }
+  }
 
   @Nested
   inner class AmendRoleName {
@@ -40,15 +110,15 @@ class RolesServiceTest {
     fun `update role name when Not DPS Role`() {
       val roleAmendment = RoleNameAmendment("UpdatedName")
 
-      val dbRole = Role(
+      val role = Role(
         roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(role)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
       verify(authService).updateRoleName("ROLE_1", roleAmendment)
-      verifyNoMoreInteractions(nomisService)
+      verifyNoInteractions(nomisService)
     }
   }
 
@@ -119,4 +189,28 @@ class RolesServiceTest {
       verify(nomisService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
   }
+
+  private fun createRoleSort() = RolesSort(sorted = true, unsorted = false, empty = false)
+  private fun createRolesPageable() = RolesPageable(
+    sort = createRoleSort(),
+    offset = 12,
+    pageNumber = 3,
+    pageSize = 4,
+    paged = true,
+    unpaged = false
+  )
+
+  fun createRolePaged() = RolesPaged(
+    content = listOf(RoleBasics("ROLE_1", "Role 1"), RoleBasics("ROLE_2", "Role 2")),
+    pageable = createRolesPageable(),
+    last = false,
+    totalPages = 12,
+    totalElements = 37,
+    size = 4,
+    number = 3,
+    sort = createRoleSort(),
+    numberOfElements = 37,
+    first = false,
+    empty = false
+  )
 }

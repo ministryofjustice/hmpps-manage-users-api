@@ -6,6 +6,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 
@@ -24,6 +25,10 @@ class RolesService(
     if (createRole.adminType.hasDPSAdminType()) {
       nomisApiService.createRole(createRole)
     }
+  }
+
+  fun getAllRoles(page: Int, size: Int, sort: String): RolesPaged {
+    return authService.getAllRoles(page, size, sort)
   }
 
   @Throws(RoleNotFoundException::class)
@@ -53,7 +58,14 @@ class RolesService(
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
       nomisApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
-      nomisApiService.createRole(CreateRole(originalRole.roleCode, originalRole.roleName, originalRole.roleDescription, roleAmendment.adminType))
+      nomisApiService.createRole(
+        CreateRole(
+          originalRole.roleCode,
+          originalRole.roleName,
+          originalRole.roleDescription,
+          roleAmendment.adminType
+        )
+      )
     }
   }
 

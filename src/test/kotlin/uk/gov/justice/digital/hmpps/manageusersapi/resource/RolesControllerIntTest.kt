@@ -2,12 +2,10 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.nhaarman.mockitokotlin2.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
@@ -103,7 +101,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
           )
         )
         .exchange()
-        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectStatus().isEqualTo(CONFLICT)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("status").isEqualTo("409")
@@ -327,6 +325,57 @@ class RolesControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isBadRequest
+    }
+  }
+
+  @Nested
+  inner class GetAllRoles {
+    @Test
+    fun `access forbidden when no authority`() {
+
+      webTestClient.get().uri("/roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+
+      webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+
+      webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `get all roles defaults`() {
+      hmppsAuthMockServer.stubGetAllRoles()
+      webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(readFile("rolePage1.json"))
+    }
+
+    @Test
+    fun `get all roles page 3 size 4 decending`() {
+      hmppsAuthMockServer.stubGetAllRolesPage3Descending()
+      webTestClient.get().uri("/roles?page=3&size=4&sort=roleName,desc")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(readFile("rolePage2.json"))
     }
   }
 
