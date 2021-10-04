@@ -21,7 +21,7 @@ class RolesService(
     // hmpps-auth called first as it will hold a duplicate copy of the roles in nomis so that we can add a role description
     authService.createRole(createRole)
     // call to Nomis-api to create the new role
-    if (createRole.adminType.isDPSRole()) {
+    if (createRole.adminType.hasDPSAdminType()) {
       nomisApiService.createRole(createRole)
     }
   }
@@ -35,7 +35,7 @@ class RolesService(
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     val originalRole = getRoleDetail(roleCode)
     authService.updateRoleName(roleCode, roleAmendment)
-    if (originalRole.adminType.isDPSRole()) {
+    if (originalRole.isDPSRole()) {
       nomisApiService.updateRoleName(roleCode, roleAmendment)
     }
   }
@@ -47,12 +47,24 @@ class RolesService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
+    val originalRole = authService.getRoleDetail(roleCode)
     authService.updateRoleAdminType(roleCode, roleAmendment)
+
+    if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
+      nomisApiService.updateRoleAdminType(roleCode, roleAmendment)
+    } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
+      nomisApiService.createRole(CreateRole(originalRole.roleCode, originalRole.roleName, originalRole.roleDescription, roleAmendment.adminType))
+    }
   }
 
-  private fun Set<AdminType>.isDPSRole(): Boolean = (DPS_ADM in this) or (DPS_LSA in this)
-  private fun List<AdminTypeReturn>.isDPSRole(): Boolean =
-    map { it.adminTypeCode }.any { (it == DPS_ADM.adminTypeCode || (it == DPS_LSA.adminTypeCode)) }
+  private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
+  private fun Collection<AdminType>.hasDPSAdminType(): Boolean = (DPS_ADM in this) or (DPS_LSA in this)
+
+  private fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeCode) }
+
+  private fun Role.isDpsRoleAdminTypeChanging(updatedAdminType: Set<AdminType>): Boolean =
+    DPS_LSA !in adminType.asAdminTypes() && DPS_ADM in adminType.asAdminTypes() && DPS_LSA in updatedAdminType ||
+      DPS_LSA in adminType.asAdminTypes() && DPS_LSA !in updatedAdminType && DPS_ADM in updatedAdminType
 }
 
 class RoleExistsException(role: String, errorCode: String) :

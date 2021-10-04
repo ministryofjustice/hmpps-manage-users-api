@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 
 @Service
@@ -50,6 +51,25 @@ class NomisApiService(
           mapOf(
             "roleCode" to roleCode,
             "roleName" to roleNameAmendment.roleName
+          )
+        )
+        .retrieve()
+        .toBodilessEntity()
+        .block()
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
+    }
+  }
+
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendment) {
+    log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
+    try {
+      nomisWebClient.put().uri("/api/access-roles")
+        .bodyValue(
+          mapOf(
+            "roleCode" to roleCode,
+            "roleFunction" to roleAdminTypeAmendment.adminType.roleFunction()
           )
         )
         .retrieve()
