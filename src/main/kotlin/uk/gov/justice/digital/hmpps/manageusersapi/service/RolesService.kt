@@ -27,14 +27,10 @@ class RolesService(
     }
   }
 
-  fun getAllRoles(page: Int, size: Int, sort: String): RolesPaged {
-    return authService.getAllRoles(page, size, sort)
-  }
+  fun getAllRoles(page: Int, size: Int, sort: String): RolesPaged = authService.getAllRoles(page, size, sort)
 
   @Throws(RoleNotFoundException::class)
-  fun getRoleDetail(roleCode: String): Role {
-    return authService.getRoleDetail(roleCode)
-  }
+  fun getRoleDetail(roleCode: String): Role = authService.getRoleDetail(roleCode)
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
@@ -46,9 +42,8 @@ class RolesService(
   }
 
   @Throws(RoleNotFoundException::class)
-  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
+  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
     authService.updateRoleDescription(roleCode, roleAmendment)
-  }
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {

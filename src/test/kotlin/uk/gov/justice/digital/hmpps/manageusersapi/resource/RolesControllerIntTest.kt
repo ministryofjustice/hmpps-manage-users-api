@@ -368,7 +368,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `get all roles page 3 size 4 decending`() {
+    fun `get all roles page 3 size 4 descending`() {
       hmppsAuthMockServer.stubGetAllRolesPage3Descending()
       webTestClient.get().uri("/roles?page=3&size=4&sort=roleName,desc")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

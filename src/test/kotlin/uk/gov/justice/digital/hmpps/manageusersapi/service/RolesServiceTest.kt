@@ -13,7 +13,6 @@ import org.mockito.Mockito.verifyNoInteractions
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleBasics
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPageable
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
@@ -201,7 +200,10 @@ class RolesServiceTest {
   )
 
   fun createRolePaged() = RolesPaged(
-    content = listOf(RoleBasics("ROLE_1", "Role 1"), RoleBasics("ROLE_2", "Role 2")),
+    content = listOf(
+      Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+      Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+    ),
     pageable = createRolesPageable(),
     last = false,
     totalPages = 12,
