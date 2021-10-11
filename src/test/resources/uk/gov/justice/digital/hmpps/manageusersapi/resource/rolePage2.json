@@ -2,19 +2,47 @@
   "content": [
     {
       "roleCode": "ROLE_8",
-      "roleName": "role 8"
+      "roleName": "role 8",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
     },
     {
       "roleCode": "ROLE_7",
-      "roleName": "role 7"
+      "roleName": "role 7",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
     },
     {
       "roleCode": "ROLE_6",
-      "roleName": "role 6"
+      "roleName": "role 6",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
     },
     {
       "roleCode": "ROLE_5",
-      "roleName": "role 5"
+      "roleName": "role 5",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
     }
   ],
   "pageable": {

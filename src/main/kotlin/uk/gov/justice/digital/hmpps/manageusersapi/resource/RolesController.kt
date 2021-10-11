@@ -290,7 +290,7 @@ data class CreateRole(
 
 @Schema(description = "Paged Role Basics")
 data class RolesPaged(
-  val content: List<RoleBasics>,
+  val content: List<Role>,
   val pageable: RolesPageable,
   val last: Boolean,
   val totalPages: Int,
@@ -301,14 +301,6 @@ data class RolesPaged(
   val numberOfElements: Int,
   val first: Boolean,
   val empty: Boolean,
-)
-
-@Schema(description = "Basic Role")
-data class RoleBasics(
-  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
-  val roleCode: String,
-  @Schema(required = true, description = "Role Name", example = "Global Search")
-  val roleName: String
 )
 
 data class RolesSort(

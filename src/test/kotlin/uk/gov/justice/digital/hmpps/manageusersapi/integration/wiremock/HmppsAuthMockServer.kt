@@ -54,39 +54,102 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                       "content": [
                           {
                               "roleCode": "AUDIT_VIEWER",
-                              "roleName": "Audit viewer"
+                              "roleName": "Audit viewer",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "AUTH_GROUP_MANAGER",
-                              "roleName": "Auth Group Manager"
+                              "roleName": "Auth Group Manager",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_1",
-                              "roleName": "role 1"
+                              "roleName": "role 1",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_2",
-                              "roleName": "role 2"
+                              "roleName": "role 2",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_3",
-                              "roleName": "role 3"
+                              "roleName": "role 3",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_5",
-                              "roleName": "role 5"
+                              "roleName": "role 5",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_6",
-                              "roleName": "role 6"
+                              "roleName": "role 6",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_7",
-                              "roleName": "role 7"
+                              "roleName": "role 7",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_8",
-                              "roleName": "role 8"
+                              "roleName": "role 8",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           }
                       ],
                       "pageable": {
@@ -132,19 +195,47 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                       "content": [
                           {
                               "roleCode": "ROLE_8",
-                              "roleName": "role 8"
+                              "roleName": "role 8",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_7",
-                              "roleName": "role 7"
+                              "roleName": "role 7",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_6",
-                              "roleName": "role 6"
+                              "roleName": "role 6",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           },
                           {
                               "roleCode": "ROLE_5",
-                              "roleName": "role 5"
+                              "roleName": "role 5",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
                           }
                       ],
                       "pageable": {
