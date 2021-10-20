@@ -51,8 +51,15 @@ class RolesControllerTest {
     @Test
     fun `Get all roles`() {
 
-      rolesController.getAllRoles(0, 10, "roleName,asc")
-      verify(rolesService).getAllRoles(0, 10, "roleName,asc")
+      rolesController.getAllRoles(0, 10, "roleName,asc", null, null, null)
+      verify(rolesService).getAllRoles(0, 10, "roleName,asc", null, null, null)
+    }
+
+    @Test
+    fun `Get all roles with filters`() {
+
+      rolesController.getAllRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
+      verify(rolesService).getAllRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
     }
   }
 

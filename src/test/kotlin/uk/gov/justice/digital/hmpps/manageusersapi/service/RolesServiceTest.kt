@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -32,10 +33,9 @@ class RolesServiceTest {
     fun `get all roles`() {
       val roles = createRolePaged()
 
-      whenever(authService.getAllRoles(anyInt(), anyInt(), anyString())).thenReturn(roles)
+      whenever(authService.getAllRoles(anyInt(), anyInt(), anyString(), isNull(), isNull(), isNull())).thenReturn(roles)
 
-      rolesService.getAllRoles(3, 4, "roleName,asc")
-      val allRoles = authService.getAllRoles(3, 4, "roleName,asc")
+      val allRoles = authService.getAllRoles(3, 4, "roleName,asc", null, null, null)
       assertThat(allRoles).isEqualTo(roles)
       verifyNoMoreInteractions(nomisService)
     }

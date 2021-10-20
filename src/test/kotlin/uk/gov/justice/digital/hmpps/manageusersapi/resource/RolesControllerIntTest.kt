@@ -364,7 +364,21 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(readFile("rolePage1.json"))
+        .jsonPath("$.content[0].roleName").isEqualTo("Audit viewer")
+        .jsonPath("$.content[1].roleName").isEqualTo("Auth Group Manager")
+        .jsonPath("$.content[2].roleName").isEqualTo("role 1")
+        .jsonPath("$.content[3].roleName").isEqualTo("role 2")
+        .jsonPath("$.content[4].roleName").isEqualTo("role 3")
+        .jsonPath("$.content[5].roleName").isEqualTo("role 4")
+        .jsonPath("$.content[6].roleName").isEqualTo("role 5")
+        .jsonPath("$.content[7].roleName").isEqualTo("role 6")
+        .jsonPath("$.content[8].roleName").isEqualTo("role 7")
+        .jsonPath("$.content[9].roleName").isEqualTo("role 8")
+        .jsonPath("$.content.length()").isEqualTo(10)
+        .jsonPath("$.size").isEqualTo(10)
+        .jsonPath("$.totalElements").isEqualTo(37)
+        .jsonPath("$.totalPages").isEqualTo(4)
+        .jsonPath("$.last").isEqualTo(false)
     }
 
     @Test
@@ -375,7 +389,72 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(readFile("rolePage2.json"))
+        .jsonPath("$.content[0].roleName").isEqualTo("role 8")
+        .jsonPath("$.content[1].roleName").isEqualTo("role 7")
+        .jsonPath("$.content[2].roleName").isEqualTo("role 6")
+        .jsonPath("$.content[3].roleName").isEqualTo("role 5")
+        .jsonPath("$.content.length()").isEqualTo(4)
+        .jsonPath("$.size").isEqualTo(4)
+        .jsonPath("$.totalElements").isEqualTo(37)
+        .jsonPath("$.totalPages").isEqualTo(10)
+        .jsonPath("$.last").isEqualTo(false)
+    }
+
+    @Test
+    fun `get all roles filter role code`() {
+      hmppsAuthMockServer.stubGetAllRolesFilterRoleCode()
+      webTestClient.get().uri("/roles?roleCode=account")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].roleCode").isEqualTo("ACCOUNT_MANAGER")
+    }
+
+    @Test
+    fun `get all roles filter role name`() {
+      hmppsAuthMockServer.stubGetAllRolesFilterRoleName()
+      webTestClient.get().uri("/roles?roleName=manager")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].roleName").isEqualTo("The group account manager")
+    }
+
+    @Test
+    fun `get all roles filter admin type`() {
+      hmppsAuthMockServer.stubGetAllRolesFilterAdminType()
+      webTestClient.get().uri("/roles?adminTypes=EXT_ADM")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+    }
+
+    @Test
+    fun `get all roles filter multiple admin types`() {
+      hmppsAuthMockServer.stubGetAllRolesFilterAdminTypes()
+      webTestClient.get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+        .jsonPath("$.content[0].adminType[1].adminTypeCode").isEqualTo("DPS_ADM")
+    }
+
+    @Test
+    fun `get all roles using all filters`() {
+      hmppsAuthMockServer.stubGetAllRolesUsingAllFilters()
+      webTestClient.get().uri("/roles?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+        .jsonPath("$.content[0].adminType[1].adminTypeCode").isEqualTo("DPS_ADM")
     }
   }
 

@@ -140,7 +140,10 @@ class RolesController(
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
     @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
     @RequestParam(value = "sort", defaultValue = "roleName,asc", required = false) sort: String,
-  ): RolesPaged = rolesService.getAllRoles(page, size, sort)
+    @RequestParam(value = "roleName", required = false) roleName: String?,
+    @RequestParam(value = "roleCode", required = false) roleCode: String?,
+    @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
+  ): RolesPaged = rolesService.getAllRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(

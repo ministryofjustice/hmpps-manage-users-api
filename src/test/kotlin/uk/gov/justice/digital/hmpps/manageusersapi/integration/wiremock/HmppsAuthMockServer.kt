@@ -45,7 +45,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRoles() {
     stubFor(
-      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc"))
+      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -66,7 +66,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                           {
                               "roleCode": "AUTH_GROUP_MANAGER",
                               "roleName": "Auth Group Manager",
-                              "roleDescription": null,
+                              "roleDescription": "Gives group manager ability to administer user in there groups",
                               "adminType": [
                                   {
                                       "adminTypeCode": "EXT_ADM",
@@ -88,7 +88,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                           {
                               "roleCode": "ROLE_2",
                               "roleName": "role 2",
-                              "roleDescription": null,
+                              "roleDescription": "Second role",
                               "adminType": [
                                   {
                                       "adminTypeCode": "EXT_ADM",
@@ -99,6 +99,17 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                           {
                               "roleCode": "ROLE_3",
                               "roleName": "role 3",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
+                          },
+                          {
+                              "roleCode": "ROLE_4",
+                              "roleName": "role 4",
                               "roleDescription": null,
                               "adminType": [
                                   {
@@ -186,7 +197,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPage3Descending() {
     stubFor(
-      get(urlEqualTo("/auth/api/roles?page=3&size=4&sort=roleName,desc"))
+      get(urlEqualTo("/auth/api/roles?page=3&size=4&sort=roleName,desc&roleName&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -218,7 +229,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                           {
                               "roleCode": "ROLE_6",
                               "roleName": "role 6",
-                              "roleDescription": null,
+                              "roleDescription": "Sixth role",
                               "adminType": [
                                   {
                                       "adminTypeCode": "EXT_ADM",
@@ -229,7 +240,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                           {
                               "roleCode": "ROLE_5",
                               "roleName": "role 5",
-                              "roleDescription": null,
+                              "roleDescription": "Fifth role",
                               "adminType": [
                                   {
                                       "adminTypeCode": "EXT_ADM",
@@ -269,6 +280,116 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetAllRolesFilterRoleCode() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc&roleName&roleCode=account&adminTypes"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              apiResponseBody()
+            )
+        )
+    )
+  }
+
+  fun stubGetAllRolesFilterRoleName() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc&roleName=manager&roleCode&adminTypes"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              apiResponseBody()
+            )
+        )
+    )
+  }
+
+  fun stubGetAllRolesFilterAdminType() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              apiResponseBody()
+            )
+        )
+    )
+  }
+  fun stubGetAllRolesFilterAdminTypes() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              apiResponseBody()
+            )
+        )
+    )
+  }
+
+  fun stubGetAllRolesUsingAllFilters() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?page=1&size=10&sort=roleName,asc&roleName=manager&roleCode=account&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              apiResponseBody()
+            )
+        )
+    )
+  }
+
+  fun apiResponseBody() = """{
+                      "content": [
+                          {
+                              "roleCode": "ACCOUNT_MANAGER",
+                              "roleName": "The group account manager",
+                              "roleDescription": "A group account manager - responsible for managing groups",
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  },
+                                  {
+                                      "adminTypeCode": "DPS_ADM",
+                                      "adminTypeName": "DPS Central Administrator"
+                                  }
+                              ]
+                          }
+                      ],
+                      "pageable": {
+                          "sort": {
+                              "sorted": true,
+                              "unsorted": false,
+                              "empty": false
+                          },
+                          "offset": 0,
+                          "pageNumber": 1,
+                          "pageSize": 10,
+                          "paged": true,
+                          "unpaged": false
+                      },
+                      "last": false,
+                      "totalPages": 1,
+                      "totalElements": 1,
+                      "size": 10,
+                      "number": 1,
+                      "sort": {
+                          "sorted": true,
+                          "unsorted": false,
+                          "empty": false
+                      },
+                      "numberOfElements": 1,
+                      "first": false,
+                      "empty": false
+                  }
+  """.trimIndent()
 
   fun stubGetRolesDetails(roleCode: String) {
     stubFor(

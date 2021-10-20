@@ -118,12 +118,23 @@ class AuthService(
   private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
     (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
-  fun getAllRoles(page: Int, size: Int, sort: String): RolesPaged {
+  fun getAllRoles(page: Int, size: Int, sort: String, roleName: String?, roleCode: String?, adminTypes: List<AdminType>?): RolesPaged {
+
     return authWebClient.get()
-      .uri("/api/roles?page=$page&size=$size&sort=$sort")
+      .uri { uriBuilder ->
+        uriBuilder
+          .path("/api/roles")
+          .queryParam("page", page)
+          .queryParam("size", size)
+          .queryParam("sort", sort)
+          .queryParam("roleName", roleName)
+          .queryParam("roleCode", roleCode)
+          .queryParam("adminTypes", adminTypes)
+          .build()
+      }
       .retrieve()
       .bodyToMono(RolesPaged::class.java)
-      .block()
+      .block()!!
   }
 }
 
