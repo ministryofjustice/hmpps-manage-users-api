@@ -1,6 +1,6 @@
 # hmpps-manage-users-api
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-manage-users-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-manage-users-api)
-[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://hmpps-manage-users-api.hmpps.service.justice.gov.uk/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://manage-users-api.hmpps.service.justice.gov.uk/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config)
 
 A Spring Boot JSON API to manage the users. Backend services for https://github.com/ministryofjustice/manage-hmpps-auth-accounts
 
