@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import org.apache.commons.lang3.StringUtils
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
@@ -292,9 +291,9 @@ data class CreateRole(
   val adminType: Set<AdminType>,
 ) {
   companion object {
-    const val ROLE_PREFIX = "ROLE_"
+    private const val ROLE_PREFIX = "ROLE_"
     fun removeRolePrefixIfNecessary(role: String): String =
-      if (StringUtils.startsWith(role, ROLE_PREFIX)) StringUtils.substring(role, ROLE_PREFIX.length) else role
+      if (role.startsWith(ROLE_PREFIX, ignoreCase = true)) role.substring(ROLE_PREFIX.length) else role
   }
 
   init {

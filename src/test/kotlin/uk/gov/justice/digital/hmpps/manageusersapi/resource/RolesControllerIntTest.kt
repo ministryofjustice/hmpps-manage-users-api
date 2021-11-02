@@ -478,7 +478,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `get all roles using all filters`() {
       hmppsAuthMockServer.stubGetAllRolesUsingAllFilters()
-      webTestClient.get().uri("/roles?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+      webTestClient.get()
+        .uri("/roles?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
