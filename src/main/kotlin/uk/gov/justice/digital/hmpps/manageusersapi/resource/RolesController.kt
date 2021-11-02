@@ -259,7 +259,7 @@ data class CreateRole(
   @field:NotBlank(message = "role code must be supplied")
   @field:Size(min = 2, max = 30, message = "Role code must be between 2 and 30 characters")
   @field:Pattern(regexp = "^[0-9A-Za-z_]*", message = "Role code must only contain 0-9, A-Z, a-z and _  characters")
-  val roleCode: String,
+  var roleCode: String,
 
   @Schema(required = true, description = "roleName", example = "Auth Group Manager")
   @field:NotBlank(message = "role name must be supplied")
@@ -289,7 +289,17 @@ data class CreateRole(
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>,
-)
+) {
+  companion object {
+    private const val ROLE_PREFIX = "ROLE_"
+    fun removeRolePrefixIfNecessary(role: String): String =
+      if (role.startsWith(ROLE_PREFIX, ignoreCase = true)) role.substring(ROLE_PREFIX.length) else role
+  }
+
+  init {
+    this.roleCode = removeRolePrefixIfNecessary(roleCode)
+  }
+}
 
 @Schema(description = "Paged Role Basics")
 data class RolesPaged(
