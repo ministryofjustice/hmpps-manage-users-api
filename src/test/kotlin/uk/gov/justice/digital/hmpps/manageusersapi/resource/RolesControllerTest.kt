@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -24,10 +25,24 @@ class RolesControllerTest {
   @Nested
   inner class CreateRole {
     @Test
-    fun`create role`() {
+    fun `create role`() {
       val role = CreateRole("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
       rolesController.createRole(role)
       verify(rolesService).createRole(role)
+    }
+
+    @Test
+    fun `create role remove ROLE_`() {
+      val role = CreateRole("ROLE_RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
+      rolesController.createRole(role)
+      verify(rolesService).createRole(role)
+      verify(rolesService).createRole(
+        argThat { r ->
+          assertThat(r).isNotNull
+          assertThat(r.roleCode).isEqualTo("RO1")
+          true
+        }
+      )
     }
 
     @Test
@@ -141,7 +156,13 @@ class RolesControllerTest {
 
     @Test
     fun `amend role description with no match throws exception`() {
-      whenever(rolesService.updateRoleDescription(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      whenever(rolesService.updateRoleDescription(anyString(), any())).thenThrow(
+        RoleNotFoundException(
+          "find",
+          "NoRole",
+          "not found"
+        )
+      )
       val roleAmendment = RoleDescriptionAmendment("role description")
 
       assertThatThrownBy { rolesController.amendRoleDescription("NoRole", roleAmendment) }
@@ -161,7 +182,13 @@ class RolesControllerTest {
 
     @Test
     fun `amend role admin type with no match throws exception`() {
-      whenever(rolesService.updateRoleAdminType(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      whenever(rolesService.updateRoleAdminType(anyString(), any())).thenThrow(
+        RoleNotFoundException(
+          "find",
+          "NoRole",
+          "not found"
+        )
+      )
       val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
 
       assertThatThrownBy { rolesController.amendRoleAdminType("NoRole", roleAmendment) }

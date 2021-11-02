@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.apache.commons.lang3.StringUtils
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
@@ -259,7 +260,7 @@ data class CreateRole(
   @field:NotBlank(message = "role code must be supplied")
   @field:Size(min = 2, max = 30, message = "Role code must be between 2 and 30 characters")
   @field:Pattern(regexp = "^[0-9A-Za-z_]*", message = "Role code must only contain 0-9, A-Z, a-z and _  characters")
-  val roleCode: String,
+  var roleCode: String,
 
   @Schema(required = true, description = "roleName", example = "Auth Group Manager")
   @field:NotBlank(message = "role name must be supplied")
@@ -289,7 +290,17 @@ data class CreateRole(
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>,
-)
+) {
+  companion object {
+    const val ROLE_PREFIX = "ROLE_"
+    fun removeRolePrefixIfNecessary(role: String): String =
+      if (StringUtils.startsWith(role, ROLE_PREFIX)) StringUtils.substring(role, ROLE_PREFIX.length) else role
+  }
+
+  init {
+    this.roleCode = removeRolePrefixIfNecessary(roleCode)
+  }
+}
 
 @Schema(description = "Paged Role Basics")
 data class RolesPaged(

@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
@@ -81,6 +83,34 @@ class RolesControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
+    }
+
+    @Test
+    fun `create role ROLE_`() {
+      hmppsAuthMockServer.stubCreateRole()
+      nomisApiMockServer.stubCreateRole()
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "ROLE_RC2",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      hmppsAuthMockServer.verify(
+        postRequestedFor(urlEqualTo("/auth/api/roles"))
+          .withRequestBody(
+            containing("{\"roleCode\":\"RC2\",\"roleName\":\"new role name\",\"roleDescription\":\"Description\",\"adminType\":[\"EXT_ADM\"]}")
+          )
+      )
     }
 
     @Test
