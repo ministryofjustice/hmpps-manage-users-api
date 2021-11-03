@@ -9,7 +9,7 @@ generic-service:
 
   env:
     API_BASE_URL_OAUTH: https://sign-in.hmpps.service.justice.gov.uk/auth
-    API_BASE_URL_NOMIS: https://api.prison.service.justice.gov.uk
+    API_BASE_URL_NOMIS: https://manage-users-api.hmpps.service.justice.gov.uk
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
 generic-prometheus-alerts:
