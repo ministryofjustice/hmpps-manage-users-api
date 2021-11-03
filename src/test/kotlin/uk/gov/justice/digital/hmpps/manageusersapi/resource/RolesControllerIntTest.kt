@@ -388,8 +388,80 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles defaults`() {
-      hmppsAuthMockServer.stubGetAllRoles()
+      hmppsAuthMockServer.stubGetRoles()
       webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[0].roleName").isEqualTo("Audit viewer")
+        .jsonPath("$[1].roleName").isEqualTo("Auth Group Manager")
+        .jsonPath("$[2].roleName").isEqualTo("role 1")
+        .jsonPath("$[3].roleName").isEqualTo("role 2")
+        .jsonPath("$[4].roleName").isEqualTo("role 3")
+        .jsonPath("$[5].roleName").isEqualTo("role 4")
+        .jsonPath("$[6].roleName").isEqualTo("role 5")
+        .jsonPath("$[7].roleName").isEqualTo("role 6")
+        .jsonPath("$[8].roleName").isEqualTo("role 7")
+        .jsonPath("$[9].roleName").isEqualTo("role 8")
+    }
+
+    @Test
+    fun `get all roles filter admin type`() {
+      hmppsAuthMockServer.stubGetAllRolesFilterAdminType()
+      webTestClient.get().uri("/roles?adminTypes=EXT_ADM")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+    }
+
+    @Test
+    fun `get all roles filter multiple admin types`() {
+      hmppsAuthMockServer.stubGetAllRolesFilterAdminTypes()
+      webTestClient.get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+        .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_ADM")
+    }
+  }
+
+  @Nested
+  inner class GetAllPagedRoles {
+    @Test
+    fun `access forbidden when no authority`() {
+
+      webTestClient.get().uri("/roles/paged")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+
+      webTestClient.get().uri("/roles/paged")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+
+      webTestClient.get().uri("/roles/paged")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `get all roles defaults`() {
+      hmppsAuthMockServer.stubGetAllRolesPaged()
+      webTestClient.get().uri("/roles/paged")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -414,7 +486,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `get all roles page 3 size 4 descending`() {
       hmppsAuthMockServer.stubGetAllRolesPage3Descending()
-      webTestClient.get().uri("/roles?page=3&size=4&sort=roleName,desc")
+      webTestClient.get().uri("/roles/paged?page=3&size=4&sort=roleName,desc")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -432,8 +504,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter role code`() {
-      hmppsAuthMockServer.stubGetAllRolesFilterRoleCode()
-      webTestClient.get().uri("/roles?roleCode=account")
+      hmppsAuthMockServer.stubGetAllRolesPagedFilterRoleCode()
+      webTestClient.get().uri("/roles/paged?roleCode=account")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -443,8 +515,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter role name`() {
-      hmppsAuthMockServer.stubGetAllRolesFilterRoleName()
-      webTestClient.get().uri("/roles?roleName=manager")
+      hmppsAuthMockServer.stubGetAllRolesPagedFilterRoleName()
+      webTestClient.get().uri("/roles/paged?roleName=manager")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -454,8 +526,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter admin type`() {
-      hmppsAuthMockServer.stubGetAllRolesFilterAdminType()
-      webTestClient.get().uri("/roles?adminTypes=EXT_ADM")
+      hmppsAuthMockServer.stubGetAllRolesPagedFilterAdminType()
+      webTestClient.get().uri("/roles/paged?adminTypes=EXT_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -465,8 +537,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter multiple admin types`() {
-      hmppsAuthMockServer.stubGetAllRolesFilterAdminTypes()
-      webTestClient.get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+      hmppsAuthMockServer.stubGetAllRolesPagedFilterAdminTypes()
+      webTestClient.get().uri("/roles/paged?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -477,9 +549,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles using all filters`() {
-      hmppsAuthMockServer.stubGetAllRolesUsingAllFilters()
-      webTestClient.get()
-        .uri("/roles?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+      hmppsAuthMockServer.stubGetAllRolesPagedUsingAllFilters()
+      webTestClient.get().uri("/roles/paged?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk

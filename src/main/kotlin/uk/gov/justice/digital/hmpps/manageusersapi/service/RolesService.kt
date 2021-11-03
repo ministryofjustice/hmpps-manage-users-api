@@ -27,7 +27,11 @@ class RolesService(
     }
   }
 
-  fun getAllRoles(
+  fun getRoles(
+    adminTypes: List<AdminType>?
+  ): List<Role> = authService.getRoles(adminTypes)
+
+  fun getPagedRoles(
     page: Int,
     size: Int,
     sort: String,
@@ -35,7 +39,7 @@ class RolesService(
     roleCode: String?,
     adminTypes: List<AdminType>?
   ): RolesPaged =
-    authService.getAllRoles(page, size, sort, roleName, roleCode, adminTypes)
+    authService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role = authService.getRoleDetail(roleCode)
