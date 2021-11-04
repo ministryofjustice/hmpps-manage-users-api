@@ -539,6 +539,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
           """
         )
     }
+
+    @Test
+    fun `get role fail - role not found`() {
+      hmppsAuthMockServer.stubGerRoleDetailsFail(NOT_FOUND, "AUTH_GROUP_MANAGER")
+      webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
   }
 
   @Nested
@@ -628,14 +637,14 @@ class RolesControllerIntTest : IntegrationTestBase() {
     fun `Change role name success for DPS Role`() {
       hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
-      nomisApiMockServer.stubPutRole()
+      nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isOk
-      nomisApiMockServer.verify(putRequestedFor(urlEqualTo("/api/access-roles")))
+      nomisApiMockServer.verify(putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
     }
 
     @Test
@@ -876,7 +885,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     fun `Change role admin type returns success - becoming different type of DPS Role`() {
       hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
-      nomisApiMockServer.stubPutRole()
+      nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

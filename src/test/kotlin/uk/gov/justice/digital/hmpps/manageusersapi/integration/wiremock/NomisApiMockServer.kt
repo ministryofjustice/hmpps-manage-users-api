@@ -29,7 +29,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubCreateRole() {
     stubFor(
-      WireMock.post(urlEqualTo("/api/access-roles"))
+      WireMock.post(urlEqualTo("/roles"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
@@ -38,9 +38,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubPutRole() {
+  fun stubPutRole(roleCode: String) {
     stubFor(
-      put("/api/access-roles")
+      put("/roles/$roleCode")
         .willReturn(
           aResponse()
             .withStatus(HttpStatus.OK.value())
