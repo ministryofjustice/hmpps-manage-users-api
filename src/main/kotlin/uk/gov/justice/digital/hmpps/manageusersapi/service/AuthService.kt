@@ -20,9 +20,6 @@ import java.time.Duration
 class AuthService(
   @Qualifier("authWebClient") val authWebClient: WebClient,
 
-  @Value("\${api.retries:3}")
-  val numRetries: Long,
-
   @Value("\${api.timeout:10s}")
   val timeout: Duration
 ) {
@@ -61,7 +58,6 @@ class AuthService(
         .uri("/api/roles/$roleCode")
         .retrieve()
         .bodyToMono(Role::class.java)
-        .retry(numRetries)
         .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
@@ -77,7 +73,6 @@ class AuthService(
         .bodyValue(roleAmendment)
         .retrieve()
         .toBodilessEntity()
-        .retry(numRetries)
         .block(timeout)
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
@@ -93,7 +88,6 @@ class AuthService(
         .bodyValue(roleAmendment)
         .retrieve()
         .toBodilessEntity()
-        .retry(numRetries)
         .block(timeout)
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
@@ -109,7 +103,6 @@ class AuthService(
         .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
         .retrieve()
         .toBodilessEntity()
-        .retry(numRetries)
         .block(timeout)
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
