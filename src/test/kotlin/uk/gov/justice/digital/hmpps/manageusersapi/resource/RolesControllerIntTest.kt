@@ -542,7 +542,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get role fail - role not found`() {
-      hmppsAuthMockServer.stubGerRoleDetailsFail(NOT_FOUND, "AUTH_GROUP_MANAGER")
+      hmppsAuthMockServer.stubGetRoleDetailsFail(NOT_FOUND, "AUTH_GROUP_MANAGER")
       webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
