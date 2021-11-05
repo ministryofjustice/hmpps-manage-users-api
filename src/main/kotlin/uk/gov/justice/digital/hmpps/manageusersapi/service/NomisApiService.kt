@@ -23,12 +23,12 @@ class NomisApiService(
   fun createRole(createRole: CreateRole) {
     log.debug("Create dps role for {} with {}", createRole.roleCode, createRole)
     try {
-      nomisWebClient.post().uri("/api/access-roles")
+      nomisWebClient.post().uri("/roles")
         .bodyValue(
           mapOf(
-            "roleCode" to createRole.roleCode,
-            "roleName" to createRole.roleName,
-            "roleFunction" to createRole.adminType.roleFunction(),
+            "code" to createRole.roleCode,
+            "name" to createRole.roleName,
+            "adminRoleOnly" to createRole.adminType.adminRoleOnly(),
           )
         )
         .retrieve()
@@ -46,11 +46,10 @@ class NomisApiService(
   fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
     try {
-      nomisWebClient.put().uri("/api/access-roles")
+      nomisWebClient.put().uri("/roles/$roleCode")
         .bodyValue(
           mapOf(
-            "roleCode" to roleCode,
-            "roleName" to roleNameAmendment.roleName
+            "name" to roleNameAmendment.roleName
           )
         )
         .retrieve()
@@ -65,11 +64,10 @@ class NomisApiService(
   fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
     try {
-      nomisWebClient.put().uri("/api/access-roles")
+      nomisWebClient.put().uri("/roles/$roleCode")
         .bodyValue(
           mapOf(
-            "roleCode" to roleCode,
-            "roleFunction" to roleAdminTypeAmendment.adminType.roleFunction()
+            "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly()
           )
         )
         .retrieve()
@@ -80,5 +78,5 @@ class NomisApiService(
     }
   }
 
-  private fun Set<AdminType>.roleFunction(): String = (if (AdminType.DPS_LSA in this) "GENERAL" else "ADMIN")
+  private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 }

@@ -443,6 +443,17 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetRoleDetailsFail(status: HttpStatus, roleCode: String) {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles/$roleCode"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+        )
+    )
+  }
+
   fun stubCreateRole() {
     stubFor(
       post(urlEqualTo("/auth/api/roles"))
