@@ -31,11 +31,27 @@ class RolesServiceTest {
   inner class GetAllRoles {
     @Test
     fun `get all roles`() {
+      val roles = listOf(
+        Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+        Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+      )
+      whenever(authService.getRoles(isNull())).thenReturn(roles)
+
+      val allRoles = authService.getRoles(null)
+      assertThat(allRoles).isEqualTo(roles)
+      verifyNoMoreInteractions(nomisService)
+    }
+  }
+
+  @Nested
+  inner class GetAllPagedRoles {
+    @Test
+    fun `get all paged roles`() {
       val roles = createRolePaged()
 
-      whenever(authService.getAllRoles(anyInt(), anyInt(), anyString(), isNull(), isNull(), isNull())).thenReturn(roles)
+      whenever(authService.getPagedRoles(anyInt(), anyInt(), anyString(), isNull(), isNull(), isNull())).thenReturn(roles)
 
-      val allRoles = authService.getAllRoles(3, 4, "roleName,asc", null, null, null)
+      val allRoles = authService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
       assertThat(allRoles).isEqualTo(roles)
       verifyNoMoreInteractions(nomisService)
     }

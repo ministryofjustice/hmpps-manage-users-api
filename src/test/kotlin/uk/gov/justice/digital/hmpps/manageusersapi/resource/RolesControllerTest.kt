@@ -65,16 +65,31 @@ class RolesControllerTest {
   inner class GetAllRoles {
     @Test
     fun `Get all roles`() {
+      rolesController.getRoles(null)
+      verify(rolesService).getRoles(null)
+    }
 
-      rolesController.getAllRoles(0, 10, "roleName,asc", null, null, null)
-      verify(rolesService).getAllRoles(0, 10, "roleName,asc", null, null, null)
+    @Test
+    fun `Get all roles with filters`() {
+      rolesController.getRoles(listOf(AdminType.DPS_ADM))
+      verify(rolesService).getRoles(listOf(AdminType.DPS_ADM))
+    }
+  }
+
+  @Nested
+  inner class GetAllPagedRoles {
+    @Test
+    fun `Get all roles`() {
+
+      rolesController.getPagedRoles(0, 10, "roleName,asc", null, null, null)
+      verify(rolesService).getPagedRoles(0, 10, "roleName,asc", null, null, null)
     }
 
     @Test
     fun `Get all roles with filters`() {
 
-      rolesController.getAllRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
-      verify(rolesService).getAllRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
+      rolesController.getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
+      verify(rolesService).getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
     }
   }
 
@@ -156,13 +171,7 @@ class RolesControllerTest {
 
     @Test
     fun `amend role description with no match throws exception`() {
-      whenever(rolesService.updateRoleDescription(anyString(), any())).thenThrow(
-        RoleNotFoundException(
-          "find",
-          "NoRole",
-          "not found"
-        )
-      )
+      whenever(rolesService.updateRoleDescription(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
       val roleAmendment = RoleDescriptionAmendment("role description")
 
       assertThatThrownBy { rolesController.amendRoleDescription("NoRole", roleAmendment) }
@@ -182,13 +191,7 @@ class RolesControllerTest {
 
     @Test
     fun `amend role admin type with no match throws exception`() {
-      whenever(rolesService.updateRoleAdminType(anyString(), any())).thenThrow(
-        RoleNotFoundException(
-          "find",
-          "NoRole",
-          "not found"
-        )
-      )
+      whenever(rolesService.updateRoleAdminType(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
       val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
 
       assertThatThrownBy { rolesController.amendRoleAdminType("NoRole", roleAmendment) }

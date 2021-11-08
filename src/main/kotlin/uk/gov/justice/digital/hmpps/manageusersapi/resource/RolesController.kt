@@ -107,11 +107,11 @@ class RolesController(
     return Role(rolesService.getRoleDetail(role))
   }
 
-  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Get all roles",
-    description = "Get all roles, role required is ROLE_ROLES_ADMIN",
-    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    description = "Get all roles, role required is ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES")],
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -136,14 +136,47 @@ class RolesController(
     ]
   )
   @GetMapping("/roles")
-  fun getAllRoles(
+  fun getRoles(
+    @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
+  ): List<Role> = rolesService.getRoles(adminTypes)
+
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Get all paged roles",
+    description = "Get all paged roles, role required is ROLE_ROLES_ADMIN",
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "All Roles Returned",
+        content = [
+          Content(
+            mediaType = "application/json",
+            array = ArraySchema(schema = Schema(implementation = RolesPaged::class))
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      )
+    ]
+  )
+  @GetMapping("/roles/paged")
+  fun getPagedRoles(
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
     @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
     @RequestParam(value = "sort", defaultValue = "roleName,asc", required = false) sort: String,
     @RequestParam(value = "roleName", required = false) roleName: String?,
     @RequestParam(value = "roleCode", required = false) roleCode: String?,
     @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
-  ): RolesPaged = rolesService.getAllRoles(page, size, sort, roleName, roleCode, adminTypes)
+  ): RolesPaged = rolesService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(

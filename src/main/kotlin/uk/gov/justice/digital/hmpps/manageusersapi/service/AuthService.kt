@@ -111,12 +111,12 @@ class AuthService(
   private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
     (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
-  fun getAllRoles(page: Int, size: Int, sort: String, roleName: String?, roleCode: String?, adminTypes: List<AdminType>?): RolesPaged {
+  fun getPagedRoles(page: Int, size: Int, sort: String, roleName: String?, roleCode: String?, adminTypes: List<AdminType>?): RolesPaged {
 
     return authWebClient.get()
       .uri { uriBuilder ->
         uriBuilder
-          .path("/api/roles")
+          .path("/api/roles/paged")
           .queryParam("page", page)
           .queryParam("size", size)
           .queryParam("sort", sort)
@@ -129,7 +129,21 @@ class AuthService(
       .bodyToMono(RolesPaged::class.java)
       .block()!!
   }
+  fun getRoles(adminTypes: List<AdminType>?): List<Role> {
+
+    return authWebClient.get()
+      .uri { uriBuilder ->
+        uriBuilder
+          .path("/api/roles")
+          .queryParam("adminTypes", adminTypes)
+          .build()
+      }
+      .retrieve()
+      .bodyToMono(RoleList::class.java)
+      .block()!!
+  }
 }
+class RoleList : MutableList<Role> by ArrayList()
 
 class RoleNotFoundException(action: String, role: String, errorCode: String) :
   Exception("Unable to $action role: $role with reason: $errorCode")
