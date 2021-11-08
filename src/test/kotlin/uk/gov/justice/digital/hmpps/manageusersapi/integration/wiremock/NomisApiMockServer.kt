@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
@@ -29,7 +29,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubCreateRole() {
     stubFor(
-      WireMock.post(urlEqualTo("/roles"))
+      post(urlEqualTo("/roles"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
