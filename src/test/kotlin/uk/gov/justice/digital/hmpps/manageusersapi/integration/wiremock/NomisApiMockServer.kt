@@ -48,4 +48,42 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetUserRoles(username: String) {
+    stubFor(
+      get("/users/$username/roles")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """{
+                    "username": "BOB",
+                    "active": true,
+                    "accountType": "ADMIN",
+                    "activeCaseload": {
+                    "id": "CADM_I",
+                    "name": "Central Administration Caseload For Hmps"
+                    },
+                     "dpsRoles": [
+                      {
+                        "code": "AUDIT_VIEWER",
+                        "name": "Audit viewer",
+                        "sequence": 1,
+                        "type": "APP",
+                        "adminRoleOnly": true
+                      },
+                      {
+                        "code": "AUTH_GROUP_MANAGER",
+                        "name": "Auth Group Manager that has mo",
+                        "sequence": 1,
+                        "type": "APP",
+                        "adminRoleOnly": true
+                      }
+                      ]
+                }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
 
 @Service
 class NomisApiService(
@@ -80,5 +81,21 @@ class NomisApiService(
 
   private fun String.nomisRoleName(): String = take(30)
 
+  fun getUserRoles(username: String): UserRoleDetail {
+    log.debug("request dps roles for {}", username,)
+    try {
+      return nomisWebClient.get()
+        .uri("/users/$username/roles")
+        .retrieve()
+        .bodyToMono(UserRoleDetail::class.java)
+        .block()!!
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) UserNotFoundException("get", username, "notfound") else e
+    }
+  }
+
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 }
+
+class UserNotFoundException(action: String, username: String, errorCode: String) :
+  Exception("Unable to $action user: $username with reason: $errorCode")
