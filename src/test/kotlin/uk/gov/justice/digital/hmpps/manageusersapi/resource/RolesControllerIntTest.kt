@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
@@ -67,7 +68,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create role`() {
       hmppsAuthMockServer.stubCreateRole()
-      nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -86,9 +86,60 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `create role ROLE_`() {
+    fun `create role when role name has 30 characters`() {
       hmppsAuthMockServer.stubCreateRole()
       nomisApiMockServer.stubCreateRole()
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "12345".repeat(6),
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM", "DPS_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/roles"))
+          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+      )
+    }
+
+    @Test
+    fun `create role when role name has greater than 30 characters`() {
+      hmppsAuthMockServer.stubCreateRole()
+      nomisApiMockServer.stubCreateRole()
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "12345".repeat(6) + "y",
+              "roleDescription" to "Description",
+              "adminType" to listOf("EXT_ADM", "DPS_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/roles"))
+          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+      )
+    }
+
+    @Test
+    fun `create role ROLE_`() {
+      hmppsAuthMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -116,7 +167,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create role returns error when role exists`() {
       hmppsAuthMockServer.stubCreateRoleFail(CONFLICT)
-      nomisApiMockServer.stubCreateRole()
       webTestClient
         .post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -715,7 +765,44 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isOk
-      nomisApiMockServer.verify(putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
+      nomisApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("new role name")))
+      )
+    }
+
+    @Test
+    fun `Change role name success for Role with name has 30 characters`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "12345".repeat(6))))
+        .exchange()
+        .expectStatus().isOk
+      nomisApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+      )
+    }
+
+    @Test
+    fun `Change role name success for Role with name greater than 30 characters`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
+      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "12345".repeat(6) + "y")))
+        .exchange()
+        .expectStatus().isOk
+      nomisApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+      )
     }
 
     @Test

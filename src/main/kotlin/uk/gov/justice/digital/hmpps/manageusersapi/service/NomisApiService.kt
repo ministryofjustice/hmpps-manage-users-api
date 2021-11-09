@@ -27,7 +27,7 @@ class NomisApiService(
         .bodyValue(
           mapOf(
             "code" to createRole.roleCode,
-            "name" to createRole.roleName,
+            "name" to createRole.roleName.nomisRoleName(),
             "adminRoleOnly" to createRole.adminType.adminRoleOnly(),
           )
         )
@@ -49,7 +49,7 @@ class NomisApiService(
       nomisWebClient.put().uri("/roles/$roleCode")
         .bodyValue(
           mapOf(
-            "name" to roleNameAmendment.roleName
+            "name" to roleNameAmendment.roleName.nomisRoleName()
           )
         )
         .retrieve()
@@ -77,6 +77,8 @@ class NomisApiService(
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
     }
   }
+
+  private fun String.nomisRoleName(): String = take(30)
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 }
