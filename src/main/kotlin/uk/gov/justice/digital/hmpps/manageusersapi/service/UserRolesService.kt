@@ -21,6 +21,6 @@ class UserRolesService(
   private fun userAuthRoleNames(roleDetails: List<RoleDetail>, authRoles: List<Role>): List<RoleDetail> {
 
     val authRoleMap = authRoles.associate { it.roleCode to it.roleName }
-    return roleDetails.map { it.copy(name = authRoleMap[it.code] ?: it.name) }
+    return roleDetails.map { it.copy(name = authRoleMap[it.code] ?: it.name) }.sortedBy { it.name }
   }
 }
