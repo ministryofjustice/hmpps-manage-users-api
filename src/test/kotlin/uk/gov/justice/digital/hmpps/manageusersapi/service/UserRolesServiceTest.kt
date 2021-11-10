@@ -68,6 +68,33 @@ class UserRolesServiceTest {
     assertThat(userRoles.dpsRoles[1].name).isEqualTo("Maintain access roles that has more than 30 characters in the role name")
   }
 
+  @Test
+  fun `get user roles - Roles are in alpha order by role name`() {
+    val userRolesFromNomis = createUserRoleDetails()
+    val rolesFromAuth = listOf(
+      Role(
+        roleCode = "MAINTAIN_ACCESS_ROLES",
+        roleName = "Maintain access roles that has more than 30 characters in the role name",
+        roleDescription = null,
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+      ),
+      Role(
+        roleCode = "OMIC_ADMIN",
+        roleName = "Key-worker allocator",
+        roleDescription = null,
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+      )
+    )
+
+    whenever(authService.getRoles(any())).thenReturn(rolesFromAuth)
+    whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    val userRoles = userRolesService.getUserRoles("BOB")
+
+    assertThat(userRoles).isNotEqualTo(userRolesFromNomis)
+    assertThat(userRoles.dpsRoles[0].name).isEqualTo("Key-worker allocator")
+    assertThat(userRoles.dpsRoles[1].name).isEqualTo("Maintain access roles that has more than 30 characters in the role name")
+  }
+
   private fun createUserRoleDetails() =
     UserRoleDetail(
       username = "bob",
