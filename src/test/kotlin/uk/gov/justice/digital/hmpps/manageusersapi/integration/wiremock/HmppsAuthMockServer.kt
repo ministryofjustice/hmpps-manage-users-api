@@ -433,6 +433,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
   fun stubGetAllRolesFilterAdminType() {
     stubFor(
       get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM"))
@@ -445,6 +446,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
   fun stubGetAllRolesFilterAdminTypes() {
     stubFor(
       get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
@@ -457,6 +459,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
   fun stubGetAllRolesPagedFilterAdminType() {
     stubFor(
       get(urlEqualTo("/auth/api/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM"))
@@ -469,6 +472,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
   fun stubGetAllRolesPagedFilterAdminTypes() {
     stubFor(
       get(urlEqualTo("/auth/api/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
@@ -708,6 +712,45 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(status.value())
+        )
+    )
+  }
+
+  fun stubGetRolesForRoleName() {
+    stubFor(
+      get(urlEqualTo("/auth/api/roles?adminTypes=DPS_ADM"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                     [
+                          {
+                              "roleCode": "AUDIT_VIEWER",
+                              "roleName": "Audit viewer",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
+                          },
+                          {
+                              "roleCode": "AUTH_GROUP_MANAGER",
+                              "roleName": "Auth Group Manager that has more than 30 characters in the role name",
+                              "roleDescription": "Gives group manager ability to administer user in there groups",
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
+                          }
+                           ]
+                  
+              """.trimIndent()
+            )
         )
     )
   }
