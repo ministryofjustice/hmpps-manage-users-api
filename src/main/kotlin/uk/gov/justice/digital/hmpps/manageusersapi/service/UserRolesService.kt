@@ -11,7 +11,6 @@ class UserRolesService(
   val nomisApiService: NomisApiService,
 ) {
 
-  @Throws(UserNotFoundException::class)
   fun getUserRoles(user: String): UserRoleDetail {
     val userRoleDetail = nomisApiService.getUserRoles(user)
     val authRoles = authService.getRoles(listOf(AdminType.DPS_ADM))

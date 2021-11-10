@@ -41,6 +41,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.dpsRoles[0].name").isEqualTo("Audit viewer")
-      .jsonPath("$.dpsRoles.[1].name").isEqualTo("Auth Group Manager that has more than 30 characters in the role name")
+      .jsonPath("$.dpsRoles[1].name").isEqualTo("Auth Group Manager that has more than 30 characters in the role name")
   }
 }

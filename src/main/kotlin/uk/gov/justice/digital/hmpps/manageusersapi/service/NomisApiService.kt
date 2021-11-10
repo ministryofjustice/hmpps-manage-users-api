@@ -82,7 +82,6 @@ class NomisApiService(
   private fun String.nomisRoleName(): String = take(30)
 
   fun getUserRoles(username: String): UserRoleDetail {
-    log.debug("request dps roles for {}", username,)
     try {
       return nomisWebClient.get()
         .uri("/users/$username/roles")
