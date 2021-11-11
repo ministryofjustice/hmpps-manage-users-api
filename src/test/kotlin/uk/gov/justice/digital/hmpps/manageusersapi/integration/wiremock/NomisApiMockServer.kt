@@ -38,6 +38,17 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubCreateRoleFail(status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo("/roles"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+        )
+    )
+  }
+
   fun stubPutRole(roleCode: String) {
     stubFor(
       put("/roles/$roleCode")
@@ -45,6 +56,17 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withStatus(HttpStatus.OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleFail(roleCode: String, status: HttpStatus) {
+    stubFor(
+      put("/roles/$roleCode")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
         )
     )
   }

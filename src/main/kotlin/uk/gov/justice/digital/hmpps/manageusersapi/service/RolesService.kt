@@ -12,19 +12,19 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 
 @Service
 class RolesService(
-  val authService: AuthService,
   val nomisApiService: NomisApiService,
+  val authService: AuthService,
 ) {
 
   @Throws(RoleExistsException::class)
   fun createRole(createRole: CreateRole) {
-    // call to hmpps-auth to create the role
-    // hmpps-auth called first as it will hold a duplicate copy of the roles in nomis so that we can add a role description
-    authService.createRole(createRole)
     // call to Nomis-api to create the new role
     if (createRole.adminType.hasDPSAdminType()) {
       nomisApiService.createRole(createRole)
     }
+    // call to hmpps-auth to create the role
+    // hmpps-auth called first as it will hold a duplicate copy of the roles in nomis so that we can add a role description
+    authService.createRole(createRole)
   }
 
   fun getRoles(
@@ -47,10 +47,10 @@ class RolesService(
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     val originalRole = getRoleDetail(roleCode)
-    authService.updateRoleName(roleCode, roleAmendment)
     if (originalRole.isDPSRole()) {
       nomisApiService.updateRoleName(roleCode, roleAmendment)
     }
+    authService.updateRoleName(roleCode, roleAmendment)
   }
 
   @Throws(RoleNotFoundException::class)
@@ -60,8 +60,6 @@ class RolesService(
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val originalRole = authService.getRoleDetail(roleCode)
-    authService.updateRoleAdminType(roleCode, roleAmendment)
-
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
       nomisApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
@@ -74,6 +72,8 @@ class RolesService(
         )
       )
     }
+
+    authService.updateRoleAdminType(roleCode, roleAmendment)
   }
 
   private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()

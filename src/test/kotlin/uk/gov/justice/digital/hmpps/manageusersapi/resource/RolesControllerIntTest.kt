@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.REQUEST_TIMEOUT
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -109,6 +110,36 @@ class RolesControllerIntTest : IntegrationTestBase() {
         postRequestedFor(urlEqualTo("/roles"))
           .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
       )
+    }
+
+    @Test
+    fun `create role doesn't call auth if nomis fails`() {
+      nomisApiMockServer.stubCreateRoleFail(CONFLICT)
+      hmppsAuthMockServer.stubCreateRole()
+
+      webTestClient.post().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC1",
+              "roleName" to "new role name",
+              "roleDescription" to "Description",
+              "adminType" to listOf("DPS_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to create role: RC1 with reason: role code already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create role: RC1 with reason: role code already exists")
+        }
+
+      hmppsAuthMockServer.verify(0, postRequestedFor(urlEqualTo("/auth/api/roles")))
     }
 
     @Test
@@ -600,7 +631,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `get all roles using all filters`() {
       hmppsAuthMockServer.stubGetAllRolesPagedUsingAllFilters()
-      webTestClient.get().uri("/roles/paged?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
+      webTestClient.get()
+        .uri("/roles/paged?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -803,6 +835,21 @@ class RolesControllerIntTest : IntegrationTestBase() {
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
           .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
       )
+    }
+
+    @Test
+    fun `Change role name doesn't call auth if nomis fails`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
+      nomisApiMockServer.stubPutRoleFail("OAUTH_ADMIN", REQUEST_TIMEOUT)
+      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+
+      webTestClient.put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isEqualTo(REQUEST_TIMEOUT)
+
+      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
     }
 
     @Test
@@ -1028,6 +1075,21 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `Change role admin type does not call auth when nomis fails - creating new DPS Role`() {
+      hmppsAuthMockServer.stubGetRolesDetails("OAUTH_ADMIN2")
+      hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN2")
+      nomisApiMockServer.stubCreateRoleFail(REQUEST_TIMEOUT)
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN2/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isEqualTo(REQUEST_TIMEOUT)
+
+      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/auth/api/roles/OAUTH_ADMIN2/admintype")))
+    }
+
+    @Test
     fun `Change role admin type returns success - new External Admin Role`() {
       hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
       hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
@@ -1050,6 +1112,21 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("adminType" to listOf("DPS_ADM", "DPS_LSA"))))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role admin type does not call auth when nomis fails - becoming different type of DPS Role`() {
+      hmppsAuthMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN3")
+      nomisApiMockServer.stubPutRoleFail("OAUTH_ADMIN3", REQUEST_TIMEOUT)
+      hmppsAuthMockServer.stubPutRoleAdminType("OAUTH_ADMIN3")
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN3/admintype")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM", "DPS_LSA", "EXT_ADM"))))
+        .exchange()
+        .expectStatus().isEqualTo(REQUEST_TIMEOUT)
+
+      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/auth/api/roles/OAUTH_ADMIN3/admintype")))
     }
   }
 }
