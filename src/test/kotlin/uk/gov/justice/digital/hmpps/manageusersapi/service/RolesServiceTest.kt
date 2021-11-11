@@ -25,7 +25,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.EXT_ADM
 class RolesServiceTest {
   private val authService: AuthService = mock()
   private val nomisService: NomisApiService = mock()
-  private val rolesService = RolesService(authService, nomisService)
+  private val rolesService = RolesService(nomisService, authService)
 
   @Nested
   inner class GetAllRoles {
