@@ -79,12 +79,12 @@ class RolesService(
   private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
   private fun Collection<AdminType>.hasDPSAdminType(): Boolean = (DPS_ADM in this) or (DPS_LSA in this)
 
-  private fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeCode) }
-
   private fun Role.isDpsRoleAdminTypeChanging(updatedAdminType: Set<AdminType>): Boolean =
     DPS_LSA !in adminType.asAdminTypes() && DPS_ADM in adminType.asAdminTypes() && DPS_LSA in updatedAdminType ||
       DPS_LSA in adminType.asAdminTypes() && DPS_LSA !in updatedAdminType && DPS_ADM in updatedAdminType
 }
+
+fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeCode) }
 
 class RoleExistsException(role: String, errorCode: String) :
   Exception("Unable to create role: $role with reason: $errorCode")
