@@ -43,6 +43,21 @@ class NomisApiService(
     }
   }
 
+  fun createRole(createRole: NomisRole) {
+    log.debug("Create dps role for {} with {}", createRole.code, createRole)
+    try {
+      nomisWebClient.post().uri("/roles")
+        .bodyValue(createRole)
+        .retrieve()
+        .toBodilessEntity()
+        .block()
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) RoleExistsException(
+        createRole.code,
+        "role code already exists"
+      ) else e
+    }
+  }
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
@@ -52,6 +67,25 @@ class NomisApiService(
           mapOf(
             "name" to roleNameAmendment.roleName.nomisRoleName()
           )
+        )
+        .retrieve()
+        .toBodilessEntity()
+        .block()
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
+    }
+  }
+
+  @Throws(RoleNotFoundException::class)
+  fun updateRole(roleCode: String, roleName: String?, adminRoleOnly: Boolean?) {
+    log.debug("Updating dps role for {} with {}", roleCode)
+    try {
+      nomisWebClient.put().uri("/roles/$roleCode")
+        .bodyValue(
+          mapOf(
+            "adminRoleOnly" to adminRoleOnly,
+            "name" to roleName
+          ).filter { it.value != null }
         )
         .retrieve()
         .toBodilessEntity()
@@ -78,6 +112,22 @@ class NomisApiService(
       throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
     }
   }
+
+  fun getAllRoles(): List<NomisRole> {
+    log.debug("Getting all dps roles")
+
+    return nomisWebClient.get()
+      .uri { uriBuilder ->
+        uriBuilder
+          .path("/roles/")
+          .build()
+      }
+      .retrieve()
+      .bodyToMono(RoleList::class.java)
+      .block()!!
+  }
+
+  class RoleList : MutableList<NomisRole> by ArrayList()
 
   private fun String.nomisRoleName(): String = take(30)
 
