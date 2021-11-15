@@ -17,7 +17,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences.Updat
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences.UpdateType.INSERT
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences.UpdateType.NONE
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences.UpdateType.UPDATE
-import java.lang.reflect.Type
 
 @Service
 class RoleSyncService(
@@ -49,9 +48,8 @@ class RoleSyncService(
     rolesFromAuthMap.filterNew(rolesFromNomisMap).forEach {
       syncRole(null, it.value, stats)
     }
-
     rolesFromNomisMap.filterMissing(rolesFromAuthMap).forEach {
-      syncRole(rolesFromNomisMap[it.key], it.value, stats)
+      syncRole(rolesFromNomisMap[it.key], null, stats)
     }
     return stats
   }
@@ -64,11 +62,15 @@ class RoleSyncService(
     return filter { r -> rolesMap[r.key] == null }
   }
 
-  fun syncRole(currentRoleData: RoleDataToSync?, newRoleData: RoleDataToSync, stats: SyncStatistics) {
+  fun syncRole(currentRoleData: RoleDataToSync?, newRoleData: RoleDataToSync?, stats: SyncStatistics) {
 
     val diff = checkForDifferences(currentRoleData, newRoleData)
-    if (!diff.areEqual()) {
-      stats.roles[newRoleData.roleCode] = RoleDifferences(newRoleData.roleCode, diff.toString())
+    if (diff.entriesOnlyOnLeft().isNotEmpty()) {
+      stats.roles[currentRoleData!!.roleCode] = RoleDifferences(currentRoleData.roleCode, diff.toString())
+      log.error("Role exists but should be deleted {}", currentRoleData.roleCode)
+      telemetryClient.trackEvent("HMUA-Role-Change-Failure", mapOf("roleCode" to currentRoleData.roleCode), null)
+    } else if (!diff.areEqual()) {
+      stats.roles[newRoleData!!.roleCode] = RoleDifferences(newRoleData.roleCode, diff.toString())
       try {
         storeInNomis(currentRoleData, newRoleData, stats)
         if (stats.roles[newRoleData.roleCode]?.updateType != NONE) {
@@ -110,17 +112,19 @@ class RoleSyncService(
 
   fun checkForDifferences(
     existingRecord: RoleDataToSync?,
-    newRecord: RoleDataToSync
+    newRecord: RoleDataToSync?
   ): MapDifference<String, Any> {
-    val type: Type = object : TypeToken<Map<String, Any>>() {}.type
-    val leftMap: Map<String, Any> =
-      if (existingRecord != null) {
-        gson.fromJson(
-          gson.toJson(existingRecord), type
-        )
-      } else mapOf()
-    val rightMap: Map<String, Any> = gson.fromJson(gson.toJson(newRecord), type)
+    val leftMap = existingRecord?.let { it.asMap() } ?: mapOf()
+    val rightMap = newRecord?.let { it.asMap() } ?: mapOf()
     return Maps.difference(leftMap, rightMap)
+  }
+
+  private fun RoleDataToSync.asMap(): Map<String, Any> {
+    return (
+      gson.fromJson(
+        gson.toJson(this), object : TypeToken<Map<String, Any>>() {}.type
+      )
+      )
   }
 }
 
