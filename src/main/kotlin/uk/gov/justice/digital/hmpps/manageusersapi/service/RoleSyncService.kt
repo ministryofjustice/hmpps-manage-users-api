@@ -29,13 +29,14 @@ class RoleSyncService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun sync(): SyncStatistics {
-    return syncAllRoles(authService.getRoles(listOf(DPS_ADM)), nomisApiService.getAllRoles())
+  fun sync(readOnly: Boolean = true): SyncStatistics {
+    return syncAllRoles(authService.getRoles(listOf(DPS_ADM)), nomisApiService.getAllRoles(), readOnly)
   }
 
   private fun syncAllRoles(
     rolesFromAuth: List<Role>,
-    rolesFromNomis: List<NomisRole>
+    rolesFromNomis: List<NomisRole>,
+    readOnly: Boolean
   ): SyncStatistics {
 
     val rolesFromNomisMap = rolesFromNomis.map { RoleDataToSync(it) }.associateBy { it.roleCode }
@@ -43,13 +44,13 @@ class RoleSyncService(
 
     val stats = SyncStatistics()
     rolesFromAuthMap.filterMatching(rolesFromNomisMap).forEach {
-      syncRole(rolesFromNomisMap[it.key], it.value, stats)
+      syncRole(rolesFromNomisMap[it.key], it.value, stats, readOnly)
     }
     rolesFromAuthMap.filterNew(rolesFromNomisMap).forEach {
-      syncRole(null, it.value, stats)
+      syncRole(null, it.value, stats, readOnly)
     }
     rolesFromNomisMap.filterMissing(rolesFromAuthMap).forEach {
-      syncRole(rolesFromNomisMap[it.key], null, stats)
+      syncRole(rolesFromNomisMap[it.key], null, stats, readOnly)
     }
     return stats
   }
@@ -62,7 +63,7 @@ class RoleSyncService(
     return filter { r -> rolesMap[r.key] == null }
   }
 
-  fun syncRole(currentRoleData: RoleDataToSync?, newRoleData: RoleDataToSync?, stats: SyncStatistics) {
+  fun syncRole(currentRoleData: RoleDataToSync?, newRoleData: RoleDataToSync?, stats: SyncStatistics, readOnly: Boolean) {
 
     val diff = checkForDifferences(currentRoleData, newRoleData)
     if (diff.entriesOnlyOnLeft().isNotEmpty()) {
@@ -71,21 +72,22 @@ class RoleSyncService(
       telemetryClient.trackEvent("HMUA-Role-Change-Failure", mapOf("roleCode" to currentRoleData.roleCode), null)
     } else if (!diff.areEqual()) {
       stats.roles[newRoleData!!.roleCode] = RoleDifferences(newRoleData.roleCode, diff.toString())
-      try {
-        storeInNomis(currentRoleData, newRoleData, stats)
-        if (stats.roles[newRoleData.roleCode]?.updateType != NONE) {
-          val trackingAttributes = mapOf(
-            "roleCode" to newRoleData.roleCode,
-            "differences" to stats.roles[newRoleData.roleCode]?.differences,
-          )
-          telemetryClient.trackEvent("HMUA-Role-Change", trackingAttributes, null)
-        }
-      } catch (e: Exception) {
-        stats.roles[newRoleData.roleCode] = stats.roles[newRoleData.roleCode]!!.copy(updateType = ERROR)
+      if (!readOnly)
+        try {
+          storeInNomis(currentRoleData, newRoleData, stats)
+          if (stats.roles[newRoleData.roleCode]?.updateType != NONE) {
+            val trackingAttributes = mapOf(
+              "roleCode" to newRoleData.roleCode,
+              "differences" to stats.roles[newRoleData.roleCode]?.differences,
+            )
+            telemetryClient.trackEvent("HMUA-Role-Change", trackingAttributes, null)
+          }
+        } catch (e: Exception) {
+          stats.roles[newRoleData.roleCode] = stats.roles[newRoleData.roleCode]!!.copy(updateType = ERROR)
 
-        log.error("Failed to update {} - message = {}", newRoleData.roleCode, e.message)
-        telemetryClient.trackEvent("HMUA-Role-Change-Failure", mapOf("roleCode" to newRoleData.roleCode), null)
-      }
+          log.error("Failed to update {} - message = {}", newRoleData.roleCode, e.message)
+          telemetryClient.trackEvent("HMUA-Role-Change-Failure", mapOf("roleCode" to newRoleData.roleCode), null)
+        }
     }
   }
 

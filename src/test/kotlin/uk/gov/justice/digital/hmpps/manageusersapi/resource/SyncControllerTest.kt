@@ -16,7 +16,7 @@ class SyncControllerTest {
     @Test
     fun `sync roles`() {
       syncController.syncRoles()
-      verify(roleSyncService).sync()
+      verify(roleSyncService).sync(false)
     }
   }
 }
