@@ -101,7 +101,7 @@ class RolesSyncServiceTest {
     whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
-    val stats = roleSyncService.sync()
+    val stats = roleSyncService.sync(false)
     verify(authService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
@@ -132,7 +132,7 @@ class RolesSyncServiceTest {
     whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
-    val stats = roleSyncService.sync()
+    val stats = roleSyncService.sync(false)
     verify(authService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
@@ -163,7 +163,7 @@ class RolesSyncServiceTest {
     whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
-    val stats = roleSyncService.sync()
+    val stats = roleSyncService.sync(false)
     verify(authService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
@@ -194,7 +194,7 @@ class RolesSyncServiceTest {
     whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
-    val stats = roleSyncService.sync()
+    val stats = roleSyncService.sync(false)
     verify(authService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient, times(2)).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
@@ -224,7 +224,7 @@ class RolesSyncServiceTest {
     whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
-    val stats = roleSyncService.sync()
+    val stats = roleSyncService.sync(false)
     verify(authService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
@@ -251,7 +251,7 @@ class RolesSyncServiceTest {
     whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
-    val stats = roleSyncService.sync()
+    val stats = roleSyncService.sync(false)
     verify(authService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
@@ -263,5 +263,46 @@ class RolesSyncServiceTest {
     assertThat(stats.roles["ROLE_1"]?.differences).contains("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
     assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
     assertThat(stats.roles["ROLE_2"]?.differences).contains("not equal: only on left={roleCode=ROLE_2, roleName=Role 2Nomis, adminRoleOnly=false}")
+  }
+
+  @Test
+  fun `read only sync roles doesn't attempt to save into Nomis`() {
+    val authRole1 = Role(
+      "ROLE_1", "Role 1", " description 1",
+      listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+    )
+    val authRole2 = Role(
+      "ROLE_2", "Role 2", " description 2",
+      listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+    )
+    val authRole3 = Role(
+      "ROLE_3a", "Role 3a", " description 3a",
+      listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+    )
+
+    val rolesFromAuth = listOf(authRole1, authRole2, authRole3)
+    val rolesFromNomis = listOf(
+      NomisRole("ROLE_1", "Role 1Nomis", true),
+      NomisRole("ROLE_2", "Role 2Nomis", false),
+      NomisRole("ROLE_3", "Role 3Nomis", false)
+    )
+    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
+
+    val stats = roleSyncService.sync(true)
+    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(nomisService).getAllRoles()
+    verifyNoMoreInteractions(telemetryClient)
+    verifyNoMoreInteractions(nomisService)
+
+    assertThat(stats.roles.size).isEqualTo(4)
+    assertThat(stats.roles["ROLE_1"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
+    assertThat(stats.roles["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
+    assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
+    assertThat(stats.roles["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
+    assertThat(stats.roles["ROLE_3"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
+    assertThat(stats.roles["ROLE_3"]?.differences).isEqualTo("not equal: only on left={roleCode=ROLE_3, roleName=Role 3Nomis, adminRoleOnly=false}")
+    assertThat(stats.roles["ROLE_3a"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
+    assertThat(stats.roles["ROLE_3a"]?.differences).isEqualTo("not equal: only on right={roleCode=ROLE_3a, roleName=Role 3a, adminRoleOnly=true}")
   }
 }
