@@ -21,3 +21,7 @@ will apply ktlint styles to intellij and also add a pre-commit hook to format al
 - `/health`: provides information about the application health and its dependencies.  This should only be used
   by hmpps-manage-users-api health monitoring (e.g. pager duty) and not other systems who wish to find out the state of hmpps-manage-users-api.
 - `/info`: provides information about the version of deployed application.
+
+### Architecture
+
+Architecture decision records start [here](doc/architecture/decisions/0001-use-adr.md)
