@@ -5,7 +5,8 @@ generic-service:
   replicaCount: 4
 
   ingress:
-    host: manage-users-api-preprod.hmpps.service.justice.gov.ukn    contextColour: green
+    host: manage-users-api-preprod.hmpps.service.justice.gov.uk
+    contextColour: green
 
   env:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
