@@ -1,15 +1,15 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn

@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences

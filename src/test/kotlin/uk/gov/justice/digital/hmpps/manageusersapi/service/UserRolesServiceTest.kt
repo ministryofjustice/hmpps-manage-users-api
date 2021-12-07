@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDetail
