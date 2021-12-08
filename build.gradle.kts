@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.13"
-  kotlin("plugin.spring") version "1.5.31"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.0-beta"
+  kotlin("plugin.spring") version "1.6.0"
 }
 
 configurations {
@@ -12,20 +12,19 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.5.10")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
-  implementation("com.pauldijou:jwt-core_2.11:4.3.0")
-  implementation("com.google.code.gson:gson:2.8.8")
+  implementation("org.springdoc:springdoc-openapi-ui:1.5.13")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.5.13")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.5.13")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
+  implementation("com.pauldijou:jwt-core_2.11:5.0.0")
+  implementation("com.google.code.gson:gson:2.8.9")
 
-  testImplementation("org.awaitility:awaitility-kotlin:4.1.0")
+  testImplementation("org.awaitility:awaitility-kotlin:4.1.1")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("org.mockito:mockito-inline:3.12.4")
-  testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+  testImplementation("org.mockito:mockito-inline:4.1.0")
 }
 
 java {
