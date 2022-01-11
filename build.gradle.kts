@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.0-beta-4"
-  kotlin("plugin.spring") version "1.6.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.1"
+  kotlin("plugin.spring") version "1.6.10"
 }
 
 configurations {
@@ -12,11 +12,11 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.5.13")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.5.13")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.5.13")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.4")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.4")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.4")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.8.9")
 
@@ -24,17 +24,17 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("org.mockito:mockito-inline:4.1.0")
+  testImplementation("org.mockito:mockito-inline:4.2.0")
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-      jvmTarget = "16"
+      jvmTarget = "17"
     }
   }
 }
