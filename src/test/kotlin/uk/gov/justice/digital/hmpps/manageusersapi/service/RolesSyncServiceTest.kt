@@ -52,7 +52,7 @@ class RolesSyncServiceTest {
     verify(nomisService).getAllRoles()
     verifyNoMoreInteractions(telemetryClient)
     verifyNoMoreInteractions(nomisService)
-    assertThat(statistics.roles.size).isEqualTo(0)
+    assertThat(statistics.results.size).isEqualTo(0)
   }
 
   @Test
@@ -79,7 +79,7 @@ class RolesSyncServiceTest {
     verify(nomisService).getAllRoles()
     verifyNoMoreInteractions(telemetryClient)
     verifyNoMoreInteractions(nomisService)
-    assertThat(statistics.roles.size).isEqualTo(0)
+    assertThat(statistics.results.size).isEqualTo(0)
   }
 
   @Test
@@ -108,9 +108,9 @@ class RolesSyncServiceTest {
     verify(nomisService).updateRole("ROLE_1", "Role 1", true)
 
     // Nothing for ROLE_2 as there are no changes
-    assertThat(stats.roles.size).isEqualTo(1)
-    assertThat(stats.roles["ROLE_1"]?.updateType).isEqualTo(RoleDifferences.UpdateType.UPDATE)
-    assertThat(stats.roles["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1 Nomis, Role 1)}")
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["ROLE_1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.UPDATE)
+    assertThat(stats.results["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1 Nomis, Role 1)}")
   }
 
   @Test
@@ -139,9 +139,9 @@ class RolesSyncServiceTest {
     verify(nomisService).updateRole("ROLE_2", "Role 2", true)
 
     // Nothing for ROLE_1 as there are no changes
-    assertThat(stats.roles.size).isEqualTo(1)
-    assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.UPDATE)
-    assertThat(stats.roles["ROLE_2"]?.differences).isEqualTo("not equal: value differences={adminRoleOnly=(false, true)}")
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["ROLE_2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.UPDATE)
+    assertThat(stats.results["ROLE_2"]?.differences).isEqualTo("not equal: value differences={adminRoleOnly=(false, true)}")
   }
 
   @Test
@@ -170,9 +170,9 @@ class RolesSyncServiceTest {
     verify(nomisService).updateRole("ROLE_2", "Role 2", true)
 
     // Nothing for ROLE_1 as there are no changes
-    assertThat(stats.roles.size).isEqualTo(1)
-    assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.UPDATE)
-    assertThat(stats.roles["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["ROLE_2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.UPDATE)
+    assertThat(stats.results["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
   }
 
   @Test
@@ -200,11 +200,11 @@ class RolesSyncServiceTest {
     verify(telemetryClient, times(2)).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(nomisService).updateRole("ROLE_2", "Role 2", true)
 
-    assertThat(stats.roles.size).isEqualTo(2)
-    assertThat(stats.roles["ROLE_1"]?.updateType).isEqualTo(RoleDifferences.UpdateType.UPDATE)
-    assertThat(stats.roles["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
-    assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.UPDATE)
-    assertThat(stats.roles["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
+    assertThat(stats.results.size).isEqualTo(2)
+    assertThat(stats.results["ROLE_1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.UPDATE)
+    assertThat(stats.results["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
+    assertThat(stats.results["ROLE_2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.UPDATE)
+    assertThat(stats.results["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
   }
 
   @Test
@@ -231,9 +231,9 @@ class RolesSyncServiceTest {
     verify(nomisService).createRole(NomisRole("ROLE_1", "Role 1", true))
 
     // Nothing for ROLE_2 as there are no changes
-    assertThat(stats.roles.size).isEqualTo(1)
-    assertThat(stats.roles["ROLE_1"]?.updateType).isEqualTo(RoleDifferences.UpdateType.INSERT)
-    assertThat(stats.roles["ROLE_1"]?.differences).contains("not equal: only on right={roleCode=ROLE_1, roleName=Role 1, adminRoleOnly=true}")
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["ROLE_1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.INSERT)
+    assertThat(stats.results["ROLE_1"]?.differences).contains("not equal: only on right={roleCode=ROLE_1, roleName=Role 1, adminRoleOnly=true}")
   }
 
   @Test
@@ -258,11 +258,11 @@ class RolesSyncServiceTest {
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change-Failure"), any(), isNull())
     verify(nomisService).updateRole("ROLE_1", "Role 1", true)
 
-    assertThat(stats.roles.size).isEqualTo(2)
-    assertThat(stats.roles["ROLE_1"]?.updateType).isEqualTo(RoleDifferences.UpdateType.UPDATE)
-    assertThat(stats.roles["ROLE_1"]?.differences).contains("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
-    assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
-    assertThat(stats.roles["ROLE_2"]?.differences).contains("not equal: only on left={roleCode=ROLE_2, roleName=Role 2Nomis, adminRoleOnly=false}")
+    assertThat(stats.results.size).isEqualTo(2)
+    assertThat(stats.results["ROLE_1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.UPDATE)
+    assertThat(stats.results["ROLE_1"]?.differences).contains("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
+    assertThat(stats.results["ROLE_2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["ROLE_2"]?.differences).contains("not equal: only on left={roleCode=ROLE_2, roleName=Role 2Nomis, adminRoleOnly=false}")
   }
 
   @Test
@@ -295,14 +295,14 @@ class RolesSyncServiceTest {
     verifyNoMoreInteractions(telemetryClient)
     verifyNoMoreInteractions(nomisService)
 
-    assertThat(stats.roles.size).isEqualTo(4)
-    assertThat(stats.roles["ROLE_1"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
-    assertThat(stats.roles["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
-    assertThat(stats.roles["ROLE_2"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
-    assertThat(stats.roles["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
-    assertThat(stats.roles["ROLE_3"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
-    assertThat(stats.roles["ROLE_3"]?.differences).isEqualTo("not equal: only on left={roleCode=ROLE_3, roleName=Role 3Nomis, adminRoleOnly=false}")
-    assertThat(stats.roles["ROLE_3a"]?.updateType).isEqualTo(RoleDifferences.UpdateType.NONE)
-    assertThat(stats.roles["ROLE_3a"]?.differences).isEqualTo("not equal: only on right={roleCode=ROLE_3a, roleName=Role 3a, adminRoleOnly=true}")
+    assertThat(stats.results.size).isEqualTo(4)
+    assertThat(stats.results["ROLE_1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["ROLE_1"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 1Nomis, Role 1)}")
+    assertThat(stats.results["ROLE_2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["ROLE_2"]?.differences).isEqualTo("not equal: value differences={roleName=(Role 2Nomis, Role 2), adminRoleOnly=(false, true)}")
+    assertThat(stats.results["ROLE_3"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["ROLE_3"]?.differences).isEqualTo("not equal: only on left={roleCode=ROLE_3, roleName=Role 3Nomis, adminRoleOnly=false}")
+    assertThat(stats.results["ROLE_3a"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["ROLE_3a"]?.differences).isEqualTo("not equal: only on right={roleCode=ROLE_3a, roleName=Role 3a, adminRoleOnly=true}")
   }
 }
