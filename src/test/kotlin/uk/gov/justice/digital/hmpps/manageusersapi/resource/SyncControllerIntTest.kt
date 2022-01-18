@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,11 +13,15 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleSyncService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncDifferences
 import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncDifferences.UpdateType.NONE
 import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncStatistics
+import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSyncService
 
 class SyncControllerIntTest : IntegrationTestBase() {
 
   @MockBean
-  private lateinit var syncService: RoleSyncService
+  private lateinit var roleSyncService: RoleSyncService
+
+  @MockBean
+  private lateinit var userSyncService: UserSyncService
 
   @TestInstance(Lifecycle.PER_CLASS)
   @Nested
@@ -67,7 +72,7 @@ class SyncControllerIntTest : IntegrationTestBase() {
 
       val mapper = mutableMapOf<String, SyncDifferences>()
       mapper["ROLE_CODE_1"] = rd
-      whenever(syncService.sync(false)).thenReturn(
+      whenever(roleSyncService.sync(false)).thenReturn(
         SyncStatistics(mapper)
       )
 
@@ -100,6 +105,7 @@ class SyncControllerIntTest : IntegrationTestBase() {
     private fun secureEndpoints() =
       listOf(
         "/sync/roles",
+        "/sync/users"
       )
 
     @ParameterizedTest
@@ -120,30 +126,29 @@ class SyncControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isForbidden
     }
+  }
+  @Test
+  internal fun `satisfies the correct role sync roles`() {
 
-    @ParameterizedTest
-    @MethodSource("secureEndpoints")
-    internal fun `satisfies the correct role`(uri: String) {
+    val rd = SyncDifferences(
+      "ROLE_CODE_1",
+      "not equal: only on left={name=A test role}",
+      updateType = NONE
+    )
 
-      val rd = SyncDifferences(
-        "ROLE_CODE_1",
-        "not equal: only on left={name=A test role}",
-        updateType = NONE
-      )
+    val mapper = mutableMapOf<String, SyncDifferences>()
+    mapper["ROLE_CODE_1"] = rd
+    whenever(roleSyncService.sync(true)).thenReturn(
+      SyncStatistics(mapper)
+    )
 
-      val mapper = mutableMapOf<String, SyncDifferences>()
-      mapper["ROLE_CODE_1"] = rd
-      whenever(syncService.sync(true)).thenReturn(
-        SyncStatistics(mapper)
-      )
-
-      webTestClient.get()
-        .uri(uri)
-        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody().json(
-          """
+    webTestClient.get()
+      .uri("/sync/roles")
+      .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().json(
+        """
           {
           "results":
             {
@@ -156,7 +161,43 @@ class SyncControllerIntTest : IntegrationTestBase() {
               }
             }
       """
-        )
-    }
+      )
+  }
+
+  @Test
+  internal fun `satisfies the correct role to sync users`() {
+
+    val diff = SyncDifferences(
+      "username1",
+      "not equal: only on left={username=A test user}",
+      updateType = NONE
+    )
+
+    val mapper = mutableMapOf<String, SyncDifferences>()
+    mapper["username1"] = diff
+    whenever(userSyncService.sync()).thenReturn(
+      SyncStatistics(mapper)
+    )
+
+    webTestClient.get()
+      .uri("/sync/users")
+      .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_NOMIS_USER_ACCOUNT", "ROLE_MAINTAIN_OAUTH_USERS")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().json(
+        """
+          {
+          "results":
+            {
+              "username1":
+                {
+                  "id":"username1",
+                  "differences":"not equal: only on left={username=A test user}",
+                  "updateType":"NONE"
+                }
+              }
+            }
+      """
+      )
   }
 }

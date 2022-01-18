@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleSyncService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncStatistics
+import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSyncService
 
 @RestController
 @Validated
 @RequestMapping(name = "Sync statistics between Nomis and Auth", path = ["/sync"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class SyncController(
-  private val roleSyncService: RoleSyncService
+  private val roleSyncService: RoleSyncService,
+  private val userSyncService: UserSyncService
 ) {
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES') and hasAuthority('SCOPE_write')")
   @Operation(
@@ -82,4 +84,34 @@ class SyncController(
   )
   @GetMapping("/roles")
   fun syncRolesData(): SyncStatistics = roleSyncService.sync(true)
+
+  @PreAuthorize("hasRole('ROLE_MANAGE_NOMIS_USER_ACCOUNT') and hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Return user email differences between Nomis and Auth",
+    description = "Gets user sync statistics, role required is ROLE_MAINTAIN_OAUTH_USERS or ROLE_MAINTAIN_OAUTH_USERS",
+    security = [
+      SecurityRequirement(
+        name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT, ROLE_MAINTAIN_OAUTH_USERS",
+        scopes = ["read"]
+      )
+    ],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "User Email Information Synchronised",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = SyncStatistics::class))]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to make user sync",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+    ]
+  ) @GetMapping("/users")
+  fun syncUsers(): SyncStatistics = userSyncService.sync()
 }

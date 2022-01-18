@@ -144,6 +144,21 @@ class NomisApiService(
   }
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
+
+  fun getAllUsers(): List<NomisUser> {
+    log.debug("Getting all nomis users")
+
+    return nomisWebClient.get()
+      .uri { uriBuilder ->
+        uriBuilder
+          .path("/users/active")
+          .build()
+      }
+      .retrieve()
+      .bodyToMono(UserList::class.java)
+      .block()!!
+  }
+  class UserList : MutableList<NomisUser> by ArrayList()
 }
 
 class UserNotFoundException(action: String, username: String, errorCode: String) :
