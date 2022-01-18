@@ -8,9 +8,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleDifferences.UpdateType.NONE
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleSyncService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncDifferences
+import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncDifferences.UpdateType.NONE
 import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncStatistics
 
 class SyncControllerIntTest : IntegrationTestBase() {
@@ -59,13 +59,13 @@ class SyncControllerIntTest : IntegrationTestBase() {
     @MethodSource("secureEndpoints")
     internal fun `satisfies the correct role`(uri: String) {
 
-      val rd = RoleDifferences(
+      val rd = SyncDifferences(
         "ROLE_CODE_1",
         "not equal: only on left={name=A test role}",
         updateType = NONE
       )
 
-      val mapper = mutableMapOf<String, RoleDifferences>()
+      val mapper = mutableMapOf<String, SyncDifferences>()
       mapper["ROLE_CODE_1"] = rd
       whenever(syncService.sync(false)).thenReturn(
         SyncStatistics(mapper)
@@ -79,11 +79,11 @@ class SyncControllerIntTest : IntegrationTestBase() {
         .expectBody().json(
           """
           {
-          "roles":
+          "results":
             {
               "ROLE_CODE_1":
                 {
-                  "roleCode":"ROLE_CODE_1",
+                  "id":"ROLE_CODE_1",
                   "differences":"not equal: only on left={name=A test role}",
                   "updateType":"NONE"
                 }
@@ -125,13 +125,13 @@ class SyncControllerIntTest : IntegrationTestBase() {
     @MethodSource("secureEndpoints")
     internal fun `satisfies the correct role`(uri: String) {
 
-      val rd = RoleDifferences(
+      val rd = SyncDifferences(
         "ROLE_CODE_1",
         "not equal: only on left={name=A test role}",
         updateType = NONE
       )
 
-      val mapper = mutableMapOf<String, RoleDifferences>()
+      val mapper = mutableMapOf<String, SyncDifferences>()
       mapper["ROLE_CODE_1"] = rd
       whenever(syncService.sync(true)).thenReturn(
         SyncStatistics(mapper)
@@ -145,11 +145,11 @@ class SyncControllerIntTest : IntegrationTestBase() {
         .expectBody().json(
           """
           {
-          "roles":
+          "results":
             {
               "ROLE_CODE_1":
                 {
-                  "roleCode":"ROLE_CODE_1",
+                  "id":"ROLE_CODE_1",
                   "differences":"not equal: only on left={name=A test role}",
                   "updateType":"NONE"
                 }
