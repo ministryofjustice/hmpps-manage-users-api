@@ -129,6 +129,7 @@ class AuthService(
       .bodyToMono(RolesPaged::class.java)
       .block()!!
   }
+
   fun getRoles(adminTypes: List<AdminType>?): List<Role> {
 
     return authWebClient.get()
@@ -142,8 +143,23 @@ class AuthService(
       .bodyToMono(RoleList::class.java)
       .block()!!
   }
+
+  fun getUsers(): List<AuthUser> {
+
+    return authWebClient.get()
+      .uri { uriBuilder ->
+        uriBuilder
+          .path("/api/users/email")
+          .queryParam("authSource", "nomis")
+          .build()
+      }
+      .retrieve()
+      .bodyToMono(UserList::class.java)
+      .block()!!
+  }
 }
 class RoleList : MutableList<Role> by ArrayList()
+class UserList : MutableList<AuthUser> by ArrayList()
 
 class RoleNotFoundException(action: String, role: String, errorCode: String) :
   Exception("Unable to $action role: $role with reason: $errorCode")
