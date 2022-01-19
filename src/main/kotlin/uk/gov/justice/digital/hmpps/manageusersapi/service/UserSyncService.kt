@@ -26,8 +26,8 @@ class UserSyncService(
     usersFromNomis: List<NomisUser>,
   ): SyncStatistics {
 
-    val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it) }.associateBy { it.userName }
-    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it) }.associateBy { it.userName }
+    val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
+    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
 
     val stats = SyncStatistics()
     usersFromAuthMap.filterMatching(usersFromNomisMap).forEach {
@@ -67,7 +67,7 @@ data class AuthUser(
   @Schema(description = "User Name in Auth", example = "Global Search User", required = true)
   val username: String,
 
-  @Schema(description = "email", example = "jim@justice.gov.uk", required = true)
+  @Schema(description = "email", example = "jimauth@justice.gov.uk", required = true)
   val email: String?
 )
 
@@ -75,23 +75,11 @@ data class NomisUser(
   @Schema(description = "User Name in Nomis", example = "Global Search User", required = true)
   val username: String,
 
-  @Schema(description = "email", example = "Global Search User", required = true)
+  @Schema(description = "email", example = "jimnomis@justice.gov.uk", required = true)
   val email: String?
 )
 
 data class UserDataToSync(
   val userName: String,
   val email: String?
-) {
-  constructor(userFromAuth: AuthUser) :
-    this(
-      userFromAuth.username,
-      userFromAuth.email,
-    )
-
-  constructor(userFromNomis: NomisUser) :
-    this(
-      userFromNomis.username,
-      userFromNomis.email,
-    )
-}
+)
