@@ -82,7 +82,6 @@ class UserSyncServiceTest {
     verify(nomisService).getAllUsers()
 
     // Nothing for username2 as there are no differences
-    println(stats.results)
     assertThat(stats.results.size).isEqualTo(1)
     assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username1"]?.differences).isEqualTo(
@@ -134,7 +133,6 @@ class UserSyncServiceTest {
     verify(nomisService).getAllUsers()
 
     // Nothing for username2 as there are no differences
-    println(stats.results)
     assertThat(stats.results.size).isEqualTo(2)
     assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username1"]?.differences).isEqualTo("not equal: only on right={userName=username1, email=user1auth@digital.justice.gov.uk}")
