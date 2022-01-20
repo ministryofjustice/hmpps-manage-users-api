@@ -68,7 +68,7 @@ class UserSyncServiceTest {
   fun `sync user that is missing from Nomis`() {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1auth@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username2", "user2@digital.justice.gov.uk"),
     )
 
     val usersFromNomis = listOf(
@@ -139,6 +139,58 @@ class UserSyncServiceTest {
     assertThat(stats.results["username3"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username3"]?.differences).isEqualTo(
       "not equal: value differences={email=(user3@digital.justice.gov.uk, user3auth@digital.justice.gov.uk)}"
+    )
+  }
+
+  @Test
+  fun `sync user that is has no email in Nomis`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1auth@digital.justice.gov.uk"),
+      AuthUser("username2", "user2@digital.justice.gov.uk"),
+    )
+
+    val usersFromNomis = listOf(
+      NomisUser("username1"),
+      NomisUser("username2", "user2@digital.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+
+    val stats = userSyncService.sync()
+    verify(authService).getUsers()
+    verify(nomisService).getAllUsers()
+
+    // Nothing for username2 as there are no differences
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["username1"]?.differences).isEqualTo(
+      "not equal: value differences={email=(, user1auth@digital.justice.gov.uk)}"
+    )
+  }
+
+  @Test
+  fun `sync user that is has no email in Auth`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1"),
+      AuthUser("username2", "user2@digital.justice.gov.uk"),
+    )
+
+    val usersFromNomis = listOf(
+      NomisUser("username1", "user1nomis@digital.justice.gov.uk"),
+      NomisUser("username2", "user2@digital.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+
+    val stats = userSyncService.sync()
+    verify(authService).getUsers()
+    verify(nomisService).getAllUsers()
+
+    // Nothing for username2 as there are no differences
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["username1"]?.differences).isEqualTo(
+      "not equal: value differences={email=(user1nomis@digital.justice.gov.uk, )}"
     )
   }
 }
