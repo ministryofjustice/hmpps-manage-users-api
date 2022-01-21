@@ -3,19 +3,14 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import com.google.common.collect.MapDifference
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.media.Schema
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class UserSyncService(
   private val nomisApiService: NomisApiService,
   private val authService: AuthService,
-  private val gson: Gson
+  gson: Gson
 ) : SyncService(gson) {
-  companion object {
-    val log: Logger = LoggerFactory.getLogger(this::class.java)
-  }
 
   fun sync(): SyncStatistics {
     return syncAllData(authService.getUsers(), nomisApiService.getAllUsers())
@@ -23,7 +18,7 @@ class UserSyncService(
 
   private fun syncAllData(
     usersFromAuth: List<AuthUser>,
-    usersFromNomis: List<NomisUser>,
+    usersFromNomis: List<NomisUser>
   ): SyncStatistics {
 
     val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
@@ -67,16 +62,16 @@ data class AuthUser(
   @Schema(description = "User Name in Auth", example = "Global Search User", required = true)
   val username: String,
 
-  @Schema(description = "email", example = "jimauth@justice.gov.uk", required = true)
-  val email: String?
+  @Schema(description = "email", example = "jimauth@justice.gov.uk", required = false)
+  val email: String? = null
 )
 
 data class NomisUser(
   @Schema(description = "User Name in Nomis", example = "Global Search User", required = true)
   val username: String,
 
-  @Schema(description = "email", example = "jimnomis@justice.gov.uk", required = true)
-  val email: String?
+  @Schema(description = "email", example = "jimnomis@justice.gov.uk", required = false)
+  val email: String? = null
 )
 
 data class UserDataToSync(
