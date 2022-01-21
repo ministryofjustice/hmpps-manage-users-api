@@ -63,7 +63,7 @@ data class AuthUser(
   val username: String,
 
   @Schema(description = "email", example = "jimauth@justice.gov.uk", required = false)
-  val email: String = ""
+  val email: String? = null
 )
 
 data class NomisUser(
@@ -71,7 +71,7 @@ data class NomisUser(
   val username: String,
 
   @Schema(description = "email", example = "jimnomis@justice.gov.uk", required = false)
-  val email: String = ""
+  val email: String? = null
 )
 
 data class UserDataToSync(

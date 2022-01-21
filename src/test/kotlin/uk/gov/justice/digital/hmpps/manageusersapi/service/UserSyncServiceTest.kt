@@ -164,7 +164,7 @@ class UserSyncServiceTest {
     assertThat(stats.results.size).isEqualTo(1)
     assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username1"]?.differences).isEqualTo(
-      "not equal: value differences={email=(, user1auth@digital.justice.gov.uk)}"
+      "not equal: only on right={email=user1auth@digital.justice.gov.uk}"
     )
   }
 
@@ -190,7 +190,7 @@ class UserSyncServiceTest {
     assertThat(stats.results.size).isEqualTo(1)
     assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username1"]?.differences).isEqualTo(
-      "not equal: value differences={email=(user1nomis@digital.justice.gov.uk, )}"
+      "not equal: only on left={email=user1nomis@digital.justice.gov.uk}"
     )
   }
 }
