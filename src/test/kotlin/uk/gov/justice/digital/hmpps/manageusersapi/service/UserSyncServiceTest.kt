@@ -3,10 +3,14 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.http.HttpStatus
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.config.GsonConfig
 
 class UserSyncServiceTest {
@@ -28,11 +32,12 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
+    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
 
     val statistics = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
+    verify(nomisService, times(2)).getUser(anyString())
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(0)
@@ -50,11 +55,12 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2nomis@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
+    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
+    verify(nomisService, times(2)).getUser(anyString())
 
     // Nothing for username1 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -75,41 +81,18 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUser("username1")).thenThrow(WebClientResponseException(HttpStatus.NOT_FOUND.value(), null, null, null, null, null))
+    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[0])
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
+    verify(nomisService, times(2)).getUser(anyString())
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
     assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username1"]?.differences).isEqualTo(
       "not equal: only on right={userName=username1, email=user1auth@digital.justice.gov.uk}"
-    )
-  }
-
-  @Test
-  fun `sync user that is missing from Auth`() {
-    val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk")
-    )
-
-    val usersFromNomis = listOf(
-      NomisUser("username1", "user1@digital.justice.gov.uk"),
-      NomisUser("username2", "user2nomis@digital.justice.gov.uk")
-    )
-    whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
-    val stats = userSyncService.sync()
-    verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
-
-    // Nothing for username1 as there are no differences
-    assertThat(stats.results.size).isEqualTo(1)
-    assertThat(stats.results["username2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
-    assertThat(stats.results["username2"]?.differences).isEqualTo(
-      "not equal: only on left={userName=username2, email=user2nomis@digital.justice.gov.uk}"
     )
   }
 
@@ -125,12 +108,15 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk"),
       NomisUser("username3", "user3@digital.justice.gov.uk")
     )
+
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUser("username1")).thenThrow(WebClientResponseException(HttpStatus.NOT_FOUND.value(), null, null, null, null, null))
+    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[0])
+    whenever(nomisService.getUser("username3")).thenReturn(usersFromNomis[1])
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
+    verify(nomisService, times(3)).getUser(anyString())
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(2)
@@ -154,11 +140,12 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
+    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
+    verify(nomisService, times(2)).getUser(anyString())
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -180,11 +167,12 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getAllUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
+    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).getAllUsers()
+    verify(nomisService, times(2)).getUser(anyString())
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
