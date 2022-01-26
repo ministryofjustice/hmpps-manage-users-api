@@ -3,7 +3,11 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import com.google.common.collect.MapDifference
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.media.Schema
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @Service
 class UserSyncService(
@@ -11,9 +15,24 @@ class UserSyncService(
   private val authService: AuthService,
   gson: Gson
 ) : SyncService(gson) {
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
 
   fun sync(): SyncStatistics {
-    return syncAllData(authService.getUsers(), nomisApiService.getAllUsers())
+    val authUsers = authService.getUsers()
+    log.debug("Fetched ${authUsers.size} nomis users auth users ")
+    val nomisUsers = mutableListOf<NomisUser>()
+    authUsers.forEach {
+      try {
+        nomisUsers.add(nomisApiService.getUser(it.username))
+      } catch (e: WebClientResponseException) {
+        // if the username doesn't exist in name, we don't care - the sync process will take care of this
+        if (!e.statusCode.equals(HttpStatus.NOT_FOUND)) throw e
+      }
+    }
+    log.debug("Fetched ${nomisUsers.size} users from nomis ")
+    return syncAllData(authUsers, nomisUsers)
   }
 
   private fun syncAllData(
@@ -22,7 +41,7 @@ class UserSyncService(
   ): SyncStatistics {
 
     val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
-    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
+    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.primaryEmail) }.associateBy { it.userName }
 
     val stats = SyncStatistics()
     usersFromAuthMap.filterMatching(usersFromNomisMap).forEach {
@@ -70,8 +89,8 @@ data class NomisUser(
   @Schema(description = "User Name in Nomis", example = "Global Search User", required = true)
   val username: String,
 
-  @Schema(description = "email", example = "jimnomis@justice.gov.uk", required = false)
-  val email: String? = null
+  @Schema(description = "primaryEmail", example = "jimnomis@justice.gov.uk", required = false)
+  val primaryEmail: String? = null
 )
 
 data class UserDataToSync(
