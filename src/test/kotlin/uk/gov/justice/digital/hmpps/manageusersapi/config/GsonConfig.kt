@@ -15,7 +15,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Configuration
-class GsonConfig() {
+class GsonConfig {
 
   @Bean
   fun gson(): Gson {

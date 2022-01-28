@@ -85,13 +85,13 @@ class SyncController(
   @GetMapping("/roles")
   fun syncRolesData(): SyncStatistics = roleSyncService.sync(true)
 
-  @PreAuthorize("hasRole('ROLE_MANAGE_NOMIS_USER_ACCOUNT') and hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES') and hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Return user email differences between Nomis and Auth",
-    description = "Gets user sync statistics, role required is ROLE_MAINTAIN_OAUTH_USERS or ROLE_MAINTAIN_OAUTH_USERS",
+    description = "Gets user sync statistics, role required is ROLE_MAINTAIN_ACCESS_ROLES and ROLE_MAINTAIN_OAUTH_USERS",
     security = [
       SecurityRequirement(
-        name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT, ROLE_MAINTAIN_OAUTH_USERS",
+        name = "ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MAINTAIN_OAUTH_USERS",
         scopes = ["read"]
       )
     ],
