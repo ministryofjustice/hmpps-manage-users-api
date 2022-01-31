@@ -5,9 +5,8 @@ import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @Service
 class UserSyncService(
@@ -20,18 +19,20 @@ class UserSyncService(
   }
 
   fun sync(): SyncStatistics {
+    val pageSize = 200
+    val fromPage = 0
+
     val authUsers = authService.getUsers()
-    log.debug("Fetched ${authUsers.size} nomis users auth users ")
-    val nomisUsers = mutableListOf<NomisUser>()
-    authUsers.forEach {
-      try {
-        nomisUsers.add(nomisApiService.getUser(it.username))
-      } catch (e: WebClientResponseException) {
-        // if the username doesn't exist in name, we don't care - the sync process will take care of this
-        if (!e.statusCode.equals(HttpStatus.NOT_FOUND)) throw e
-      }
+    val usersFromAuthMap = authUsers.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
+    val untilPage = nomisApiService.findAllActiveUsers(PageRequest.of(0, pageSize)).totalPages
+
+    val nomisUsers = (fromPage until untilPage).flatMap { pageNum ->
+      nomisApiService.findAllActiveUsers(PageRequest.of(pageNum, pageSize))
+        .also { log.info("Requesting page $pageNum") }
+        .filter {
+          usersFromAuthMap[it.username] != null
+        }
     }
-    log.debug("Fetched ${nomisUsers.size} users from nomis ")
     return syncAllData(authUsers, nomisUsers)
   }
 
@@ -41,7 +42,7 @@ class UserSyncService(
   ): SyncStatistics {
 
     val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
-    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.primaryEmail) }.associateBy { it.userName }
+    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
 
     val stats = SyncStatistics()
     usersFromAuthMap.filterMatching(usersFromNomisMap).forEach {
@@ -90,7 +91,7 @@ data class NomisUser(
   val username: String,
 
   @Schema(description = "primaryEmail", example = "jimnomis@justice.gov.uk", required = false)
-  val primaryEmail: String? = null
+  val email: String? = null
 )
 
 data class UserDataToSync(

@@ -3,14 +3,14 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.data.domain.PageImpl
 import uk.gov.justice.digital.hmpps.manageusersapi.config.GsonConfig
 
 class UserSyncServiceTest {
@@ -26,18 +26,21 @@ class UserSyncServiceTest {
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
     )
-
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@digital.justice.gov.uk"),
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
-    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
+    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
 
     val statistics = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).getUser(anyString())
+    verify(nomisService, times(2)).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(0)
@@ -49,18 +52,21 @@ class UserSyncServiceTest {
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
     )
-
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@digital.justice.gov.uk"),
       NomisUser("username2", "user2nomis@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
-    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
+    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).getUser(anyString())
+    verify(nomisService, times(2)).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
 
     // Nothing for username1 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -76,17 +82,20 @@ class UserSyncServiceTest {
       AuthUser("username1", "user1auth@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk"),
     )
-
     val usersFromNomis = listOf(
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getUser("username1")).thenThrow(WebClientResponseException(HttpStatus.NOT_FOUND.value(), null, null, null, null, null))
-    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[0])
+    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).getUser(anyString())
+    verify(nomisService, times(2)).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -103,20 +112,22 @@ class UserSyncServiceTest {
       AuthUser("username2", "user2@digital.justice.gov.uk"),
       AuthUser("username3", "user3auth@digital.justice.gov.uk")
     )
-
     val usersFromNomis = listOf(
       NomisUser("username2", "user2@digital.justice.gov.uk"),
       NomisUser("username3", "user3@digital.justice.gov.uk")
     )
 
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getUser("username1")).thenThrow(WebClientResponseException(HttpStatus.NOT_FOUND.value(), null, null, null, null, null))
-    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[0])
-    whenever(nomisService.getUser("username3")).thenReturn(usersFromNomis[1])
+    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(3)).getUser(anyString())
+    verify(nomisService, times(2)).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(2)
@@ -134,18 +145,21 @@ class UserSyncServiceTest {
       AuthUser("username1", "user1auth@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk"),
     )
-
     val usersFromNomis = listOf(
       NomisUser("username1"),
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
-    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
+    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).getUser(anyString())
+    verify(nomisService, times(2)).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -167,12 +181,16 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.getUser("username1")).thenReturn(usersFromNomis[0])
-    whenever(nomisService.getUser("username2")).thenReturn(usersFromNomis[1])
+    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).getUser(anyString())
+    verify(nomisService, times(2)).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
