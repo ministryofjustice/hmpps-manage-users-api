@@ -181,7 +181,7 @@ class SyncControllerIntTest : IntegrationTestBase() {
 
     webTestClient.get()
       .uri("/sync/users")
-      .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MAINTAIN_OAUTH_USERS")))
+      .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_NOMIS_USER_ACCOUNT", "ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
       .expectBody().json(

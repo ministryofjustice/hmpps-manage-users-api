@@ -149,8 +149,7 @@ class NomisApiService(
 
   fun findAllActiveUsers(page: PageRequest): PageImpl<NomisUser> {
     return nomisWebClient.get().uri {
-      it.path("/users")
-        .queryParam("status", "ACTIVE")
+      it.path("/users/active")
         .queryParam("page", page.pageNumber)
         .queryParam("size", page.pageSize)
         .build()
