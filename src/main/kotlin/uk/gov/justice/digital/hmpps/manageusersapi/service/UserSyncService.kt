@@ -33,6 +33,7 @@ class UserSyncService(
           usersFromAuthMap[it.username] != null
         }
     }
+    log.debug("Syncing ${authUsers.size} auth (nomis) users against ${nomisUsers.size} nomis users")
     return syncAllData(authUsers, nomisUsers)
   }
 
