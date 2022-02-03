@@ -3,14 +3,10 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.check
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.data.domain.PageImpl
 import uk.gov.justice.digital.hmpps.manageusersapi.config.GsonConfig
 
 class UserSyncServiceTest {
@@ -31,16 +27,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
 
     val statistics = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).findAllActiveUsers(
-      check {
-        assertThat(it.pageNumber).isEqualTo(0)
-        assertThat(it.pageSize).isEqualTo(200)
-      }
-    )
+    verify(nomisService).findAllActiveUsers()
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(0)
@@ -57,16 +48,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2nomis@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).findAllActiveUsers(
-      check {
-        assertThat(it.pageNumber).isEqualTo(0)
-        assertThat(it.pageSize).isEqualTo(200)
-      }
-    )
+    verify(nomisService).findAllActiveUsers()
 
     // Nothing for username1 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -86,16 +72,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).findAllActiveUsers(
-      check {
-        assertThat(it.pageNumber).isEqualTo(0)
-        assertThat(it.pageSize).isEqualTo(200)
-      }
-    )
+    verify(nomisService).findAllActiveUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -103,6 +84,27 @@ class UserSyncServiceTest {
     assertThat(stats.results["username1"]?.differences).isEqualTo(
       "not equal: only on right={userName=username1, email=user1auth@digital.justice.gov.uk}"
     )
+  }
+
+  @Test
+  fun `sync user that is missing from Auth`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@digital.justice.gov.uk")
+    )
+
+    val usersFromNomis = listOf(
+      NomisUser("username1", "user1@digital.justice.gov.uk"),
+      NomisUser("username2", "user2nomis@digital.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+
+    val stats = userSyncService.sync()
+    verify(authService).getUsers()
+    verify(nomisService).findAllActiveUsers()
+
+    // Nothing for username2 as it is missing from auth - we ignore username1 as it is only in nomis
+    assertThat(stats.results.size).isEqualTo(0)
   }
 
   @Test
@@ -118,16 +120,11 @@ class UserSyncServiceTest {
     )
 
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).findAllActiveUsers(
-      check {
-        assertThat(it.pageNumber).isEqualTo(0)
-        assertThat(it.pageSize).isEqualTo(200)
-      }
-    )
+    verify(nomisService).findAllActiveUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(2)
@@ -150,16 +147,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).findAllActiveUsers(
-      check {
-        assertThat(it.pageNumber).isEqualTo(0)
-        assertThat(it.pageSize).isEqualTo(200)
-      }
-    )
+    verify(nomisService).findAllActiveUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -181,16 +173,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers(any())).thenReturn(PageImpl(usersFromNomis))
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService, times(2)).findAllActiveUsers(
-      check {
-        assertThat(it.pageNumber).isEqualTo(0)
-        assertThat(it.pageSize).isEqualTo(200)
-      }
-    )
+    verify(nomisService).findAllActiveUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)

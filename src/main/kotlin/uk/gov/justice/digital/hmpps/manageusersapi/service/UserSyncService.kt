@@ -5,7 +5,6 @@ import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,28 +18,15 @@ class UserSyncService(
   }
 
   fun sync(): SyncStatistics {
-    val pageSize = 200
-    val fromPage = 0
 
-    val authUsers = authService.getUsers()
-    val usersFromAuthMap = authUsers.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
-    val untilPage = nomisApiService.findAllActiveUsers(PageRequest.of(0, pageSize)).totalPages
-
-    val nomisUsers = (fromPage until untilPage).flatMap { pageNum ->
-      nomisApiService.findAllActiveUsers(PageRequest.of(pageNum, pageSize))
-        .also { log.info("Requesting page $pageNum") }
-        .filter {
-          usersFromAuthMap[it.username] != null
-        }
-    }
-    log.debug("Syncing ${authUsers.size} auth (nomis) users against ${nomisUsers.size} nomis users")
-    return syncAllData(authUsers, nomisUsers)
+    return syncAllData(authService.getUsers(), nomisApiService.findAllActiveUsers())
   }
 
   private fun syncAllData(
     usersFromAuth: List<AuthUser>,
     usersFromNomis: List<NomisUser>
   ): SyncStatistics {
+    log.debug("Syncing ${usersFromAuth.size} auth (nomis) users against ${usersFromNomis.size} nomis users")
 
     val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
     val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
@@ -52,16 +38,13 @@ class UserSyncService(
     usersFromAuthMap.filterNew(usersFromNomisMap).forEach {
       syncUser(null, it.value, stats)
     }
-    usersFromNomisMap.filterMissing(usersFromAuthMap).forEach {
-      syncUser(usersFromNomisMap[it.key], null, stats)
-    }
+    // We are not interested in those users in Nomis but not in Auth
     return stats
   }
 
   fun syncUser(currentUserData: UserDataToSync?, newUserData: UserDataToSync?, stats: SyncStatistics) {
 
     val diff = checkForDifferences(currentUserData, newUserData)
-
     if (!diff.areEqual()) {
       diff.storeStatistics(currentUserData, newUserData, stats)
     }

@@ -3,8 +3,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -147,17 +145,16 @@ class NomisApiService(
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 
-  fun findAllActiveUsers(page: PageRequest): PageImpl<NomisUser> {
+  fun findAllActiveUsers(): List<NomisUser> {
     return nomisWebClient.get().uri {
       it.path("/users/active")
-        .queryParam("page", page.pageNumber)
-        .queryParam("size", page.pageSize)
         .build()
     }
       .retrieve()
-      .bodyToMono(typeReference<RestResponsePage<NomisUser>>())
+      .bodyToMono(UserList::class.java)
       .block()!!
   }
+  class UserList : MutableList<NomisUser> by ArrayList()
 }
 
 class UserNotFoundException(action: String, username: String, errorCode: String) :
