@@ -78,8 +78,12 @@ class UserSyncServiceTest {
     verify(authService).getUsers()
     verify(nomisService).findAllActiveUsers()
 
-    // Nothing for username2 as there are no differences - we ignore username1 as it is only in auth
-    assertThat(stats.results.size).isEqualTo(0)
+    // Nothing for username2 as there are no differences
+    assertThat(stats.results.size).isEqualTo(1)
+    assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["username1"]?.differences).isEqualTo(
+      "not equal: only on right={userName=username1, email=user1auth@digital.justice.gov.uk}"
+    )
   }
 
   @Test
@@ -102,6 +106,7 @@ class UserSyncServiceTest {
     // Nothing for username2 as it is missing from auth - we ignore username1 as it is only in nomis
     assertThat(stats.results.size).isEqualTo(0)
   }
+
   @Test
   fun `sync users with multiple differences`() {
     val usersFromAuth = listOf(
@@ -121,8 +126,10 @@ class UserSyncServiceTest {
     verify(authService).getUsers()
     verify(nomisService).findAllActiveUsers()
 
-    // Nothing for username2 as there are no differences and user1 only exists in auth
-    assertThat(stats.results.size).isEqualTo(1)
+    // Nothing for username2 as there are no differences
+    assertThat(stats.results.size).isEqualTo(2)
+    assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["username1"]?.differences).isEqualTo("not equal: only on right={userName=username1, email=user1auth@digital.justice.gov.uk}")
     assertThat(stats.results["username3"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username3"]?.differences).isEqualTo(
       "not equal: value differences={email=(user3@digital.justice.gov.uk, user3auth@digital.justice.gov.uk)}"

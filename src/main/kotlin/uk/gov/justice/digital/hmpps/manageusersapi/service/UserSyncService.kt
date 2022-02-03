@@ -38,9 +38,7 @@ class UserSyncService(
     usersFromAuthMap.filterNew(usersFromNomisMap).forEach {
       syncUser(null, it.value, stats)
     }
-    usersFromNomisMap.filterMissing(usersFromAuthMap).forEach {
-      syncUser(usersFromNomisMap[it.key], null, stats)
-    }
+    // We are not interested in those users in Nomis but not in Auth
     return stats
   }
 
