@@ -17,19 +17,25 @@ class UserSyncService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun sync(): SyncStatistics {
-
-    return syncAllData(authService.getUsers(), nomisApiService.findAllActiveUsers())
+  fun sync(caseSensitive: Boolean = true): SyncStatistics {
+    return syncAllData(authService.getUsers(), nomisApiService.findAllActiveUsers(), caseSensitive)
   }
 
   private fun syncAllData(
     usersFromAuth: List<AuthUser>,
-    usersFromNomis: List<NomisUser>
+    usersFromNomis: List<NomisUser>,
+    caseSensitive: Boolean
   ): SyncStatistics {
     log.debug("Syncing ${usersFromAuth.size} auth (nomis) users against ${usersFromNomis.size} nomis users")
 
     val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
-    val usersFromNomisMap = usersFromNomis.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
+    val usersFromNomisMap = usersFromNomis.map {
+      UserDataToSync(
+        it.username,
+        it.email?.let
+        { email -> if (caseSensitive) email else email.lowercase() }
+      )
+    }.associateBy { it.userName }
 
     val stats = SyncStatistics()
     usersFromAuthMap.filterMatching(usersFromNomisMap).forEach {
@@ -39,6 +45,7 @@ class UserSyncService(
       syncUser(null, it.value, stats)
     }
     // We are not interested in those users in Nomis but not in Auth
+    log.debug("Total sync differences = ${stats.results.size} with caseSensitive set to $caseSensitive")
     return stats
   }
 

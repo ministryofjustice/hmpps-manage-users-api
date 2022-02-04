@@ -38,6 +38,56 @@ class UserSyncServiceTest {
   }
 
   @Test
+  fun `sync users that match if not caseSensitive`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@digital.justice.gov.uk"),
+      AuthUser("username2", "user2@digital.justice.gov.uk")
+    )
+    val usersFromNomis = listOf(
+      NomisUser("username1", "uSer1@digItal.justice.gov.uk"),
+      NomisUser("username2", "useR2@digitaL.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+
+    val statistics = userSyncService.sync(false)
+    verify(authService).getUsers()
+    verify(nomisService).findAllActiveUsers()
+    verifyNoMoreInteractions(nomisService)
+    verifyNoMoreInteractions(authService)
+    assertThat(statistics.results.size).isEqualTo(0)
+  }
+
+  @Test
+  fun `sync users that don't match if caseSensitive`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@digital.justice.gov.uk"),
+      AuthUser("username2", "user2@digital.justice.gov.uk")
+    )
+    val usersFromNomis = listOf(
+      NomisUser("username1", "uSer1@digItal.justice.gov.uk"),
+      NomisUser("username2", "useR2@digitaL.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+
+    val stats = userSyncService.sync()
+    verify(authService).getUsers()
+    verify(nomisService).findAllActiveUsers()
+    verifyNoMoreInteractions(nomisService)
+    verifyNoMoreInteractions(authService)
+    assertThat(stats.results.size).isEqualTo(2)
+    assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["username1"]?.differences).isEqualTo(
+      "not equal: value differences={email=(uSer1@digItal.justice.gov.uk, user1@digital.justice.gov.uk)}"
+    )
+    assertThat(stats.results["username2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(stats.results["username2"]?.differences).isEqualTo(
+      "not equal: value differences={email=(useR2@digitaL.justice.gov.uk, user2@digital.justice.gov.uk)}"
+    )
+  }
+
+  @Test
   fun `sync users that have different email address`() {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
