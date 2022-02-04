@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleSyncService
@@ -113,5 +114,7 @@ class SyncController(
       ),
     ]
   ) @GetMapping("/users")
-  fun syncUsers(): SyncStatistics = userSyncService.sync()
+  fun syncUsers(
+    @RequestParam(value = "caseSensitive", required = false) caseSensitive: Boolean?
+  ): SyncStatistics = userSyncService.sync(caseSensitive ?: true)
 }
