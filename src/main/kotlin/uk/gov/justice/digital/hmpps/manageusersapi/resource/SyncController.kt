@@ -115,6 +115,7 @@ class SyncController(
     ]
   ) @GetMapping("/users")
   fun syncUsers(
-    @RequestParam(value = "caseSensitive", required = false) caseSensitive: Boolean?
-  ): SyncStatistics = userSyncService.sync(caseSensitive ?: true)
+    @RequestParam(value = "caseSensitive", required = false) caseSensitive: Boolean?,
+    @RequestParam(value = "usePrimaryEmail", required = false) usePrimaryEmail: Boolean?,
+  ): SyncStatistics = userSyncService.sync(caseSensitive ?: true, usePrimaryEmail ?: false)
 }

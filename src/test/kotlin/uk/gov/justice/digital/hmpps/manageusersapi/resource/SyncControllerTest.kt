@@ -26,13 +26,20 @@ class SyncControllerTest {
   inner class SyncUsers {
     @Test
     fun `sync users`() {
-      syncController.syncUsers(false)
-      verify(userSyncService).sync(false)
+      syncController.syncUsers(caseSensitive = false, usePrimaryEmail = false)
+      verify(userSyncService).sync(caseSensitive = false, usePrimaryEmail = false)
     }
+
     @Test
     fun `sync users with case sensitive emails`() {
-      syncController.syncUsers(true)
-      verify(userSyncService).sync(true)
+      syncController.syncUsers(caseSensitive = true, usePrimaryEmail = false)
+      verify(userSyncService).sync(caseSensitive = true, usePrimaryEmail = false)
+    }
+
+    @Test
+    fun `sync users with primary emails only`() {
+      syncController.syncUsers(caseSensitive = false, usePrimaryEmail = true)
+      verify(userSyncService).sync(caseSensitive = false, usePrimaryEmail = true)
     }
   }
 }

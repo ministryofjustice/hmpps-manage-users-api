@@ -59,6 +59,48 @@ class UserSyncServiceTest {
   }
 
   @Test
+  fun `sync users that don't case match if primaryEmail`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@digital.justice.gov.uk"),
+      AuthUser("username2", "user2@digital.justice.gov.uk")
+    )
+    val usersFromNomis = listOf(
+      NomisUser("username1", "user1@gsi.gov.uk, uSer1@digItal.justice.gov.uk"),
+      NomisUser("username2", "user2@digital.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+
+    val statistics = userSyncService.sync(caseSensitive = true, usePrimaryEmail = true)
+    verify(authService).getUsers()
+    verify(nomisService).findAllActiveUsers()
+    verifyNoMoreInteractions(nomisService)
+    verifyNoMoreInteractions(authService)
+    assertThat(statistics.results.size).isEqualTo(1)
+  }
+
+  @Test
+  fun `sync users that match if primaryEmail`() {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@digital.justice.gov.uk"),
+      AuthUser("username2", "user2@digital.justice.gov.uk")
+    )
+    val usersFromNomis = listOf(
+      NomisUser("username1", "user1@gsi.gov.uk, uSer1@digItal.justice.gov.uk"),
+      NomisUser("username2", "user2@digitaL.justice.gov.uk")
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+
+    val statistics = userSyncService.sync(caseSensitive = false, usePrimaryEmail = true)
+    verify(authService).getUsers()
+    verify(nomisService).findAllActiveUsers()
+    verifyNoMoreInteractions(nomisService)
+    verifyNoMoreInteractions(authService)
+    assertThat(statistics.results.size).isEqualTo(0)
+  }
+
+  @Test
   fun `sync users that don't match if caseSensitive`() {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),

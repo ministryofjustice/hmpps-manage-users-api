@@ -17,23 +17,29 @@ class UserSyncService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun sync(caseSensitive: Boolean = true): SyncStatistics {
-    return syncAllData(authService.getUsers(), nomisApiService.findAllActiveUsers(), caseSensitive)
+  fun sync(caseSensitive: Boolean = true, usePrimaryEmail: Boolean = false): SyncStatistics {
+    return syncAllData(authService.getUsers(), nomisApiService.findAllActiveUsers(), caseSensitive, usePrimaryEmail)
   }
 
   private fun syncAllData(
     usersFromAuth: List<AuthUser>,
     usersFromNomis: List<NomisUser>,
-    caseSensitive: Boolean
+    caseSensitive: Boolean,
+    usePrimaryEmail: Boolean = false
   ): SyncStatistics {
     log.debug("Syncing ${usersFromAuth.size} auth (nomis) users against ${usersFromNomis.size} nomis users")
 
     val usersFromAuthMap = usersFromAuth.map { UserDataToSync(it.username, it.email) }.associateBy { it.userName }
-    val usersFromNomisMap = usersFromNomis.map {
+    val usersFromNomisMap = usersFromNomis.map { it ->
       UserDataToSync(
         it.username,
         it.email?.let
-        { email -> if (caseSensitive) email else email.lowercase() }
+        {
+          val emailToUse = if (usePrimaryEmail) {
+            it.split(",").primaryEmail()
+          } else it
+          if (caseSensitive) emailToUse else emailToUse?.lowercase()
+        }
       )
     }.associateBy { it.userName }
 
@@ -68,6 +74,9 @@ class UserSyncService(
       stats.results[newUserData!!.userName] = SyncDifferences(newUserData.userName, toString())
   }
 }
+
+fun List<String>.primaryEmail(): String =
+  (firstOrNull { e -> e.contains("justice.gov.uk") } ?: run { first() }).trim()
 
 data class AuthUser(
   @Schema(description = "User Name in Auth", example = "Global Search User", required = true)
