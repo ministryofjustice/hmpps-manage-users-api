@@ -61,5 +61,10 @@ management:
       cache:
         time-to-live: 2000ms
 
+notification:
+  banner:
+    folder: ${BANNER.FOLDER}
+
+
 api:
   health-timeout-ms: 1000
