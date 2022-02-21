@@ -13,4 +13,4 @@ api:
 
 notification:
   banner:
-    folder: localtest
+    folder: localTest
