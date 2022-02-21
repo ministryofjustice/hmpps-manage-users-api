@@ -7,3 +7,7 @@ api:
     url:
       oauth: http://localhost:9090/auth
       nomis: http://localhost:8082
+
+notification:
+  banner:
+    folder: local

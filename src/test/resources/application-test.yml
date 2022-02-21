@@ -10,3 +10,7 @@ api:
     url:
       oauth: http://localhost:8090/auth
       nomis: http://localhost:8093
+
+notification:
+  banner:
+    folder: localtest

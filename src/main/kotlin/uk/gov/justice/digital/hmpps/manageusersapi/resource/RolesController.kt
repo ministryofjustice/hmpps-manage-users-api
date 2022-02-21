@@ -103,9 +103,7 @@ class RolesController(
   fun getRoleDetail(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
     @PathVariable role: String,
-  ): Role {
-    return Role(rolesService.getRoleDetail(role))
-  }
+  ): Role = Role(rolesService.getRoleDetail(role))
 
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
