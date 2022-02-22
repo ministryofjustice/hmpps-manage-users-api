@@ -1,26 +1,24 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.util.ResourceUtils.getFile
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.NotificationMessage
-import java.io.FileNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.NotificationPage
 
 @Service
-class NotificationBannerService {
+class NotificationBannerService(
+  @Value("\${notification.banner.roles}") private val rolesNotificationBanner: String,
+  @Value("\${notification.banner.search}") private val searchNotificationBanner: String,
+) {
 
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
-  }
-
-  fun getNotificationMessage(type: String, env: String): NotificationMessage {
-    val message: String = try {
-      getFile("classpath:${env}Banners/${type}BannerMessage.txt").readText(Charsets.UTF_8)
-    } catch (e: FileNotFoundException) {
-      log.debug("classpath:${env}Banners/${type}BannerMessage.txt")
-      ""
+  fun getNotificationMessage(type: NotificationPage): NotificationMessage {
+    return when (type) {
+      NotificationPage.ROLES -> {
+        NotificationMessage(rolesNotificationBanner)
+      }
+      NotificationPage.SEARCH -> {
+        NotificationMessage(searchNotificationBanner)
+      }
     }
-
-    return NotificationMessage(message)
   }
 }

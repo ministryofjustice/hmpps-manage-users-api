@@ -13,4 +13,5 @@ api:
 
 notification:
   banner:
-    folder: localTest
+    roles: Test banner message
+    search:

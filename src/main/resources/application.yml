@@ -63,7 +63,8 @@ management:
 
 notification:
   banner:
-    folder: ${BANNER.FOLDER}
+    roles: ${BANNER.ROLES}
+    search: ${BANNER.SEARCH}
 
 
 api:

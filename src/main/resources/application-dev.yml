@@ -10,4 +10,5 @@ api:
 
 notification:
   banner:
-    folder: local
+    roles: Local Role page message
+    search:

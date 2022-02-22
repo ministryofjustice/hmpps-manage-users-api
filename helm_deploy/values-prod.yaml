@@ -10,7 +10,8 @@ generic-service:
   env:
     API_BASE_URL_OAUTH: https://sign-in.hmpps.service.justice.gov.uk/auth
     API_BASE_URL_NOMIS: https://nomis-user.aks-live-1.studio-hosting.service.justice.gov.uk
-    BANNER_FOLDER: prod
+    BANNER_ROLES:
+    BANNER_SEARCH:
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
 generic-prometheus-alerts:
