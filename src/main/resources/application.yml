@@ -64,7 +64,8 @@ management:
 notification:
   banner:
     roles: ${BANNER.ROLES}
-    search: ${BANNER.SEARCH}
+    empty: ${BANNER.EMPTY}
+    dpsmenu: ${BANNER.DPSMENU}
 
 
 api:

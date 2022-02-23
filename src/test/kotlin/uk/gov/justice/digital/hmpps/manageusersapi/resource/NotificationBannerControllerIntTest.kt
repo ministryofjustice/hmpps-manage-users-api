@@ -26,7 +26,7 @@ class NotificationBannerControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get notification message - null message`() {
-    webTestClient.get().uri("/notification/banner/SEARCH")
+    webTestClient.get().uri("/notification/banner/EMPTY")
       .headers(setAuthorisation(roles = listOf()))
       .exchange()
       .expectStatus().isOk

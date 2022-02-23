@@ -11,4 +11,5 @@ api:
 notification:
   banner:
     roles: Local Role page message
-    search:
+    empty:
+    dpsmenu: Local DPS menu page message

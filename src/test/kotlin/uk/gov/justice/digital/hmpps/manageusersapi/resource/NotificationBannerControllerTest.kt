@@ -16,7 +16,7 @@ internal class NotificationBannerControllerTest {
   @Test
   fun `get Role Banner Message`() {
     whenever(notificationBannerService.getNotificationMessage(any())).thenReturn(NotificationMessage("BannerMessage"))
-    val message = notificationBannerController.getRoleBannerMessage(NotificationPage.ROLES)
+    val message = notificationBannerController.getNotificationBannerMessage(NotificationPage.ROLES)
     verify(notificationBannerService).getNotificationMessage(NotificationPage.ROLES)
     assertThat(message).isEqualTo(NotificationMessage(message = "BannerMessage"))
   }

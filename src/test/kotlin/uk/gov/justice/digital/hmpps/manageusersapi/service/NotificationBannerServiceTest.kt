@@ -7,21 +7,29 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.NotificationPage
 
 internal class NotificationBannerServiceTest {
   private val notificationBannerService = NotificationBannerService(
-    "Test banner message",
+    "Roles test banner message",
     "",
+    "DPS menu test banner message",
   )
 
   @Test
-  fun `get notification banner message from environment variable`() {
+  fun `get roles notification banner message from environment variable`() {
     assertThat(notificationBannerService.getNotificationMessage(NotificationPage.ROLES)).isEqualTo(
-      NotificationMessage(message = "Test banner message")
+      NotificationMessage(message = "Roles test banner message")
     )
   }
 
   @Test
   fun `get notification banner empty message from environment variable`() {
-    assertThat(notificationBannerService.getNotificationMessage(NotificationPage.SEARCH)).isEqualTo(
+    assertThat(notificationBannerService.getNotificationMessage(NotificationPage.EMPTY)).isEqualTo(
       NotificationMessage(message = "")
+    )
+  }
+
+  @Test
+  fun `get DSP menu notification banner message from environment variable`() {
+    assertThat(notificationBannerService.getNotificationMessage(NotificationPage.DPSMENU)).isEqualTo(
+      NotificationMessage(message = "DPS menu test banner message")
     )
   }
 }

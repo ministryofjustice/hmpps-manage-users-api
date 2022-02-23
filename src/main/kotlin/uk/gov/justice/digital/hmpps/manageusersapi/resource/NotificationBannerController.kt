@@ -13,7 +13,7 @@ class NotificationBannerController(
 ) {
 
   @GetMapping("/notification/banner/{page}", produces = [MediaType.APPLICATION_JSON_VALUE])
-  fun getRoleBannerMessage(
+  fun getNotificationBannerMessage(
     @Schema(description = "The notification page", example = "roles", required = true)
     @PathVariable page: NotificationPage,
   ): NotificationMessage = notificationBannerService.getNotificationMessage(page)
@@ -21,7 +21,8 @@ class NotificationBannerController(
 
 enum class NotificationPage {
   ROLES,
-  SEARCH,
+  EMPTY,
+  DPSMENU,
 }
 
 @Schema(description = "Notification message")
