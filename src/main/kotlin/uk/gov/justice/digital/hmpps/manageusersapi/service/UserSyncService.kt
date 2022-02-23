@@ -18,7 +18,7 @@ class UserSyncService(
   }
 
   fun sync(caseSensitive: Boolean = true, usePrimaryEmail: Boolean = false): SyncStatistics {
-    return syncAllData(authService.getUsers(), nomisApiService.findAllActiveUsers(), caseSensitive, usePrimaryEmail)
+    return syncAllData(authService.getUsers(), nomisApiService.getUsers(), caseSensitive, usePrimaryEmail)
   }
 
   private fun syncAllData(
@@ -51,7 +51,7 @@ class UserSyncService(
       syncUser(null, it.value, stats)
     }
     // We are not interested in those users in Nomis but not in Auth
-    log.debug("Total sync differences = ${stats.results.size} with caseSensitive set to $caseSensitive")
+    log.debug("Total sync differences = ${stats.results.size} - caseSensitive: $caseSensitive, usePrimaryEmail: $usePrimaryEmail")
     return stats
   }
 

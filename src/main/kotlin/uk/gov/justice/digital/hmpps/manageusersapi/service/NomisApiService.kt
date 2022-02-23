@@ -145,9 +145,9 @@ class NomisApiService(
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 
-  fun findAllActiveUsers(): List<NomisUser> {
+  fun getUsers(): List<NomisUser> {
     return nomisWebClient.get().uri {
-      it.path("/users/active")
+      it.path("/users/emails")
         .build()
     }
       .retrieve()

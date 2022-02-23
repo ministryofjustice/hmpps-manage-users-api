@@ -27,11 +27,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val statistics = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(0)
@@ -48,11 +48,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "useR2@digitaL.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val statistics = userSyncService.sync(false)
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(0)
@@ -69,11 +69,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val statistics = userSyncService.sync(caseSensitive = true, usePrimaryEmail = true)
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(1)
@@ -90,11 +90,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digitaL.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val statistics = userSyncService.sync(caseSensitive = false, usePrimaryEmail = true)
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(statistics.results.size).isEqualTo(0)
@@ -111,11 +111,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "useR2@digitaL.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
     verifyNoMoreInteractions(authService)
     assertThat(stats.results.size).isEqualTo(2)
@@ -140,11 +140,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2nomis@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
 
     // Nothing for username1 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -164,11 +164,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -189,11 +189,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2nomis@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
 
     // Nothing for username2 as it is missing from auth - we ignore username1 as it is only in nomis
     assertThat(stats.results.size).isEqualTo(0)
@@ -212,11 +212,11 @@ class UserSyncServiceTest {
     )
 
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(2)
@@ -239,11 +239,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
@@ -265,11 +265,11 @@ class UserSyncServiceTest {
       NomisUser("username2", "user2@digital.justice.gov.uk")
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
-    whenever(nomisService.findAllActiveUsers()).thenReturn(usersFromNomis)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
     val stats = userSyncService.sync()
     verify(authService).getUsers()
-    verify(nomisService).findAllActiveUsers()
+    verify(nomisService).getUsers()
 
     // Nothing for username2 as there are no differences
     assertThat(stats.results.size).isEqualTo(1)
