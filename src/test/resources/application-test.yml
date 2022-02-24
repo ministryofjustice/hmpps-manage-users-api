@@ -13,4 +13,6 @@ api:
 
 notification:
   banner:
-    folder: localTest
+    roles: Test banner message
+    empty:
+    dpsmenu: DPS user menu banner message

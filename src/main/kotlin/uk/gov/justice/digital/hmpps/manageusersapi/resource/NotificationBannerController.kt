@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import io.swagger.v3.oas.annotations.media.Schema
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -11,28 +10,23 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationBannerSer
 @RestController
 class NotificationBannerController(
   private val notificationBannerService: NotificationBannerService,
-  @Value("\${notification.banner.folder}") private val notificationBannerEnv: String,
 ) {
 
-  @GetMapping("/notification/banner/{type}", produces = [MediaType.APPLICATION_JSON_VALUE])
-  fun getRoleBannerMessage(
-    @Schema(description = "The notification type", example = "roles", required = true)
-    @PathVariable type: NotificationType,
-
-  ): NotificationMessage = notificationBannerService.getNotificationMessage(type.filePrefix, notificationBannerEnv)
+  @GetMapping("/notification/banner/{page}", produces = [MediaType.APPLICATION_JSON_VALUE])
+  fun getNotificationBannerMessage(
+    @Schema(description = "The notification page", example = "roles", required = true)
+    @PathVariable page: NotificationPage,
+  ): NotificationMessage = notificationBannerService.getNotificationMessage(page)
 }
 
-enum class NotificationType(val filePrefix: String) {
-  ROLES("roles"),
+enum class NotificationPage {
+  ROLES,
+  EMPTY,
+  DPSMENU,
 }
 
-@Schema(description = "Role Details")
+@Schema(description = "Notification message")
 data class NotificationMessage(
-  @Schema(required = true, description = "Message", example = "Role message")
+  @Schema(required = true, description = "Message", example = "Message string to be displayed in the notification banner")
   val message: String,
-
-) {
-  constructor(n: NotificationMessage) : this(
-    n.message,
-  )
-}
+)

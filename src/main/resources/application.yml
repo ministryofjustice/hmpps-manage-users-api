@@ -63,7 +63,9 @@ management:
 
 notification:
   banner:
-    folder: ${BANNER.FOLDER}
+    roles: ${BANNER.ROLES}
+    empty: ${BANNER.EMPTY}
+    dpsmenu: ${BANNER.DPSMENU}
 
 
 api:

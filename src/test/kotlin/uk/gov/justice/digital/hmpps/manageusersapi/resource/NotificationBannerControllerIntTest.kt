@@ -16,27 +16,17 @@ class NotificationBannerControllerIntTest : IntegrationTestBase() {
   @Test
   fun `get notification message`() {
 
-    webTestClient.get().uri("/notification/banner/TEST")
+    webTestClient.get().uri("/notification/banner/ROLES")
       .headers(setAuthorisation(roles = listOf()))
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath("$.message").isEqualTo("Test banner message\n")
+      .jsonPath("$.message").isEqualTo("Test banner message")
   }
 
   @Test
   fun `get notification message - null message`() {
     webTestClient.get().uri("/notification/banner/EMPTY")
-      .headers(setAuthorisation(roles = listOf()))
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.message").isEmpty
-  }
-
-  @Test
-  fun `get notification message - null message file does not exist`() {
-    webTestClient.get().uri("/notification/banner/NOFILE")
       .headers(setAuthorisation(roles = listOf()))
       .exchange()
       .expectStatus().isOk

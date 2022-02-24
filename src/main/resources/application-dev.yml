@@ -10,4 +10,6 @@ api:
 
 notification:
   banner:
-    folder: local
+    roles: Local Role page message
+    empty:
+    dpsmenu: Local DPS menu page message
