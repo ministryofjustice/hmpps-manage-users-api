@@ -12,7 +12,7 @@ generic-service:
     API_BASE_URL_NOMIS: https://nomis-user.aks-live-1.studio-hosting.service.justice.gov.uk
     BANNER_ROLES:
     BANNER_EMPTY:
-    BANNER_DSPMENU:
+    BANNER_DPSMENU:
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
 generic-prometheus-alerts:
