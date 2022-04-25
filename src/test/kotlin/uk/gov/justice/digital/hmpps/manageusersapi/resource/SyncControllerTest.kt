@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
@@ -25,19 +26,19 @@ class SyncControllerTest {
   @Nested
   inner class SyncUsers {
     @Test
-    fun `sync users`() {
+    fun `sync users`(): Unit = runBlocking {
       syncController.syncUsers(caseSensitive = false, usePrimaryEmail = false)
       verify(userSyncService).sync(caseSensitive = false, usePrimaryEmail = false)
     }
 
     @Test
-    fun `sync users with case sensitive emails`() {
+    fun `sync users with case sensitive emails`(): Unit = runBlocking {
       syncController.syncUsers(caseSensitive = true, usePrimaryEmail = false)
       verify(userSyncService).sync(caseSensitive = true, usePrimaryEmail = false)
     }
 
     @Test
-    fun `sync users with primary emails only`() {
+    fun `sync users with primary emails only`(): Unit = runBlocking {
       syncController.syncUsers(caseSensitive = false, usePrimaryEmail = true)
       verify(userSyncService).sync(caseSensitive = false, usePrimaryEmail = true)
     }

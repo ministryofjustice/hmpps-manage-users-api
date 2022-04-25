@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import com.google.gson.Gson
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
@@ -17,7 +18,7 @@ class UserSyncServiceTest {
   private val userSyncService = UserSyncService(nomisService, authService, gson)
 
   @Test
-  fun `sync users that match`() {
+  fun `sync users that match`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
@@ -38,7 +39,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync users that match if not caseSensitive`() {
+  fun `sync users that match if not caseSensitive`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
@@ -59,7 +60,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync users that don't case match if primaryEmail`() {
+  fun `sync users that don't case match if primaryEmail`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
@@ -80,7 +81,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync users that match if primaryEmail`() {
+  fun `sync users that match if primaryEmail`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
@@ -101,7 +102,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync users that don't match if caseSensitive`() {
+  fun `sync users that don't match if caseSensitive`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
@@ -130,7 +131,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync users that have different email address`() {
+  fun `sync users that have different email address`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk")
@@ -155,7 +156,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync user that is missing from Nomis`() {
+  fun `sync user that is missing from Nomis`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1auth@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk"),
@@ -179,7 +180,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync user that is missing from Auth`() {
+  fun `sync user that is missing from Auth`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1@digital.justice.gov.uk")
     )
@@ -200,7 +201,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync users with multiple differences`() {
+  fun `sync users with multiple differences`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1auth@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk"),
@@ -229,7 +230,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync user that is has no email in Nomis`() {
+  fun `sync user that is has no email in Nomis`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1", "user1auth@digital.justice.gov.uk"),
       AuthUser("username2", "user2@digital.justice.gov.uk"),
@@ -254,7 +255,7 @@ class UserSyncServiceTest {
   }
 
   @Test
-  fun `sync user that is has no email in Auth`() {
+  fun `sync user that is has no email in Auth`(): Unit = runBlocking {
     val usersFromAuth = listOf(
       AuthUser("username1"),
       AuthUser("username2", "user2@digital.justice.gov.uk"),
