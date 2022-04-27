@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -144,9 +145,8 @@ class AuthService(
       .block()!!
   }
 
-  fun getUsers(): List<AuthUser> {
-
-    return authWebClient.get()
+  suspend fun getUsers(): List<AuthUser> =
+    authWebClient.get()
       .uri { uriBuilder ->
         uriBuilder
           .path("/api/users/email")
@@ -154,12 +154,10 @@ class AuthService(
           .build()
       }
       .retrieve()
-      .bodyToMono(UserList::class.java)
-      .block()!!
-  }
+      .awaitBody()
 }
+
 class RoleList : MutableList<Role> by ArrayList()
-class UserList : MutableList<AuthUser> by ArrayList()
 
 class RoleNotFoundException(action: String, role: String, errorCode: String) :
   Exception("Unable to $action role: $role with reason: $errorCode")

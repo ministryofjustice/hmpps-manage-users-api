@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -62,7 +63,7 @@ class SyncControllerIntTest : IntegrationTestBase() {
 
     @ParameterizedTest
     @MethodSource("secureEndpoints")
-    internal fun `satisfies the correct role`(uri: String) {
+    internal fun `satisfies the correct role`(uri: String) = runBlocking {
 
       val rd = SyncDifferences(
         "ROLE_CODE_1",
@@ -127,8 +128,9 @@ class SyncControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
     }
   }
+
   @Test
-  internal fun `satisfies the correct role sync roles`() {
+  internal fun `satisfies the correct role sync roles`(): Unit = runBlocking {
 
     val rd = SyncDifferences(
       "ROLE_CODE_1",
@@ -165,7 +167,7 @@ class SyncControllerIntTest : IntegrationTestBase() {
   }
 
   @Test
-  internal fun `satisfies the correct role to sync users`() {
+  internal fun `satisfies the correct role to sync users`(): Unit = runBlocking {
 
     val diff = SyncDifferences(
       "username1",

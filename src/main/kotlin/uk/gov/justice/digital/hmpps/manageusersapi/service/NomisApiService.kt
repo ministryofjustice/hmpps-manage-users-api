@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
@@ -145,16 +146,11 @@ class NomisApiService(
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 
-  fun getUsers(): List<NomisUser> {
-    return nomisWebClient.get().uri {
-      it.path("/users/emails")
-        .build()
-    }
+  suspend fun getUsers(): List<NomisUser> =
+    nomisWebClient.get()
+      .uri { it.path("/users/emails").build() }
       .retrieve()
-      .bodyToMono(UserList::class.java)
-      .block()!!
-  }
-  class UserList : MutableList<NomisUser> by ArrayList()
+      .awaitBody()
 }
 
 class UserNotFoundException(action: String, username: String, errorCode: String) :

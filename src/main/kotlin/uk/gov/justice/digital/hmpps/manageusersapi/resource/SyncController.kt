@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,7 +17,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncStatistics
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSyncService
 
 @RestController
-@Validated
 @RequestMapping(name = "Sync statistics between Nomis and Auth", path = ["/sync"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class SyncController(
   private val roleSyncService: RoleSyncService,
@@ -114,7 +112,7 @@ class SyncController(
       ),
     ]
   ) @GetMapping("/users")
-  fun syncUsers(
+  suspend fun syncUsers(
     @RequestParam(value = "caseSensitive", required = false) caseSensitive: Boolean?,
     @RequestParam(value = "usePrimaryEmail", required = false) usePrimaryEmail: Boolean?,
   ): SyncStatistics = userSyncService.sync(caseSensitive ?: true, usePrimaryEmail ?: false)

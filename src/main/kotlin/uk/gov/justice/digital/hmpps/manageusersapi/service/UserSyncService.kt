@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import com.google.common.collect.MapDifference
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.media.Schema
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -17,9 +19,12 @@ class UserSyncService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun sync(caseSensitive: Boolean = true, usePrimaryEmail: Boolean = false): SyncStatistics {
-    return syncAllData(authService.getUsers(), nomisApiService.getUsers(), caseSensitive, usePrimaryEmail)
-  }
+  suspend fun sync(caseSensitive: Boolean = true, usePrimaryEmail: Boolean = false): SyncStatistics =
+    coroutineScope {
+      val authUsers = async { authService.getUsers() }
+      val nomisUsers = async { nomisApiService.getUsers() }
+      syncAllData(authUsers.await(), nomisUsers.await(), caseSensitive, usePrimaryEmail)
+    }
 
   private fun syncAllData(
     usersFromAuth: List<AuthUser>,

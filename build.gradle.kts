@@ -19,12 +19,15 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.9.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.1")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.mockito:mockito-inline:4.5.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
 }
 
 java {
