@@ -7,6 +7,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -177,7 +178,7 @@ class SyncControllerIntTest : IntegrationTestBase() {
 
     val mapper = mutableMapOf<String, SyncDifferences>()
     mapper["username1"] = diff
-    whenever(userSyncService.sync()).thenReturn(
+    whenever(userSyncService.sync(any())).thenReturn(
       SyncStatistics(mapper)
     )
 

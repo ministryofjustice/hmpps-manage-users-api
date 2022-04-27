@@ -8,6 +8,8 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
+  mvc.async.request-timeout: 200000
+
   security:
     oauth2:
       resourceserver:
