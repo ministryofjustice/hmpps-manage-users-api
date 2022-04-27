@@ -155,7 +155,7 @@ class AuthService(
       }
       .retrieve()
       .awaitBody()
-  }
+}
 
 class RoleList : MutableList<Role> by ArrayList()
 
