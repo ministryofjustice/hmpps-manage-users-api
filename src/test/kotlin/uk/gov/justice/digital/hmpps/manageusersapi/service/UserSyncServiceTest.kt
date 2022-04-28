@@ -20,12 +20,12 @@ class UserSyncServiceTest {
   @Test
   fun `sync users that match`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@digital.justice.gov.uk"),
-      NomisUser("username2", "user2@digital.justice.gov.uk")
+      NomisUser("username2", "user2@digital.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
@@ -41,17 +41,17 @@ class UserSyncServiceTest {
   @Test
   fun `sync users that match if not caseSensitive`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1", "uSer1@digItal.justice.gov.uk"),
-      NomisUser("username2", "useR2@digitaL.justice.gov.uk")
+      NomisUser("username2", "useR2@digitaL.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
-    val statistics = userSyncService.sync(false)
+    val statistics = userSyncService.sync(SyncOptions(caseSensitive = false))
     verify(authService).getUsers()
     verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
@@ -62,17 +62,17 @@ class UserSyncServiceTest {
   @Test
   fun `sync users that don't case match if primaryEmail`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@gsi.gov.uk, uSer1@digItal.justice.gov.uk"),
-      NomisUser("username2", "user2@digital.justice.gov.uk")
+      NomisUser("username2", "user2@digital.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
-    val statistics = userSyncService.sync(caseSensitive = true, usePrimaryEmail = true)
+    val statistics = userSyncService.sync(SyncOptions(caseSensitive = true, usePrimaryEmail = true))
     verify(authService).getUsers()
     verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
@@ -83,17 +83,17 @@ class UserSyncServiceTest {
   @Test
   fun `sync users that match if primaryEmail`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@gsi.gov.uk, uSer1@digItal.justice.gov.uk"),
-      NomisUser("username2", "user2@digitaL.justice.gov.uk")
+      NomisUser("username2", "user2@digitaL.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
 
-    val statistics = userSyncService.sync(caseSensitive = false, usePrimaryEmail = true)
+    val statistics = userSyncService.sync(SyncOptions(caseSensitive = false, usePrimaryEmail = true))
     verify(authService).getUsers()
     verify(nomisService).getUsers()
     verifyNoMoreInteractions(nomisService)
@@ -104,12 +104,12 @@ class UserSyncServiceTest {
   @Test
   fun `sync users that don't match if caseSensitive`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1", "uSer1@digItal.justice.gov.uk"),
-      NomisUser("username2", "useR2@digitaL.justice.gov.uk")
+      NomisUser("username2", "useR2@digitaL.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
@@ -133,12 +133,12 @@ class UserSyncServiceTest {
   @Test
   fun `sync users that have different email address`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@digital.justice.gov.uk"),
-      NomisUser("username2", "user2nomis@digital.justice.gov.uk")
+      NomisUser("username2", "user2nomis@digital.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
@@ -158,8 +158,8 @@ class UserSyncServiceTest {
   @Test
   fun `sync user that is missing from Nomis`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1auth@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk"),
+      AuthUser("username1", "user1auth@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username2", "user2@digital.justice.gov.uk")
@@ -182,12 +182,12 @@ class UserSyncServiceTest {
   @Test
   fun `sync user that is missing from Auth`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1@digital.justice.gov.uk")
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
     )
 
     val usersFromNomis = listOf(
       NomisUser("username1", "user1@digital.justice.gov.uk"),
-      NomisUser("username2", "user2nomis@digital.justice.gov.uk")
+      NomisUser("username2", "user2nomis@digital.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
@@ -203,13 +203,13 @@ class UserSyncServiceTest {
   @Test
   fun `sync users with multiple differences`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1auth@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk"),
-      AuthUser("username3", "user3auth@digital.justice.gov.uk")
+      AuthUser("username1", "user1auth@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
+      AuthUser("username3", "user3auth@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username2", "user2@digital.justice.gov.uk"),
-      NomisUser("username3", "user3@digital.justice.gov.uk")
+      NomisUser("username3", "user3@digital.justice.gov.uk"),
     )
 
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
@@ -232,12 +232,12 @@ class UserSyncServiceTest {
   @Test
   fun `sync user that is has no email in Nomis`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1", "user1auth@digital.justice.gov.uk"),
-      AuthUser("username2", "user2@digital.justice.gov.uk"),
+      AuthUser("username1", "user1auth@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
     val usersFromNomis = listOf(
       NomisUser("username1"),
-      NomisUser("username2", "user2@digital.justice.gov.uk")
+      NomisUser("username2", "user2@digital.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
@@ -257,13 +257,13 @@ class UserSyncServiceTest {
   @Test
   fun `sync user that is has no email in Auth`(): Unit = runBlocking {
     val usersFromAuth = listOf(
-      AuthUser("username1"),
-      AuthUser("username2", "user2@digital.justice.gov.uk"),
+      AuthUser(username = "username1", verified = false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", false),
     )
 
     val usersFromNomis = listOf(
       NomisUser("username1", "user1nomis@digital.justice.gov.uk"),
-      NomisUser("username2", "user2@digital.justice.gov.uk")
+      NomisUser("username2", "user2@digital.justice.gov.uk"),
     )
     whenever(authService.getUsers()).thenReturn(usersFromAuth)
     whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
@@ -277,6 +277,58 @@ class UserSyncServiceTest {
     assertThat(stats.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
     assertThat(stats.results["username1"]?.differences).isEqualTo(
       "not equal: only on left={email=user1nomis@digital.justice.gov.uk}"
+    )
+  }
+
+  @Test
+  fun `sync users only if verified in auth`(): Unit = runBlocking {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@digital.justice.gov.uk", false),
+      AuthUser("username2", "user2@digital.justice.gov.uk", true),
+    )
+    val usersFromNomis = listOf(
+      NomisUser("username1", "user1@gsi.gov.uk"),
+      NomisUser("username2", "user2@gsi.gov.uk"),
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
+
+    val statistics = userSyncService.sync(SyncOptions(onlyVerified = true))
+    verify(authService).getUsers()
+    verify(nomisService).getUsers()
+    verifyNoMoreInteractions(nomisService)
+    verifyNoMoreInteractions(authService)
+    assertThat(statistics.results.size).isEqualTo(1)
+    assertThat(statistics.results["username2"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(statistics.results["username2"]?.differences).isEqualTo(
+      "not equal: value differences={email=(user2@gsi.gov.uk, user2@digital.justice.gov.uk)}"
+    )
+  }
+
+  @Test
+  fun `sync users only if auth email matches domain`(): Unit = runBlocking {
+    val usersFromAuth = listOf(
+      AuthUser("username1", "user1@domain1.com", false),
+      AuthUser("username2", "user2@domain2.com", false),
+      AuthUser("username3", "user3@sub.domain1.com", false),
+    )
+    val usersFromNomis = listOf(
+      NomisUser("username1", "user1@other1.com"),
+      NomisUser("username2", "user2@other2.com"),
+      NomisUser("username3", "user3@other3.com"),
+    )
+    whenever(authService.getUsers()).thenReturn(usersFromAuth)
+    whenever(nomisService.getUsers()).thenReturn(usersFromNomis)
+
+    val statistics = userSyncService.sync(SyncOptions(domainFilters = setOf("domain1.com")))
+    verify(authService).getUsers()
+    verify(nomisService).getUsers()
+    verifyNoMoreInteractions(nomisService)
+    verifyNoMoreInteractions(authService)
+    assertThat(statistics.results.size).isEqualTo(1)
+    assertThat(statistics.results["username1"]?.updateType).isEqualTo(SyncDifferences.UpdateType.NONE)
+    assertThat(statistics.results["username1"]?.differences).isEqualTo(
+      "not equal: value differences={email=(user1@other1.com, user1@domain1.com)}"
     )
   }
 }

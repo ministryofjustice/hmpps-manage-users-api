@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleSyncService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncOptions
 import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncStatistics
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSyncService
 
@@ -115,5 +116,14 @@ class SyncController(
   suspend fun syncUsers(
     @RequestParam(value = "caseSensitive", required = false) caseSensitive: Boolean?,
     @RequestParam(value = "usePrimaryEmail", required = false) usePrimaryEmail: Boolean?,
-  ): SyncStatistics = userSyncService.sync(caseSensitive ?: true, usePrimaryEmail ?: false)
+    @RequestParam(value = "onlyVerified", required = false) onlyVerified: Boolean?,
+    @RequestParam(value = "domainFilters", required = false) domainFilters: Set<String>?,
+  ): SyncStatistics = userSyncService.sync(
+    SyncOptions(
+      caseSensitive = caseSensitive ?: true,
+      usePrimaryEmail = usePrimaryEmail ?: false,
+      onlyVerified = onlyVerified ?: false,
+      domainFilters = domainFilters ?: emptySet()
+    )
+  )
 }
