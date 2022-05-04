@@ -37,6 +37,9 @@ fabric.properties
 # Log file
 *.log
 
+# Temporary files
+*tmp/
+
 # BlueJ files
 *.ctxt
 
