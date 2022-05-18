@@ -3,7 +3,6 @@ services:
   hmpps-manage-users-api:
     build:
       context: .
-    network_mode: "host"
     container_name: hmpps-manage-users-api
     ports:
       - "8081:8080"
