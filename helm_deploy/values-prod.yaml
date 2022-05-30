@@ -12,7 +12,7 @@ generic-service:
     API_BASE_URL_NOMIS: https://nomis-user.aks-live-1.studio-hosting.service.justice.gov.uk
     BANNER_ROLES:
     BANNER_EMPTY:
-    BANNER_DPSMENU:
+    BANNER_DPSMENU: The original DPS user search will be removed on the 9th June 2022, the new search provides improved layout and features such as search by email and multi-role filtering.
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
 generic-prometheus-alerts:
