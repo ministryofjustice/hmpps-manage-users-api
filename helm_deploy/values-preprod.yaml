@@ -13,7 +13,7 @@ generic-service:
     API_BASE_URL_NOMIS: https://nomis-user-pp.aks-live-1.studio-hosting.service.justice.gov.uk
     BANNER_ROLES:
     BANNER_EMPTY:
-    BANNER_DPSMENU: The original DPS user search has now been removed, the new search provides improved layout and features such as search by email and multi-role filtering.
+    BANNER_DPSMENU:
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
