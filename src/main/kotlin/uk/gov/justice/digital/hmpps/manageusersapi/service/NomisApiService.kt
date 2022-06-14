@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
@@ -19,6 +20,83 @@ class NomisApiService(
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
+
+  @Throws(UserExistsException::class)
+  fun createCentralAdminUser(centralAdminUser: CreateUserRequest) {
+    log.debug("Create DPS central admin user - {}", centralAdminUser.username)
+    try {
+      nomisWebClient.post().uri("/users/admin-account")
+        .bodyValue(
+          mapOf(
+            "username" to centralAdminUser.username,
+            "email" to centralAdminUser.email,
+            "firstName" to centralAdminUser.firstName,
+            "lastName" to centralAdminUser.lastName,
+          )
+        )
+        .retrieve()
+        .toBodilessEntity()
+        .block()
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
+        centralAdminUser.username,
+        "username already exists"
+      ) else e
+      throw e
+    }
+  }
+
+  @Throws(UserExistsException::class)
+  fun createGeneralUser(generalUser: CreateUserRequest) {
+    log.debug("Create DPS general user - {}", generalUser.username)
+    try {
+      nomisWebClient.post().uri("/users/general-account")
+        .bodyValue(
+          mapOf(
+            "username" to generalUser.username,
+            "email" to generalUser.email,
+            "firstName" to generalUser.firstName,
+            "lastName" to generalUser.lastName,
+            "defaultCaseloadId" to generalUser.defaultCaseloadId,
+          )
+        )
+        .retrieve()
+        .toBodilessEntity()
+        .block()
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
+        generalUser.username,
+        "username already exists"
+      ) else e
+      throw e
+    }
+  }
+
+  @Throws(UserExistsException::class)
+  fun createLocalAdminUser(localAdminUser: CreateUserRequest) {
+    log.debug("Create DPS local admin user - {}", localAdminUser.username)
+    try {
+      nomisWebClient.post().uri("/users/local-admin-account")
+        .bodyValue(
+          mapOf(
+            "username" to localAdminUser.username,
+            "email" to localAdminUser.email,
+            "firstName" to localAdminUser.firstName,
+            "lastName" to localAdminUser.lastName,
+            "localAdminGroup" to localAdminUser.defaultCaseloadId,
+          )
+        )
+        .retrieve()
+        .toBodilessEntity()
+        .block()
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
+        localAdminUser.username,
+        "username already exists"
+      ) else e
+      throw e
+    }
   }
 
   @Throws(RoleExistsException::class)
