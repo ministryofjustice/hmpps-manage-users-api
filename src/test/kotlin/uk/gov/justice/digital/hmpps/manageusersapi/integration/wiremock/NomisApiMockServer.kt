@@ -9,7 +9,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import wiremock.org.apache.http.client.methods.RequestBuilder.post
 
 class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -24,6 +23,70 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status)
       )
+    )
+  }
+
+  fun stubCreateCentralAdminUser() {
+    stubFor(
+      post(urlEqualTo("/users/admin-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubCreateGeneralUser() {
+    stubFor(
+      post(urlEqualTo("/users/general-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubCreateLocalAdminUser() {
+    stubFor(
+      post(urlEqualTo("/users/local-admin-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubCreateCentralAdminUserFail(status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo("/users/admin-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+        )
+    )
+  }
+
+  fun stubCreateCentralAdminUserWithErrorFail(status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo("/users/admin-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": 400,
+                "errorCode": null,
+                "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
+                "developerMessage": "A bigger message"
+               }
+              """.trimIndent()
+            )
+        )
     )
   }
 

@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -113,6 +114,20 @@ class HmppsManageUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "Unexpected error: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(UserExistsException::class)
+  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse?>? {
+    log.debug("User exists exception caught: {}", e.message)
+    return ResponseEntity
+      .status(CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          userMessage = "${e.message}",
           developerMessage = e.message
         )
       )
