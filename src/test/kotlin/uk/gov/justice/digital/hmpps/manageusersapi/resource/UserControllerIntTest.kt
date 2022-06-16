@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserDetails
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -87,7 +88,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create Central Admin user`() {
       nomisApiMockServer.stubCreateCentralAdminUser()
 
-      webTestClient.post().uri("/users")
+      val nomisUserDetails = webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -102,11 +103,22 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
+        .expectBody(NomisUserDetails::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
+      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
+      assertThat(nomisUserDetails.lastName).isEqualTo("User")
+      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/admin-account"))
           .withRequestBody(
-            containing("{\"username\":\"TEST1\",\"email\":\"test@gov.uk\",\"firstName\":\"Test\",\"lastName\":\"User\"}")
+            containing(
+              """
+              {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User"}
+              """.trimIndent()
+            )
           )
       )
     }
@@ -115,7 +127,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create General user`() {
       nomisApiMockServer.stubCreateGeneralUser()
 
-      webTestClient.post().uri("/users")
+      val nomisUserDetails = webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -131,11 +143,22 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
+        .expectBody(NomisUserDetails::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
+      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
+      assertThat(nomisUserDetails.lastName).isEqualTo("User")
+      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/general-account"))
           .withRequestBody(
-            containing("{\"username\":\"TEST1\",\"email\":\"test@gov.uk\",\"firstName\":\"Test\",\"lastName\":\"User\",\"defaultCaseloadId\":\"MDI\"}")
+            containing(
+              """
+              {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","defaultCaseloadId":"MDI"}
+              """.trimIndent()
+            )
           )
       )
     }
@@ -144,7 +167,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create Local admin user`() {
       nomisApiMockServer.stubCreateLocalAdminUser()
 
-      webTestClient.post().uri("/users")
+      val nomisUserDetails = webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -160,18 +183,32 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
+        .expectBody(NomisUserDetails::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
+      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
+      assertThat(nomisUserDetails.lastName).isEqualTo("User")
+      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/local-admin-account"))
           .withRequestBody(
-            containing("{\"username\":\"TEST1\",\"email\":\"test@gov.uk\",\"firstName\":\"Test\",\"lastName\":\"User\",\"localAdminGroup\":\"MDI\"}")
+            containing(
+              """
+              {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","localAdminGroup":"MDI"}
+              """.trimIndent()
+            )
           )
       )
     }
+  }
 
+  @Nested
+  inner class CreateUserError {
     @Test
-    fun `create user returns error when username already exists`() {
-      nomisApiMockServer.stubCreateCentralAdminUserFail(CONFLICT)
+    fun `create central admin user returns error when username already exists`() {
+      nomisApiMockServer.stubCreateCentralAdminUserConflict()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -198,7 +235,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `create user passes through error when error thrown from nomisapi`() {
+    fun `create central admin user passes through error when error thrown from nomisapi`() {
       nomisApiMockServer.stubCreateCentralAdminUserWithErrorFail(BAD_REQUEST)
 
       webTestClient.post().uri("/users")
@@ -211,6 +248,120 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "DUD_FIRST_NAME",
               "lastName" to "User",
               "userType" to "DPS_ADM"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(BAD_REQUEST)
+        .expectBody()
+        .jsonPath("status").isEqualTo("400")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: First name must consist of alphabetical characters only and a max 35 chars")
+          assertThat(it["developerMessage"] as String).isEqualTo("A bigger message")
+        }
+    }
+
+    @Test
+    fun `create general user returns error when username already exists`() {
+      nomisApiMockServer.stubCreateGeneralUserConflict()
+
+      webTestClient.post().uri("/users")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "username" to "TEST1",
+              "email" to "test@gov.uk",
+              "firstName" to "Test",
+              "lastName" to "User",
+              "userType" to "DPS_GEN",
+              "defaultCaseloadId" to "MDI"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+        }
+    }
+
+    @Test
+    fun `create general user passes through error when error thrown from nomisapi`() {
+      nomisApiMockServer.stubCreateGeneralUserWithErrorFail(BAD_REQUEST)
+
+      webTestClient.post().uri("/users")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "username" to "TEST1",
+              "email" to "test@gov.uk",
+              "firstName" to "DUD_FIRST_NAME",
+              "lastName" to "User",
+              "userType" to "DPS_GEN",
+              "defaultCaseloadId" to "MDI"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(BAD_REQUEST)
+        .expectBody()
+        .jsonPath("status").isEqualTo("400")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: First name must consist of alphabetical characters only and a max 35 chars")
+          assertThat(it["developerMessage"] as String).isEqualTo("A bigger message")
+        }
+    }
+
+    @Test
+    fun `create local admin user returns error when username already exists`() {
+      nomisApiMockServer.stubCreateLocalAdminUserConflict()
+
+      webTestClient.post().uri("/users")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "username" to "TEST1",
+              "email" to "test@gov.uk",
+              "firstName" to "Test",
+              "lastName" to "User",
+              "userType" to "DPS_LSA",
+              "defaultCaseloadId" to "MDI"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+        }
+    }
+
+    @Test
+    fun `create local admin user passes through error when error thrown from nomisapi`() {
+      nomisApiMockServer.stubCreateLocalAdminUserWithErrorFail(BAD_REQUEST)
+
+      webTestClient.post().uri("/users")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "username" to "TEST1",
+              "email" to "test@gov.uk",
+              "firstName" to "DUD_FIRST_NAME",
+              "lastName" to "User",
+              "userType" to "DPS_LSA",
+              "defaultCaseloadId" to "MDI"
             )
           )
         )
