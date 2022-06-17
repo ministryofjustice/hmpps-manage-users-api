@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import javax.validation.Valid
@@ -25,8 +27,7 @@ import javax.validation.constraints.NotBlank
 class UserController(
   private val userService: UserService
 ) {
-
-  @PostMapping("/users")
+  @PostMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
   @Throws(UserExistsException::class)
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
@@ -37,7 +38,15 @@ class UserController(
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Create a DPS user"
+        description = "Create a DPS user",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(
+              implementation = NomisUserDetails::class
+            )
+          )
+        ]
       ),
       ApiResponse(
         responseCode = "400",
@@ -73,9 +82,7 @@ class UserController(
   )
   fun createUser(
     @RequestBody @Valid createUserRequest: CreateUserRequest
-  ) {
-    return userService.createUser(createUserRequest)
-  }
+  ): NomisUserDetails = userService.createUser(createUserRequest)
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

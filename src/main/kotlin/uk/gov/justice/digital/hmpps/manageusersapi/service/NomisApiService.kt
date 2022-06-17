@@ -23,10 +23,10 @@ class NomisApiService(
   }
 
   @Throws(UserExistsException::class)
-  fun createCentralAdminUser(centralAdminUser: CreateUserRequest) {
+  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     try {
-      nomisWebClient.post().uri("/users/admin-account")
+      return nomisWebClient.post().uri("/users/admin-account")
         .bodyValue(
           mapOf(
             "username" to centralAdminUser.username,
@@ -36,22 +36,21 @@ class NomisApiService(
           )
         )
         .retrieve()
-        .toBodilessEntity()
-        .block()
+        .bodyToMono(NomisUserDetails::class.java)
+        .block()!!
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
         centralAdminUser.username,
         "username already exists"
       ) else e
-      throw e
     }
   }
 
   @Throws(UserExistsException::class)
-  fun createGeneralUser(generalUser: CreateUserRequest) {
+  fun createGeneralUser(generalUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS general user - {}", generalUser.username)
     try {
-      nomisWebClient.post().uri("/users/general-account")
+      return nomisWebClient.post().uri("/users/general-account")
         .bodyValue(
           mapOf(
             "username" to generalUser.username,
@@ -62,22 +61,21 @@ class NomisApiService(
           )
         )
         .retrieve()
-        .toBodilessEntity()
-        .block()
+        .bodyToMono(NomisUserDetails::class.java)
+        .block()!!
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
         generalUser.username,
         "username already exists"
       ) else e
-      throw e
     }
   }
 
   @Throws(UserExistsException::class)
-  fun createLocalAdminUser(localAdminUser: CreateUserRequest) {
+  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
     try {
-      nomisWebClient.post().uri("/users/local-admin-account")
+      return nomisWebClient.post().uri("/users/local-admin-account")
         .bodyValue(
           mapOf(
             "username" to localAdminUser.username,
@@ -88,14 +86,13 @@ class NomisApiService(
           )
         )
         .retrieve()
-        .toBodilessEntity()
-        .block()
+        .bodyToMono(NomisUserDetails::class.java)
+        .block()!!
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
         localAdminUser.username,
         "username already exists"
       ) else e
-      throw e
     }
   }
 

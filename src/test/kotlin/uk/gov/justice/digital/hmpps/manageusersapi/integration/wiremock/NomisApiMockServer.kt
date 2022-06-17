@@ -33,6 +33,18 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(201)
+            .withBody(
+              """
+              { 
+                "username": "TEST1",
+                "firstName": "Test",
+                "lastName": "User",
+                "primaryEmail": "test@test.com",
+                "activeCaseloadId" : "CADM_I",
+                "accountType": "ADMIN"
+              }
+              """.trimIndent()
+            )
         )
     )
   }
@@ -44,6 +56,18 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(201)
+            .withBody(
+              """
+              { 
+                "username": "TEST1",
+                "firstName": "Test",
+                "lastName": "User",
+                "primaryEmail": "test@test.com",
+                "activeCaseloadId": "MDI",
+                "accountType": "GENERAL"
+              }
+              """.trimIndent()
+            )
         )
     )
   }
@@ -55,17 +79,38 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(201)
+            .withBody(
+              """
+              { 
+                "username": "TEST1",
+                "firstName": "Test",
+                "lastName": "User",
+                "primaryEmail": "test@test.com",
+                "activeCaseloadId": "MDI",
+                "accountType": "ADMIN"
+              }
+              """.trimIndent()
+            )
         )
     )
   }
 
-  fun stubCreateCentralAdminUserFail(status: HttpStatus) {
+  fun stubCreateCentralAdminUserConflict() {
     stubFor(
       post(urlEqualTo("/users/admin-account"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "User already exists",
+                "developerMessage": "User TEST21 already exists"
+               }
+              """.trimIndent()
+            )
         )
     )
   }
@@ -79,7 +124,87 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withStatus(status.value())
             .withBody(
               """{
-                "status": 400,
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
+                "developerMessage": "A bigger message"
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateGeneralUserConflict() {
+    stubFor(
+      post(urlEqualTo("/users/general-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "User already exists",
+                "developerMessage": "User TEST21 already exists"
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateGeneralUserWithErrorFail(status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo("/users/general-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
+                "developerMessage": "A bigger message"
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateLocalAdminUserConflict() {
+    stubFor(
+      post(urlEqualTo("/users/local-admin-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "User already exists",
+                "developerMessage": "User TEST21 already exists"
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateLocalAdminUserWithErrorFail(status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo("/users/local-admin-account"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
                 "errorCode": null,
                 "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
                 "developerMessage": "A bigger message"
