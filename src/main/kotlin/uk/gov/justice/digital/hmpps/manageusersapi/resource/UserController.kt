@@ -29,7 +29,7 @@ class UserController(
 ) {
   @PostMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
   @Throws(UserExistsException::class)
-  @PreAuthorize("hasRole('ROLE_CREATE_USER')")
+  @PreAuthorize("hasAnyRole('ROLE_CREATE_USER','ROLE_CREATE_EMAIL_TOKEN')")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Create a DPS user",

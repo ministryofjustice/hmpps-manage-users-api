@@ -754,4 +754,17 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubForNewToken() {
+    stubFor(
+      post(urlEqualTo("/auth/api/new-token"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "text/plain;charset=UTF-8")))
+            .withBody(
+              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent()
+            )
+        )
+    )
+  }
 }
