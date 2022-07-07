@@ -87,9 +87,10 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create Central Admin user`() {
       nomisApiMockServer.stubCreateCentralAdminUser()
+      hmppsAuthMockServer.stubForNewToken()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
         .body(
           fromValue(
             mapOf(
@@ -126,9 +127,10 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create General user`() {
       nomisApiMockServer.stubCreateGeneralUser()
+      hmppsAuthMockServer.stubForNewToken()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
         .body(
           fromValue(
             mapOf(
@@ -166,9 +168,10 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create Local admin user`() {
       nomisApiMockServer.stubCreateLocalAdminUser()
+      hmppsAuthMockServer.stubForNewToken()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
         .body(
           fromValue(
             mapOf(
@@ -209,6 +212,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create central admin user returns error when username already exists`() {
       nomisApiMockServer.stubCreateCentralAdminUserConflict()
+      hmppsAuthMockServer.stubForNewToken()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))

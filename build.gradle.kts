@@ -21,6 +21,8 @@ dependencies {
   implementation("com.google.code.gson:gson:2.9.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.3")
+  implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
+  implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
