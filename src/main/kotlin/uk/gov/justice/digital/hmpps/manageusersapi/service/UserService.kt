@@ -28,11 +28,7 @@ class UserService(
     tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
     return nomisUserDetails ?: throw UserException(user.username, user.userType, "Error creating DPS User")
   }
-
-
 }
-
-
 class UserExistsException(user: String, errorCode: String) :
   Exception("Unable to create user: $user with reason: $errorCode")
 

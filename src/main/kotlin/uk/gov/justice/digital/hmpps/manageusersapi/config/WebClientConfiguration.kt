@@ -17,10 +17,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 class WebClientConfiguration(
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
   @Value("\${api.base.url.nomis}") val nomisBaseUri: String,
-  appContext: ApplicationContext) :
-  AbstractWebClientConfiguration(appContext, "hmpps-auth"
-) {
+  appContext: ApplicationContext
+) :
+  AbstractWebClientConfiguration(
+    appContext, "hmpps-auth"
+  ) {
   private val environment = appContext.environment
+
   @Bean
   fun authWebClient(builder: WebClient.Builder): WebClient {
     return builder
