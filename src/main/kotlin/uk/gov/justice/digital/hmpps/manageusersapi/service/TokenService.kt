@@ -31,9 +31,7 @@ class TokenService(
     val parameters = mapOf(
       "firstName" to user.firstName,
       "fullName" to user.firstName,
-      "resetLink" to passwordLink,
-      // Below should be deleted when new template would be available in Notification Service
-      "supportLink" to "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support/digital-prison-services"
+      "resetLink" to passwordLink
     )
 
     // send the email

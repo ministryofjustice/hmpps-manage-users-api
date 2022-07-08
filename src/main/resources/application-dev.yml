@@ -21,10 +21,6 @@ application:
 
 hmpps-auth:
   enabled: true
-  endpoint:
-    url: http://localhost:9090/auth/
-    timeout: 1s
-
   client:
     client-id: hmpps-manage-users-api
     client-secret: clientsecret

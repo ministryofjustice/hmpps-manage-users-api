@@ -81,9 +81,12 @@ api:
 
 application:
   notify:
-    create-initial-password.template: 43398947-e0f6-4722-9e33-62d09834e6c7
+    create-initial-password.template: b479fb86-0fe7-4728-bda5-ca93817a9a04
 
 hmpps-auth:
+  endpoint:
+    url: ${api.base.url.oauth}
+    timeout: 1s
   enabled: false
   client:
     access-token-uri: ${api.base.url.oauth}/oauth/token
