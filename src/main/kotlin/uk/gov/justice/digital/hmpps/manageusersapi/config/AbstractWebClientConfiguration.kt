@@ -28,7 +28,6 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     .clientName(clientId)
     .clientId(environment.getRequiredProperty("$clientId.client.client-id"))
     .clientSecret(environment.getRequiredProperty("$clientId.client.client-secret"))
-    .clientSecret(environment.getRequiredProperty("$clientId.client.client-secret"))
     .tokenUri(environment.getRequiredProperty("$clientId.client.access-token-uri"))
     .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
     .build()
