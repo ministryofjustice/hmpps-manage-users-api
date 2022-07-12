@@ -88,6 +88,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create Central Admin user`() {
       nomisApiMockServer.stubCreateCentralAdminUser()
       hmppsAuthMockServer.stubForNewToken()
+      hmppsAuthMockServer.stubForValidEmailDomain()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
@@ -213,6 +214,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create central admin user returns error when username already exists`() {
       nomisApiMockServer.stubCreateCentralAdminUserConflict()
       hmppsAuthMockServer.stubForNewToken()
+      hmppsAuthMockServer.stubForValidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -233,6 +235,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errorCode"] as Integer).isEqualTo(601)
           assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
         }
@@ -268,6 +271,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create general user returns error when username already exists`() {
       nomisApiMockServer.stubCreateGeneralUserConflict()
+      hmppsAuthMockServer.stubForValidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -289,6 +293,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errorCode"] as Integer).isEqualTo(601)
           assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
         }
@@ -325,6 +330,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create local admin user returns error when username already exists`() {
       nomisApiMockServer.stubCreateLocalAdminUserConflict()
+      hmppsAuthMockServer.stubForValidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -347,6 +353,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+          assertThat(it["errorCode"] as Integer).isEqualTo(601)
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
         }
     }
@@ -376,6 +383,36 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["userMessage"] as String).isEqualTo("Validation failure: First name must consist of alphabetical characters only and a max 35 chars")
           assertThat(it["developerMessage"] as String).isEqualTo("A bigger message")
+        }
+    }
+    @Test
+    fun `create local admin user returns error for invalid email domain `() {
+      nomisApiMockServer.stubCreateLocalAdminUserConflict()
+      hmppsAuthMockServer.stubForInValidEmailDomain()
+
+      webTestClient.post().uri("/users")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "username" to "TEST1",
+              "email" to "test@1gov.uk",
+              "firstName" to "Test",
+              "lastName" to "User",
+              "userType" to "DPS_LSA",
+              "defaultCaseloadId" to "MDI"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errorCode"] as Integer).isEqualTo(602)
+          assertThat(it["userMessage"] as String).isEqualTo("Invalid Email domain: 1gov.uk with reason: Email domain not valid")
+          assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: 1gov.uk with reason: Email domain not valid")
         }
     }
   }

@@ -131,6 +131,15 @@ class AuthService(
     }
   }
 
+  fun validateEmailDomain(emailDomain: String): Boolean {
+
+    return authWebClient.get()
+      .uri("/api/validate?emailDomain=$emailDomain")
+      .retrieve()
+      .bodyToMono(Boolean::class.java)
+      .block(timeout)!!
+  }
+
   private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
     (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
@@ -193,6 +202,7 @@ class RoleNotFoundException(action: String, role: String, errorCode: String) :
 
 class TokenException(userName: String, errorCode: Int) :
   Exception("Error creating token for user $userName, reason: $errorCode")
+
 data class CreateTokenRequest(
   val username: String,
   val email: String,
