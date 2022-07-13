@@ -56,7 +56,7 @@ class TokenService(
   }
 
   private fun getPasswordResetLink(token: String): String {
-    return "$authBaseUri/api/auth/user/initial-password?token=$token"
+    return "$authBaseUri/initial-password?token=$token"
   }
 
   companion object {

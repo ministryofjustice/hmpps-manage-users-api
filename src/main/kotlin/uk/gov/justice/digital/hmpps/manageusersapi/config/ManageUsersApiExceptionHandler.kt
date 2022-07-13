@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.HmppsValidationException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
@@ -127,6 +128,22 @@ class HmppsManageUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = CONFLICT,
+          errorCode = 601,
+          userMessage = "${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(HmppsValidationException::class)
+  fun handleCustomValidationException(e: HmppsValidationException): ResponseEntity<ErrorResponse?>? {
+    log.debug("Validation exception caught: {}", e.message)
+    return ResponseEntity
+      .status(CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          errorCode = 602,
           userMessage = "${e.message}",
           developerMessage = e.message
         )
