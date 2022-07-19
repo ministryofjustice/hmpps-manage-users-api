@@ -770,7 +770,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubForValidEmailDomain() {
     stubFor(
-      get(urlEqualTo("/auth/api/validate?emailDomain=gov.uk"))
+      get(urlEqualTo("/auth/api/validate/email-domain?emailDomain=gov.uk"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -783,7 +783,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubForInValidEmailDomain() {
     stubFor(
-      get(urlEqualTo("/auth/api/validate?emailDomain=1gov.uk"))
+      get(urlEqualTo("/auth/api/validate/email-domain?emailDomain=1gov.uk"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))

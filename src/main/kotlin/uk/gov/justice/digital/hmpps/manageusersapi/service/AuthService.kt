@@ -134,7 +134,7 @@ class AuthService(
   fun validateEmailDomain(emailDomain: String): Boolean {
 
     return authWebClient.get()
-      .uri("/api/validate?emailDomain=$emailDomain")
+      .uri("/api/validate/email-domain?emailDomain=$emailDomain")
       .retrieve()
       .bodyToMono(Boolean::class.java)
       .block(timeout)!!
