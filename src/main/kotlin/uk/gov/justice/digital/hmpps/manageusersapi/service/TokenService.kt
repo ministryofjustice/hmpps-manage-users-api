@@ -23,7 +23,12 @@ class TokenService(
     eventPrefix: String,
   ) {
     // Get token from Auth
-    val token = authService.createNewToken(CreateTokenRequest(username = user.username, email = user.email, "nomis"))
+    val token = authService.createNewToken(
+      CreateTokenRequest(
+        username = user.username,
+        email = user.email, "nomis", firstName = user.firstName, lastName = user.lastName
+      )
+    )
     val passwordLink = getPasswordResetLink(token)
 
     val username = user.username
