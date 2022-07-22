@@ -119,7 +119,9 @@ class AuthService(
           mapOf(
             "username" to createTokenRequest.username,
             "email" to createTokenRequest.email,
-            "source" to createTokenRequest.source
+            "source" to createTokenRequest.source,
+            "firstName" to createTokenRequest.firstName,
+            "lastName" to createTokenRequest.lastName
           )
         )
         .retrieve()
@@ -207,4 +209,6 @@ data class CreateTokenRequest(
   val username: String,
   val email: String,
   val source: String,
+  val firstName: String,
+  val lastName: String,
 )
