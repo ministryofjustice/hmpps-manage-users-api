@@ -27,7 +27,6 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no role`() {
-
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf()))
         .body(
@@ -47,7 +46,6 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
         .body(
@@ -91,7 +89,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForValidEmailDomain()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
             mapOf(
@@ -131,7 +129,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForNewToken()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
             mapOf(
@@ -172,7 +170,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForNewToken()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER", "ROLE_CREATE_EMAIL_TOKEN")))
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
             mapOf(
@@ -235,7 +233,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["errorCode"] as Integer).isEqualTo(601)
+          assertThat(it["errorCode"] as Int).isEqualTo(601)
           assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
         }
@@ -293,7 +291,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["errorCode"] as Integer).isEqualTo(601)
+          assertThat(it["errorCode"] as Int).isEqualTo(601)
           assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
         }
@@ -353,7 +351,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
-          assertThat(it["errorCode"] as Integer).isEqualTo(601)
+          assertThat(it["errorCode"] as Int).isEqualTo(601)
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
         }
     }
@@ -385,6 +383,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it["developerMessage"] as String).isEqualTo("A bigger message")
         }
     }
+
     @Test
     fun `create local admin user returns error for invalid email domain `() {
       nomisApiMockServer.stubCreateLocalAdminUserConflict()
@@ -410,7 +409,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["errorCode"] as Integer).isEqualTo(602)
+          assertThat(it["errorCode"] as Int).isEqualTo(602)
           assertThat(it["userMessage"] as String).isEqualTo("Invalid Email domain: 1gov.uk with reason: Email domain not valid")
           assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: 1gov.uk with reason: Email domain not valid")
         }
@@ -429,7 +428,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "username" to "TEST1",
               "email" to "test@gov.uk",
               "firstName" to "Test",
-              "lastName" to "User",
+              "lastName" to "User"
             )
           )
         )

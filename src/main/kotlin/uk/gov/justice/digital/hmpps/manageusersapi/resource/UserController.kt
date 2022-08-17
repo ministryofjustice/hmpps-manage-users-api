@@ -29,7 +29,7 @@ class UserController(
 ) {
   @PostMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
   @Throws(UserExistsException::class)
-  @PreAuthorize("hasAnyRole('ROLE_CREATE_USER','ROLE_CREATE_EMAIL_TOKEN')")
+  @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Create a DPS user",
@@ -81,7 +81,8 @@ class UserController(
     ]
   )
   fun createUser(
-    @RequestBody @Valid createUserRequest: CreateUserRequest
+    @RequestBody @Valid
+    createUserRequest: CreateUserRequest
   ): NomisUserDetails = userService.createUser(createUserRequest)
 }
 
@@ -89,23 +90,28 @@ class UserController(
 @Schema(description = "DPS User creation")
 data class CreateUserRequest(
   @Schema(description = "Username", example = "TEST_USER", required = true)
-  @NotBlank val username: String,
+  @NotBlank
+  val username: String,
 
   @Schema(description = "Email Address", example = "test@justice.gov.uk", required = true)
   @field:Email(message = "Not a valid email address")
-  @NotBlank val email: String,
+  @NotBlank
+  val email: String,
 
   @Schema(description = "First name of the user", example = "John", required = true)
-  @NotBlank val firstName: String,
+  @NotBlank
+  val firstName: String,
 
   @Schema(description = "Last name of the user", example = "Smith", required = true)
-  @NotBlank val lastName: String,
+  @NotBlank
+  val lastName: String,
 
   @Schema(description = "The type of user", example = "DPS_LSA", required = true)
-  @NotBlank val userType: UserType,
+  @NotBlank
+  val userType: UserType,
 
   @Schema(description = "Default caseload (a.k.a Prison ID)", example = "BXI", required = false)
-  val defaultCaseloadId: String? = null,
+  val defaultCaseloadId: String? = null
 )
 
 enum class UserType {
