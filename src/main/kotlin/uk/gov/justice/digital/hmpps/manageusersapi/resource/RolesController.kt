@@ -105,11 +105,11 @@ class RolesController(
     @PathVariable role: String,
   ): Role = Role(rolesService.getRoleDetail(role))
 
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Get all roles",
-    description = "Get all roles, role required is ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES")],
+    description = "Get all roles, role required is ROLE_ROLES_ADMIN (to find external roles), ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES")],
     responses = [
       ApiResponse(
         responseCode = "200",

@@ -460,11 +460,27 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-
       webTestClient.get().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .exchange()
         .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access allowed when correct role`() {
+      hmppsAuthMockServer.stubGetRoles()
+      webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+      webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .exchange()
+        .expectStatus().isOk
+      webTestClient.get().uri("/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
