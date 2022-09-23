@@ -9,7 +9,13 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.*
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import java.time.Duration
 
 @Service

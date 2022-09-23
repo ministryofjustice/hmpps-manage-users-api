@@ -7,13 +7,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
 class GroupsService(
   val authService: AuthService,
 ) {
-
   @Throws(GroupNotFoundException::class)
   fun getGroupDetail(
     group: String
   ): GroupDetails = authService.getGroupDetail(group)
-
-
 }
-
-
