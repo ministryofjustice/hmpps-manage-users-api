@@ -34,7 +34,8 @@ class GroupsControllerTest {
       ).thenReturn(groupsDetails)
 
       val response = groupsController.getGroupDetail("group")
-      assertThat(response).isEqualTo(groupsDetails
+      assertThat(response).isEqualTo(
+        groupsDetails
       )
     }
 
@@ -47,7 +48,5 @@ class GroupsControllerTest {
         .isInstanceOf(GroupNotFoundException::class.java)
         .withFailMessage("Unable to find group: notfound, reason: not found")
     }
-
-
   }
 }

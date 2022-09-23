@@ -18,7 +18,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
 @Validated
 @RestController
 class GroupsController(
-  private val groupsService: GroupsService) {
+  private val groupsService: GroupsService
+) {
 
   @GetMapping("/api/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -62,58 +63,56 @@ class GroupsController(
     return groupsService.getGroupDetail(group)
   }
 }
-  @Schema(description = "User Role")
-  data class AuthUserAssignableRole(
-    @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
-    val roleCode: String,
 
-    @Schema(required = true, description = "Role Name", example = "Licence Responsible Officer")
-    val roleName: String,
+@Schema(description = "User Role")
+data class AuthUserAssignableRole(
+  @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
+  val roleCode: String,
 
-    @Schema(required = true, description = "automatic", example = "TRUE")
-    val automatic: Boolean
-  ) {
+  @Schema(required = true, description = "Role Name", example = "Licence Responsible Officer")
+  val roleName: String,
 
-    constructor(a: Authority, automatic: Boolean) : this(a.roleCode, a.roleName, automatic)
-  }
+  @Schema(required = true, description = "automatic", example = "TRUE")
+  val automatic: Boolean
+) {
 
-  @Schema(description = "User Role")
-  data class Authority(
-    @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
-    val roleCode: String,
+  constructor(a: Authority, automatic: Boolean) : this(a.roleCode, a.roleName, automatic)
+}
 
-    @Schema(required = true, description = "Role Name", example = "Licence Responsible Officer")
-    val roleName: String,
+@Schema(description = "User Role")
+data class Authority(
+  @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
+  val roleCode: String,
 
-    @Schema(required = true, description = "Role Description", example = "Licence Responsible Officer")
-    val roleDescription: String?,
+  @Schema(required = true, description = "Role Name", example = "Licence Responsible Officer")
+  val roleName: String,
 
-    @Schema(required = true, description = "Admin type", example = "DPS_LSA")
-    val adminType: List<AdminType> = listOf()
-  )
+  @Schema(required = true, description = "Role Description", example = "Licence Responsible Officer")
+  val roleDescription: String?,
 
+  @Schema(required = true, description = "Admin type", example = "DPS_LSA")
+  val adminType: List<AdminType> = listOf()
+)
+@Schema(description = "User Group")
+data class AuthUserGroup(
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  val groupCode: String,
 
-  @Schema(description = "User Group")
-  data class AuthUserGroup(
-    @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
-    val groupCode: String,
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
+  val groupName: String,
+)
 
-    @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-    val groupName: String,
-  )
+@Schema(description = "Group Details")
+data class GroupDetails(
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  val groupCode: String,
 
-  @Schema(description = "Group Details")
-  data class GroupDetails(
-    @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
-    val groupCode: String,
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
+  val groupName: String,
 
-    @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-    val groupName: String,
+  @Schema(required = true, description = "Assignable Roles")
+  val assignableRoles: List<AuthUserAssignableRole>,
 
-    @Schema(required = true, description = "Assignable Roles")
-    val assignableRoles: List<AuthUserAssignableRole>,
-
-    @Schema(required = true, description = "Child Groups")
-    val children: List<AuthUserGroup>
-  )
-
+  @Schema(required = true, description = "Child Groups")
+  val children: List<AuthUserGroup>
+)
