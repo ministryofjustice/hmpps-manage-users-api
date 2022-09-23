@@ -9,12 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.*
 import java.time.Duration
 
 @Service
@@ -185,6 +180,19 @@ class AuthService(
       .block()!!
   }
 
+  @Throws(GroupNotFoundException::class)
+  fun getGroupDetail(group: String): GroupDetails {
+    try {
+      return authWebClient.get()
+        .uri("/api/groups/$group")
+        .retrieve()
+        .bodyToMono(GroupDetails::class.java)
+        .block(timeout) ?: throw GroupNotFoundException("get", group, "notfound")
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) GroupNotFoundException("get", group, "notfound") else e
+    }
+  }
+
   suspend fun getUsers(): List<AuthUser> =
     authWebClient.get()
       .uri { uriBuilder ->
@@ -201,6 +209,9 @@ class RoleList : MutableList<Role> by ArrayList()
 
 class RoleNotFoundException(action: String, role: String, errorCode: String) :
   Exception("Unable to $action role: $role with reason: $errorCode")
+
+class GroupNotFoundException(action: String, group: String, errorCode: String) :
+  Exception("Unable to $action group: $group, reason: $errorCode")
 
 class TokenException(userName: String, errorCode: Int) :
   Exception("Error creating token for user $userName, reason: $errorCode")
