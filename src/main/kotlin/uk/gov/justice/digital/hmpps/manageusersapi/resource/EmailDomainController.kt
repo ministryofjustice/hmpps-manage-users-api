@@ -1,16 +1,16 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
-import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailDomainService
-import java.util.*
+import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -18,41 +18,31 @@ import javax.validation.constraints.Size
 @Controller
 class EmailDomainController(
   private val emailDomainService: EmailDomainService
-){
+) {
 
   @GetMapping("/email-domains")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domainList(): List<EmailDomainDto> {
-    return emptyList()
+    return emailDomainService.domainList()
   }
 
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domain(@PathVariable id: UUID): EmailDomainDto {
-    return EmailDomainDto("", "", "")
+    return emailDomainService.domain(id)
   }
 
+  @ResponseStatus(HttpStatus.CREATED)
   @PostMapping("/email-domains")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun addEmailDomain(@Valid @ModelAttribute emailDomain: CreateEmailDomainDto, result: BindingResult) {
-
+  fun addEmailDomain(@RequestBody @Valid emailDomain: CreateEmailDomainDto): EmailDomainDto {
+    return emailDomainService.addEmailDomain(emailDomain)
   }
 
   @DeleteMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun deleteEmailDomain(@PathVariable id: UUID){
-  }
-
-  private fun newEmailDomainView(createEmailDomainDto: CreateEmailDomainDto): ModelAndView {
-    return ModelAndView("ui/newEmailDomainForm", "createEmailDomainDto", createEmailDomainDto)
-  }
-
-  private fun redirectToDomainListView(): ModelAndView {
-    return ModelAndView("redirect:/email-domains")
-  }
-
-  private fun toDomainListView(emailDomains: List<EmailDomainDto>): ModelAndView {
-    return ModelAndView("ui/emailDomains", mapOf("emailDomains" to emailDomains))
+  fun deleteEmailDomain(@PathVariable id: UUID) {
+    emailDomainService.deleteEmailDomain(id)
   }
 }
 
