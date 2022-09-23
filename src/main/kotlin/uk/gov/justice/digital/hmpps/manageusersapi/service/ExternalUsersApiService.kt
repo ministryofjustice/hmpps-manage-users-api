@@ -17,7 +17,7 @@ class ExternalUsersApiService(@Qualifier("externalUsersWebClient") val externalU
     return externalUsersWebClient.get()
       .uri { uriBuilder ->
         uriBuilder
-          .path("/api/roles")
+          .path("/roles")
           .queryParam("adminTypes", adminTypes)
           .build()
       }

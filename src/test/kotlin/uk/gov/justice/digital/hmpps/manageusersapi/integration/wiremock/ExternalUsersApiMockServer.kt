@@ -25,7 +25,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesFilterAdminType() {
     stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM"))
+      get(urlEqualTo("/roles?adminTypes=EXT_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -38,7 +38,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesFilterAdminTypes() {
     stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+      get(urlEqualTo("/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -51,7 +51,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetRoles() {
     stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes"))
+      get(urlEqualTo("/roles?adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
