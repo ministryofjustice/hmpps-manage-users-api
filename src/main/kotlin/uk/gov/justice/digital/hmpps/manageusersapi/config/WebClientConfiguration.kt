@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 class WebClientConfiguration(
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
   @Value("\${api.base.url.nomis}") val nomisBaseUri: String,
+  @Value("\${api.base.url.external}") val externalUsersBaseUri: String,
   appContext: ApplicationContext
 ) :
   AbstractWebClientConfiguration(
@@ -37,6 +38,14 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
     authorizedClientManager: OAuth2AuthorizedClientManager
   ): WebClient = getWebClient(builder, authorizedClientManager)
+
+  @Bean
+  fun externalUsersWebClient(builder: WebClient.Builder): WebClient {
+    return builder
+      .baseUrl(externalUsersBaseUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+  }
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
