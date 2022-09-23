@@ -197,8 +197,6 @@ class AuthService(
       .awaitBody()
 }
 
-class RoleList : MutableList<Role> by ArrayList()
-
 class RoleNotFoundException(action: String, role: String, errorCode: String) :
   Exception("Unable to $action role: $role with reason: $errorCode")
 

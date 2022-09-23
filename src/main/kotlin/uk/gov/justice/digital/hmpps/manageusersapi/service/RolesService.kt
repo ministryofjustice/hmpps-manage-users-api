@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 class RolesService(
   val nomisApiService: NomisApiService,
   val authService: AuthService,
+  val externalUsersApiService: ExternalUsersApiService
 ) {
 
   @Throws(RoleExistsException::class)
@@ -29,7 +30,7 @@ class RolesService(
 
   fun getRoles(
     adminTypes: List<AdminType>?
-  ): List<Role> = authService.getRoles(adminTypes)
+  ): List<Role> = externalUsersApiService.getRoles(adminTypes)
 
   fun getPagedRoles(
     page: Int,

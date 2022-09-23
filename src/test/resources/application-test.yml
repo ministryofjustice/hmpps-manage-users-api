@@ -10,6 +10,7 @@ api:
     url:
       oauth: http://localhost:8090/auth
       nomis: http://localhost:8093
+      external: http://localhost:8098
 
 notification:
   banner:

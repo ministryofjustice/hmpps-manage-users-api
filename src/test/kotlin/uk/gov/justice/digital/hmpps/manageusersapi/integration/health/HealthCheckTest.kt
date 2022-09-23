@@ -76,5 +76,6 @@ class HealthCheckTest : IntegrationTestBase() {
   private fun stubPingWithResponse(status: Int) {
     hmppsAuthMockServer.stubHealthPing(status)
     nomisApiMockServer.stubHealthPing(status)
+    externalUsersApiMockServer.stubHealthPing(status)
   }
 }
