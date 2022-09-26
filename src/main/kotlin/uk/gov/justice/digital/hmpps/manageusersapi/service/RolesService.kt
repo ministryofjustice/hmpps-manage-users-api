@@ -40,7 +40,7 @@ class RolesService(
     roleCode: String?,
     adminTypes: List<AdminType>?
   ): RolesPaged =
-    authService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
+    externalUsersApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role = authService.getRoleDetail(roleCode)
