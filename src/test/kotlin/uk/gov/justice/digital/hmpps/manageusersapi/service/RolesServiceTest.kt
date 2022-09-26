@@ -68,7 +68,7 @@ class RolesServiceTest {
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
 
-      whenever(authService.getRoleDetail(anyString())).thenReturn(role)
+      whenever(externalUsersService.getRoleDetail(anyString())).thenReturn(role)
       val roleDetails = rolesService.getRoleDetail("RC1")
 
       assertThat(roleDetails).isEqualTo(role)
@@ -116,7 +116,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
       verify(authService).updateRoleName("ROLE_1", roleAmendment)
@@ -131,7 +131,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(role)
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
       verify(authService).updateRoleName("ROLE_1", roleAmendment)
@@ -149,7 +149,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
@@ -164,7 +164,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
@@ -181,7 +181,7 @@ class RolesServiceTest {
           AdminTypeReturn("DPS_ADM", "DPS Central Administrator")
         )
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
@@ -199,7 +199,7 @@ class RolesServiceTest {
           AdminTypeReturn("DPS_LSA", "DPS Local System Administrator")
         )
       )
-      whenever(authService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)

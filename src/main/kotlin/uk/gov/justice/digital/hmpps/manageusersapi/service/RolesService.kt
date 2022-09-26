@@ -43,7 +43,7 @@ class RolesService(
     externalUsersApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @Throws(RoleNotFoundException::class)
-  fun getRoleDetail(roleCode: String): Role = authService.getRoleDetail(roleCode)
+  fun getRoleDetail(roleCode: String): Role = externalUsersApiService.getRoleDetail(roleCode)
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
@@ -60,7 +60,7 @@ class RolesService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    val originalRole = authService.getRoleDetail(roleCode)
+    val originalRole = externalUsersApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
       nomisApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {

@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
@@ -48,19 +47,6 @@ class AuthService(
         createRole.roleCode,
         "role code already exists"
       ) else e
-    }
-  }
-
-  @Throws(RoleNotFoundException::class)
-  fun getRoleDetail(roleCode: String): Role {
-    try {
-      return authWebClient.get()
-        .uri("/api/roles/$roleCode")
-        .retrieve()
-        .bodyToMono(Role::class.java)
-        .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
     }
   }
 
