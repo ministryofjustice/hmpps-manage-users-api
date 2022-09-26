@@ -7,18 +7,18 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
 
 @Service
 class UserRolesService(
-  val authService: AuthService,
+  val externalUsersApiService: ExternalUsersApiService,
   val nomisApiService: NomisApiService,
 ) {
 
   fun getUserRoles(user: String): UserRoleDetail {
     val userRoleDetail = nomisApiService.getUserRoles(user)
-    val authRoles = authService.getRoles(listOf(AdminType.DPS_ADM))
+    val externalUserRoles = externalUsersApiService.getRoles(listOf(AdminType.DPS_ADM))
 
-    return userRoleDetail.copy(dpsRoles = userAuthRoleNames(userRoleDetail.dpsRoles, authRoles))
+    return userRoleDetail.copy(dpsRoles = userExternalUsersRoleNames(userRoleDetail.dpsRoles, externalUserRoles))
   }
 
-  private fun userAuthRoleNames(roleDetails: List<RoleDetail>, authRoles: List<Role>): List<RoleDetail> {
+  private fun userExternalUsersRoleNames(roleDetails: List<RoleDetail>, authRoles: List<Role>): List<RoleDetail> {
 
     val authRoleMap = authRoles.associate { it.roleCode to it.roleName }
     return roleDetails.map { it.copy(name = authRoleMap[it.code] ?: it.name) }.sortedBy { it.name }
