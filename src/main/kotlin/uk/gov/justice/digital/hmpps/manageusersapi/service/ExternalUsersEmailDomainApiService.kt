@@ -30,7 +30,7 @@ class ExternalUsersEmailDomainApiService(
 
   fun addEmailDomain(emailDomain: CreateEmailDomainDto): EmailDomainDto {
     return externalUsersWebClient.post()
-      .uri("/email-domains/")
+      .uri("/email-domains")
       .bodyValue(emailDomain)
       .retrieve()
       .bodyToMono(EmailDomainDto::class.java)

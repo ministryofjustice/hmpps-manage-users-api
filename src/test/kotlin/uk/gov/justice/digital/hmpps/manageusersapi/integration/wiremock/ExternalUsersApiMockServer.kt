@@ -3,9 +3,11 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
+import org.springframework.http.HttpStatus
 
 class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -44,6 +46,103 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
               apiResponseBody()
+            )
+        )
+    )
+  }
+
+  fun stubCreateEmailDomainConflict() {
+    stubFor(
+      post(urlEqualTo("/email-domains"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "Unable to add email domain: Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list",
+                "developerMessage": "Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateEmailDomain() {
+    stubFor(
+      post(urlEqualTo("/email-domains"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              """
+                    {
+                        "id": "45E266FF-8776-48DB-A2F7-4FA927EFE4C8",
+                        "domain": "advancecharity.org.uk",
+                        "description": "ADVANCE"
+                    }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetEmailDomain(id: String) {
+    stubFor(
+      get("/email-domains/$id")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                    {
+                        "id": "45E266FF-8776-48DB-A2F7-4FA927EFE4C8",
+                        "domain": "advancecharity.org.uk",
+                        "description": "ADVANCE"
+                    }
+                  
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetEmailDomains() {
+    stubFor(
+      get(urlEqualTo("/email-domains"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                     [
+                          {
+                              "id": "45E266FF-8776-48DB-A2F7-4FA927EFE4C8",
+                              "domain": "advancecharity.org.uk",
+                              "description": "ADVANCE"
+                          },
+                          {
+                              "id": "8BB676EE-7531-44BA-9A31-5355BEEAD9DB",
+                              "domain": "bidvestnoonan.com",
+                              "description": "BIDVESTNOONA"
+                          },
+                          {
+                              "id": "FFDB69CB-1E23-40F2-B94A-11E6A9AE7BBF",
+                              "domain": "bsigroup.com",
+                              "description": "BSIGROUP"
+                          },
+                          {
+                              "id": "2200A597-F47A-439C-9B84-79ADADD72D7C",
+                              "domain": "careuk.com",
+                              "description": "CAREUK"
+                          }
+                      ]
+                  
+              """.trimIndent()
             )
         )
     )
