@@ -195,133 +195,6 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubGetRoles() {
-    stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes"))
-        .willReturn(
-          aResponse()
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(
-              """
-                     [
-                          {
-                              "roleCode": "AUDIT_VIEWER",
-                              "roleName": "Audit viewer",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "AUTH_GROUP_MANAGER",
-                              "roleName": "Auth Group Manager",
-                              "roleDescription": "Gives group manager ability to administer user in there groups",
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_1",
-                              "roleName": "role 1",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_2",
-                              "roleName": "role 2",
-                              "roleDescription": "Second role",
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_3",
-                              "roleName": "role 3",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_4",
-                              "roleName": "role 4",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_5",
-                              "roleName": "role 5",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_6",
-                              "roleName": "role 6",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_7",
-                              "roleName": "role 7",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "ROLE_8",
-                              "roleName": "role 8",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          }
-                      ]
-                  
-              """.trimIndent()
-            )
-        )
-    )
-  }
-
   fun stubGetAllRolesPage3Descending() {
     stubFor(
       get(urlEqualTo("/auth/api/roles/paged?page=3&size=4&sort=roleName,desc&roleName&roleCode&adminTypes"))
@@ -434,32 +307,6 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubGetAllRolesFilterAdminType() {
-    stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM"))
-        .willReturn(
-          aResponse()
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(
-              apiResponseBody()
-            )
-        )
-    )
-  }
-
-  fun stubGetAllRolesFilterAdminTypes() {
-    stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
-        .willReturn(
-          aResponse()
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(
-              apiResponseBody()
-            )
-        )
-    )
-  }
-
   fun stubGetAllRolesPagedFilterAdminType() {
     stubFor(
       get(urlEqualTo("/auth/api/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM"))
@@ -498,26 +345,6 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
-
-  fun apiResponseBody() = """
-                      [
-                          {
-                              "roleCode": "ACCOUNT_MANAGER",
-                              "roleName": "The group account manager",
-                              "roleDescription": "A group account manager - responsible for managing groups",
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  },
-                                  {
-                                      "adminTypeCode": "DPS_ADM",
-                                      "adminTypeName": "DPS Central Administrator"
-                                  }
-                              ]
-                          }
-                      ]
-  """.trimIndent()
 
   fun apiResponseBodyPaged() = """{
                       "content": [

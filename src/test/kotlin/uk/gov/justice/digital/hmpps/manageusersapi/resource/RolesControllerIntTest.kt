@@ -443,7 +443,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
   inner class GetAllRoles {
     @Test
     fun `access forbidden when no authority`() {
-
       webTestClient.get().uri("/roles")
         .exchange()
         .expectStatus().isUnauthorized
@@ -451,7 +450,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no role`() {
-
       webTestClient.get().uri("/roles")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -468,7 +466,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access allowed when correct role`() {
-      hmppsAuthMockServer.stubGetRoles()
+      externalUsersApiMockServer.stubGetRoles()
       webTestClient.get().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -485,7 +483,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles defaults`() {
-      hmppsAuthMockServer.stubGetRoles()
+      externalUsersApiMockServer.stubGetRoles()
       webTestClient.get().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
         .exchange()
@@ -505,7 +503,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter admin type`() {
-      hmppsAuthMockServer.stubGetAllRolesFilterAdminType()
+      externalUsersApiMockServer.stubGetAllRolesFilterAdminType()
       webTestClient.get().uri("/roles?adminTypes=EXT_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
         .exchange()
@@ -516,7 +514,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter multiple admin types`() {
-      hmppsAuthMockServer.stubGetAllRolesFilterAdminTypes()
+      externalUsersApiMockServer.stubGetAllRolesFilterAdminTypes()
       webTestClient.get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
         .exchange()

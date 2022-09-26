@@ -25,7 +25,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.EXT_ADM
 class RolesServiceTest {
   private val authService: AuthService = mock()
   private val nomisService: NomisApiService = mock()
-  private val rolesService = RolesService(nomisService, authService)
+  private val externalUsersService: ExternalUsersApiService = mock()
+  private val rolesService = RolesService(nomisService, authService, externalUsersService)
 
   @Nested
   inner class GetAllRoles {
@@ -35,11 +36,12 @@ class RolesServiceTest {
         Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
         Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
       )
-      whenever(authService.getRoles(isNull())).thenReturn(roles)
+      whenever(externalUsersService.getRoles(isNull())).thenReturn(roles)
 
-      val allRoles = authService.getRoles(null)
+      val allRoles = externalUsersService.getRoles(null)
       assertThat(allRoles).isEqualTo(roles)
       verifyNoMoreInteractions(nomisService)
+      verifyNoMoreInteractions(authService)
     }
   }
 
