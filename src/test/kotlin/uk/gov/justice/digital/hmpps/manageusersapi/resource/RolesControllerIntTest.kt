@@ -555,7 +555,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles defaults`() {
-      hmppsAuthMockServer.stubGetAllRolesPaged()
+      externalUsersApiMockServer.stubGetAllRolesPaged()
       webTestClient.get().uri("/roles/paged")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -580,7 +580,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles page 3 size 4 descending`() {
-      hmppsAuthMockServer.stubGetAllRolesPage3Descending()
+      externalUsersApiMockServer.stubGetAllRolesPage3Descending()
       webTestClient.get().uri("/roles/paged?page=3&size=4&sort=roleName,desc")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -599,7 +599,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter role code`() {
-      hmppsAuthMockServer.stubGetAllRolesPagedFilterRoleCode()
+      externalUsersApiMockServer.stubGetAllRolesPagedFilterRoleCode()
       webTestClient.get().uri("/roles/paged?roleCode=account")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -610,7 +610,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter role name`() {
-      hmppsAuthMockServer.stubGetAllRolesPagedFilterRoleName()
+      externalUsersApiMockServer.stubGetAllRolesPagedFilterRoleName()
       webTestClient.get().uri("/roles/paged?roleName=manager")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -621,7 +621,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter admin type`() {
-      hmppsAuthMockServer.stubGetAllRolesPagedFilterAdminType()
+      externalUsersApiMockServer.stubGetAllRolesPagedFilterAdminType()
       webTestClient.get().uri("/roles/paged?adminTypes=EXT_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -632,7 +632,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles filter multiple admin types`() {
-      hmppsAuthMockServer.stubGetAllRolesPagedFilterAdminTypes()
+      externalUsersApiMockServer.stubGetAllRolesPagedFilterAdminTypes()
       webTestClient.get().uri("/roles/paged?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -644,7 +644,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get all roles using all filters`() {
-      hmppsAuthMockServer.stubGetAllRolesPagedUsingAllFilters()
+      externalUsersApiMockServer.stubGetAllRolesPagedUsingAllFilters()
       webTestClient.get()
         .uri("/roles/paged?page=1&size=10&sort=roleName,asc&roleCode=account&roleName=manager&adminTypes=EXT_ADM&adminTypes=DPS_ADM")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1100,7 +1100,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(REQUEST_TIMEOUT)
 
-      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/auth/api/roles/OAUTH_ADMIN2/admintype")))
+      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN2/admintype")))
     }
 
     @Test
@@ -1140,7 +1140,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(REQUEST_TIMEOUT)
 
-      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/auth/api/roles/OAUTH_ADMIN3/admintype")))
+      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN3/admintype")))
     }
   }
 }
