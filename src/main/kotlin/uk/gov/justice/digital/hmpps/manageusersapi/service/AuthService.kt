@@ -144,20 +144,6 @@ class AuthService(
   private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
     (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
-  fun getRoles(adminTypes: List<AdminType>?): List<Role> {
-
-    return authWebClient.get()
-      .uri { uriBuilder ->
-        uriBuilder
-          .path("/api/roles")
-          .queryParam("adminTypes", adminTypes)
-          .build()
-      }
-      .retrieve()
-      .bodyToMono(RoleList::class.java)
-      .block()!!
-  }
-
   suspend fun getUsers(): List<AuthUser> =
     authWebClient.get()
       .uri { uriBuilder ->

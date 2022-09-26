@@ -18,7 +18,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.SyncDifferences.Updat
 @Service
 class RoleSyncService(
   private val nomisApiService: NomisApiService,
-  private val authService: AuthService,
+  private val externalUsersApiService: ExternalUsersApiService,
   private val telemetryClient: TelemetryClient,
   gson: Gson
 ) : SyncService(gson) {
@@ -27,26 +27,26 @@ class RoleSyncService(
   }
 
   fun sync(readOnly: Boolean = true): SyncStatistics {
-    return syncAllData(authService.getRoles(listOf(DPS_ADM)), nomisApiService.getAllRoles(), readOnly)
+    return syncAllData(externalUsersApiService.getRoles(listOf(DPS_ADM)), nomisApiService.getAllRoles(), readOnly)
   }
 
   private fun syncAllData(
-    rolesFromAuth: List<Role>,
+    rolesFromExternalUsers: List<Role>,
     rolesFromNomis: List<NomisRole>,
     readOnly: Boolean
   ): SyncStatistics {
 
-    val rolesFromAuthMap = rolesFromAuth.map { RoleDataToSync(it) }.associateBy { it.roleCode }
+    val rolesFromExternalUsersMap = rolesFromExternalUsers.map { RoleDataToSync(it) }.associateBy { it.roleCode }
     val rolesFromNomisMap = rolesFromNomis.map { RoleDataToSync(it) }.associateBy { it.roleCode }
 
     val stats = SyncStatistics()
-    rolesFromAuthMap.filterMatching(rolesFromNomisMap).forEach {
+    rolesFromExternalUsersMap.filterMatching(rolesFromNomisMap).forEach {
       syncRole(rolesFromNomisMap[it.key], it.value, stats, readOnly)
     }
-    rolesFromAuthMap.filterNew(rolesFromNomisMap).forEach {
+    rolesFromExternalUsersMap.filterNew(rolesFromNomisMap).forEach {
       syncRole(null, it.value, stats, readOnly)
     }
-    rolesFromNomisMap.filterMissing(rolesFromAuthMap).forEach {
+    rolesFromNomisMap.filterMissing(rolesFromExternalUsersMap).forEach {
       syncRole(rolesFromNomisMap[it.key], null, stats, readOnly)
     }
     return stats
@@ -128,11 +128,11 @@ data class RoleDataToSync(
   val roleName: String,
   val adminRoleOnly: Boolean
 ) {
-  constructor(roleFromAuth: Role) :
+  constructor(roleFromExternalUsers: Role) :
     this(
-      roleFromAuth.roleCode,
-      roleFromAuth.roleName.take(30),
-      DPS_LSA !in roleFromAuth.adminType.asAdminTypes()
+      roleFromExternalUsers.roleCode,
+      roleFromExternalUsers.roleName.take(30),
+      DPS_LSA !in roleFromExternalUsers.adminType.asAdminTypes()
     )
 
   constructor(roleFromNomis: NomisRole) :

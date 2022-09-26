@@ -545,4 +545,43 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                       "empty": false
                   }
   """.trimIndent()
+
+  fun stubGetRolesForRoleName() {
+    stubFor(
+      get(urlEqualTo("/roles?adminTypes=DPS_ADM"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                     [
+                          {
+                              "roleCode": "AUDIT_VIEWER",
+                              "roleName": "Audit viewer",
+                              "roleDescription": null,
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
+                          },
+                          {
+                              "roleCode": "AUTH_GROUP_MANAGER",
+                              "roleName": "Auth Group Manager that has more than 30 characters in the role name",
+                              "roleDescription": "Gives group manager ability to administer user in there groups",
+                              "adminType": [
+                                  {
+                                      "adminTypeCode": "EXT_ADM",
+                                      "adminTypeName": "External Administrator"
+                                  }
+                              ]
+                          }
+                           ]
+                  
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

@@ -18,12 +18,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 
 class RolesSyncServiceTest {
-  private val authService: AuthService = mock()
+  private val externalUsersApiService: ExternalUsersApiService = mock()
   private val nomisService: NomisApiService = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val gson: Gson = GsonConfig().gson()
 
-  private val roleSyncService = RoleSyncService(nomisService, authService, telemetryClient, gson)
+  private val roleSyncService = RoleSyncService(nomisService, externalUsersApiService, telemetryClient, gson)
 
   @Test
   fun `sync roles that match`() {
@@ -39,16 +39,16 @@ class RolesSyncServiceTest {
       )
     )
 
-    val rolesFromAuth = listOf(role1, role2)
+    val rolesFromExternalUsers = listOf(role1, role2)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1", true),
       NomisRole("ROLE_2", "Role 2", false),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val statistics = roleSyncService.sync()
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verifyNoMoreInteractions(telemetryClient)
     verifyNoMoreInteractions(nomisService)
@@ -66,16 +66,16 @@ class RolesSyncServiceTest {
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(role1, role2)
+    val rolesFromExternalUsers = listOf(role1, role2)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1 That is longer than 30 ", true),
       NomisRole("ROLE_2", "Role 2", true),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val statistics = roleSyncService.sync()
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verifyNoMoreInteractions(telemetryClient)
     verifyNoMoreInteractions(nomisService)
@@ -84,25 +84,25 @@ class RolesSyncServiceTest {
 
   @Test
   fun `sync roles that have different role name`() {
-    val authRole1 = Role(
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole2 = Role(
+    val externalUsersRole2 = Role(
       "ROLE_2", "Role 2", " description 2",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1, authRole2)
+    val rolesFromExternalUsers = listOf(externalUsersRole1, externalUsersRole2)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1 Nomis", true),
       NomisRole("ROLE_2", "Role 2", true),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(false)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(nomisService).updateRole("ROLE_1", "Role 1", true)
@@ -115,25 +115,25 @@ class RolesSyncServiceTest {
 
   @Test
   fun `sync roles that have different role admin types`() {
-    val authRole1 = Role(
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole2 = Role(
+    val externalUsersRole2 = Role(
       "ROLE_2", "Role 2", " description 2",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1, authRole2)
+    val rolesFromExternalUsers = listOf(externalUsersRole1, externalUsersRole2)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1", true),
       NomisRole("ROLE_2", "Role 2", false),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(false)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(nomisService).updateRole("ROLE_2", "Role 2", true)
@@ -146,25 +146,25 @@ class RolesSyncServiceTest {
 
   @Test
   fun `sync roles that have different role name and admin types`() {
-    val authRole1 = Role(
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole2 = Role(
+    val externalUsersRole2 = Role(
       "ROLE_2", "Role 2", " description 2",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1, authRole2)
+    val rolesFromExternalUsers = listOf(externalUsersRole1, externalUsersRole2)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1", true),
       NomisRole("ROLE_2", "Role 2Nomis", false),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(false)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(nomisService).updateRole("ROLE_2", "Role 2", true)
@@ -177,25 +177,25 @@ class RolesSyncServiceTest {
 
   @Test
   fun `sync roles that all have differences`() {
-    val authRole1 = Role(
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole2 = Role(
+    val externalUsersRole2 = Role(
       "ROLE_2", "Role 2", " description 2",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1, authRole2)
+    val rolesFromExternalUsers = listOf(externalUsersRole1, externalUsersRole2)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1Nomis", true),
       NomisRole("ROLE_2", "Role 2Nomis", false),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(false)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient, times(2)).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(nomisService).updateRole("ROLE_2", "Role 2", true)
@@ -209,23 +209,23 @@ class RolesSyncServiceTest {
 
   @Test
   fun `sync roles that is missing from Nomis`() {
-    val authRole1 = Role(
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole2 = Role(
+    val externalUsersRole2 = Role(
       "ROLE_2", "Role 2", " description 2",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1, authRole2)
+    val rolesFromExternalUsers = listOf(externalUsersRole1, externalUsersRole2)
     val rolesFromNomis = listOf(NomisRole("ROLE_2", "Role 2", true))
 
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(false)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(nomisService).createRole(NomisRole("ROLE_1", "Role 1", true))
@@ -237,22 +237,22 @@ class RolesSyncServiceTest {
   }
 
   @Test
-  fun `sync role that is missing from Auth`() {
-    val authRole1 = Role(
+  fun `sync role that is missing from External Users`() {
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1)
+    val rolesFromExternalUsers = listOf(externalUsersRole1)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1Nomis", true),
       NomisRole("ROLE_2", "Role 2Nomis", false),
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(false)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change"), any(), isNull())
     verify(telemetryClient).trackEvent(eq("HMUA-Role-Change-Failure"), any(), isNull())
@@ -267,30 +267,30 @@ class RolesSyncServiceTest {
 
   @Test
   fun `read only sync roles doesn't attempt to save into Nomis`() {
-    val authRole1 = Role(
+    val externalUsersRole1 = Role(
       "ROLE_1", "Role 1", " description 1",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole2 = Role(
+    val externalUsersRole2 = Role(
       "ROLE_2", "Role 2", " description 2",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
-    val authRole3 = Role(
+    val externalUsersRole3 = Role(
       "ROLE_3a", "Role 3a", " description 3a",
       listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
     )
 
-    val rolesFromAuth = listOf(authRole1, authRole2, authRole3)
+    val rolesFromExternalUsers = listOf(externalUsersRole1, externalUsersRole2, externalUsersRole3)
     val rolesFromNomis = listOf(
       NomisRole("ROLE_1", "Role 1Nomis", true),
       NomisRole("ROLE_2", "Role 2Nomis", false),
       NomisRole("ROLE_3", "Role 3Nomis", false)
     )
-    whenever(authService.getRoles(anyList())).thenReturn(rolesFromAuth)
+    whenever(externalUsersApiService.getRoles(anyList())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getAllRoles()).thenReturn(rolesFromNomis)
 
     val stats = roleSyncService.sync(true)
-    verify(authService).getRoles(listOf(DPS_ADM))
+    verify(externalUsersApiService).getRoles(listOf(DPS_ADM))
     verify(nomisService).getAllRoles()
     verifyNoMoreInteractions(telemetryClient)
     verifyNoMoreInteractions(nomisService)
