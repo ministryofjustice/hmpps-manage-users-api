@@ -51,9 +51,9 @@ class RolesServiceTest {
     fun `get all paged roles`() {
       val roles = createRolePaged()
 
-      whenever(authService.getPagedRoles(anyInt(), anyInt(), anyString(), isNull(), isNull(), isNull())).thenReturn(roles)
+      whenever(externalUsersService.getPagedRoles(anyInt(), anyInt(), anyString(), isNull(), isNull(), isNull())).thenReturn(roles)
 
-      val allRoles = authService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
+      val allRoles = externalUsersService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
       assertThat(allRoles).isEqualTo(roles)
       verifyNoMoreInteractions(nomisService)
     }

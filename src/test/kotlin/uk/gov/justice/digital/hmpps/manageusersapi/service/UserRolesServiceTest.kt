@@ -13,14 +13,14 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
 
 class UserRolesServiceTest {
-  private val authService: AuthService = mock()
+  private val externalUsersService: ExternalUsersApiService = mock()
   private val nomisService: NomisApiService = mock()
-  private val userRolesService = UserRolesService(authService, nomisService)
+  private val userRolesService = UserRolesService(externalUsersService, nomisService)
 
   @Test
   fun `get user roles`() {
     val userRolesFromNomis = createUserRoleDetails()
-    val rolesFromAuth = listOf(
+    val rolesFromExternalUsers = listOf(
       Role(
         roleCode = "OMIC_ADMIN",
         roleName = "Key-worker allocator",
@@ -35,7 +35,7 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(authService.getRoles(any())).thenReturn(rolesFromAuth)
+    whenever(externalUsersService.getRoles(any())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
@@ -43,9 +43,9 @@ class UserRolesServiceTest {
   }
 
   @Test
-  fun `get user roles - RoleName is more than 30 characters so roleName take from auth`() {
+  fun `get user roles - RoleName is more than 30 characters so roleName take from external users`() {
     val userRolesFromNomis = createUserRoleDetails()
-    val rolesFromAuth = listOf(
+    val rolesFromExternalUsers = listOf(
       Role(
         roleCode = "OMIC_ADMIN",
         roleName = "Key-worker allocator",
@@ -60,7 +60,7 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(authService.getRoles(any())).thenReturn(rolesFromAuth)
+    whenever(externalUsersService.getRoles(any())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
@@ -71,7 +71,7 @@ class UserRolesServiceTest {
   @Test
   fun `get user roles - Roles are in alpha order by role name`() {
     val userRolesFromNomis = createUserRoleDetails()
-    val rolesFromAuth = listOf(
+    val rolesFromExternalUsers = listOf(
       Role(
         roleCode = "MAINTAIN_ACCESS_ROLES",
         roleName = "Maintain access roles that has more than 30 characters in the role name",
@@ -86,7 +86,7 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(authService.getRoles(any())).thenReturn(rolesFromAuth)
+    whenever(externalUsersService.getRoles(any())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 

@@ -31,8 +31,8 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
   }
 
   @Test
-  fun ` get user roles - long role name added from hmpps-auth `() {
-    hmppsAuthMockServer.stubGetRolesForRoleName()
+  fun ` get user roles - long role name added from hmpps-external-users `() {
+    externalUsersApiMockServer.stubGetRolesForRoleName()
     nomisApiMockServer.stubGetUserRoles("BOB")
 
     webTestClient.get().uri("users/BOB/roles")
