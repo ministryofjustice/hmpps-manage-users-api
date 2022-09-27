@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
+import org.springframework.http.HttpStatus
 
 class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -581,6 +582,69 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   
               """.trimIndent()
             )
+        )
+    )
+  }
+
+  fun stubGetRoleDetails(roleCode: String) {
+    stubFor(
+      get(urlEqualTo("/roles/$roleCode"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """{
+                    "roleCode": "$roleCode",
+                    "roleName": "Group Manager",
+                    "roleDescription": "Allow Group Manager to administer the account within their groups",
+                    "adminType": [
+                        {
+                            "adminTypeCode": "EXT_ADM",
+                            "adminTypeName": "External Administrator"
+                        }
+                    ]
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetDPSRoleDetails(roleCode: String) {
+    stubFor(
+      get(urlEqualTo("/roles/$roleCode"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """{
+                    "roleCode": "$roleCode",
+                    "roleName": "Group Manager",
+                    "roleDescription": "Allow Group Manager to administer the account within their groups",
+                    "adminType": [
+                        {
+                            "adminTypeCode": "EXT_ADM",
+                            "adminTypeName": "External Administrator"
+                        },
+                        {
+                            "adminTypeCode": "DPS_ADM",
+                            "adminTypeName": "DPS Central Administrator"
+                        }
+                    ]
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetRoleDetailsFail(status: HttpStatus, roleCode: String) {
+    stubFor(
+      get(urlEqualTo("/roles/$roleCode"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
         )
     )
   }
