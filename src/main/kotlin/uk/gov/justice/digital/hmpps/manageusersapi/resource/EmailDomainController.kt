@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailDomainService
 import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
-import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 
 @RestController
 class EmailDomainController(
@@ -59,7 +59,6 @@ class EmailDomainController(
   fun domainList(): List<EmailDomainDto> {
     return emailDomainService.domainList()
   }
-
 
   @Operation(
     summary = "Get email domain details",
@@ -134,7 +133,8 @@ class EmailDomainController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun addEmailDomain(
     @Schema(description = "Details of the email domain to be created.", required = true)
-    @RequestBody @Valid emailDomain: CreateEmailDomainDto): EmailDomainDto {
+    @RequestBody @Valid emailDomain: CreateEmailDomainDto
+  ): EmailDomainDto {
     return emailDomainService.addEmailDomain(emailDomain)
   }
 
@@ -177,7 +177,8 @@ data class EmailDomainDto(
   @Schema(required = true, description = "Email domain", example = "careuk.com")
   val domain: String,
   @Schema(required = false, description = "Email domain description", example = "CAREUK")
-  val description: String)
+  val description: String
+)
 
 data class CreateEmailDomainDto(
   @Schema(required = true, description = "Email domain", example = "careuk.com")
