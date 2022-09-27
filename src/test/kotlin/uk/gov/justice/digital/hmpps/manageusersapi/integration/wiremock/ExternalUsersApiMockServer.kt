@@ -62,8 +62,29 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
               """{
                 "status": ${HttpStatus.CONFLICT.value()},
                 "errorCode": null,
-                "userMessage": "Unable to add email domain: Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list",
-                "developerMessage": "Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list",
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateEmailDomainNotFound(id: String) {
+    stubFor(
+      get(urlEqualTo("/email-domains/$id"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
                 "moreInfo": null
                }
               """.trimIndent()

@@ -87,6 +87,15 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `domain not found`() {
+      externalUsersApiMockServer.stubCreateEmailDomainNotFound(id)
+      webTestClient.get().uri("/email-domains/$id")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.NOT_FOUND)
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(HttpStatus.NOT_FOUND.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }
 
     @Test
@@ -162,8 +171,8 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
         .expectStatus().isEqualTo(HttpStatus.CONFLICT)
         .expectBody()
         .jsonPath("$.status").isEqualTo(HttpStatus.CONFLICT.value())
-        .jsonPath("$.userMessage").isEqualTo("Unable to add email domain: Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list")
-        .jsonPath("$.developerMessage").isEqualTo("Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list")
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }
 
     @Test
