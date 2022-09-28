@@ -20,8 +20,8 @@ class ExternalUsersApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getRoles(adminTypes: List<AdminType>?): List<Role> {
-    return externalUsersWebClient.get()
+  fun getRoles(adminTypes: List<AdminType>?): List<Role> =
+    externalUsersWebClient.get()
       .uri { uriBuilder ->
         uriBuilder
           .path("/roles")
@@ -31,7 +31,6 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(RoleList::class.java)
       .block()!!
-  }
 
   fun getPagedRoles(
     page: Int,
@@ -40,9 +39,8 @@ class ExternalUsersApiService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ): RolesPaged {
-
-    return externalUsersWebClient.get()
+  ): RolesPaged =
+    externalUsersWebClient.get()
       .uri { uriBuilder ->
         uriBuilder
           .path("/roles/paged")
@@ -57,16 +55,14 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(RolesPaged::class.java)
       .block()!!
-  }
 
   @Throws(RoleNotFoundException::class)
-  fun getRoleDetail(roleCode: String): Role {
-    return externalUsersWebClient.get()
+  fun getRoleDetail(roleCode: String): Role =
+    externalUsersWebClient.get()
       .uri("/roles/$roleCode")
       .retrieve()
       .bodyToMono(Role::class.java)
       .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
-  }
 }
 
 class RoleList : MutableList<Role> by ArrayList()
