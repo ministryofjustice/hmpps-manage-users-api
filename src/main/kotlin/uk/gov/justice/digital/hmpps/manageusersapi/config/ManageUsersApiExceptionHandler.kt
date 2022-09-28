@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -21,7 +22,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
 import javax.validation.ValidationException
-import org.springframework.http.MediaType.APPLICATION_JSON
 
 @RestControllerAdvice
 class HmppsManageUsersApiExceptionHandler {
