@@ -4,10 +4,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import java.time.Duration
@@ -63,15 +61,11 @@ class ExternalUsersApiService(
 
   @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role {
-    try {
-      return externalUsersWebClient.get()
-        .uri("/roles/$roleCode")
-        .retrieve()
-        .bodyToMono(Role::class.java)
-        .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
-    }
+    return externalUsersWebClient.get()
+      .uri("/roles/$roleCode")
+      .retrieve()
+      .bodyToMono(Role::class.java)
+      .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
   }
 }
 
