@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -48,6 +49,7 @@ class HmppsManageUsersApiExceptionHandler {
     }
     return ResponseEntity
       .status(e.rawStatusCode)
+      .contentType(MediaType.APPLICATION_JSON)
       .body(e.responseBodyAsByteArray)
   }
 
