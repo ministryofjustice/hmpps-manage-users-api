@@ -714,6 +714,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("User message for Get Role details failed")
+          assertThat(it["developerMessage"] as String).isEqualTo("Developer message for get role details failed")
+        }
     }
   }
 
@@ -785,6 +791,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name returns error when role not found`() {
+      externalUsersApiMockServer.stubGetDPSRoleDetails("Not_A_Role")
       hmppsAuthMockServer.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role")
