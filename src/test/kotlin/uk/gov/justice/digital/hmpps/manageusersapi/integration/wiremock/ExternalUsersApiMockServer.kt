@@ -764,6 +764,16 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User message for Get Role details failed",
+                "developerMessage": "Developer message for get role details failed",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
         )
     )
   }
