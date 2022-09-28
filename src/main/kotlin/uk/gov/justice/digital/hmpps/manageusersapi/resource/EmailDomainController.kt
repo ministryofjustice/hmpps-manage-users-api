@@ -54,7 +54,7 @@ class EmailDomainController(
       )
     ]
   )
-  @GetMapping("/email-domains")
+  @GetMapping(name = "/email-domains", produces = ["application/json"])
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domainList(): List<EmailDomainDto> {
     return emailDomainService.domainList()
@@ -92,7 +92,7 @@ class EmailDomainController(
       )
     ]
   )
-  @GetMapping("/email-domains/{id}")
+  @GetMapping(name = "/email-domains/{id}", produces = ["application/json"])
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domain(@PathVariable id: UUID): EmailDomainDto {
     return emailDomainService.domain(id)
@@ -129,7 +129,7 @@ class EmailDomainController(
     ]
   )
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping("/email-domains")
+  @PostMapping(name = "/email-domains", produces = ["application/json"], consumes = ["application/json"])
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun addEmailDomain(
     @Schema(description = "Details of the email domain to be created.", required = true)

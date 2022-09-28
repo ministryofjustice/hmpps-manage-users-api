@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
 import javax.validation.ValidationException
+import org.springframework.http.MediaType.APPLICATION_JSON
 
 @RestControllerAdvice
 class HmppsManageUsersApiExceptionHandler {
@@ -30,6 +31,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.debug("Forbidden (403) returned with message {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
+      .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = FORBIDDEN,
@@ -48,6 +50,7 @@ class HmppsManageUsersApiExceptionHandler {
     }
     return ResponseEntity
       .status(e.rawStatusCode)
+      .contentType(APPLICATION_JSON)
       .body(e.responseBodyAsByteArray)
   }
 
@@ -56,6 +59,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.error("Unexpected exception", e)
     return ResponseEntity
       .status(INTERNAL_SERVER_ERROR)
+      .contentType(APPLICATION_JSON)
       .body(ErrorResponse(status = (INTERNAL_SERVER_ERROR.value()), developerMessage = (e.message)))
   }
 
@@ -64,6 +68,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
+      .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = BAD_REQUEST,
@@ -78,6 +83,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
+      .contentType(APPLICATION_JSON)
       .body(ErrorResponse(status = BAD_REQUEST, developerMessage = e.message, errors = e.asErrorList()))
   }
 
@@ -89,6 +95,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.debug("Bad Request (400) returned", e)
     return ResponseEntity
       .status(BAD_REQUEST)
+      .contentType(APPLICATION_JSON)
       .body(ErrorResponse(status = (BAD_REQUEST.value()), developerMessage = (e.message)))
   }
 
@@ -97,6 +104,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.debug("Role not found exception caught: {}", e.message)
     return ResponseEntity
       .status(NOT_FOUND)
+      .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = NOT_FOUND,
@@ -111,6 +119,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.debug("Role exists exception caught: {}", e.message)
     return ResponseEntity
       .status(CONFLICT)
+      .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = CONFLICT,
@@ -125,6 +134,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.debug("User exists exception caught: {}", e.message)
     return ResponseEntity
       .status(CONFLICT)
+      .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = CONFLICT,
@@ -140,6 +150,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.debug("Validation exception caught: {}", e.message)
     return ResponseEntity
       .status(CONFLICT)
+      .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = CONFLICT,
