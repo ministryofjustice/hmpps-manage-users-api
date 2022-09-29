@@ -1047,14 +1047,17 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/Not_A_Role/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .body(fromValue(mapOf("adminType" to listOf("EXT_ADM"))))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to get role: Not_A_Role with reason: notfound")
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to get role: Not_A_Role with reason: notfound")
+          mapOf(
+            "status" to NOT_FOUND.value(),
+            "userMessage" to "User message for PUT Role Admin Type failed",
+            "developerMessage" to "Developer message for PUT Role Admin Type failed",
+          )
         }
     }
 

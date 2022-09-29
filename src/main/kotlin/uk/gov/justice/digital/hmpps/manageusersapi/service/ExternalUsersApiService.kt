@@ -69,7 +69,7 @@ class ExternalUsersApiService(
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClient.put()
-      .uri("/api/roles/$roleCode/admintype")
+      .uri("/roles/$roleCode/admintype")
       .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
       .retrieve()
       .toBodilessEntity()
