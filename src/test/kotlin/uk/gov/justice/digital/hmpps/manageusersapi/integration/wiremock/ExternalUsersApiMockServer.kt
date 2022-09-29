@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -774,6 +775,28 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                }
               """.trimIndent()
             )
+        )
+    )
+  }
+
+  fun stubPutRoleAdminType(roleCode: String) {
+    stubFor(
+      WireMock.put("/roles/$roleCode/admintype")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleAdminTypeFail(roleCode: String, status: HttpStatus) {
+    stubFor(
+      WireMock.put("/roles/$roleCode/admintype")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
         )
     )
   }

@@ -152,7 +152,7 @@ class RolesServiceTest {
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
       verify(nomisService).createRole(CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM, DPS_ADM)))
     }
 
@@ -167,7 +167,7 @@ class RolesServiceTest {
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
       verifyNoMoreInteractions(nomisService)
     }
 
@@ -184,7 +184,7 @@ class RolesServiceTest {
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
       verify(nomisService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
 
@@ -202,7 +202,7 @@ class RolesServiceTest {
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(authService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
       verify(nomisService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
   }

@@ -60,7 +60,7 @@ class HmppsManageUsersApiExceptionHandler {
     return ResponseEntity
       .status(INTERNAL_SERVER_ERROR)
       .contentType(APPLICATION_JSON)
-      .body(ErrorResponse(status = (INTERNAL_SERVER_ERROR.value()), developerMessage = (e.message)))
+      .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
   }
 
   @ExceptionHandler(ValidationException::class)
@@ -96,7 +96,7 @@ class HmppsManageUsersApiExceptionHandler {
     return ResponseEntity
       .status(BAD_REQUEST)
       .contentType(APPLICATION_JSON)
-      .body(ErrorResponse(status = (BAD_REQUEST.value()), developerMessage = (e.message)))
+      .body(ErrorResponse(status = BAD_REQUEST.value(), developerMessage = e.message))
   }
 
   @ExceptionHandler(RoleNotFoundException::class)

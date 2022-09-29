@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import java.time.Duration
@@ -72,21 +71,6 @@ class AuthService(
       authWebClient.put()
         .uri("/api/roles/$roleCode/description")
         .bodyValue(roleAmendment)
-        .retrieve()
-        .toBodilessEntity()
-        .block(timeout)
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
-    }
-  }
-
-  @Throws(RoleNotFoundException::class)
-  fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    try {
-      authWebClient.put()
-        .uri("/api/roles/$roleCode/admintype")
-        .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
         .retrieve()
         .toBodilessEntity()
         .block(timeout)

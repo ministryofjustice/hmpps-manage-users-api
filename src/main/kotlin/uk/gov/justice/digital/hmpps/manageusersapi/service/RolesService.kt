@@ -73,8 +73,7 @@ class RolesService(
         )
       )
     }
-
-    authService.updateRoleAdminType(roleCode, roleAmendment)
+    externalUsersApiService.updateRoleAdminType(roleCode, roleAmendment)
   }
 
   private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
