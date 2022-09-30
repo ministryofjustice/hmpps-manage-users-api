@@ -51,7 +51,7 @@ class RolesService(
     if (originalRole.isDPSRole()) {
       nomisApiService.updateRoleName(roleCode, roleAmendment)
     }
-    authService.updateRoleName(roleCode, roleAmendment)
+    externalUsersApiService.updateRoleName(roleCode, roleAmendment)
   }
 
   @Throws(RoleNotFoundException::class)

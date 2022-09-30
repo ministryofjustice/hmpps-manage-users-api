@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import java.time.Duration
 
@@ -64,6 +65,17 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(Role::class.java)
       .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
+
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
+    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
+    externalUsersWebClient.put()
+      .uri("/roles/$roleCode")
+      .bodyValue(roleAmendment)
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
