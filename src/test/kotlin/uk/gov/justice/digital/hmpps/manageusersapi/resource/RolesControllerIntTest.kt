@@ -10,6 +10,7 @@ import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.REQUEST_TIMEOUT
 import org.springframework.http.MediaType
@@ -743,8 +744,10 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          mapOf(
-            "status" to "403"
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to FORBIDDEN.value()
+            )
           )
         }
     }
@@ -791,8 +794,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role name returns error when role not found`() {
-      externalUsersApiMockServer.stubGetDPSRoleDetails("Not_A_Role")
-      hmppsAuthMockServer.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
+      externalUsersApiMockServer.stubGetRoleDetails("Not_A_Role")
+      externalUsersApiMockServer.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -802,15 +805,20 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to get role: Not_A_Role with reason: notfound")
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to get role: Not_A_Role with reason: notfound")
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "userMessage" to "User message for PUT Role Name failed",
+              "developerMessage" to "Developer message for PUT Role Name failed",
+            )
+          )
         }
     }
 
     @Test
     fun `Change role name success for DPS Role`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -827,7 +835,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for Role with name has 30 characters`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -844,7 +852,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for Role with name greater than 30 characters`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -862,7 +870,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     fun `Change role name doesn't call auth if nomis fails`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
       nomisApiMockServer.stubPutRoleFail("OAUTH_ADMIN", REQUEST_TIMEOUT)
-      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
 
       webTestClient.put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -876,7 +884,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for non-DPS Role`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN")
-      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -888,7 +896,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name passes regex validation`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN")
-      hmppsAuthMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -919,7 +927,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          mapOf("status" to "403")
+          assertThat(it).containsAllEntriesOf(
+            mapOf("status" to FORBIDDEN.value())
+          )
         }
     }
 
@@ -1036,7 +1046,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          mapOf("status" to "403")
+          assertThat(it).containsAllEntriesOf(
+            mapOf("status" to FORBIDDEN.value())
+          )
         }
     }
 
@@ -1053,10 +1065,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          mapOf(
-            "status" to NOT_FOUND.value(),
-            "userMessage" to "User message for PUT Role Admin Type failed",
-            "developerMessage" to "Developer message for PUT Role Admin Type failed",
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "userMessage" to "User message for PUT Role Admin Type failed",
+              "developerMessage" to "Developer message for PUT Role Admin Type failed",
+            )
           )
         }
     }

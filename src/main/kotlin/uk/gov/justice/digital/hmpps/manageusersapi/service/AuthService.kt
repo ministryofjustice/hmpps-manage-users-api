@@ -11,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import java.time.Duration
 
 @Service
@@ -46,21 +45,6 @@ class AuthService(
         createRole.roleCode,
         "role code already exists"
       ) else e
-    }
-  }
-
-  @Throws(RoleNotFoundException::class)
-  fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
-    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    try {
-      authWebClient.put()
-        .uri("/api/roles/$roleCode")
-        .bodyValue(roleAmendment)
-        .retrieve()
-        .toBodilessEntity()
-        .block(timeout)
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
     }
   }
 
