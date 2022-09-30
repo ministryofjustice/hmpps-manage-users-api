@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
@@ -762,7 +763,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       get(urlEqualTo("/roles/$roleCode"))
         .willReturn(
           aResponse()
-            .withHeader("Content-Type", "application/json")
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withStatus(status.value())
             .withBody(
               """{
@@ -770,6 +771,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "errorCode": null,
                 "userMessage": "User message for Get Role details failed",
                 "developerMessage": "Developer message for get role details failed",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubPutRoleAdminType(roleCode: String) {
+    stubFor(
+      put("/roles/$roleCode/admintype")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleAdminTypeFail(roleCode: String, status: HttpStatus) {
+    stubFor(
+      put("/roles/$roleCode/admintype")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User message for PUT Role Admin Type failed",
+                "developerMessage": "Developer message for PUT Role Admin Type failed",
                 "moreInfo": null
                }
               """.trimIndent()
