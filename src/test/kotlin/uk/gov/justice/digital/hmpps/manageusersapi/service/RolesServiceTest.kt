@@ -14,6 +14,7 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPageable
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
@@ -135,6 +136,39 @@ class RolesServiceTest {
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
       verify(externalUsersService).updateRoleName("ROLE_1", roleAmendment)
+      verifyNoInteractions(nomisService)
+    }
+  }
+
+  @Nested
+  inner class AmendRoleDescription {
+    @Test
+    fun `update role description when DPS Role`() {
+      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+
+      val dbRole = Role(
+        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+      )
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+
+      rolesService.updateRoleDescription("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleDescription("ROLE_1", roleAmendment)
+      verifyNoInteractions(nomisService)
+    }
+
+    @Test
+    fun `update role description when Not DPS Role`() {
+      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+
+      val role = Role(
+        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
+      )
+      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
+
+      rolesService.updateRoleDescription("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleDescription("ROLE_1", roleAmendment)
       verifyNoInteractions(nomisService)
     }
   }
