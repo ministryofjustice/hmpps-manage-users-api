@@ -1,12 +1,14 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.CoreMatchers.hasItems
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.CONFLICT
@@ -21,6 +23,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
   @Nested
   inner class CreateRole {
+
+    @AfterEach
+    fun resetMocks() {
+      externalUsersApiMockServer.resetAll()
+      nomisApiMockServer.resetAll()
+    }
 
     @Test
     fun `access forbidden when no authority`() {
@@ -109,14 +117,13 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/roles"))
-          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
       )
     }
 
     @Test
     fun `create role doesn't call external users api if nomis fails`() {
       nomisApiMockServer.stubCreateRoleFail(CONFLICT)
-      externalUsersApiMockServer.resetAll()
       externalUsersApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -166,7 +173,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/roles"))
-          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
       )
     }
 
@@ -728,6 +735,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
   @Nested
   inner class AmendRoleName {
 
+    @AfterEach
+    fun resetMocks() {
+      externalUsersApiMockServer.resetAll()
+      nomisApiMockServer.resetAll()
+    }
+
     @Test
     fun `Change role name endpoint not accessible without valid token`() {
       webTestClient.put().uri("/roles/ANY_ROLE")
@@ -829,7 +842,11 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("new role name")))
+          .withRequestBody(matchingJsonPath("name", equalTo("new role name")))
+      )
+      externalUsersApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(matchingJsonPath("roleName", equalTo("new role name")))
       )
     }
 
@@ -846,7 +863,13 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
+      )
+      externalUsersApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(
+            matchingJsonPath("roleName", equalTo("12345".repeat(6)))
+          )
       )
     }
 
@@ -863,15 +886,18 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(WireMock.matchingJsonPath("name", WireMock.equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
+      )
+      externalUsersApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(matchingJsonPath("roleName", equalTo("12345".repeat(6) + "y")))
       )
     }
 
     @Test
-    fun `Change role name doesn't call auth if nomis fails`() {
+    fun `Change role name doesn't call external users if nomis fails`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
       nomisApiMockServer.stubPutRoleFail("OAUTH_ADMIN", REQUEST_TIMEOUT)
-      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
 
       webTestClient.put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -879,7 +905,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(REQUEST_TIMEOUT)
 
-      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
+      externalUsersApiMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
     }
 
     @Test
@@ -892,6 +918,11 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isOk
+      externalUsersApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
+          .withRequestBody(matchingJsonPath("roleName", equalTo("new role name")))
+      )
+      nomisApiMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
     }
 
     @Test
@@ -1118,7 +1149,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Change role admin type does not call auth when nomis fails - creating new DPS Role`() {
+    fun `Change role admin type does not call external users when nomis fails - creating new DPS Role`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN2")
       externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN2")
       nomisApiMockServer.stubCreateRoleFail(REQUEST_TIMEOUT)
@@ -1129,7 +1160,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(REQUEST_TIMEOUT)
 
-      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN2/admintype")))
+      externalUsersApiMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN2/admintype")))
     }
 
     @Test
@@ -1158,7 +1189,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Change role admin type does not call auth when nomis fails - becoming different type of DPS Role`() {
+    fun `Change role admin type does not call external users when nomis fails - becoming different type of DPS Role`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN3")
       nomisApiMockServer.stubPutRoleFail("OAUTH_ADMIN3", REQUEST_TIMEOUT)
       externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN3")
@@ -1169,7 +1200,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(REQUEST_TIMEOUT)
 
-      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN3/admintype")))
+      externalUsersApiMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN3/admintype")))
     }
   }
 }
