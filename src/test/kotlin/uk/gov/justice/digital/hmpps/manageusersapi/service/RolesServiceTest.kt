@@ -84,7 +84,7 @@ class RolesServiceTest {
       val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM))
 
       rolesService.createRole(role)
-      verify(authService).createRole(role)
+      verify(externalUsersService).createRole(role)
       verifyNoMoreInteractions(nomisService)
     }
 
@@ -93,7 +93,7 @@ class RolesServiceTest {
       val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
 
       rolesService.createRole(role)
-      verify(authService).createRole(role)
+      verify(externalUsersService).createRole(role)
       verify(nomisService).createRole(role)
     }
 
@@ -102,7 +102,7 @@ class RolesServiceTest {
       val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
 
       rolesService.createRole(role)
-      verify(authService).createRole(role)
+      verify(externalUsersService).createRole(role)
       verify(nomisService).createRole(role)
     }
   }

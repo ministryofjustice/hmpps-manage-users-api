@@ -18,14 +18,11 @@ class RolesService(
 ) {
 
   @Throws(RoleExistsException::class)
-  fun createRole(createRole: CreateRole) {
-    // call to Nomis-api to create the new role
-    if (createRole.adminType.hasDPSAdminType()) {
-      nomisApiService.createRole(createRole)
+  fun createRole(role: CreateRole) {
+    if (role.adminType.hasDPSAdminType()) {
+      nomisApiService.createRole(role)
     }
-    // call to hmpps-auth to create the role
-    // hmpps-auth called first as it will hold a duplicate copy of the roles in nomis so that we can add a role description
-    authService.createRole(createRole)
+    externalUsersApiService.createRole(role)
   }
 
   fun getRoles(

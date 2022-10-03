@@ -69,7 +69,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role`() {
-      hmppsAuthMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -89,7 +89,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role when role name has 30 characters`() {
-      hmppsAuthMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubCreateRole()
       nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -114,9 +114,10 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `create role doesn't call auth if nomis fails`() {
+    fun `create role doesn't call external users api if nomis fails`() {
       nomisApiMockServer.stubCreateRoleFail(CONFLICT)
-      hmppsAuthMockServer.stubCreateRole()
+      externalUsersApiMockServer.resetAll()
+      externalUsersApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -140,12 +141,12 @@ class RolesControllerIntTest : IntegrationTestBase() {
           assertThat(it["developerMessage"] as String).isEqualTo("Unable to create role: RC1 with reason: role code already exists")
         }
 
-      hmppsAuthMockServer.verify(0, postRequestedFor(urlEqualTo("/auth/api/roles")))
+      externalUsersApiMockServer.verify(0, postRequestedFor(urlEqualTo("/roles")))
     }
 
     @Test
     fun `create role when role name has greater than 30 characters`() {
-      hmppsAuthMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubCreateRole()
       nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -171,7 +172,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role ROLE_`() {
-      hmppsAuthMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -188,8 +189,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isCreated
 
-      hmppsAuthMockServer.verify(
-        postRequestedFor(urlEqualTo("/auth/api/roles"))
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/roles"))
           .withRequestBody(
             containing("{\"roleCode\":\"RC2\",\"roleName\":\"new role name\",\"roleDescription\":\"Description\",\"adminType\":[\"EXT_ADM\"]}")
           )
@@ -198,7 +199,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role returns error when role exists`() {
-      hmppsAuthMockServer.stubCreateRoleFail(CONFLICT)
+      externalUsersApiMockServer.stubCreateRoleFail(CONFLICT)
       webTestClient
         .post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -218,8 +219,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to create role: RC1 with reason: role code already exists")
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create role: RC1 with reason: role code already exists")
+          assertThat(it["userMessage"] as String).isEqualTo("User test message")
+          assertThat(it["developerMessage"] as String).isEqualTo("Developer test message")
         }
     }
 

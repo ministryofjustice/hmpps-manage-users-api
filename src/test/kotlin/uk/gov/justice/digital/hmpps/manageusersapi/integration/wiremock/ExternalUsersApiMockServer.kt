@@ -52,6 +52,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubCreateRole() {
+    stubFor(
+      post(urlEqualTo("/roles"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubCreateRoleFail(status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo("/roles"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubCreateEmailDomainConflict() {
     stubFor(
       post(urlEqualTo("/email-domains"))

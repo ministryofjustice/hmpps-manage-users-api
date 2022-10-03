@@ -7,7 +7,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
-import org.springframework.http.HttpStatus
 
 class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -39,28 +38,6 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status)
       )
-    )
-  }
-
-  fun stubCreateRole() {
-    stubFor(
-      post(urlEqualTo("/auth/api/roles"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
-    )
-  }
-
-  fun stubCreateRoleFail(status: HttpStatus) {
-    stubFor(
-      post(urlEqualTo("/auth/api/roles"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
-        )
     )
   }
 

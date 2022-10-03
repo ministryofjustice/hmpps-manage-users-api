@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
@@ -95,6 +96,22 @@ class ExternalUsersApiService(
     externalUsersWebClient.put()
       .uri("/roles/$roleCode/admintype")
       .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
+
+  fun createRole(createRole: CreateRole) {
+    externalUsersWebClient.post()
+      .uri("/roles")
+      .bodyValue(
+        mapOf(
+          "roleCode" to createRole.roleCode,
+          "roleName" to createRole.roleName,
+          "roleDescription" to createRole.roleDescription,
+          "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList(),
+        )
+      )
       .retrieve()
       .toBodilessEntity()
       .block(timeout)
