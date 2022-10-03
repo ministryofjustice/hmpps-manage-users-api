@@ -119,7 +119,7 @@ class RolesServiceTest {
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
-      verify(authService).updateRoleName("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleName("ROLE_1", roleAmendment)
       verify(nomisService).updateRoleName("ROLE_1", roleAmendment)
     }
 
@@ -134,7 +134,7 @@ class RolesServiceTest {
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
-      verify(authService).updateRoleName("ROLE_1", roleAmendment)
+      verify(externalUsersService).updateRoleName("ROLE_1", roleAmendment)
       verifyNoInteractions(nomisService)
     }
   }
