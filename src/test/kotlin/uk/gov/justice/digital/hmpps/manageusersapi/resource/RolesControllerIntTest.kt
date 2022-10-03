@@ -936,7 +936,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns error when role not found`() {
-      hmppsAuthMockServer.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
+      externalUsersApiMockServer.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
       webTestClient
         .put().uri("/roles/Not_A_Role/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -946,8 +946,13 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to get role: Not_A_Role with reason: notfound")
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to get role: Not_A_Role with reason: notfound")
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "userMessage" to "User message for PUT Role Description failed",
+              "developerMessage" to "Developer message for PUT Role Description failed",
+            )
+          )
         }
     }
 
@@ -974,7 +979,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("errors").value(
           hasItems("Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters")
@@ -983,7 +987,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description success`() {
-      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -994,7 +998,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns success for empty roleDescription`() {
-      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1005,7 +1009,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns success for no role description`() {
-      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1016,7 +1020,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description passes regex validation`() {
-      hmppsAuthMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

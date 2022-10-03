@@ -843,6 +843,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubPutRoleDescription(roleCode: String) {
+    stubFor(
+      put("/roles/$roleCode/description")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutRoleDescriptionFail(roleCode: String, status: HttpStatus) {
+    stubFor(
+      put("/roles/$roleCode/description")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User message for PUT Role Description failed",
+                "developerMessage": "Developer message for PUT Role Description failed",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubPutRoleAdminType(roleCode: String) {
     stubFor(
       put("/roles/$roleCode/admintype")

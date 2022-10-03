@@ -4,11 +4,9 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
-import org.springframework.http.HttpStatus
 
 class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -40,28 +38,6 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status)
       )
-    )
-  }
-
-  fun stubPutRoleDescription(roleCode: String) {
-    stubFor(
-      put("/auth/api/roles/$roleCode/description")
-        .willReturn(
-          aResponse()
-            .withStatus(HttpStatus.OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
-    )
-  }
-
-  fun stubPutRoleDescriptionFail(roleCode: String, status: HttpStatus) {
-    stubFor(
-      put("/auth/api/roles/$roleCode/description")
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
-        )
     )
   }
 

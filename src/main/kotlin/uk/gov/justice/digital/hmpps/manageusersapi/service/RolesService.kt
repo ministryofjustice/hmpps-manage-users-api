@@ -53,7 +53,7 @@ class RolesService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
-    authService.updateRoleDescription(roleCode, roleAmendment)
+    externalUsersApiService.updateRoleDescription(roleCode, roleAmendment)
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
