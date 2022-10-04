@@ -906,4 +906,90 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetGroupDetails(group: String) {
+    stubFor(
+      get(urlEqualTo("/groups/$group"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(HttpStatus.OK.value())
+            .withBody(
+              """{
+                    "groupCode": "SITE_1_GROUP_2",
+                    "groupName": "Site 1 - Group 2",
+                    "assignableRoles": [
+                      {
+                        "roleCode": "GLOBAL_SEARCH",
+                        "roleName": "Global Search"
+                      },
+                      {
+                        "roleCode": "LICENCE_RO",
+                        "roleName": "Licence Responsible Officer"
+                      }
+                    ],
+                    "children": [
+                      {
+                        "groupCode": "CHILD_1",
+                        "groupName": "Child - Site 1 - Group 2"
+                      }
+                    ]
+                  }  
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetGroupDetailsForUserNotNotAllowed(group: String, status: HttpStatus) {
+    stubFor(
+      get(urlEqualTo("/groups/$group"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Auth maintain group relationship exception: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
+                "developerMessage": "Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+  fun stubPutUpdateChildGroup(group: String) {
+    stubFor(
+      put("/groups/child/$group")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubPutUpdateChildGroupFail(group: String, status: HttpStatus) {
+    stubFor(
+      put("/groups/child/$group")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Group Not found: Unable to maintain group: Not_A_Group with reason: notfound",
+                "developerMessage": "Unable to maintain group: Not_A_Group with reason: notfound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

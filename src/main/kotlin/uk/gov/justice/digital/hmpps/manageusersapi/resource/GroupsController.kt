@@ -10,10 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
+import javax.validation.constraints.NotBlank
 
 @Validated
 @RestController
@@ -21,7 +24,7 @@ class GroupsController(
   private val groupsService: GroupsService
 ) {
 
-  @GetMapping("/api/groups/{group}")
+  @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Group detail.",
@@ -62,7 +65,62 @@ class GroupsController(
   ): GroupDetails {
     return groupsService.getGroupDetail(group)
   }
+
+  @PutMapping("/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Amend child group name.",
+    description = "Amend a Child Group Name"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun amendChildGroupName(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+    @Parameter(
+      description = "Details of the child group to be updated.",
+      required = true
+    ) @RequestBody
+    groupAmendment: GroupAmendment
+
+  ) {
+    groupsService.updateChildGroup(group, groupAmendment)
+  }
 }
+
+@Schema(description = "Group Name")
+data class GroupAmendment(
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
+  @field:NotBlank(message = "parent group code must be supplied")
+  val groupName: String
+)
 
 @Schema(description = "User Role")
 data class AuthUserAssignableRole(

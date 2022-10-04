@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
@@ -16,7 +17,7 @@ class GroupsControllerTest {
   private val groupsController = GroupsController(groupsService)
 
   @Nested
-  inner class GetAllRoles {
+  inner class GetGroups {
     @Test
     fun `Get Group details`() {
       val groupsDetails =
@@ -47,6 +48,12 @@ class GroupsControllerTest {
       assertThatThrownBy { groupsController.getGroupDetail("group") }
         .isInstanceOf(GroupNotFoundException::class.java)
         .withFailMessage("Unable to find group: notfound, reason: not found")
+    }
+    @Test
+    fun `amend child group name`() {
+      val groupAmendment = GroupAmendment("groupie")
+      groupsController.amendChildGroupName("group1", groupAmendment)
+      verify(groupsService).updateChildGroup("group1", groupAmendment)
     }
   }
 }
