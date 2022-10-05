@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.service.ChildGroupNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
 import javax.validation.constraints.NotBlank
 
@@ -58,6 +59,7 @@ class GroupsController(
       )
     ]
   )
+  @Throws(GroupNotFoundException::class)
   fun getGroupDetail(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
@@ -100,6 +102,7 @@ class GroupsController(
       )
     ]
   )
+  @Throws(ChildGroupNotFoundException::class)
   fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
@@ -123,7 +126,7 @@ data class GroupAmendment(
 )
 
 @Schema(description = "User Role")
-data class AuthUserAssignableRole(
+data class UserAssignableRole(
   @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
   val roleCode: String,
 
@@ -132,27 +135,9 @@ data class AuthUserAssignableRole(
 
   @Schema(required = true, description = "automatic", example = "TRUE")
   val automatic: Boolean
-) {
-
-  constructor(a: Authority, automatic: Boolean) : this(a.roleCode, a.roleName, automatic)
-}
-
-@Schema(description = "User Role")
-data class Authority(
-  @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
-  val roleCode: String,
-
-  @Schema(required = true, description = "Role Name", example = "Licence Responsible Officer")
-  val roleName: String,
-
-  @Schema(required = true, description = "Role Description", example = "Licence Responsible Officer")
-  val roleDescription: String?,
-
-  @Schema(required = true, description = "Admin type", example = "DPS_LSA")
-  val adminType: List<AdminType> = listOf()
 )
 @Schema(description = "User Group")
-data class AuthUserGroup(
+data class UserGroup(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
@@ -169,8 +154,8 @@ data class GroupDetails(
   val groupName: String,
 
   @Schema(required = true, description = "Assignable Roles")
-  val assignableRoles: List<AuthUserAssignableRole>,
+  val assignableRoles: List<UserAssignableRole>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<AuthUserGroup>
+  val children: List<UserGroup>
 )

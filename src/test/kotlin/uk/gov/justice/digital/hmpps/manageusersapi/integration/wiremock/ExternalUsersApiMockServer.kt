@@ -992,4 +992,46 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubCreateGroupNotFound(group: String) {
+    stubFor(
+      get(urlEqualTo("/groups/$group"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+                "userMessage": "Group Not found: Unable to get group: $group with reason: notfound",
+                "developerMessage": "Unable to get group: $group with reason: notfound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubUpdateChildGroupNotFound(group: String) {
+    stubFor(
+      put("/groups/child/$group")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+               "userMessage": "Child Group Not found: Unable to get group: $group with reason: notfound",
+                "developerMessage": "Unable to get group: $group with reason: notfound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

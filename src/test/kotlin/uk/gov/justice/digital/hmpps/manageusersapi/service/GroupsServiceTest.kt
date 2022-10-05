@@ -6,10 +6,10 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.AuthUserAssignableRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.AuthUserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAssignableRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 
 class GroupsServiceTest {
   private val externalUsersService: ExternalUsersApiService = mock()
@@ -22,8 +22,8 @@ class GroupsServiceTest {
     val groupDetails = GroupDetails(
       groupCode = "FRED",
       groupName = "desc",
-      assignableRoles = listOf(AuthUserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
-      children = listOf(AuthUserGroup(groupCode = "BOB", groupName = "desc"))
+      assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
+      children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
     )
     whenever(externalUsersService.getGroupDetail(anyString())).thenReturn(groupDetails)
     val group = groupsService.getGroupDetail("bob")

@@ -125,8 +125,6 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(GroupDetails::class.java)
       .block(timeout) ?: throw GroupNotFoundException("get", group, "notfound")
-
-  @Throws(RoleNotFoundException::class)
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
 
     log.debug("Updating child group details for {} with {}", group, groupAmendment)
@@ -135,7 +133,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block(timeout) ?: throw ChildGroupNotFoundException(group, "notfound")
   }
 }
 

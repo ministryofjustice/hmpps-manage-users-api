@@ -24,8 +24,8 @@ class GroupsControllerTest {
         GroupDetails(
           groupCode = "FRED",
           groupName = "desc",
-          assignableRoles = listOf(AuthUserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
-          children = listOf(AuthUserGroup(groupCode = "BOB", groupName = "desc"))
+          assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
+          children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
         )
 
       whenever(

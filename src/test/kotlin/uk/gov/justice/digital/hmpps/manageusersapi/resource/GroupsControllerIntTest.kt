@@ -128,6 +128,29 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           )
         }
     }
+
+    @Test
+    fun `Group details endpoint returns error when group in not found`() {
+      externalUsersApiMockServer.stubCreateGroupNotFound("SITE_1_GROUP_2")
+      webTestClient
+        .get().uri("/groups/SITE_1_GROUP_2")
+        .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isEqualTo(NOT_FOUND)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "developerMessage" to "Unable to get group: SITE_1_GROUP_2 with reason: notfound",
+              "userMessage" to "Group Not found: Unable to get group: SITE_1_GROUP_2 with reason: notfound",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
   }
 
   @Nested
@@ -160,7 +183,30 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it["developerMessage"] as String).startsWith("Unable to maintain group: Not_A_Group with reason: notfound")
         }
     }
+    @Test
+    fun `Group details endpoint returns error when group in not found`() {
+      externalUsersApiMockServer.stubUpdateChildGroupNotFound("CHILD_9")
 
+      webTestClient
+        .put().uri("/groups/child/CHILD_9")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isEqualTo(NOT_FOUND)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "developerMessage" to "Unable to get group: CHILD_9 with reason: notfound",
+              "userMessage" to "Child Group Not found: Unable to get group: CHILD_9 with reason: notfound",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
     @Test
     fun `Group details endpoint not accessible without valid token`() {
       webTestClient.put().uri("/groups/child/CHILD_9")
