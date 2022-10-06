@@ -4,8 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
@@ -300,13 +300,13 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           )
         )
         .exchange()
-        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectStatus().isEqualTo(CONFLICT)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "status" to HttpStatus.CONFLICT.value(),
+              "status" to CONFLICT.value(),
               "errorCode" to null,
               "moreInfo" to null,
               "userMessage" to "User test message",
