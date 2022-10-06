@@ -318,7 +318,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Create group endpoint returns forbidden when dose not have admin role `() {
+    fun `Create group endpoint returns forbidden when does not have admin role `() {
       webTestClient
         .post().uri("/groups")
         .headers(setAuthorisation("bob"))
