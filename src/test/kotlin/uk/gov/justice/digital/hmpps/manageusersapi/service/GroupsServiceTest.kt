@@ -6,6 +6,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAssignableRole
@@ -38,5 +39,11 @@ class GroupsServiceTest {
     val groupAmendment = GroupAmendment("Group Name")
     groupsService.updateChildGroup("code", groupAmendment)
     verify(externalUsersService).updateChildGroup("code", groupAmendment)
+  }
+  @Test
+  fun `Create group details`() {
+    val createGroup = CreateGroup("Group Code", "Group Name")
+    groupsService.createGroup(createGroup)
+    verify(externalUsersService).createGroup(createGroup)
   }
 }
