@@ -34,9 +34,15 @@ class GroupsServiceTest {
 
   @Test
   fun `update child group details`() {
-
     val groupAmendment = GroupAmendment("Group Name")
     groupsService.updateChildGroup("code", groupAmendment)
     verify(externalUsersService).updateChildGroup("code", groupAmendment)
+  }
+
+  @Test
+  fun `update group details`() {
+    val groupAmendment = GroupAmendment("Group Name")
+    groupsService.updateGroup("code", groupAmendment)
+    verify(externalUsersService).updateGroup("code", groupAmendment)
   }
 }

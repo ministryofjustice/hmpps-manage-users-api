@@ -13,12 +13,14 @@ class GroupsService(
     group: String
   ): GroupDetails = externalUsersApiService.getGroupDetail(group)
 
+  fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateGroup(groupCode, groupAmendment)
+
   @Throws(ChildGroupNotFoundException::class)
   fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateChildGroup(groupCode, groupAmendment)
 }
 
-class ChildGroupNotFoundException(val group: String, val errorCode: String) :
+class ChildGroupNotFoundException(group: String, errorCode: String) :
   Exception("Unable to maintain child group: $group with reason: $errorCode")
 
-class GroupNotFoundException(val action: String, val group: String, val errorCode: String) :
+class GroupNotFoundException(action: String, group: String, errorCode: String) :
   Exception("Unable to $action group: $group with reason: $errorCode")
