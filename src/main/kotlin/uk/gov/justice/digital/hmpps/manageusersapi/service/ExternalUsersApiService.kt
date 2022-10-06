@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
@@ -115,6 +117,23 @@ class ExternalUsersApiService(
       .retrieve()
       .toBodilessEntity()
       .block(timeout)
+  }
+
+  fun getGroupDetail(group: String): GroupDetails =
+    externalUsersWebClient.get()
+      .uri("/groups/$group")
+      .retrieve()
+      .bodyToMono(GroupDetails::class.java)
+      .block(timeout) ?: throw GroupNotFoundException("get", group, "notfound")
+  fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
+
+    log.debug("Updating child group details for {} with {}", group, groupAmendment)
+    externalUsersWebClient.put()
+      .uri("/groups/child/$group")
+      .bodyValue(groupAmendment)
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout) ?: throw ChildGroupNotFoundException(group, "notfound")
   }
 }
 
