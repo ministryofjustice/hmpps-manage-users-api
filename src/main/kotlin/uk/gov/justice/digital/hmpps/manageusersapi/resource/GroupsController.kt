@@ -156,7 +156,7 @@ class GroupsController(
     ]
   )
   fun createGroup(
-    @Parameter(description = "Details of the group to be created.", required = true)
+    @Schema(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
     createGroup: CreateGroup
   ) {

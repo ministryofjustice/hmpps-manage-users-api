@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
 class GroupsControllerIntTest : IntegrationTestBase() {
@@ -163,7 +163,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isOk
     }
@@ -174,7 +174,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/child/Not_A_Group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -192,7 +192,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isEqualTo(NOT_FOUND)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -226,7 +226,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "groupCode" to "CG",
               "groupName" to " groupie"
@@ -245,7 +245,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "groupCode" to "x", "groupName" to "123",
             )
@@ -266,7 +266,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups")
         .headers(setAuthorisation("bob"))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "groupCode" to "CG3",
               "groupName" to " groupie 3"
@@ -292,7 +292,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "groupCode" to "CG1",
               "groupName" to " groupie 1"
