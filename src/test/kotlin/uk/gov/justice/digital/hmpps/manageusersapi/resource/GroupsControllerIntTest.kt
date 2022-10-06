@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
@@ -210,6 +212,113 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Group details endpoint not accessible without valid token`() {
       webTestClient.put().uri("/groups/child/CHILD_9")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
+  inner class createGroup {
+    @Test
+    fun `Create group`() {
+      externalUsersApiMockServer.stubCreateGroup()
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "groupCode" to "CG",
+              "groupName" to " groupie"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Create group error`() {
+
+      externalUsersApiMockServer.stubCreateGroupFail(BAD_REQUEST)
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "groupCode" to "x", "groupName" to "123",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
+          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
+        }
+    }
+
+    @Test
+    fun `Create group endpoint returns forbidden when dose not have admin role `() {
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("bob"))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "groupCode" to "CG3",
+              "groupName" to " groupie 3"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Create group - group already exists`() {
+
+      externalUsersApiMockServer.stubCreateGroupsConflict()
+
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "groupCode" to "CG1",
+              "groupName" to " groupie 1"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to HttpStatus.CONFLICT.value(),
+              "errorCode" to null,
+              "moreInfo" to null,
+              "userMessage" to "User test message",
+              "developerMessage" to "Developer test message"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Create group endpoint not accessible without valid token`() {
+      webTestClient.post().uri("/groups")
         .exchange()
         .expectStatus().isUnauthorized
     }

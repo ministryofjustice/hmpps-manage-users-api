@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -17,7 +18,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.ChildGroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
+import javax.validation.Valid
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Pattern
+import javax.validation.constraints.Size
 
 @Validated
 @RestController
@@ -116,6 +120,48 @@ class GroupsController(
   ) {
     groupsService.updateChildGroup(group, groupAmendment)
   }
+
+  @PostMapping("/groups")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Create group.",
+    description = "Create a Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "409",
+        description = "Group already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun createGroup(
+    @Parameter(description = "Details of the group to be created.", required = true)
+    @Valid @RequestBody
+    createGroup: CreateGroup
+  ) {
+    groupsService.createGroup(createGroup)
+  }
 }
 
 @Schema(description = "Group Name")
@@ -143,6 +189,20 @@ data class UserGroup(
 
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
+)
+
+data class CreateGroup(
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  @field:NotBlank(message = "group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val groupCode: String,
+
+  @Schema(required = true, description = "groupName", example = "HDC NPS North East")
+  @field:NotBlank(message = "group name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  val groupName: String
 )
 
 @Schema(description = "Group Details")

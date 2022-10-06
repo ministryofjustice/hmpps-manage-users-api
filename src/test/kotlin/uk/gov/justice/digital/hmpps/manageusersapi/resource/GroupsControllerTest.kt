@@ -39,7 +39,6 @@ class GroupsControllerTest {
         groupsDetails
       )
     }
-
     @Test
     fun `Group Not Found`() {
 
@@ -54,6 +53,16 @@ class GroupsControllerTest {
       val groupAmendment = GroupAmendment("groupie")
       groupsController.amendChildGroupName("group1", groupAmendment)
       verify(groupsService).updateChildGroup("group1", groupAmendment)
+    }
+  }
+
+  @Nested
+  inner class `create group` {
+    @Test
+    fun create() {
+      val childGroup = CreateGroup("CG", "Group")
+      groupsController.createGroup(childGroup)
+      verify(groupsService).createGroup(childGroup)
     }
   }
 }
