@@ -86,7 +86,7 @@ class HmppsManageUsersApiExceptionHandler {
     return ResponseEntity
       .status(BAD_REQUEST)
       .contentType(APPLICATION_JSON)
-      .body(ErrorResponse(status = BAD_REQUEST, developerMessage = e.message, errors = e.asErrorList()))
+      .body(ErrorResponse(status = BAD_REQUEST, userMessage = e.message, developerMessage = e.message, errors = e.asErrorList()))
   }
 
   private fun MethodArgumentNotValidException.asErrorList(): List<String> =

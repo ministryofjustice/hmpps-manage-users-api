@@ -4,10 +4,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
 class GroupsControllerIntTest : IntegrationTestBase() {
@@ -161,7 +163,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isOk
     }
@@ -172,7 +174,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/child/Not_A_Group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +192,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isEqualTo(NOT_FOUND)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -223,7 +225,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/GROUP_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isOk
     }
@@ -234,7 +236,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/groups/Not_A_Group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -257,7 +259,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     fun `access forbidden when no role`() {
       webTestClient.put().uri("/groups/GROUP_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf()))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -266,9 +268,116 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     fun `access forbidden when wrong role`() {
       webTestClient.put().uri("/groups/GROUP_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUDIT")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isForbidden
+    }
+  }
+
+  @Nested
+  inner class createGroup {
+    @Test
+    fun `Create group`() {
+      externalUsersApiMockServer.stubCreateGroup()
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          fromValue(
+            mapOf(
+              "groupCode" to "CG",
+              "groupName" to " groupie"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Create group error`() {
+
+      externalUsersApiMockServer.stubCreateGroupFail(BAD_REQUEST)
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          fromValue(
+            mapOf(
+              "groupCode" to "x", "groupName" to "123",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
+          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
+        }
+    }
+
+    @Test
+    fun `Create group endpoint returns forbidden when dose not have admin role `() {
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("bob"))
+        .body(
+          fromValue(
+            mapOf(
+              "groupCode" to "CG3",
+              "groupName" to " groupie 3"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Create group - group already exists`() {
+
+      externalUsersApiMockServer.stubCreateGroupsConflict()
+
+      webTestClient
+        .post().uri("/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          fromValue(
+            mapOf(
+              "groupCode" to "CG1",
+              "groupName" to " groupie 1"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to CONFLICT.value(),
+              "errorCode" to null,
+              "moreInfo" to null,
+              "userMessage" to "User test message",
+              "developerMessage" to "Developer test message"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Create group endpoint not accessible without valid token`() {
+      webTestClient.post().uri("/groups")
+        .exchange()
+        .expectStatus().isUnauthorized
     }
   }
 }
