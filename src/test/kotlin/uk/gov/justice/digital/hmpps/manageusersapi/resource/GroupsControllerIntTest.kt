@@ -169,6 +169,23 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `Invalid group name`() {
+      webTestClient
+        .put().uri("/groups/child/CHILD_9")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(fromValue(mapOf("groupName" to "new")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupName]")
+          assertThat(it["userMessage"] as String).contains("default message [size must be between 4 and 100]")
+          assertThat(it["developerMessage"] as String).contains("default message [groupName]")
+          assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
+        }
+    }
+
+    @Test
     fun `Change group name returns error when group not found`() {
       externalUsersApiMockServer.stubPutUpdateChildGroupFail("Not_A_Group", NOT_FOUND)
       webTestClient
@@ -228,6 +245,23 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Invalid group name`() {
+      webTestClient
+        .put().uri("/groups/GROUP_9")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(fromValue(mapOf("groupName" to "new")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupName]")
+          assertThat(it["userMessage"] as String).contains("default message [size must be between 4 and 100]")
+          assertThat(it["developerMessage"] as String).contains("default message [groupName]")
+          assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
+        }
     }
 
     @Test
