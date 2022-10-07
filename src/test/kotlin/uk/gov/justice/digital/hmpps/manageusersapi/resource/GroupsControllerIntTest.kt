@@ -218,6 +218,63 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class ChangeGroupName {
+    @Test
+    fun `Change group name`() {
+      externalUsersApiMockServer.stubPutUpdateGroup("GROUP_9")
+      webTestClient
+        .put().uri("/groups/GROUP_9")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change group name returns error when group not found`() {
+      externalUsersApiMockServer.stubPutUpdateGroupFail("Not_A_Group", NOT_FOUND)
+      webTestClient
+        .put().uri("/groups/Not_A_Group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+        }
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/groups/GROUP_9")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/groups/GROUP_9")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf()))
+        .body(fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.put().uri("/groups/GROUP_9")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUDIT")))
+        .body(fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+  }
+
+  @Nested
   inner class createGroup {
     @Test
     fun `Create group`() {
@@ -261,7 +318,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Create group endpoint returns forbidden when dose not have admin role `() {
+    fun `Create group endpoint returns forbidden when does not have admin role `() {
       webTestClient
         .post().uri("/groups")
         .headers(setAuthorisation("bob"))

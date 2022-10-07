@@ -48,11 +48,19 @@ class GroupsControllerTest {
         .isInstanceOf(GroupNotFoundException::class.java)
         .withFailMessage("Unable to find group: notfound, reason: not found")
     }
+
     @Test
     fun `amend child group name`() {
       val groupAmendment = GroupAmendment("groupie")
       groupsController.amendChildGroupName("group1", groupAmendment)
       verify(groupsService).updateChildGroup("group1", groupAmendment)
+    }
+
+    @Test
+    fun `amend group name`() {
+      val groupAmendment = GroupAmendment("groupie")
+      groupsController.amendGroupName("group1", groupAmendment)
+      verify(groupsService).updateGroup("group1", groupAmendment)
     }
   }
 
