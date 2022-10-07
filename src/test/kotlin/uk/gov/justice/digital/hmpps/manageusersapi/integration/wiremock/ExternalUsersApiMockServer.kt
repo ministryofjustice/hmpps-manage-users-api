@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -1111,6 +1112,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "status": ${HttpStatus.CONFLICT.value()},
                 "errorCode": null,
                 "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubDeleteGroup() {
+    stubFor(
+      delete(urlEqualTo("/groups/GC_DEL_1"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubDeleteGroupsConflict() {
+    stubFor(
+      delete(urlEqualTo("/groups/GC_DEL_3"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "Unable to delete group: GC_DEL_3 with reason: child group exist",
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }

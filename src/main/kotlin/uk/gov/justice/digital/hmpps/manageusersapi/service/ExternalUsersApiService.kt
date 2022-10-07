@@ -160,6 +160,14 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block(timeout)
   }
+
+  fun deleteGroup(group: String) {
+    externalUsersWebClient.delete()
+      .uri("/groups/$group")
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =

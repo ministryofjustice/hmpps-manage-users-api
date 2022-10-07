@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
@@ -410,6 +411,59 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create group endpoint not accessible without valid token`() {
       webTestClient.post().uri("/groups")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
+  @Nested
+  inner class DeleteGroupCode {
+    @Test
+    fun `Delete Group - no child groups and no members`() {
+
+      externalUsersApiMockServer.stubDeleteGroup()
+      webTestClient.delete().uri("/groups/GC_DEL_1")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Delete Group - has child groups`() {
+      externalUsersApiMockServer.stubDeleteGroupsConflict()
+      webTestClient.delete().uri("/groups/GC_DEL_3")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to HttpStatus.CONFLICT.value(),
+              "errorCode" to null,
+              "moreInfo" to null,
+              "userMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exist",
+              "developerMessage" to "Developer test message"
+            )
+          )
+        }
+    }
+    @Test
+    fun `Delete Child Group endpoint returns forbidden when does not have admin role`() {
+      webTestClient.delete().uri("/groups/GC_DEL_1")
+        .headers(setAuthorisation("bob"))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+    @Test
+    fun `Delete Child Group details endpoint not accessible without valid token`() {
+      webTestClient.delete().uri("/groups/GC_DEL_1")
         .exchange()
         .expectStatus().isUnauthorized
     }

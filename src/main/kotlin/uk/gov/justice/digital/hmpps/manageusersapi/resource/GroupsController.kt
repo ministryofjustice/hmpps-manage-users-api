@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -208,6 +209,48 @@ class GroupsController(
     createGroup: CreateGroup
   ) {
     groupsService.createGroup(createGroup)
+  }
+
+  @DeleteMapping("/groups/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Delete group.",
+    description = "Delete a Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun deleteGroup(
+    @Schema(description = "The group code of the group.", required = true)
+    @PathVariable
+    group: String
+  ) {
+    groupsService.deleteGroup(group)
   }
 }
 
