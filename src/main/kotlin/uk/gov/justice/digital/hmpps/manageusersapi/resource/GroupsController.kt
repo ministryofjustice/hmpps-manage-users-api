@@ -209,6 +209,48 @@ class GroupsController(
   ) {
     groupsService.createGroup(createGroup)
   }
+
+  @PostMapping("/groups/child")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Create child group.",
+    description = "Create a Child Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "409",
+        description = "Child Group already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun createChildGroup(
+    @Schema(description = "Details of the child group to be created.", required = true)
+    @Valid @RequestBody
+    createChildGroup: CreateChildGroup
+  ) {
+    groupsService.createChildGroup(createChildGroup)
+  }
 }
 
 @Schema(description = "Group Name")
@@ -266,4 +308,24 @@ data class GroupDetails(
 
   @Schema(required = true, description = "Child Groups")
   val children: List<UserGroup>
+)
+
+data class CreateChildGroup(
+  @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
+  @field:NotBlank(message = "parent group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val parentGroupCode: String,
+
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  @field:NotBlank(message = "group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val groupCode: String,
+
+  @Schema(required = true, description = "groupName", example = "HDC NPS North East")
+  @field:NotBlank(message = "group name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  val groupName: String
 )
