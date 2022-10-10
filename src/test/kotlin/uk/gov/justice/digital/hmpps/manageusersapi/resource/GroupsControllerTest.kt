@@ -73,4 +73,13 @@ class GroupsControllerTest {
       verify(groupsService).createGroup(childGroup)
     }
   }
+  @Nested
+  inner class `create child group` {
+    @Test
+    fun create() {
+      val childGroup = CreateChildGroup("PG", "CG", "Group")
+      groupsController.createChildGroup(childGroup)
+      verify(groupsService).createChildGroup(childGroup)
+    }
+  }
 }

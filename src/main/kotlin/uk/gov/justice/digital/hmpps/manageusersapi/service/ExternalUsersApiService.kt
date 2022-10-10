@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
@@ -154,6 +155,20 @@ class ExternalUsersApiService(
         mapOf(
           "groupCode" to createGroup.groupCode,
           "groupName" to createGroup.groupName
+        )
+      )
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
+  fun createChildGroup(createChildGroup: CreateChildGroup) {
+    externalUsersWebClient.post()
+      .uri("/groups/child")
+      .bodyValue(
+        mapOf(
+          "groupCode" to createChildGroup.groupCode,
+          "groupName" to createChildGroup.groupName,
+          "parentGroupCode" to createChildGroup.parentGroupCode
         )
       )
       .retrieve()
