@@ -22,6 +22,7 @@ import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
+import org.springframework.web.bind.annotation.DeleteMapping
 
 @Validated
 @RestController
@@ -250,6 +251,48 @@ class GroupsController(
     createChildGroup: CreateChildGroup
   ) {
     groupsService.createChildGroup(createChildGroup)
+  }
+
+  @DeleteMapping("/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Delete child group.",
+    description = "Delete a Child Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun deleteChildGroup(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+  ) {
+    groupsService.deleteChildGroup(group)
   }
 }
 
