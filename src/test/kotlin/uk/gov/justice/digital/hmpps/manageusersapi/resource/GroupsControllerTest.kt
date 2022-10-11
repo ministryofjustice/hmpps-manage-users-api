@@ -39,16 +39,19 @@ class GroupsControllerTest {
         groupsDetails
       )
     }
+
     @Test
     fun `Group Not Found`() {
-
       whenever(groupsService.getGroupDetail("group")).thenThrow(GroupNotFoundException("find", "notfound", "not found"))
 
       assertThatThrownBy { groupsController.getGroupDetail("group") }
         .isInstanceOf(GroupNotFoundException::class.java)
         .withFailMessage("Unable to find group: notfound, reason: not found")
     }
+  }
 
+  @Nested
+  inner class AmendGroupName {
     @Test
     fun `amend child group name`() {
       val groupAmendment = GroupAmendment("groupie")
@@ -65,21 +68,29 @@ class GroupsControllerTest {
   }
 
   @Nested
-  inner class `create group` {
+  inner class CreateGroup {
     @Test
-    fun create() {
+    fun createGroup() {
       val childGroup = CreateGroup("CG", "Group")
       groupsController.createGroup(childGroup)
       verify(groupsService).createGroup(childGroup)
     }
-  }
-  @Nested
-  inner class `create child group` {
+
     @Test
-    fun create() {
+    fun createChildGroup() {
       val childGroup = CreateChildGroup("PG", "CG", "Group")
       groupsController.createChildGroup(childGroup)
       verify(groupsService).createChildGroup(childGroup)
+    }
+  }
+
+  @Nested
+  inner class DeleteGroup {
+    @Test
+    fun deleteChildGroup() {
+      groupsController.deleteChildGroup("CHILD_1")
+
+      verify(groupsService).deleteChildGroup("CHILD_1")
     }
   }
 }
