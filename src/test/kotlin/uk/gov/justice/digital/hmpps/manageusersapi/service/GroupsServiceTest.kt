@@ -53,8 +53,14 @@ class GroupsServiceTest {
     groupsService.createGroup(createGroup)
     verify(externalUsersService).createGroup(createGroup)
   }
+
   @Test
-  fun `Delete group details`() {
+  fun `Delete child group`() {
+    groupsService.deleteChildGroup("CHILD_1")
+    verify(externalUsersService).deleteChildGroup("CHILD_1")
+  }
+  @Test
+  fun `Delete group`() {
     groupsService.deleteGroup("group")
     verify(externalUsersService).deleteGroup("group")
   }

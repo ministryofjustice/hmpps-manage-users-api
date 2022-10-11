@@ -178,6 +178,15 @@ class ExternalUsersApiService(
       .block(timeout)
   }
 
+  fun deleteChildGroup(group: String) {
+    log.debug("Deleting child group {}", group)
+    externalUsersWebClient.delete()
+      .uri("/groups/child/$group")
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
+
   fun validateEmailDomain(emailDomain: String): Boolean {
     return externalUsersWebClient.get()
       .uri("/validate/email-domain?emailDomain=$emailDomain")
