@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -1046,9 +1047,41 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubDeleteChildGroup(group: String) {
+    stubFor(
+      delete("/groups/child/$group")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
   fun stubPutUpdateGroupFail(group: String, status: HttpStatus) {
     stubFor(
       put("/groups/$group")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User error message",
+                "developerMessage": "Developer error message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubDeleteChildGroupFail(group: String, status: HttpStatus) {
+    stubFor(
+      delete("/groups/child/$group")
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")

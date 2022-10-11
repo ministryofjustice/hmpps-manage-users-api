@@ -4,13 +4,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
@@ -311,7 +309,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
-  inner class createGroup {
+  inner class CreateGroup {
     @Test
     fun `Create group`() {
       externalUsersApiMockServer.stubCreateGroup()
@@ -427,7 +425,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG",
@@ -445,7 +443,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "parentGroupCode" to "",
               "groupCode" to "",
@@ -463,7 +461,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups/child")
         .headers(setAuthorisation("bob"))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG3",
@@ -489,7 +487,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "parentGroupCode" to "",
               "groupCode" to "",
@@ -514,7 +512,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG1",
@@ -523,7 +521,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           )
         )
         .exchange()
-        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectStatus().isEqualTo(CONFLICT)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
@@ -533,7 +531,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "userMessage" to "User test message",
               "errorCode" to null,
               "moreInfo" to null,
-              "status" to HttpStatus.CONFLICT.value()
+              "status" to CONFLICT.value()
             )
           )
         }
@@ -546,7 +544,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "parentGroupCode" to "pg",
               "groupCode" to "CG1",
@@ -576,6 +574,60 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient.post().uri("/groups/child")
         .exchange()
         .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
+  inner class DeleteChildGroup {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.delete().uri("/groups/child/CHILD_3")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.delete().uri("/groups/child/CHILD_3")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.delete().uri("/groups/child/CHILD_3")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `child group not found`() {
+      externalUsersApiMockServer.stubDeleteChildGroupFail("Not_A_Group", NOT_FOUND)
+      webTestClient
+        .delete().uri("/groups/child/Not_A_Group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+        }
+    }
+
+    @Test
+    fun `delete child group success`() {
+      externalUsersApiMockServer.stubDeleteChildGroup("CHILD_3")
+      webTestClient
+        .delete().uri("/groups/child/CHILD_3")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
     }
   }
 }
