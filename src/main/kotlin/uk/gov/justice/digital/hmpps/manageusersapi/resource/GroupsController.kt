@@ -291,9 +291,7 @@ class GroupsController(
     @Schema(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ) {
-    groupsService.deleteGroup(group)
-  }
+  ) = groupsService.deleteGroup(group)
 }
 
 @Schema(description = "Group Name")

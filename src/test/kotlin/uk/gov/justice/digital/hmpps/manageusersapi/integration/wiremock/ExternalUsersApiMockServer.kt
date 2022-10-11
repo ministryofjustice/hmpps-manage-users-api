@@ -1252,4 +1252,25 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubDeleteGroupNotFound(group: String) {
+    stubFor(
+      delete(urlEqualTo("/groups/$group"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+                "userMessage": "Group Not found: Unable to delete group: $group with reason: notfound",
+                "developerMessage": "Unable to delete group: $group with reason: notfound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

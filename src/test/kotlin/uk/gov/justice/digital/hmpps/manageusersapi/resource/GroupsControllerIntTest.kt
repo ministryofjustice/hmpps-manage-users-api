@@ -631,4 +631,27 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isUnauthorized
     }
   }
+
+  @Test
+  fun `Group details endpoint returns error when group in not found`() {
+    externalUsersApiMockServer.stubDeleteGroupNotFound("SITE_1_GROUP_2")
+    webTestClient
+      .delete().uri("/groups/SITE_1_GROUP_2")
+      .headers(setAuthorisation("AUTH_USER", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+      .exchange()
+      .expectStatus().isEqualTo(NOT_FOUND)
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody()
+      .jsonPath("$").value<Map<String, Any>> {
+        assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          mapOf(
+            "status" to NOT_FOUND.value(),
+            "developerMessage" to "Unable to delete group: SITE_1_GROUP_2 with reason: notfound",
+            "userMessage" to "Group Not found: Unable to delete group: SITE_1_GROUP_2 with reason: notfound",
+            "errorCode" to null,
+            "moreInfo" to null
+          )
+        )
+      }
+  }
 }
