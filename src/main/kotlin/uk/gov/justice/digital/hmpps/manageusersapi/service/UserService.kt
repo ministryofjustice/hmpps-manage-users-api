@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_LSA
 class UserService(
   val nomisApiService: NomisApiService,
   val tokenService: TokenService,
-  val authService: AuthService
+  val externalUsersApiService: ExternalUsersApiService
 ) {
   @Throws(UserExistsException::class, TokenException::class, HmppsValidationException::class)
   @Transactional
@@ -35,7 +35,7 @@ class UserService(
   }
 
   private fun validateEmailDomain(emailDomain: String): Boolean =
-    authService.validateEmailDomain(emailDomain)
+    externalUsersApiService.validateEmailDomain(emailDomain)
 }
 
 class UserExistsException(user: String, errorCode: String) :

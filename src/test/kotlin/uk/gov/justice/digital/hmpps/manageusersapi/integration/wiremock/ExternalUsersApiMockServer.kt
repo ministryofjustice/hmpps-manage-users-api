@@ -1226,4 +1226,30 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubValidEmailDomain() {
+    stubFor(
+      get(urlEqualTo("/validate/email-domain?emailDomain=gov.uk"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              "true"
+            )
+        )
+    )
+  }
+
+  fun stubInvalidEmailDomain() {
+    stubFor(
+      get(urlEqualTo("/validate/email-domain?emailDomain=1gov.uk"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              "false".trimIndent()
+            )
+        )
+    )
+  }
 }

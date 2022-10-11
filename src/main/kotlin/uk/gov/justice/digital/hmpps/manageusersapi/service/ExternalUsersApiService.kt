@@ -148,6 +148,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block(timeout) ?: throw ChildGroupNotFoundException(group, "notfound")
   }
+
   fun createGroup(createGroup: CreateGroup) {
     externalUsersWebClient.post()
       .uri("/groups")
@@ -161,6 +162,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block(timeout)
   }
+
   fun createChildGroup(createChildGroup: CreateChildGroup) {
     externalUsersWebClient.post()
       .uri("/groups/child")
@@ -183,6 +185,14 @@ class ExternalUsersApiService(
       .retrieve()
       .toBodilessEntity()
       .block(timeout)
+  }
+
+  fun validateEmailDomain(emailDomain: String): Boolean {
+    return externalUsersWebClient.get()
+      .uri("/validate/email-domain?emailDomain=$emailDomain")
+      .retrieve()
+      .bodyToMono(Boolean::class.java)
+      .block(timeout)!!
   }
 }
 
