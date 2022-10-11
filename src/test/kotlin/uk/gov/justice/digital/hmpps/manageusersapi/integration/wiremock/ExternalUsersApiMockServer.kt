@@ -1252,4 +1252,57 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubDeleteGroup() {
+    stubFor(
+      delete(urlEqualTo("/groups/GC_DEL_1"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubDeleteGroupsConflict() {
+    stubFor(
+      delete(urlEqualTo("/groups/GC_DEL_3"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "Unable to delete group: GC_DEL_3 with reason: child group exist",
+                "developerMessage": "Developer test message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubDeleteGroupNotFound(group: String) {
+    stubFor(
+      delete(urlEqualTo("/groups/$group"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+                "userMessage": "Group Not found: Unable to delete group: $group with reason: notfound",
+                "developerMessage": "Unable to delete group: $group with reason: notfound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

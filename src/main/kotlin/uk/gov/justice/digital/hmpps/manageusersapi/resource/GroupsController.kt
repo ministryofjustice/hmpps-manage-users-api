@@ -294,6 +294,46 @@ class GroupsController(
   ) {
     groupsService.deleteChildGroup(group)
   }
+
+  @DeleteMapping("/groups/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Delete group.",
+    description = "Delete a Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun deleteGroup(
+    @Schema(description = "The group code of the group.", required = true)
+    @PathVariable
+    group: String
+  ) = groupsService.deleteGroup(group)
 }
 
 @Schema(description = "Group Name")

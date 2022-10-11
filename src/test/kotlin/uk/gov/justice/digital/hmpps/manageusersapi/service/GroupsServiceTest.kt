@@ -59,4 +59,9 @@ class GroupsServiceTest {
     groupsService.deleteChildGroup("CHILD_1")
     verify(externalUsersService).deleteChildGroup("CHILD_1")
   }
+  @Test
+  fun `Delete group`() {
+    groupsService.deleteGroup("group")
+    verify(externalUsersService).deleteGroup("group")
+  }
 }

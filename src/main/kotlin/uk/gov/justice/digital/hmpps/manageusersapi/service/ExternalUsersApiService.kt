@@ -85,7 +85,7 @@ class ExternalUsersApiService(
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
-    AuthService.log.debug("Updating role for {} with {}", roleCode, roleAmendment)
+    log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClient.put()
       .uri("/roles/$roleCode/description")
       .bodyValue(roleAmendment)
@@ -193,6 +193,14 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(Boolean::class.java)
       .block(timeout)!!
+  }
+
+  fun deleteGroup(group: String) {
+    externalUsersWebClient.delete()
+      .uri("/groups/$group")
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
   }
 }
 
