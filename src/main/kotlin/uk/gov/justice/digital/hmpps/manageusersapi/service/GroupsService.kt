@@ -21,6 +21,7 @@ class GroupsService(
   fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateChildGroup(groupCode, groupAmendment)
   fun createGroup(createGroup: CreateGroup) = externalUsersApiService.createGroup(createGroup)
   fun createChildGroup(createChildGroup: CreateChildGroup) = externalUsersApiService.createChildGroup(createChildGroup)
+  fun deleteGroup(group: String) = externalUsersApiService.deleteGroup(group)
 }
 
 class ChildGroupNotFoundException(group: String, errorCode: String) :
