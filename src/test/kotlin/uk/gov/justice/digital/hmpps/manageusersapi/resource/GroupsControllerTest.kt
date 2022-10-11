@@ -82,4 +82,13 @@ class GroupsControllerTest {
       verify(groupsService).createChildGroup(childGroup)
     }
   }
+
+  @Nested
+  inner class DeleteGroup {
+    @Test
+    fun `delete group`() {
+      groupsController.deleteGroup("GroupCode")
+      verify(groupsService).deleteGroup("GroupCode")
+    }
+  }
 }
