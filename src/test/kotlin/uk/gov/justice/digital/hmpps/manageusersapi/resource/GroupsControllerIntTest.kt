@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
@@ -45,7 +45,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .json(
           """
@@ -80,7 +80,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .json(
           """
@@ -116,7 +116,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isEqualTo(FORBIDDEN)
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
@@ -139,7 +139,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isEqualTo(NOT_FOUND)
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
@@ -194,7 +194,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isNotFound
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
@@ -212,7 +212,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isEqualTo(NOT_FOUND)
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
@@ -273,7 +273,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isNotFound
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
@@ -392,7 +392,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
@@ -522,7 +522,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
@@ -554,7 +554,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isNotFound
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
@@ -611,7 +611,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNotFound
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
