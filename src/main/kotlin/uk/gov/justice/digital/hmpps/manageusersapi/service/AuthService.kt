@@ -44,15 +44,6 @@ class AuthService(
     }
   }
 
-  fun validateEmailDomain(emailDomain: String): Boolean {
-
-    return authWebClient.get()
-      .uri("/api/validate/email-domain?emailDomain=$emailDomain")
-      .retrieve()
-      .bodyToMono(Boolean::class.java)
-      .block(timeout)!!
-  }
-
   suspend fun getUsers(): List<AuthUser> =
     authWebClient.get()
       .uri { uriBuilder ->
@@ -64,9 +55,6 @@ class AuthService(
       .retrieve()
       .awaitBody()
 }
-
-class RoleNotFoundException(action: String, role: String, errorCode: String) :
-  Exception("Unable to $action role: $role with reason: $errorCode")
 
 class TokenException(userName: String, errorCode: Int) :
   Exception("Error creating token for user $userName, reason: $errorCode")

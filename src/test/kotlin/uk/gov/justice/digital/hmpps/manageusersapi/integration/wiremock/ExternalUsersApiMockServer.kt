@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -1121,9 +1120,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubDeleteGroup() {
+  fun stubCreateChildGroup() {
     stubFor(
-      delete(urlEqualTo("/groups/GC_DEL_1"))
+      post(urlEqualTo("/groups/child"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
@@ -1132,9 +1131,30 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubDeleteGroupsConflict() {
+  fun stubCreateChildrenGroupFail(status: HttpStatus) {
     stubFor(
-      delete(urlEqualTo("/groups/GC_DEL_3"))
+      post(urlEqualTo("/groups/child"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "default message [groupName],100,4] default message [groupCode],30,2],default message [parentGroupCode],30,2]",
+                "developerMessage": "Developer test message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateChildGroupsConflict() {
+    stubFor(
+      post(urlEqualTo("/groups/child"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
@@ -1143,11 +1163,58 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
               """{
                 "status": ${HttpStatus.CONFLICT.value()},
                 "errorCode": null,
-                "userMessage": "Unable to delete group: GC_DEL_3 with reason: child group exist",
+                "userMessage": "User test message",
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
               """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubCreateChildGroupNotFound() {
+    stubFor(
+      post("/groups/child")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+               "userMessage": "Group Not found: Unable to create group: PG with reason: ParentGroupNotFound",
+                "developerMessage": "Unable to create group: PG with reason: ParentGroupNotFound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubValidEmailDomain() {
+    stubFor(
+      get(urlEqualTo("/validate/email-domain?emailDomain=gov.uk"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              "true"
+            )
+        )
+    )
+  }
+
+  fun stubInvalidEmailDomain() {
+    stubFor(
+      get(urlEqualTo("/validate/email-domain?emailDomain=1gov.uk"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              "false".trimIndent()
             )
         )
     )

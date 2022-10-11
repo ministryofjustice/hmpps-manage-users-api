@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -211,11 +210,11 @@ class GroupsController(
     groupsService.createGroup(createGroup)
   }
 
-  @DeleteMapping("/groups/{group}")
+  @PostMapping("/groups/child")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
-    summary = "Delete group.",
-    description = "Delete a Group"
+    summary = "Create child group.",
+    description = "Create a Child Group"
   )
   @ApiResponses(
     value = [
@@ -234,8 +233,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404",
-        description = "Group not found.",
+        responseCode = "409",
+        description = "Child Group already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -245,12 +244,12 @@ class GroupsController(
       )
     ]
   )
-  fun deleteGroup(
-    @Schema(description = "The group code of the group.", required = true)
-    @PathVariable
-    group: String
+  fun createChildGroup(
+    @Schema(description = "Details of the child group to be created.", required = true)
+    @Valid @RequestBody
+    createChildGroup: CreateChildGroup
   ) {
-    groupsService.deleteGroup(group)
+    groupsService.createChildGroup(createChildGroup)
   }
 }
 
@@ -309,4 +308,24 @@ data class GroupDetails(
 
   @Schema(required = true, description = "Child Groups")
   val children: List<UserGroup>
+)
+
+data class CreateChildGroup(
+  @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
+  @field:NotBlank(message = "parent group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val parentGroupCode: String,
+
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  @field:NotBlank(message = "group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val groupCode: String,
+
+  @Schema(required = true, description = "groupName", example = "HDC NPS North East")
+  @field:NotBlank(message = "group name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  val groupName: String
 )

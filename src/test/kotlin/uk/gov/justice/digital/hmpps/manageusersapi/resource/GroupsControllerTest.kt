@@ -65,7 +65,7 @@ class GroupsControllerTest {
   }
 
   @Nested
-  inner class CreateGroup {
+  inner class `create group` {
     @Test
     fun create() {
       val childGroup = CreateGroup("CG", "Group")
@@ -73,13 +73,13 @@ class GroupsControllerTest {
       verify(groupsService).createGroup(childGroup)
     }
   }
-
   @Nested
-  inner class DeleteGroup {
+  inner class `create child group` {
     @Test
-    fun `delete group`() {
-      groupsController.deleteGroup("GroupCode")
-      verify(groupsService).deleteGroup("GroupCode")
+    fun create() {
+      val childGroup = CreateChildGroup("PG", "CG", "Group")
+      groupsController.createChildGroup(childGroup)
+      verify(groupsService).createChildGroup(childGroup)
     }
   }
 }

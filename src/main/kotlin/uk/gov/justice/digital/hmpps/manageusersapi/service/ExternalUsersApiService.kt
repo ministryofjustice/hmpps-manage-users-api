@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
@@ -147,6 +148,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block(timeout) ?: throw ChildGroupNotFoundException(group, "notfound")
   }
+
   fun createGroup(createGroup: CreateGroup) {
     externalUsersWebClient.post()
       .uri("/groups")
@@ -161,12 +163,27 @@ class ExternalUsersApiService(
       .block(timeout)
   }
 
-  fun deleteGroup(group: String) {
-    externalUsersWebClient.delete()
-      .uri("/groups/$group")
+  fun createChildGroup(createChildGroup: CreateChildGroup) {
+    externalUsersWebClient.post()
+      .uri("/groups/child")
+      .bodyValue(
+        mapOf(
+          "groupCode" to createChildGroup.groupCode,
+          "groupName" to createChildGroup.groupName,
+          "parentGroupCode" to createChildGroup.parentGroupCode
+        )
+      )
       .retrieve()
       .toBodilessEntity()
       .block(timeout)
+  }
+
+  fun validateEmailDomain(emailDomain: String): Boolean {
+    return externalUsersWebClient.get()
+      .uri("/validate/email-domain?emailDomain=$emailDomain")
+      .retrieve()
+      .bodyToMono(Boolean::class.java)
+      .block(timeout)!!
   }
 }
 
