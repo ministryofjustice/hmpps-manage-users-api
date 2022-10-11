@@ -6,8 +6,13 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import javax.validation.Valid
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Pattern
+import javax.validation.constraints.Size
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,11 +23,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.ChildGroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
-import org.springframework.web.bind.annotation.DeleteMapping
 
 @Validated
 @RestController
