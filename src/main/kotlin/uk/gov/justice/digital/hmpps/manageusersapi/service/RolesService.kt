@@ -13,7 +13,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 @Service
 class RolesService(
   val nomisApiService: NomisApiService,
-  val authService: AuthService,
   val externalUsersApiService: ExternalUsersApiService
 ) {
 
@@ -85,3 +84,6 @@ fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeC
 
 class RoleExistsException(role: String, errorCode: String) :
   Exception("Unable to create role: $role with reason: $errorCode")
+
+class RoleNotFoundException(action: String, role: String, errorCode: String) :
+  Exception("Unable to $action role: $role with reason: $errorCode")

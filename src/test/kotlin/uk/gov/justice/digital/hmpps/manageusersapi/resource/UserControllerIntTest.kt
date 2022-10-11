@@ -86,7 +86,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create Central Admin user`() {
       nomisApiMockServer.stubCreateCentralAdminUser()
       hmppsAuthMockServer.stubForNewToken()
-      hmppsAuthMockServer.stubForValidEmailDomain()
+      externalUsersApiMockServer.stubValidEmailDomain()
 
       val nomisUserDetails = webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -212,7 +212,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create central admin user returns error when username already exists`() {
       nomisApiMockServer.stubCreateCentralAdminUserConflict()
       hmppsAuthMockServer.stubForNewToken()
-      hmppsAuthMockServer.stubForValidEmailDomain()
+      externalUsersApiMockServer.stubValidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -269,7 +269,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create general user returns error when username already exists`() {
       nomisApiMockServer.stubCreateGeneralUserConflict()
-      hmppsAuthMockServer.stubForValidEmailDomain()
+      externalUsersApiMockServer.stubValidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -328,7 +328,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create local admin user returns error when username already exists`() {
       nomisApiMockServer.stubCreateLocalAdminUserConflict()
-      hmppsAuthMockServer.stubForValidEmailDomain()
+      externalUsersApiMockServer.stubValidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -387,7 +387,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create local admin user returns error for invalid email domain `() {
       nomisApiMockServer.stubCreateLocalAdminUserConflict()
-      hmppsAuthMockServer.stubForInValidEmailDomain()
+      externalUsersApiMockServer.stubInvalidEmailDomain()
 
       webTestClient.post().uri("/users")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
