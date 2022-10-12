@@ -6,6 +6,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
@@ -31,6 +32,17 @@ class GroupsServiceTest {
 
     assertThat(group).isEqualTo(groupDetails)
     verify(externalUsersService).getGroupDetail("bob")
+  }
+
+  @Test
+  fun `get child group details`() {
+    val childGroupDetails = ChildGroupDetails(groupCode = "CHILD_1", groupName = "Child - Site 1 - Group 2")
+    whenever(externalUsersService.getChildGroupDetail(anyString())).thenReturn(childGroupDetails)
+
+    val actualChildGroup = groupsService.getChildGroupDetail(childGroupDetails.groupCode)
+
+    assertThat(actualChildGroup).isEqualTo(childGroupDetails)
+    verify(externalUsersService).getChildGroupDetail(childGroupDetails.groupCode)
   }
 
   @Test
