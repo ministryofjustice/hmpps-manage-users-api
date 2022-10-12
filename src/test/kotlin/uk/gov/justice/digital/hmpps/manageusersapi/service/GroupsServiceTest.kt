@@ -14,9 +14,17 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 
 class GroupsServiceTest {
   private val externalUsersService: ExternalUsersApiService = mock()
-  private val groupsService = GroupsService(
-    externalUsersService
-  )
+  private val groupsService = GroupsService(externalUsersService)
+
+  @Test
+  fun `Get all groups`() {
+    val groups = listOf(UserGroup(groupCode = "FRED", groupName = "desc"))
+    whenever(externalUsersService.getGroups()).thenReturn(groups)
+
+    val actualGroups = groupsService.getGroups()
+    assertThat(actualGroups).isEqualTo(groups)
+    verify(externalUsersService).getGroups()
+  }
 
   @Test
   fun `get group details`() {

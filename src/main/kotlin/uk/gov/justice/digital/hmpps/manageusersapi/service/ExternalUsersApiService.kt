@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendme
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import java.time.Duration
 
 @Service
@@ -121,6 +122,13 @@ class ExternalUsersApiService(
       .block(timeout)
   }
 
+  fun getGroups(): List<UserGroup> =
+    externalUsersWebClient.get()
+      .uri("/groups")
+      .retrieve()
+      .bodyToMono(GroupList::class.java)
+      .block(timeout)
+
   fun getGroupDetail(group: String): GroupDetails =
     externalUsersWebClient.get()
       .uri("/groups/$group")
@@ -208,3 +216,4 @@ private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
   (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
 class RoleList : MutableList<Role> by ArrayList()
+class GroupList : MutableList<UserGroup> by ArrayList()

@@ -17,6 +17,21 @@ class GroupsControllerTest {
   private val groupsController = GroupsController(groupsService)
 
   @Nested
+  inner class Groups {
+    @Test
+    fun `Get all Groups`() {
+      val groups = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
+
+      whenever(groupsService.getGroups()).thenReturn(groups)
+
+      val response = groupsController.getGroups()
+      assertThat(response).isEqualTo(
+        groups
+      )
+    }
+  }
+
+  @Nested
   inner class GetGroups {
     @Test
     fun `Get Group details`() {
