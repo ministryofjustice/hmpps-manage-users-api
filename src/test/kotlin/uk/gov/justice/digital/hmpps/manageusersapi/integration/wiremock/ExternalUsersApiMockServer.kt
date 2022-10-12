@@ -10,6 +10,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 
 class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -91,10 +94,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.CONFLICT.value())
+            .withStatus(CONFLICT.value())
             .withBody(
               """{
-                "status": ${HttpStatus.CONFLICT.value()},
+                "status": ${CONFLICT.value()},
                 "errorCode": null,
                 "userMessage": "User test message",
                 "developerMessage": "Developer test message",
@@ -112,10 +115,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withStatus(NOT_FOUND.value())
             .withBody(
               """{
-                "status": ${HttpStatus.NOT_FOUND.value()},
+                "status": ${NOT_FOUND.value()},
                 "errorCode": null,
                 "userMessage": "User test message",
                 "developerMessage": "Developer test message",
@@ -817,7 +820,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       put("/roles/$roleCode")
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
         )
     )
@@ -849,7 +852,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       put("/roles/$roleCode/description")
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
         )
     )
@@ -881,7 +884,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       put("/roles/$roleCode/admintype")
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
         )
     )
@@ -914,7 +917,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withBody(
               """{
                     "groupCode": "SITE_1_GROUP_2",
@@ -948,7 +951,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withBody(
               """{
                     "groupCode": "CHILD_1",
@@ -1007,7 +1010,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       put("/groups/child/$group")
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
         )
     )
@@ -1040,10 +1043,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withStatus(NOT_FOUND.value())
             .withBody(
               """{
-                "status": ${HttpStatus.NOT_FOUND.value()},
+                "status": ${NOT_FOUND.value()},
                 "errorCode": null,
                 "userMessage": "Group Not found: Unable to get group: $group with reason: notfound",
                 "developerMessage": "Unable to get group: $group with reason: notfound",
@@ -1055,16 +1058,16 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubNotFound(url: String) {
+  fun stubGetNotFound(url: String) {
     stubFor(
       get(urlEqualTo(url))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withStatus(NOT_FOUND.value())
             .withBody(
               """{
-                "status": ${HttpStatus.NOT_FOUND.value()},
+                "status": ${NOT_FOUND.value()},
                 "errorCode": null,
                 "userMessage": "User message",
                 "developerMessage": "Developer message",
@@ -1082,10 +1085,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withStatus(NOT_FOUND.value())
             .withBody(
               """{
-                "status": ${HttpStatus.NOT_FOUND.value()},
+                "status": ${NOT_FOUND.value()},
                 "errorCode": null,
                "userMessage": "Child Group Not found: Unable to get group: $group with reason: notfound",
                 "developerMessage": "Unable to get group: $group with reason: notfound",
@@ -1102,7 +1105,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       put("/groups/$group")
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
         )
     )
@@ -1113,7 +1116,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       delete("/groups/child/$group")
         .willReturn(
           aResponse()
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
         )
     )
@@ -1199,10 +1202,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.CONFLICT.value())
+            .withStatus(CONFLICT.value())
             .withBody(
               """{
-                "status": ${HttpStatus.CONFLICT.value()},
+                "status": ${CONFLICT.value()},
                 "errorCode": null,
                 "userMessage": "User test message",
                 "developerMessage": "Developer test message",
@@ -1252,10 +1255,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.CONFLICT.value())
+            .withStatus(CONFLICT.value())
             .withBody(
               """{
-                "status": ${HttpStatus.CONFLICT.value()},
+                "status": ${CONFLICT.value()},
                 "errorCode": null,
                 "userMessage": "User test message",
                 "developerMessage": "Developer test message",
@@ -1273,10 +1276,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withStatus(NOT_FOUND.value())
             .withBody(
               """{
-                "status": ${HttpStatus.NOT_FOUND.value()},
+                "status": ${NOT_FOUND.value()},
                 "errorCode": null,
                "userMessage": "Group Not found: Unable to create group: PG with reason: ParentGroupNotFound",
                 "developerMessage": "Unable to create group: PG with reason: ParentGroupNotFound",
@@ -1331,10 +1334,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.CONFLICT.value())
+            .withStatus(CONFLICT.value())
             .withBody(
               """{
-                "status": ${HttpStatus.CONFLICT.value()},
+                "status": ${CONFLICT.value()},
                 "errorCode": null,
                 "userMessage": "Unable to delete group: GC_DEL_3 with reason: child group exist",
                 "developerMessage": "Developer test message",
@@ -1352,10 +1355,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withStatus(NOT_FOUND.value())
             .withBody(
               """{
-                "status": ${HttpStatus.NOT_FOUND.value()},
+                "status": ${NOT_FOUND.value()},
                 "errorCode": null,
                 "userMessage": "Group Not found: Unable to delete group: $group with reason: notfound",
                 "developerMessage": "Unable to delete group: $group with reason: notfound",

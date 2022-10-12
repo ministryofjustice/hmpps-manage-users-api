@@ -67,8 +67,8 @@ class HmppsManageUsersApiExceptionHandler {
       .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
   }
 
-  @ExceptionHandler(RuntimeException::class)
-  fun handleException(e: RuntimeException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(Exception::class)
+  fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
     log.error("Unexpected exception", e)
     return ResponseEntity
       .status(INTERNAL_SERVER_ERROR)
@@ -101,7 +101,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
-  fun handleValidationAnyException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse?>? {
+  fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse?>? {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -110,7 +110,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
-  fun handleValidationAnyException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse?>? {
+  fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse?>? {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
