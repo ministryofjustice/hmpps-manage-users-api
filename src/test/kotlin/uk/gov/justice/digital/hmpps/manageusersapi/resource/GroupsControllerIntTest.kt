@@ -110,7 +110,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Group details endpoint returns error when user is not allowed to maintain group`() {
-      externalUsersApiMockServer.stubGetGroupDetailsForUserNotNotAllowed("SITE_1_GROUP_2", FORBIDDEN)
+      externalUsersApiMockServer.stubGetGroupDetailsForUserNotAllowed("SITE_1_GROUP_2", FORBIDDEN)
       webTestClient
         .get().uri("/groups/SITE_1_GROUP_2")
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
@@ -122,8 +122,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to FORBIDDEN.value(),
-              "developerMessage" to "Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
-              "userMessage" to "Auth maintain group relationship exception: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
+              "developerMessage" to "Developer message",
+              "userMessage" to "User message",
               "errorCode" to null,
               "moreInfo" to null
             )
@@ -147,6 +147,94 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "developerMessage" to "Unable to get group: SITE_1_GROUP_2 with reason: notfound",
               "userMessage" to "Group Not found: Unable to get group: SITE_1_GROUP_2 with reason: notfound",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
+  }
+
+  @Nested
+  inner class ChildGroupDetails {
+
+    @AfterEach
+    fun resetMocks() {
+      externalUsersApiMockServer.resetAll()
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/groups/child/CHILD_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/groups/child/CHILD_1")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns details of child group when user has ROLE_MAINTAIN_OAUTH_USERS`() {
+      externalUsersApiMockServer.stubGetChildGroupDetails("CHILD_1")
+      webTestClient
+        .get().uri("/groups/child/CHILD_1")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json(
+          """
+      {
+                    "groupCode": "CHILD_1",
+                    "groupName": "Child - Site 1 - Group 2"
+                  }  
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `returns error when user not allowed to maintain group`() {
+      externalUsersApiMockServer.stubGetChildGroupDetailsForUserNotAllowed("CHILD_1", FORBIDDEN)
+      webTestClient
+        .get().uri("/groups/child/CHILD_1")
+        .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isEqualTo(FORBIDDEN)
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to FORBIDDEN.value(),
+              "developerMessage" to "Access is denied",
+              "userMessage" to "Access is denied",
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `returns error when child group not found`() {
+      externalUsersApiMockServer.stubNotFound("/groups/child/CHILD_1")
+      webTestClient
+        .get().uri("/groups/child/CHILD_1")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isEqualTo(NOT_FOUND)
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "developerMessage" to "Developer message",
+              "userMessage" to "User message",
               "errorCode" to null,
               "moreInfo" to null
             )

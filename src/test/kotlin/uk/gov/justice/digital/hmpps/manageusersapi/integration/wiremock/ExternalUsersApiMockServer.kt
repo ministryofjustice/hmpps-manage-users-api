@@ -942,7 +942,25 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubGetGroupDetailsForUserNotNotAllowed(group: String, status: HttpStatus) {
+  fun stubGetChildGroupDetails(group: String) {
+    stubFor(
+      get(urlEqualTo("/groups/child/$group"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(HttpStatus.OK.value())
+            .withBody(
+              """{
+                    "groupCode": "CHILD_1",
+                    "groupName": "Child - Site 1 - Group 2"
+                  }  
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetGroupDetailsForUserNotAllowed(group: String, status: HttpStatus) {
     stubFor(
       get(urlEqualTo("/groups/$group"))
         .willReturn(
@@ -953,8 +971,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
               """{
                 "status": ${status.value()},
                 "errorCode": null,
-                "userMessage": "Auth maintain group relationship exception: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
-                "developerMessage": "Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
+                "userMessage": "User message",
+                "developerMessage": "Developer message",
                 "moreInfo": null
                }
               """.trimIndent()
@@ -962,6 +980,28 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetChildGroupDetailsForUserNotAllowed(group: String, status: HttpStatus) {
+    stubFor(
+      get(urlEqualTo("/groups/child/$group"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User message",
+                "developerMessage": "Developer message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubPutUpdateChildGroup(group: String) {
     stubFor(
       put("/groups/child/$group")
@@ -1007,6 +1047,27 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "errorCode": null,
                 "userMessage": "Group Not found: Unable to get group: $group with reason: notfound",
                 "developerMessage": "Unable to get group: $group with reason: notfound",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubNotFound(url: String) {
+    stubFor(
+      get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "errorCode": null,
+                "userMessage": "User message",
+                "developerMessage": "Developer message",
                 "moreInfo": null
                }
               """.trimIndent()
