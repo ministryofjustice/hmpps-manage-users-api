@@ -73,6 +73,46 @@ class GroupsController(
     return groupsService.getGroupDetail(group)
   }
 
+  @GetMapping("/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Child Group detail.",
+    description = "get Child Group Details"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun getChildGroupDetail(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+  ): ChildGroupDetails = groupsService.getChildGroupDetail(group)
+
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -335,6 +375,15 @@ class GroupsController(
     group: String
   ) = groupsService.deleteGroup(group)
 }
+
+@Schema(description = "Group Details")
+data class ChildGroupDetails(
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  val groupCode: String,
+
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
+  val groupName: String
+)
 
 @Schema(description = "Group Name")
 data class GroupAmendment(

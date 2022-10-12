@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
@@ -14,6 +15,10 @@ class GroupsService(
   fun getGroupDetail(
     group: String
   ): GroupDetails = externalUsersApiService.getGroupDetail(group)
+
+  fun getChildGroupDetail(
+    group: String
+  ): ChildGroupDetails = externalUsersApiService.getChildGroupDetail(group)
 
   fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateGroup(groupCode, groupAmendment)
 

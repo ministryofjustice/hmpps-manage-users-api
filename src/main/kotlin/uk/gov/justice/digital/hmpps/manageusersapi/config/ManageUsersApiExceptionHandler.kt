@@ -65,6 +65,15 @@ class HmppsManageUsersApiExceptionHandler {
       .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
   }
 
+  @ExceptionHandler(RuntimeException::class)
+  fun handleException(e: RuntimeException): ResponseEntity<ErrorResponse> {
+    log.error("Unexpected exception", e)
+    return ResponseEntity
+      .status(INTERNAL_SERVER_ERROR)
+      .contentType(APPLICATION_JSON)
+      .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
+  }
+
   @ExceptionHandler(ValidationException::class)
   fun handleValidationException(e: Exception): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
