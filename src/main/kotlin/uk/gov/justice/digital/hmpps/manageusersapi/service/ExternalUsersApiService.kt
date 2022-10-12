@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
@@ -135,6 +136,13 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(GroupDetails::class.java)
       .block(timeout) ?: throw GroupNotFoundException("get", group, "notfound")
+
+  fun getChildGroupDetail(group: String): ChildGroupDetails =
+    externalUsersWebClient.get()
+      .uri("/groups/child/$group")
+      .retrieve()
+      .bodyToMono(ChildGroupDetails::class.java)
+      .block(timeout) ?: throw RuntimeException("Failed to retrieve child group details")
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)

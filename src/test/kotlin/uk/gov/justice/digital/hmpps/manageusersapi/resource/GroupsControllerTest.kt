@@ -34,6 +34,17 @@ class GroupsControllerTest {
   @Nested
   inner class GetGroups {
     @Test
+    fun `Get Child Group details`() {
+      val childGroupDetails = ChildGroupDetails("CHILD_1", "Child - Site 1 - Group 2")
+      whenever(groupsService.getChildGroupDetail(childGroupDetails.groupCode)).thenReturn(childGroupDetails)
+
+      val actualChildGroupDetail = groupsController.getChildGroupDetail(childGroupDetails.groupCode)
+
+      assertThat(actualChildGroupDetail).isEqualTo(childGroupDetails)
+      verify(groupsService).getChildGroupDetail(childGroupDetails.groupCode)
+    }
+
+    @Test
     fun `Get Group details`() {
       val groupsDetails =
         GroupDetails(
