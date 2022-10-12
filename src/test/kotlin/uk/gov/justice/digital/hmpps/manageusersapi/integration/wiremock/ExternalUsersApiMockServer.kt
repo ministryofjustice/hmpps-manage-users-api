@@ -908,6 +908,31 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetGroups() {
+    stubFor(
+      get(urlEqualTo("/groups"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(HttpStatus.OK.value())
+            .withBody(
+              """
+                [
+                  {
+                    "groupCode": "SITE_1_GROUP_1",
+                    "groupName": "Site 1 - Group 1"
+                  },
+                  {
+                    "groupCode": "SITE_2_GROUP_2",
+                    "groupName": "Site 2 - Group 2"
+                  }
+                ]
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubGetGroupDetails(group: String) {
     stubFor(
       get(urlEqualTo("/groups/$group"))

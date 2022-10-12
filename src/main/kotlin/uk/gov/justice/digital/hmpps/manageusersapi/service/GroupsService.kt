@@ -5,11 +5,15 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 
 @Service
 class GroupsService(
   val externalUsersApiService: ExternalUsersApiService
 ) {
+
+  fun getGroups(): List<UserGroup> = externalUsersApiService.getGroups()
+
   @Throws(GroupNotFoundException::class)
   fun getGroupDetail(
     group: String

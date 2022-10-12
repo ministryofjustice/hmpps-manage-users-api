@@ -15,6 +15,51 @@ import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBa
 class GroupsControllerIntTest : IntegrationTestBase() {
 
   @Nested
+  inner class Groups {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/groups")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/groups")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `All Groups endpoint returns all groups when has correct role`() {
+      externalUsersApiMockServer.stubGetGroups()
+      webTestClient
+        .get().uri("/groups")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json(
+          """
+            [
+              {
+                "groupCode": "SITE_1_GROUP_1",
+                "groupName": "Site 1 - Group 1"
+              },
+              {
+                "groupCode": "SITE_2_GROUP_2",
+                "groupName": "Site 2 - Group 2"
+              }
+            ]
+          """.trimIndent()
+        )
+    }
+  }
+
+  @Nested
   inner class GroupDetails {
 
     @AfterEach
@@ -35,6 +80,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
     }
 
     @Test
@@ -49,26 +95,26 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-      {
-                    "groupCode": "SITE_1_GROUP_2",
-                    "groupName": "Site 1 - Group 2",
-                    "assignableRoles": [
-                      {
-                        "roleCode": "GLOBAL_SEARCH",
-                        "roleName": "Global Search"
-                      },
-                      {
-                        "roleCode": "LICENCE_RO",
-                        "roleName": "Licence Responsible Officer"
-                      }
-                    ],
-                    "children": [
-                      {
-                        "groupCode": "CHILD_1",
-                        "groupName": "Child - Site 1 - Group 2"
-                      }
-                    ]
-                  }  
+            {
+              "groupCode": "SITE_1_GROUP_2",
+              "groupName": "Site 1 - Group 2",
+              "assignableRoles": [
+                {
+                  "roleCode": "GLOBAL_SEARCH",
+                  "roleName": "Global Search"
+                },
+                {
+                  "roleCode": "LICENCE_RO",
+                  "roleName": "Licence Responsible Officer"
+                }
+              ],
+              "children": [
+                {
+                  "groupCode": "CHILD_1",
+                  "groupName": "Child - Site 1 - Group 2"
+                }
+              ]
+            }
           """.trimIndent()
         )
     }

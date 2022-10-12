@@ -2,10 +2,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -29,6 +31,37 @@ import javax.validation.constraints.Size
 class GroupsController(
   private val groupsService: GroupsService
 ) {
+
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Get all groups",
+    description = "Get all groups, role required is ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS, ROLE_AUTH_GROUP_MANAGER")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "All Groups Returned",
+        content = [
+          Content(
+            mediaType = "application/json",
+            array = ArraySchema(schema = Schema(implementation = UserGroup::class))
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an authorisation with role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+      )
+    ]
+  )
+  @GetMapping("/groups")
+  fun getGroups(): List<UserGroup> = groupsService.getGroups()
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -69,9 +102,7 @@ class GroupsController(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ): GroupDetails {
-    return groupsService.getGroupDetail(group)
-  }
+  ): GroupDetails = groupsService.getGroupDetail(group)
 
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -116,9 +147,7 @@ class GroupsController(
       required = true
     ) @Valid @RequestBody
     groupAmendment: GroupAmendment
-  ) {
-    groupsService.updateGroup(group, groupAmendment)
-  }
+  ) = groupsService.updateGroup(group, groupAmendment)
 
   @PutMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -164,10 +193,7 @@ class GroupsController(
       required = true
     ) @Valid @RequestBody
     groupAmendment: GroupAmendment
-
-  ) {
-    groupsService.updateChildGroup(group, groupAmendment)
-  }
+  ) = groupsService.updateChildGroup(group, groupAmendment)
 
   @PostMapping("/groups")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -207,9 +233,7 @@ class GroupsController(
     @Schema(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
     createGroup: CreateGroup
-  ) {
-    groupsService.createGroup(createGroup)
-  }
+  ) = groupsService.createGroup(createGroup)
 
   @PostMapping("/groups/child")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -249,9 +273,7 @@ class GroupsController(
     @Schema(description = "Details of the child group to be created.", required = true)
     @Valid @RequestBody
     createChildGroup: CreateChildGroup
-  ) {
-    groupsService.createChildGroup(createChildGroup)
-  }
+  ) = groupsService.createChildGroup(createChildGroup)
 
   @DeleteMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -291,9 +313,7 @@ class GroupsController(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
-  ) {
-    groupsService.deleteChildGroup(group)
-  }
+  ) = groupsService.deleteChildGroup(group)
 
   @DeleteMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
