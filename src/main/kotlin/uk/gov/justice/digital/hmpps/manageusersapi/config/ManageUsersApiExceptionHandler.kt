@@ -10,11 +10,13 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.ChildGroupNotFoundException
@@ -87,6 +89,24 @@ class HmppsManageUsersApiExceptionHandler {
           developerMessage = e.message
         )
       )
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException::class)
+  fun handleValidationAnyException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse?>? {
+    log.info("Validation exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .contentType(APPLICATION_JSON)
+      .body(ErrorResponse(status = BAD_REQUEST, userMessage = e.message, developerMessage = e.message))
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+  fun handleValidationAnyException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse?>? {
+    log.info("Validation exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .contentType(APPLICATION_JSON)
+      .body(ErrorResponse(status = BAD_REQUEST, userMessage = e.message, developerMessage = e.message))
   }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
