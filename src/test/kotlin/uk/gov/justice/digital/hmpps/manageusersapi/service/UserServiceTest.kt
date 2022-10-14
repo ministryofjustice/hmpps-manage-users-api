@@ -13,14 +13,14 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
 class UserServiceTest {
   private val nomisService: NomisApiService = mock()
   private val tokenService: TokenService = mock()
-  private val externalUserService: ExternalUsersApiService = mock()
-  private val userService = UserService(nomisService, tokenService, externalUserService)
+  private val verifyEmailDomainService: VerifyEmailDomainService = mock()
+  private val userService = UserService(nomisService, tokenService, verifyEmailDomainService)
 
   @Nested
   inner class CreateUser {
     @Test
     fun `create a DPS central admin user`() {
-      whenever(externalUserService.validateEmailDomain(any())).thenReturn(true)
+      whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
 
       whenever(nomisService.createCentralAdminUser(user)).thenReturn(
@@ -38,7 +38,7 @@ class UserServiceTest {
 
     @Test
     fun `create a DPS general user`() {
-      whenever(externalUserService.validateEmailDomain(any())).thenReturn(true)
+      whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
       whenever(nomisService.createGeneralUser(user)).thenReturn(
         NomisUserDetails(
@@ -55,7 +55,7 @@ class UserServiceTest {
 
     @Test
     fun `create a DPS local admin user`() {
-      whenever(externalUserService.validateEmailDomain(any())).thenReturn(true)
+      whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
       whenever(nomisService.createLocalAdminUser(user)).thenReturn(
         NomisUserDetails(
@@ -72,7 +72,7 @@ class UserServiceTest {
 
     @Test
     fun `should validate email domain`() {
-      whenever(externalUserService.validateEmailDomain(any())).thenReturn(false)
+      whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(false)
       val userWithInvalidEmailDomain = CreateUserRequest(
         "CEN_ADM", "cadmin@test.gov.uk", "First", "Last",
         UserType.DPS_LSA, "MDI"
