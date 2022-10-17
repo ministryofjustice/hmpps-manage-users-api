@@ -1139,7 +1139,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubDeleteGroupFromUser(userId: String, group: String) {
     stubFor(
-      delete("/users/id/$userId/groups/$group")
+      delete("/users/$userId/groups/$group")
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
@@ -1203,7 +1203,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubDeleteUserGroupFail(userId: String, userGroup: String, status: HttpStatus) {
     stubFor(
-      delete("/users/id/$userId/groups/$userGroup")
+      delete("/users/$userId/groups/$userGroup")
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")

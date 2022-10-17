@@ -28,7 +28,7 @@ class UserGroupController(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @DeleteMapping("/users/id/{userId}/groups/{group}")
+  @DeleteMapping("/users/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
@@ -76,10 +76,10 @@ class UserGroupController(
   fun removeGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
-    @Parameter(description = "The group to be delete from the user.", required = true) @PathVariable
+    @Parameter(description = "The group code of the group to be deleted from the user.", required = true) @PathVariable
     group: String
   ) {
     userGroupService.removeGroupByUserId(userId, group)
-    log.info("Remove group succeeded for userId {} and group {}", userId, group)
+    log.info("Remove group succeeded for userId {} and group code {}", userId, group)
   }
 }
