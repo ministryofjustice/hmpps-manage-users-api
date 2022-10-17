@@ -32,7 +32,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get user groups when user does not exist`() {
-      externalUsersApiMockServer.stubGetNotFound("/users/id/$userId/groups?children=true")
+      externalUsersApiMockServer.stubGetNotFound("/users/$userId/groups?children=true")
       webTestClient.get().uri("/users/$userId/groups")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()

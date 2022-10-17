@@ -232,7 +232,7 @@ class ExternalUsersApiService(
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
     externalUsersWebClient.get().uri {
-      it.path("/users/id/$userId/groups")
+      it.path("/users/$userId/groups")
         .queryParam("children", children)
         .build()
     }
