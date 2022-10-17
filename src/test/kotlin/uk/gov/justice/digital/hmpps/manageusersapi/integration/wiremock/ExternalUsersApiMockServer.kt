@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
+import java.util.UUID
 
 class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -1364,7 +1365,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubInvalidEmailDomain() {
     stubFor(
-      get(urlEqualTo("/validate/email-domain?emailDomain=1gov.uk"))
+      get(urlEqualTo("/validate/email-domain?emailDomain=invaliddomain.com"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -1422,6 +1423,31 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to delete group: $group with reason: notfound",
                 "moreInfo": null
                }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetUserGroups(userId: UUID, children: Boolean) {
+    stubFor(
+      get(urlEqualTo("/users/id/$userId/groups?children=$children"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(OK.value())
+            .withBody(
+              """
+                [
+                  {
+                    "groupCode": "SITE_1_GROUP_1",
+                    "groupName": "Site 1 - Group 1"
+                  },
+                  {
+                    "groupCode": "SITE_2_GROUP_2",
+                    "groupName": "Site 2 - Group 2"
+                  }
+                ]
               """.trimIndent()
             )
         )

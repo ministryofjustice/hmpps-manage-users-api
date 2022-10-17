@@ -214,6 +214,14 @@ class ExternalUsersApiService(
       .block(timeout)
   }
 
+  fun deleteGroup(group: String) {
+    externalUsersWebClient.delete()
+      .uri("/groups/$group")
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
+
   fun validateEmailDomain(emailDomain: String): Boolean {
     return externalUsersWebClient.get()
       .uri("/validate/email-domain?emailDomain=$emailDomain")
@@ -222,13 +230,15 @@ class ExternalUsersApiService(
       .block(timeout)!!
   }
 
-  fun deleteGroup(group: String) {
-    externalUsersWebClient.delete()
-      .uri("/groups/$group")
+  fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
+    externalUsersWebClient.get().uri {
+      it.path("/users/id/$userId/groups")
+        .queryParam("children", children)
+        .build()
+    }
       .retrieve()
-      .toBodilessEntity()
-      .block(timeout)
-  }
+      .bodyToMono(GroupList::class.java)
+      .block(timeout)!!
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =

@@ -13,13 +13,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_LSA
 class UserService(
   val nomisApiService: NomisApiService,
   val tokenService: TokenService,
-  val externalUsersApiService: ExternalUsersApiService
+  val verifyEmailDomainService: VerifyEmailDomainService
 ) {
   @Throws(UserExistsException::class, TokenException::class, HmppsValidationException::class)
   @Transactional
   fun createUser(user: CreateUserRequest): NomisUserDetails {
 
-    if (!validateEmailDomain(user.email.substringAfter('@')))
+    if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@')))
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
 
     var nomisUserDetails: NomisUserDetails? = null
@@ -33,9 +33,6 @@ class UserService(
     tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
     return nomisUserDetails ?: throw UserException(user.username, user.userType, "Error creating DPS User")
   }
-
-  private fun validateEmailDomain(emailDomain: String): Boolean =
-    externalUsersApiService.validateEmailDomain(emailDomain)
 }
 
 class UserExistsException(user: String, errorCode: String) :
