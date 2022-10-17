@@ -19,7 +19,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 import kotlin.collections.ArrayList
 
 @Service
