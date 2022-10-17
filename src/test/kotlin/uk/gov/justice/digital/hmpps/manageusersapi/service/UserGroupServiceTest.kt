@@ -3,13 +3,22 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import java.util.UUID
 
 class UserGroupServiceTest {
+
   private val externalUsersService: ExternalUsersApiService = mock()
   private val userGroupService = UserGroupService(externalUsersService)
+
+  @Test
+  fun removeGroupByUserId() {
+    val userId = UUID.randomUUID()
+    userGroupService.removeGroupByUserId(userId, "test")
+    verify(externalUsersService).deleteGroupByUserId(userId, "test")
+  }
 
   @Test
   fun `get user groups with children`() {

@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import java.time.Duration
 import java.util.UUID
+import kotlin.collections.ArrayList
 
 @Service
 class ExternalUsersApiService(
@@ -195,6 +196,15 @@ class ExternalUsersApiService(
       .block(timeout)
   }
 
+  fun deleteGroupByUserId(userId: UUID, group: String) {
+    log.debug("Delete group {} for user {}", group, userId)
+    externalUsersWebClient.delete()
+      .uri("/users/$userId/groups/$group")
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout)
+  }
+
   fun deleteChildGroup(group: String) {
     log.debug("Deleting child group {}", group)
     externalUsersWebClient.delete()
@@ -222,7 +232,7 @@ class ExternalUsersApiService(
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
     externalUsersWebClient.get().uri {
-      it.path("/users/id/$userId/groups")
+      it.path("/users/$userId/groups")
         .queryParam("children", children)
         .build()
     }

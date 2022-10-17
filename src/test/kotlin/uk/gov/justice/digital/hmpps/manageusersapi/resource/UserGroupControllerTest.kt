@@ -12,6 +12,13 @@ class UserGroupControllerTest {
   private val userGroupController = UserGroupController(userGroupService)
 
   @Test
+  fun removeGroupByUserId() {
+    val userId = randomUUID()
+    userGroupController.removeGroupByUserId(userId, "test")
+    verify(userGroupService).removeGroupByUserId(userId, "test")
+  }
+
+  @Test
   fun `get user groups with children`() {
     val userId = randomUUID()
     userGroupController.getGroups(userId)

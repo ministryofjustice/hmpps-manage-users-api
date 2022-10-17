@@ -8,5 +8,7 @@ import java.util.UUID
 class UserGroupService(
   val externalUsersApiService: ExternalUsersApiService
 ) {
+  fun removeGroupByUserId(userId: UUID, group: String) = externalUsersApiService.deleteGroupByUserId(userId, group)
+
   fun getUserGroups(user: UUID, children: Boolean): List<UserGroup> = externalUsersApiService.getUserGroups(user, children)
 }
