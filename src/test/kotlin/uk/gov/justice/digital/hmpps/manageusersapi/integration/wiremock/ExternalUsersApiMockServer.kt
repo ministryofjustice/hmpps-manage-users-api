@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 
 class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
@@ -917,7 +918,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withStatus(HttpStatus.OK.value())
+            .withStatus(OK.value())
             .withBody(
               """
                 [
@@ -1136,6 +1137,17 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubDeleteGroupFromUser(userId: String, group: String) {
+    stubFor(
+      delete("/users/id/$userId/groups/$group")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
   fun stubDeleteChildGroup(group: String) {
     stubFor(
       delete("/groups/child/$group")
@@ -1171,6 +1183,27 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubDeleteChildGroupFail(group: String, status: HttpStatus) {
     stubFor(
       delete("/groups/child/$group")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User error message",
+                "developerMessage": "Developer error message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubDeleteUserGroupFail(userId: String, userGroup: String, status: HttpStatus) {
+    stubFor(
+      delete("/users/id/$userId/groups/$userGroup")
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
