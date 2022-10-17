@@ -199,7 +199,7 @@ class ExternalUsersApiService(
   fun deleteGroupByUserId(userId: UUID, group: String) {
     log.debug("Delete group {} for user {}", group, userId)
     externalUsersWebClient.delete()
-      .uri("/users/id/$userId/groups/$group")
+      .uri("/users/$userId/groups/$group")
       .retrieve()
       .toBodilessEntity()
       .block(timeout)
