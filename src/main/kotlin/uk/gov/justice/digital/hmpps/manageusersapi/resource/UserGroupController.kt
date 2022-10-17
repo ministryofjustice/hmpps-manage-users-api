@@ -44,16 +44,6 @@ class UserGroupController(
         description = "Deleted"
       ),
       ApiResponse(
-        responseCode = "400",
-        description = "Validation failed.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      ),
-      ApiResponse(
         responseCode = "401",
         description = "Unauthorized.",
         content = [
