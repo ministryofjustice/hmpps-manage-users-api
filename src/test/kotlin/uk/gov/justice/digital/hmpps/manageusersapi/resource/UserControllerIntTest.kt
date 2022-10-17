@@ -395,7 +395,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "username" to "TEST1",
-              "email" to "test@1gov.uk",
+              "email" to "test@invaliddomain.com",
               "firstName" to "Test",
               "lastName" to "User",
               "userType" to "DPS_LSA",
@@ -410,8 +410,8 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["errorCode"] as Int).isEqualTo(602)
-          assertThat(it["userMessage"] as String).isEqualTo("Invalid Email domain: 1gov.uk with reason: Email domain not valid")
-          assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: 1gov.uk with reason: Email domain not valid")
+          assertThat(it["userMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
+          assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
         }
     }
   }

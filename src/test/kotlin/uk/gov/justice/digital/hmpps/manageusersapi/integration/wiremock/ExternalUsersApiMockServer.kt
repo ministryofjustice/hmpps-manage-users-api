@@ -1331,7 +1331,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubInvalidEmailDomain() {
     stubFor(
-      get(urlEqualTo("/validate/email-domain?emailDomain=1gov.uk"))
+      get(urlEqualTo("/validate/email-domain?emailDomain=invaliddomain.com"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
