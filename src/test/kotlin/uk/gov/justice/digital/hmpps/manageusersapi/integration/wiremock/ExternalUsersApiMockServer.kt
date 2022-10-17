@@ -1431,7 +1431,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetUserGroups(userId: UUID, children: Boolean) {
     stubFor(
-      get(urlEqualTo("/users/id/$userId/groups?children=$children"))
+      get(urlEqualTo("/users/$userId/groups?children=$children"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
