@@ -68,7 +68,7 @@ class ExternalUsersApiService(
       .uri("/roles/$roleCode")
       .retrieve()
       .bodyToMono(Role::class.java)
-      .block() ?: throw RoleNotFoundException("get", roleCode, "notfound")
+      .block()!!
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
@@ -78,7 +78,7 @@ class ExternalUsersApiService(
       .bodyValue(roleAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block()
+      .block()!!
   }
 
   @Throws(RoleNotFoundException::class)
@@ -89,7 +89,7 @@ class ExternalUsersApiService(
       .bodyValue(roleAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block()
+      .block()!!
   }
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
@@ -98,7 +98,7 @@ class ExternalUsersApiService(
       .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to update role")
+      .block()!!
   }
 
   fun createRole(createRole: CreateRole) {
@@ -114,7 +114,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to create role")
+      .block()!!
   }
 
   fun getGroups(): List<UserGroup> =
@@ -122,21 +122,21 @@ class ExternalUsersApiService(
       .uri("/groups")
       .retrieve()
       .bodyToMono(GroupList::class.java)
-      .block() ?: throw RuntimeException("Failed to retrieve Groups")
+      .block()!!
 
   fun getGroupDetail(group: String): GroupDetails =
     externalUsersWebClient.get()
       .uri("/groups/$group")
       .retrieve()
       .bodyToMono(GroupDetails::class.java)
-      .block() ?: throw RuntimeException("Failed to retrieve group details")
+      .block()!!
 
   fun getChildGroupDetail(group: String): ChildGroupDetails =
     externalUsersWebClient.get()
       .uri("/groups/child/$group")
       .retrieve()
       .bodyToMono(ChildGroupDetails::class.java)
-      .block() ?: throw RuntimeException("Failed to retrieve child group details")
+      .block()!!
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)
@@ -145,7 +145,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to update group details")
+      .block()!!
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
@@ -156,7 +156,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to update child group details")
+      .block()!!
   }
 
   fun createGroup(createGroup: CreateGroup) {
@@ -170,7 +170,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to create group")
+      .block()!!
   }
 
   fun createChildGroup(createChildGroup: CreateChildGroup) {
@@ -185,7 +185,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to create child group details")
+      .block()!!
   }
 
   fun deleteChildGroup(group: String) {
@@ -194,7 +194,7 @@ class ExternalUsersApiService(
       .uri("/groups/child/$group")
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to delete child group")
+      .block()!!
   }
 
   fun deleteGroup(group: String) {
@@ -202,7 +202,7 @@ class ExternalUsersApiService(
       .uri("/groups/$group")
       .retrieve()
       .toBodilessEntity()
-      .block() ?: throw RuntimeException("Failed to delete group")
+      .block()!!
   }
 
   fun validateEmailDomain(emailDomain: String): Boolean {
@@ -210,7 +210,7 @@ class ExternalUsersApiService(
       .uri("/validate/email-domain?emailDomain=$emailDomain")
       .retrieve()
       .bodyToMono(Boolean::class.java)
-      .block() ?: throw RuntimeException("Failed to validate email domain")
+      .block()!!
   }
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
@@ -221,7 +221,7 @@ class ExternalUsersApiService(
     }
       .retrieve()
       .bodyToMono(GroupList::class.java)
-      .block() ?: throw RuntimeException("Failed to retrieve user groups")
+      .block()!!
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
