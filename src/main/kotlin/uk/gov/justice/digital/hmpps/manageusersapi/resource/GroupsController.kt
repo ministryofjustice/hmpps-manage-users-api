@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.ChildGroupNotFoundException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -67,7 +65,8 @@ class GroupsController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Group detail.",
-    description = "return Group Details"
+    description = "return Group Details",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")]
   )
   @ApiResponses(
     value = [
@@ -97,7 +96,7 @@ class GroupsController(
       )
     ]
   )
-  @Throws(GroupNotFoundException::class)
+
   fun getGroupDetail(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
@@ -148,7 +147,11 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend group name.",
-    description = "AmendGroupName"
+    description = "AmendGroupName",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendment::class))]
+    ),
   )
   @ApiResponses(
     value = [
@@ -193,7 +196,11 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend child group name.",
-    description = "Amend a Child Group Name"
+    description = "Amend a Child Group Name",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendment::class))]
+    ),
   )
   @ApiResponses(
     value = [
@@ -223,7 +230,6 @@ class GroupsController(
       )
     ]
   )
-  @Throws(ChildGroupNotFoundException::class)
   fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
@@ -239,7 +245,11 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create group.",
-    description = "Create a Group"
+    description = "Create a Group",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroup::class))]
+    ),
   )
   @ApiResponses(
     value = [
@@ -279,7 +289,11 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create child group.",
-    description = "Create a Child Group"
+    description = "Create a Child Group",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroup::class))]
+    ),
   )
   @ApiResponses(
     value = [
@@ -319,7 +333,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete child group.",
-    description = "Delete a Child Group"
+    description = "Delete a Child Group",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
   @ApiResponses(
     value = [
@@ -359,7 +374,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete group.",
-    description = "Delete a Group"
+    description = "Delete a Group",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")]
   )
   @ApiResponses(
     value = [
