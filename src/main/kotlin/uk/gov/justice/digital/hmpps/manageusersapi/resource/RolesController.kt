@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -63,7 +61,6 @@ class RolesController(
     ]
   )
   @ResponseStatus(HttpStatus.CREATED)
-  @Throws(RoleExistsException::class, RoleNotFoundException::class)
   fun createRole(
     @Schema(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody createRole: CreateRole,
@@ -181,6 +178,9 @@ class RolesController(
     summary = "Amend role name",
     description = "Amend the role name, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendment::class))]
+    ),
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -217,6 +217,9 @@ class RolesController(
     summary = "Amend role description",
     description = "Amend the role description, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendment::class))]
+    ),
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -253,6 +256,9 @@ class RolesController(
     summary = "Amend role admin type",
     description = "Amend the role admin type, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendment::class))]
+    ),
     responses = [
       ApiResponse(
         responseCode = "200",

@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
@@ -18,15 +17,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmend
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
-import java.time.Duration
 import java.util.UUID
 import kotlin.collections.ArrayList
 
 @Service
 class ExternalUsersApiService(
-  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient,
-  @Value("\${api.timeout:10s}")
-  val timeout: Duration
+  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -68,13 +64,12 @@ class ExternalUsersApiService(
       .bodyToMono(RolesPaged::class.java)
       .block()!!
 
-  @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role =
     externalUsersWebClient.get()
       .uri("/roles/$roleCode")
       .retrieve()
       .bodyToMono(Role::class.java)
-      .block(timeout) ?: throw RoleNotFoundException("get", roleCode, "notfound")
+      .block()!!
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
@@ -84,7 +79,7 @@ class ExternalUsersApiService(
       .bodyValue(roleAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   @Throws(RoleNotFoundException::class)
@@ -95,10 +90,8 @@ class ExternalUsersApiService(
       .bodyValue(roleAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
-
-  @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClient.put()
@@ -106,7 +99,7 @@ class ExternalUsersApiService(
       .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun createRole(createRole: CreateRole) {
@@ -122,7 +115,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun getGroups(): List<UserGroup> =
@@ -130,21 +123,21 @@ class ExternalUsersApiService(
       .uri("/groups")
       .retrieve()
       .bodyToMono(GroupList::class.java)
-      .block(timeout)
+      .block()!!
 
   fun getGroupDetail(group: String): GroupDetails =
     externalUsersWebClient.get()
       .uri("/groups/$group")
       .retrieve()
       .bodyToMono(GroupDetails::class.java)
-      .block(timeout) ?: throw GroupNotFoundException("get", group, "notfound")
+      .block()!!
 
   fun getChildGroupDetail(group: String): ChildGroupDetails =
     externalUsersWebClient.get()
       .uri("/groups/child/$group")
       .retrieve()
       .bodyToMono(ChildGroupDetails::class.java)
-      .block(timeout) ?: throw RuntimeException("Failed to retrieve child group details")
+      .block()!!
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)
@@ -153,7 +146,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
@@ -164,7 +157,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block(timeout) ?: throw ChildGroupNotFoundException(group, "notfound")
+      .block()!!
   }
 
   fun createGroup(createGroup: CreateGroup) {
@@ -178,7 +171,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun createChildGroup(createChildGroup: CreateChildGroup) {
@@ -193,7 +186,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun deleteGroupByUserId(userId: UUID, group: String) {
@@ -211,7 +204,7 @@ class ExternalUsersApiService(
       .uri("/groups/child/$group")
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun deleteGroup(group: String) {
@@ -219,7 +212,7 @@ class ExternalUsersApiService(
       .uri("/groups/$group")
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun validateEmailDomain(emailDomain: String): Boolean {
@@ -227,7 +220,7 @@ class ExternalUsersApiService(
       .uri("/validate/email-domain?emailDomain=$emailDomain")
       .retrieve()
       .bodyToMono(Boolean::class.java)
-      .block(timeout)!!
+      .block()!!
   }
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
@@ -238,7 +231,7 @@ class ExternalUsersApiService(
     }
       .retrieve()
       .bodyToMono(GroupList::class.java)
-      .block(timeout)!!
+      .block()!!
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =

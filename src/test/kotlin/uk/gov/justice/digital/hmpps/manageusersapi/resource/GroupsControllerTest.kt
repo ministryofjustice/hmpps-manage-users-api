@@ -1,14 +1,12 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupsService
 
 class GroupsControllerTest {
@@ -64,15 +62,6 @@ class GroupsControllerTest {
       assertThat(response).isEqualTo(
         groupsDetails
       )
-    }
-
-    @Test
-    fun `Group Not Found`() {
-      whenever(groupsService.getGroupDetail("group")).thenThrow(GroupNotFoundException("find", "notfound", "not found"))
-
-      assertThatThrownBy { groupsController.getGroupDetail("group") }
-        .isInstanceOf(GroupNotFoundException::class.java)
-        .withFailMessage("Unable to find group: notfound, reason: not found")
     }
   }
 

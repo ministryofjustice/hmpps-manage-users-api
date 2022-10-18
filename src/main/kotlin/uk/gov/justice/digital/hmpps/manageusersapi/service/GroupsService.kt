@@ -14,8 +14,6 @@ class GroupsService(
 ) {
 
   fun getGroups(): List<UserGroup> = externalUsersApiService.getGroups()
-
-  @Throws(GroupNotFoundException::class)
   fun getGroupDetail(
     group: String
   ): GroupDetails = externalUsersApiService.getGroupDetail(group)
@@ -26,7 +24,6 @@ class GroupsService(
 
   fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateGroup(groupCode, groupAmendment)
 
-  @Throws(ChildGroupNotFoundException::class)
   fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateChildGroup(groupCode, groupAmendment)
 
   fun createGroup(createGroup: CreateGroup) = externalUsersApiService.createGroup(createGroup)
@@ -37,9 +34,3 @@ class GroupsService(
 
   fun deleteGroup(group: String) = externalUsersApiService.deleteGroup(group)
 }
-
-class ChildGroupNotFoundException(group: String, errorCode: String) :
-  Exception("Unable to maintain child group: $group with reason: $errorCode")
-
-class GroupNotFoundException(action: String, group: String, errorCode: String) :
-  Exception("Unable to $action group: $group with reason: $errorCode")

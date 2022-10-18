@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.ChildGroupNotFoundException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.HmppsValidationException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
@@ -188,36 +186,6 @@ class HmppsManageUsersApiExceptionHandler {
           errorCode = 602,
           userMessage = "${e.message}",
           developerMessage = e.message
-        )
-      )
-  }
-
-  @ExceptionHandler(GroupNotFoundException::class)
-  fun handleGroupNotFoundException(e: GroupNotFoundException): ResponseEntity<ErrorResponse> {
-    log.debug("Username not found exception caught: {}", e.message)
-    return ResponseEntity
-      .status(NOT_FOUND)
-      .contentType(APPLICATION_JSON)
-      .body(
-        ErrorResponse(
-          status = NOT_FOUND,
-          userMessage = "Group Not found: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
-      )
-  }
-
-  @ExceptionHandler(ChildGroupNotFoundException::class)
-  fun handleChildGroupNotFoundException(e: ChildGroupNotFoundException): ResponseEntity<ErrorResponse> {
-    log.debug("ChildGroup not found exception caught: {}", e.message)
-    return ResponseEntity
-      .status(NOT_FOUND)
-      .contentType(APPLICATION_JSON)
-      .body(
-        ErrorResponse(
-          status = NOT_FOUND,
-          userMessage = "Child Group Not found: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
         )
       )
   }
