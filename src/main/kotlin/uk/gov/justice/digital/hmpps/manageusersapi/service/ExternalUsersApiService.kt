@@ -195,7 +195,7 @@ class ExternalUsersApiService(
       .uri("/users/$userId/groups/$group")
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()!!
   }
 
   fun deleteChildGroup(group: String) {
