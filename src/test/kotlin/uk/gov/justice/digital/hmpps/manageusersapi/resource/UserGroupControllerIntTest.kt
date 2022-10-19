@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -8,6 +7,7 @@ import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import java.util.UUID
+import org.assertj.core.api.Assertions.assertThat
 
 class UserGroupControllerIntTest : IntegrationTestBase() {
 
@@ -129,9 +129,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 
@@ -145,9 +145,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 
@@ -218,9 +218,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 
@@ -234,9 +234,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
   }
