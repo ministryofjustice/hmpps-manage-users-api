@@ -195,7 +195,7 @@ class ExternalUsersApiService(
       .uri("/users/$userId/groups/$group")
       .retrieve()
       .toBodilessEntity()
-      .block(timeout)
+      .block()
   }
 
   fun deleteChildGroup(group: String) {
@@ -232,6 +232,15 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(GroupList::class.java)
       .block()!!
+
+  fun addGroupByUserId(userId: UUID, group: String) {
+    log.debug("Adding group {} for user {}", group, userId)
+    externalUsersWebClient.put()
+      .uri("/users/$userId/groups/$group")
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
