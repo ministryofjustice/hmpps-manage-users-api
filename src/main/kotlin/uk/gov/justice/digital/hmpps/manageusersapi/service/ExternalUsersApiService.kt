@@ -79,7 +79,7 @@ class ExternalUsersApiService(
       .bodyValue(roleAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   @Throws(RoleNotFoundException::class)
@@ -90,7 +90,7 @@ class ExternalUsersApiService(
       .bodyValue(roleAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
@@ -99,7 +99,7 @@ class ExternalUsersApiService(
       .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun createRole(createRole: CreateRole) {
@@ -115,7 +115,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun getGroups(): List<UserGroup> =
@@ -146,7 +146,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
@@ -157,7 +157,7 @@ class ExternalUsersApiService(
       .bodyValue(groupAmendment)
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun createGroup(createGroup: CreateGroup) {
@@ -186,7 +186,7 @@ class ExternalUsersApiService(
       )
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun deleteGroupByUserId(userId: UUID, group: String) {
@@ -204,7 +204,7 @@ class ExternalUsersApiService(
       .uri("/groups/child/$group")
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun deleteGroup(group: String) {
@@ -212,7 +212,7 @@ class ExternalUsersApiService(
       .uri("/groups/$group")
       .retrieve()
       .toBodilessEntity()
-      .block()!!
+      .block()
   }
 
   fun validateEmailDomain(emailDomain: String): Boolean {
