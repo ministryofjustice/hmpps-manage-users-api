@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -7,7 +8,6 @@ import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import java.util.UUID
-import org.assertj.core.api.Assertions.assertThat
 
 class UserGroupControllerIntTest : IntegrationTestBase() {
 
