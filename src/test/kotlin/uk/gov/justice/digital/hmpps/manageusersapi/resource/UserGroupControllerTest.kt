@@ -19,6 +19,13 @@ class UserGroupControllerTest {
   }
 
   @Test
+  fun addGroupByUserId() {
+    val userId = randomUUID()
+    userGroupController.addGroupByUserId(userId, "test")
+    verify(userGroupService).addGroupByUserId(userId, "test")
+  }
+
+  @Test
   fun `get user groups with children`() {
     val userId = randomUUID()
     userGroupController.getGroups(userId)

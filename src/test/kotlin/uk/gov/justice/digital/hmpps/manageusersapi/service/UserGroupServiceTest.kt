@@ -21,6 +21,13 @@ class UserGroupServiceTest {
   }
 
   @Test
+  fun addGroupByUserId() {
+    val userId = UUID.randomUUID()
+    userGroupService.addGroupByUserId(userId, "test")
+    verify(externalUsersService).addGroupByUserId(userId, "test")
+  }
+
+  @Test
   fun `get user groups with children`() {
     val groups = listOf(
       UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
