@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -129,9 +129,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 
@@ -145,9 +145,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 
@@ -167,6 +167,77 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isNoContent
+    }
+  }
+
+  @Nested
+  inner class AddUserGroup {
+    private val userId = UUID.fromString("7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
+    private val group = "site_1_group_2"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/users/$userId/groups/$group")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/users/$userId/groups/$group")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.put().uri("/users/$userId/groups/$group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `adds a group to a user`() {
+      externalUsersApiMockServer.stubAddGroupToUser(userId.toString(), group)
+      webTestClient
+        .put().uri("/users/$userId/groups/$group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `fail bad request`() {
+      externalUsersApiMockServer.stubAddUserGroupFail(userId.toString(), group, BAD_REQUEST)
+      webTestClient.put().uri("/users/$userId/groups/$group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+        }
+    }
+
+    @Test
+    fun `fail forbidden`() {
+      externalUsersApiMockServer.stubAddUserGroupFail(userId.toString(), group, FORBIDDEN)
+      webTestClient.put().uri("/users/$userId/groups/$group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+        }
     }
   }
 }

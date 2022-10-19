@@ -1149,6 +1149,17 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubAddGroupToUser(userId: String, group: String) {
+    stubFor(
+      put("/users/$userId/groups/$group")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
   fun stubDeleteChildGroup(group: String) {
     stubFor(
       delete("/groups/child/$group")
@@ -1205,6 +1216,27 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubDeleteUserGroupFail(userId: String, userGroup: String, status: HttpStatus) {
     stubFor(
       delete("/users/$userId/groups/$userGroup")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User error message",
+                "developerMessage": "Developer error message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubAddUserGroupFail(userId: String, userGroup: String, status: HttpStatus) {
+    stubFor(
+      put("/users/$userId/groups/$userGroup")
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
