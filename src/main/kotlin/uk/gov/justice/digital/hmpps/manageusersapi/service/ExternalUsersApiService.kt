@@ -3,10 +3,13 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
@@ -17,15 +20,42 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmend
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import java.util.UUID
 import kotlin.collections.ArrayList
 
 @Service
 class ExternalUsersApiService(
-  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient
+  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient,
+  @Qualifier("authWebWithClientId") val authWebWithClientId: WebClient,
+
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
+
+  fun createUser(createUser: CreateExternalUser): UUID? {
+    log.debug("Creating external user for {} with {} {}", createUser.email, createUser.firstName, createUser.lastName)
+    try {
+      return authWebWithClientId.post().uri("/api/authuser/create")
+        .bodyValue(
+          mapOf(
+            "email" to createUser.email,
+            "firstName" to createUser.firstName,
+            "lastName" to createUser.lastName,
+            "groupCode" to createUser.groupCode,
+            "groupCodes" to createUser.groupCodes,
+          )
+        )
+        .retrieve()
+        .bodyToMono(UUID::class.java)
+        .block()!!
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
+        createUser.email,
+        "email already exists"
+      ) else e
+    }
   }
 
   fun getRoles(adminTypes: List<AdminType>?): List<Role> =
@@ -101,6 +131,13 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
+
+  fun getUserRoles(userId: UUID): List<UserRole> =
+    externalUsersWebClient.get()
+      .uri("/users/$userId/roles")
+      .retrieve()
+      .bodyToMono(UserRoleList::class.java)
+      .block()!!
 
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()
@@ -246,5 +283,6 @@ class ExternalUsersApiService(
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
   (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
+class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
