@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmend
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import java.util.UUID
 import kotlin.collections.ArrayList
 
@@ -101,6 +102,13 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
+
+  fun getUserRoles(userId: UUID): List<UserRole> =
+    externalUsersWebClient.get()
+      .uri("/users/$userId/roles")
+      .retrieve()
+      .bodyToMono(UserRoleList::class.java)
+      .block()!!
 
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()
@@ -246,5 +254,6 @@ class ExternalUsersApiService(
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
   (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
+class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()

@@ -705,6 +705,33 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
   """.trimIndent()
 
+  fun stubGetUserRoles(userId: UUID) {
+    stubFor(
+      get(urlEqualTo("/users/$userId/roles"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                [
+                  {
+                    "roleCode": "AUDIT_VIEWER",
+                    "roleName": "Audit viewer",
+                    "roleDescription": null
+                  },
+                  {
+                    "roleCode": "AUTH_GROUP_MANAGER",
+                    "roleName": "Auth Group Manager that has more than 30 characters in the role name",
+                    "roleDescription": "Gives group manager ability to administer user in there groups"
+                  }
+                ]
+                  
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubGetRolesForRoleName() {
     stubFor(
       get(urlEqualTo("/roles?adminTypes=DPS_ADM"))
@@ -713,31 +740,30 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
               """
-                     [
-                          {
-                              "roleCode": "AUDIT_VIEWER",
-                              "roleName": "Audit viewer",
-                              "roleDescription": null,
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          },
-                          {
-                              "roleCode": "AUTH_GROUP_MANAGER",
-                              "roleName": "Auth Group Manager that has more than 30 characters in the role name",
-                              "roleDescription": "Gives group manager ability to administer user in there groups",
-                              "adminType": [
-                                  {
-                                      "adminTypeCode": "EXT_ADM",
-                                      "adminTypeName": "External Administrator"
-                                  }
-                              ]
-                          }
-                           ]
-                  
+                [
+                  {
+                    "roleCode": "AUDIT_VIEWER",
+                    "roleName": "Audit viewer",
+                    "roleDescription": null,
+                    "adminType": [
+                      {
+                        "adminTypeCode": "EXT_ADM",
+                        "adminTypeName": "External Administrator"
+                      }
+                    ]
+                  },
+                  {
+                    "roleCode": "AUTH_GROUP_MANAGER",
+                    "roleName": "Auth Group Manager that has more than 30 characters in the role name",
+                    "roleDescription": "Gives group manager ability to administer user in there groups",
+                    "adminType": [
+                      {
+                        "adminTypeCode": "EXT_ADM",
+                        "adminTypeName": "External Administrator"
+                      }
+                    ]
+                  }
+                ]
               """.trimIndent()
             )
         )
@@ -751,17 +777,18 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              """{
-                    "roleCode": "$roleCode",
-                    "roleName": "Group Manager",
-                    "roleDescription": "Allow Group Manager to administer the account within their groups",
-                    "adminType": [
-                        {
-                            "adminTypeCode": "EXT_ADM",
-                            "adminTypeName": "External Administrator"
-                        }
-                    ]
-                  }
+              """
+                {
+                  "roleCode": "$roleCode",
+                  "roleName": "Group Manager",
+                  "roleDescription": "Allow Group Manager to administer the account within their groups",
+                  "adminType": [
+                    {
+                      "adminTypeCode": "EXT_ADM",
+                      "adminTypeName": "External Administrator"
+                    }
+                  ]
+                }
               """.trimIndent()
             )
         )
