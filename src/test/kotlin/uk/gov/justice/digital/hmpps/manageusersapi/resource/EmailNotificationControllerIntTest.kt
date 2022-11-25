@@ -59,7 +59,7 @@ class EmailNotificationControllerIntTest : IntegrationTestBase() {
     fun sendEnableEmail() {
       externalUsersApiMockServer.stubPostSendEnableEmail()
       webTestClient.post().uri("/notify/enable-user")
-        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .body(
           BodyInserters.fromValue(
             mapOf(
