@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
+import com.microsoft.applicationinsights.TelemetryClient
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -11,9 +12,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_LSA
 
 @Service
 class UserService(
-  val nomisApiService: NomisApiService,
-  val tokenService: TokenService,
-  val verifyEmailDomainService: VerifyEmailDomainService
+  private val nomisApiService: NomisApiService,
+  private val tokenService: TokenService,
+  private val verifyEmailDomainService: VerifyEmailDomainService,
+  private val externalUsersApiService: ExternalUsersApiService,
+  private val emailNotificationService: EmailNotificationService,
+  private val telemetryClient: TelemetryClient,
 ) {
   @Throws(UserExistsException::class, TokenException::class, HmppsValidationException::class)
   @Transactional
@@ -32,6 +36,13 @@ class UserService(
     }
     tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
     return nomisUserDetails ?: throw UserException(user.username, user.userType, "Error creating DPS User")
+  }
+
+  @Transactional
+  fun enableUserByUserId(userId: String) {
+    val emailNotificationDto = externalUsersApiService.enableUserById(userId)
+    emailNotificationDto.email?.let { emailNotificationService.sendEnableEmail(emailNotificationDto) }
+    telemetryClient.trackEvent("ExternalUserEnabled", mapOf("username" to emailNotificationDto.username, "admin" to emailNotificationDto.admin), null)
   }
 }
 
