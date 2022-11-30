@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.6.0-beta"
-  kotlin("plugin.spring") version "1.7.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.0"
+  kotlin("plugin.spring") version "1.7.22"
 }
 
 configurations {
@@ -12,11 +12,11 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.13")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.10")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
