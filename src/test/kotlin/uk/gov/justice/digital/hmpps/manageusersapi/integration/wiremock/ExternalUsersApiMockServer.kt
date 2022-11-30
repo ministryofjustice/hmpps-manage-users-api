@@ -733,6 +733,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubDeleteRoleFromUser(userId: String, role: String) {
+    stubFor(
+      delete("/users/$userId/roles/$role")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubDeleteUserRoleFail(userId: String, role: String, status: HttpStatus) {
+    stubFor(
+      delete("/users/$userId/roles/$role")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User error message",
+                "developerMessage": "Developer error message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubGetRolesForRoleName() {
     stubFor(
       get(urlEqualTo("/roles?adminTypes=DPS_ADM"))
