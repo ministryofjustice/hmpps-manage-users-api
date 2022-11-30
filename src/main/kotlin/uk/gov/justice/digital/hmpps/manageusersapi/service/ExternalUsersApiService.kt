@@ -9,7 +9,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role

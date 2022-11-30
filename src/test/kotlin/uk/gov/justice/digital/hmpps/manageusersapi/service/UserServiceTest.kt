@@ -11,7 +11,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
 import java.util.UUID.fromString
 

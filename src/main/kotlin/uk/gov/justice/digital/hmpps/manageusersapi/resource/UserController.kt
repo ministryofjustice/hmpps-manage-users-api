@@ -171,21 +171,6 @@ data class CreateUserRequest(
   val defaultCaseloadId: String? = null
 )
 
-data class EmailNotificationDto(
-  @Schema(description = "Username", example = "TEST_USER")
-  val username: String,
-
-  @Schema(description = "First name of the user", example = "John")
-  val firstName: String,
-
-  @Schema(description = "email of the user", example = "Smith@gov.uk")
-  val email: String?,
-
-  @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
-  val admin: String
-
-)
-
 enum class UserType {
   DPS_ADM,
   DPS_GEN,
