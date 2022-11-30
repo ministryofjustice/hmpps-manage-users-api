@@ -249,6 +249,14 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
+  fun enableUserById(userId: UUID): EmailNotificationDto {
+    log.debug("Enabling User for User Id for {} ", userId)
+    return externalUsersWebClient.put()
+      .uri("/users/$userId/enable")
+      .retrieve()
+      .bodyToMono(EmailNotificationDto::class.java)
+      .block()!!
+  }
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =

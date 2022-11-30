@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.EmailNotificationDto
 import uk.gov.service.notify.NotificationClientApi
 import uk.gov.service.notify.NotificationClientException
 

@@ -1,20 +1,27 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
+import java.util.UUID.fromString
 
 class UserServiceTest {
   private val nomisService: NomisApiService = mock()
   private val tokenService: TokenService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
-  private val userService = UserService(nomisService, tokenService, verifyEmailDomainService)
+  private val externalUsersApiService: ExternalUsersApiService = mock()
+  private val emailNotificationService: EmailNotificationService = mock()
+  private val telemetryClient: TelemetryClient = mock()
+  private val userService = UserService(nomisService, tokenService, verifyEmailDomainService, externalUsersApiService, emailNotificationService, telemetryClient)
 
   @Nested
   inner class CreateUser {
@@ -81,6 +88,26 @@ class UserServiceTest {
       Assertions.assertThatThrownBy { userService.createUser(userWithInvalidEmailDomain) }
         .isInstanceOf(HmppsValidationException::class.java)
         .hasMessage("Invalid Email domain: test.gov.uk with reason: Email domain not valid")
+    }
+  }
+
+  @Nested
+  inner class EnableUser {
+
+    @Test
+    fun `enable user by userId sends email`() {
+      val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
+      whenever(externalUsersApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      userService.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
+      verify(emailNotificationService).sendEnableEmail(emailNotificationDto)
+    }
+
+    @Test
+    fun `enable user by userId doesn't sends notification email`() {
+      val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", null, "admin")
+      whenever(externalUsersApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      userService.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
+      verifyNoInteractions(emailNotificationService)
     }
   }
 }
