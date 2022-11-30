@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
+import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -136,7 +137,7 @@ class UserController(
   )
   fun enableUserByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
-    userId: String
+    userId: UUID
   ) = userService.enableUserByUserId(
     userId
   )

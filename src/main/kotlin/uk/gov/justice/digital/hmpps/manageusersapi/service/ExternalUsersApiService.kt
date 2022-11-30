@@ -250,7 +250,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
-  fun enableUserById(userId: String): EmailNotificationDto {
+  fun enableUserById(userId: UUID): EmailNotificationDto {
     log.debug("Enabling User for User Id for {} ", userId)
     return externalUsersWebClient.put()
       .uri("/users/$userId/enable")

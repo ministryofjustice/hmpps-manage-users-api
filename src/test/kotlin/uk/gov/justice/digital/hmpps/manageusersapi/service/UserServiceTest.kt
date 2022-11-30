@@ -8,10 +8,12 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
+import java.util.UUID.fromString
 
 class UserServiceTest {
   private val nomisService: NomisApiService = mock()
@@ -97,8 +99,16 @@ class UserServiceTest {
     fun `enable user by userId sends email`() {
       val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
       whenever(externalUsersApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
-      userService.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      userService.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       verify(emailNotificationService).sendEnableEmail(emailNotificationDto)
+    }
+
+    @Test
+    fun `enable user by userId doesn't sends notification email`() {
+      val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", null, "admin")
+      whenever(externalUsersApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      userService.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
+      verifyNoInteractions(emailNotificationService)
     }
   }
 }

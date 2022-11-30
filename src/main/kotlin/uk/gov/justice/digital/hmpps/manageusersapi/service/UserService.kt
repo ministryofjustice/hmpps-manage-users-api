@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import io.swagger.v3.oas.annotations.media.Schema
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
@@ -9,6 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_LSA
+import java.util.UUID
 
 @Service
 class UserService(
@@ -39,10 +41,17 @@ class UserService(
   }
 
   @Transactional
-  fun enableUserByUserId(userId: String) {
+  fun enableUserByUserId(userId: UUID) {
     val emailNotificationDto = externalUsersApiService.enableUserById(userId)
-    emailNotificationDto.email?.let { emailNotificationService.sendEnableEmail(emailNotificationDto) }
+    emailNotificationDto.email?.let {
+      emailNotificationService.sendEnableEmail(emailNotificationDto)
+    } ?: run {
+      log.warn("Notification email not sent for user {}", emailNotificationDto)
+    }
     telemetryClient.trackEvent("ExternalUserEnabled", mapOf("username" to emailNotificationDto.username, "admin" to emailNotificationDto.admin), null)
+  }
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 
