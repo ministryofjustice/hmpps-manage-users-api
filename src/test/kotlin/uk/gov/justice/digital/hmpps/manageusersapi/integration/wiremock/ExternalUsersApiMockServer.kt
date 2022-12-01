@@ -765,6 +765,33 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetAssignableRoles(userId: UUID) {
+    stubFor(
+      get(urlEqualTo("/users/$userId/assignable-roles"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                [
+                  {
+                    "roleCode": "AUDIT_VIEWER",
+                    "roleName": "Audit viewer",
+                    "roleDescription": null
+                  },
+                  {
+                    "roleCode": "AUTH_GROUP_MANAGER",
+                    "roleName": "Auth Group Manager role",
+                    "roleDescription": "More information about auth group manager role"
+                  }
+                ]
+                  
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubGetRolesForRoleName() {
     stubFor(
       get(urlEqualTo("/roles?adminTypes=DPS_ADM"))

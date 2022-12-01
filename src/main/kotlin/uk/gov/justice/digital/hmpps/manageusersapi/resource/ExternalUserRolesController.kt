@@ -46,7 +46,7 @@ class ExternalUserRolesController(
       ),
       ApiResponse(
         responseCode = "400",
-        description = "Incorrect request to get caseloads for a user",
+        description = "Incorrect request to get roles for a user",
         content = [
           Content(
             mediaType = "application/json",
@@ -80,9 +80,7 @@ class ExternalUserRolesController(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
     userId: UUID,
-  ): List<UserRole> {
-    return externalUserRolesService.getUserRoles(userId)
-  }
+  ) = externalUserRolesService.getUserRoles(userId)
 
   @DeleteMapping("{userId}/roles/{role}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -130,6 +128,56 @@ class ExternalUserRolesController(
     externalUserRolesService.removeRoleByUserId(userId, role)
     log.info("Remove role succeeded for userId {} and role code {}", userId, role)
   }
+
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @GetMapping("{userId}/assignable-roles")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Get list of roles associated with the users account",
+    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
+    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "User role list"
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to get roles for a user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to get roles for this user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun getAssignableRoles(
+    @Parameter(description = "The userId of the user.", required = true)
+    @PathVariable
+    userId: UUID,
+  ) = externalUserRolesService.getAssignableRoles(userId)
 }
 
 @Schema(description = "User Role Details")

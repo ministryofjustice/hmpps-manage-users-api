@@ -23,4 +23,11 @@ class ExternalUserRolesControllerTest {
     externalUserRolesController.removeRoleByUserId(userId, "ROLE_TEST")
     verify(externalUserRolesService).removeRoleByUserId(userId, "ROLE_TEST")
   }
+
+  @Test
+  fun `get assignable user roles`() {
+    val userId = UUID.randomUUID()
+    externalUserRolesController.getAssignableRoles(userId)
+    verify(externalUserRolesService).getAssignableRoles(userId)
+  }
 }

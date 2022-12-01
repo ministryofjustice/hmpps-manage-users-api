@@ -119,6 +119,13 @@ class ExternalUsersApiService(
       .block()
   }
 
+  fun getAssignableRoles(userId: UUID) =
+    externalUsersWebClient.get()
+      .uri("/users/$userId/assignable-roles")
+      .retrieve()
+      .bodyToMono(UserRoleList::class.java)
+      .block() !!
+
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()
       .uri("/roles")

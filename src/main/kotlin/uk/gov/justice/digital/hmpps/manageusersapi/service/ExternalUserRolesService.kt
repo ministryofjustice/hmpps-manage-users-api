@@ -9,4 +9,5 @@ class ExternalUserRolesService(
 ) {
   fun getUserRoles(userId: UUID) = externalUsersApiService.getUserRoles(userId)
   fun removeRoleByUserId(userId: UUID, role: String) = externalUsersApiService.deleteRoleByUserId(userId, role)
+  fun getAssignableRoles(userId: UUID) = externalUsersApiService.getAssignableRoles(userId)
 }

@@ -11,8 +11,8 @@ class UserRolesService(
   val nomisApiService: NomisApiService,
 ) {
 
-  fun getUserRoles(user: String): UserRoleDetail {
-    val userRoleDetail = nomisApiService.getUserRoles(user)
+  fun getUserRoles(username: String): UserRoleDetail {
+    val userRoleDetail = nomisApiService.getUserRoles(username)
     val externalUserRoles = externalUsersApiService.getRoles(listOf(AdminType.DPS_ADM))
 
     return userRoleDetail.copy(dpsRoles = userExternalUsersRoleNames(userRoleDetail.dpsRoles, externalUserRoles))
