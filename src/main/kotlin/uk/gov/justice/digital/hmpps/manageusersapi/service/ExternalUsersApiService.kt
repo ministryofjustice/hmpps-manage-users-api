@@ -110,6 +110,15 @@ class ExternalUsersApiService(
       .bodyToMono(UserRoleList::class.java)
       .block()!!
 
+  fun deleteRoleByUserId(userId: UUID, role: String) {
+    log.debug("Delete role {} for user {}", role, userId)
+    externalUsersWebClient.delete()
+      .uri("/users/$userId/roles/$role")
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()
       .uri("/roles")

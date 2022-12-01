@@ -5,11 +5,14 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,6 +28,9 @@ import java.util.UUID
 class ExternalUserRolesController(
   private val externalUserRolesService: ExternalUserRolesService
 ) {
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
 
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @GetMapping("{userId}/roles")
@@ -76,6 +82,53 @@ class ExternalUserRolesController(
     userId: UUID,
   ): List<UserRole> {
     return externalUserRolesService.getUserRoles(userId)
+  }
+
+  @DeleteMapping("{userId}/roles/{role}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Remove role from user.",
+    description = "Remove role from user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "204",
+        description = "Deleted"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun removeRoleByUserId(
+    @Parameter(description = "The userId of the user.", required = true)
+    @PathVariable
+    userId: UUID,
+    @Parameter(description = "The role code of the role to be deleted from the user.", required = true)
+    @PathVariable
+    role: String
+  ) {
+    externalUserRolesService.removeRoleByUserId(userId, role)
+    log.info("Remove role succeeded for userId {} and role code {}", userId, role)
   }
 }
 

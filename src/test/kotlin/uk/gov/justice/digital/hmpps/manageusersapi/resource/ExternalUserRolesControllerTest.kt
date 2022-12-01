@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.ExternalUserRolesServ
 import java.util.UUID
 
 class ExternalUserRolesControllerTest {
-
   private val externalUserRolesService: ExternalUserRolesService = mock()
   private val externalUserRolesController = ExternalUserRolesController(externalUserRolesService)
 
@@ -16,5 +15,12 @@ class ExternalUserRolesControllerTest {
     val userId = UUID.randomUUID()
     externalUserRolesController.getUserRoles(userId)
     verify(externalUserRolesService).getUserRoles(userId)
+  }
+
+  @Test
+  fun `remove a user role`() {
+    val userId = UUID.randomUUID()
+    externalUserRolesController.removeRoleByUserId(userId, "ROLE_TEST")
+    verify(externalUserRolesService).removeRoleByUserId(userId, "ROLE_TEST")
   }
 }
