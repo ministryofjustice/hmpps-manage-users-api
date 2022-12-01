@@ -46,7 +46,7 @@ class ExternalUserRolesController(
       ),
       ApiResponse(
         responseCode = "400",
-        description = "Incorrect request to get caseloads for a user",
+        description = "Incorrect request to get roles for a user",
         content = [
           Content(
             mediaType = "application/json",
@@ -143,7 +143,7 @@ class ExternalUserRolesController(
       ),
       ApiResponse(
         responseCode = "400",
-        description = "Incorrect request to get caseloads for a user",
+        description = "Incorrect request to get roles for a user",
         content = [
           Content(
             mediaType = "application/json",
