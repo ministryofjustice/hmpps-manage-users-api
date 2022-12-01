@@ -132,4 +132,47 @@ class ExternalUserRolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNoContent
     }
   }
+
+  @Nested
+  inner class GetAssignableRoles {
+    @Test
+    fun `get assignable user roles when no token`() {
+      webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/assignable-roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `get assignable user roles forbidden when no role`() {
+
+      webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/assignable-roles")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `get assignable user roles forbidden when wrong role`() {
+
+      webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/assignable-roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `get assignable user roles`() {
+      val userId = UUID.randomUUID()
+      externalUsersApiMockServer.stubGetAssignableRoles(userId)
+
+      webTestClient.get().uri("/externalusers/$userId/assignable-roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[0].roleName").isEqualTo("Audit viewer")
+        .jsonPath("$[1].roleName")
+        .isEqualTo("Auth Group Manager role")
+    }
+  }
 }
