@@ -49,7 +49,7 @@ class ExternalUserSearchController(
         ]
       ),
       ApiResponse(
-        responseCode = "404",
+        responseCode = "204",
         description = "No users found.",
         content = [
           Content(
