@@ -16,10 +16,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendme
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserDto
 import kotlin.collections.ArrayList
 
 @Service

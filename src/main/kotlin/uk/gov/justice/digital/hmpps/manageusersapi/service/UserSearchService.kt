@@ -5,9 +5,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserDto
 
 @Service
 class UserSearchService(
-    val externalUsersApiService: ExternalUsersApiService
+  val externalUsersApiService: ExternalUsersApiService
 ) {
 
-    fun findExternalUsersByEmail(email: String?): List<UserDto>? =
-        email ?.let { externalUsersApiService.findUsersByEmail(email) }
+  fun findExternalUsersByEmail(email: String?): List<UserDto>? =
+    email ?.let { externalUsersApiService.findUsersByEmail(email) }
 }
