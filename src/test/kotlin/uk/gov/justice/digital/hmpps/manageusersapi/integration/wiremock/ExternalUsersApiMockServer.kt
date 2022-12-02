@@ -1606,4 +1606,56 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubNoUsersFound(email: String) {
+    stubFor(
+      get("/users?email=$email")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
+  fun stubUsersByEmail(email: String) {
+    stubFor(
+      get("/users?email=$email")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                [
+                    {
+                        "userId": "5105a589-75b3-4ca0-9433-b96228c1c8f3",
+                        "username": "AUTH_ADM",
+                        "email": "auth_test2@digital.justice.gov.uk",
+                        "firstName": "Auth",
+                        "lastName": "Adm",
+                        "locked": false,
+                        "enabled": true,
+                        "verified": true,
+                        "lastLoggedIn": "2022-12-01T09:30:07.933161",
+                        "inactiveReason": null
+                    },
+                    {
+                        "userId": "9e84f1e4-59c8-4b10-927a-9cf9e9a30791",
+                        "username": "AUTH_EXPIRED",
+                        "email": "auth_test2@digital.justice.gov.uk",
+                        "firstName": "Auth",
+                        "lastName": "Expired",
+                        "locked": false,
+                        "enabled": true,
+                        "verified": true,
+                        "lastLoggedIn": "2022-12-01T09:30:07.933161",
+                        "inactiveReason": "Expired"
+                    }
+                ]
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }

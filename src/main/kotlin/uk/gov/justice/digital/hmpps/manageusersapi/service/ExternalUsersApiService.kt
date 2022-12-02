@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserDto
 import kotlin.collections.ArrayList
 
 @Service
@@ -258,6 +259,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
+
   fun enableUserById(userId: UUID): EmailNotificationDto {
     log.debug("Enabling User for User Id for {} ", userId)
     return externalUsersWebClient.put()
@@ -266,6 +268,13 @@ class ExternalUsersApiService(
       .bodyToMono(EmailNotificationDto::class.java)
       .block()!!
   }
+
+  fun findUsersByEmail(email: String): List<UserDto>? =
+    externalUsersWebClient.get()
+      .uri("/users?email=$email")
+      .retrieve()
+      .bodyToMono(UserList::class.java)
+      .block()
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
@@ -274,3 +283,4 @@ private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
 class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
+class UserList : MutableList<UserDto> by ArrayList()
