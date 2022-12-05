@@ -1685,4 +1685,42 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubUsersByUserName(userName: String) {
+    stubFor(
+      get("/users/$userName")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                      "userId": "5105a589-75b3-4ca0-9433-b96228c1c8f3",
+                      "username": "AUTH_ADM",
+                      "email": "auth_test2@digital.justice.gov.uk",
+                      "firstName": "Auth",
+                      "lastName": "Adm",
+                      "locked": false,
+                      "enabled": true,
+                      "verified": true,
+                      "lastLoggedIn": "2022-12-01T09:30:07.933161",
+                      "inactiveReason": "Expired"
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubNoUsersFoundForUserName(userName: String) {
+    stubFor(
+      get("/users/$userName")
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
 }
