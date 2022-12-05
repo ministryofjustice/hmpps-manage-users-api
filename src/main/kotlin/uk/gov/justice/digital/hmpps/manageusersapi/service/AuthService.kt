@@ -3,19 +3,13 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import org.springframework.web.reactive.function.client.awaitBody
-import java.time.Duration
 
 @Service
 class AuthService(
-  @Qualifier("authWebClient") val authWebClient: WebClient,
   @Qualifier("authWebWithClientId") val authWebWithClientId: WebClient,
-  @Value("\${api.timeout:10s}")
-  val timeout: Duration
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -43,17 +37,6 @@ class AuthService(
       throw TokenException(createTokenRequest.username, e.statusCode.value())
     }
   }
-
-  suspend fun getUsers(): List<AuthUser> =
-    authWebClient.get()
-      .uri { uriBuilder ->
-        uriBuilder
-          .path("/api/users/email")
-          .queryParam("authSource", "nomis")
-          .build()
-      }
-      .retrieve()
-      .awaitBody()
 }
 
 class TokenException(userName: String, errorCode: Int) :
