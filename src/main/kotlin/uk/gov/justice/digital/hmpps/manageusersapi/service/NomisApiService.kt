@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -7,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import org.springframework.web.reactive.function.client.awaitBody
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -153,25 +153,6 @@ class NomisApiService(
   }
 
   @Throws(RoleNotFoundException::class)
-  fun updateRole(roleCode: String, roleName: String?, adminRoleOnly: Boolean?) {
-    log.debug("Updating dps role for {} with {}", roleCode)
-    try {
-      nomisWebClient.put().uri("/roles/$roleCode")
-        .bodyValue(
-          mapOf(
-            "adminRoleOnly" to adminRoleOnly,
-            "name" to roleName
-          ).filter { it.value != null }
-        )
-        .retrieve()
-        .toBodilessEntity()
-        .block()
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
-    }
-  }
-
-  @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
     try {
@@ -189,22 +170,6 @@ class NomisApiService(
     }
   }
 
-  fun getAllRoles(): List<NomisRole> {
-    log.debug("Getting all dps roles")
-
-    return nomisWebClient.get()
-      .uri { uriBuilder ->
-        uriBuilder
-          .path("/roles/")
-          .build()
-      }
-      .retrieve()
-      .bodyToMono(RoleList::class.java)
-      .block()!!
-  }
-
-  class RoleList : MutableList<NomisRole> by ArrayList()
-
   private fun String.nomisRoleName(): String = take(30)
 
   fun getUserRoles(username: String): UserRoleDetail {
@@ -220,13 +185,18 @@ class NomisApiService(
   }
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
-
-  suspend fun getUsers(): List<NomisUser> =
-    nomisWebClient.get()
-      .uri { it.path("/users/emails").build() }
-      .retrieve()
-      .awaitBody()
 }
 
 class UserNotFoundException(action: String, username: String, errorCode: String) :
   Exception("Unable to $action user: $username with reason: $errorCode")
+
+data class NomisRole(
+  @Schema(description = "Role Code", example = "GLOBAL_SEARCH", required = true)
+  val code: String,
+
+  @Schema(description = "Role Name", example = "Global Search Role", required = true)
+  val name: String,
+
+  @Schema(description = "If the role is for admin users only", example = "false", required = true)
+  val adminRoleOnly: Boolean
+)
