@@ -185,7 +185,6 @@ class NomisApiService(
   }
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
-
 }
 
 class UserNotFoundException(action: String, username: String, errorCode: String) :
