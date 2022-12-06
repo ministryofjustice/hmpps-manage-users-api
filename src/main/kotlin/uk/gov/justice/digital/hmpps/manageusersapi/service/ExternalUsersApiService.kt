@@ -282,6 +282,13 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(UserList::class.java)
       .block()
+
+  fun findUsersByUserName(userName: String): UserDto? =
+    externalUsersWebClient.get()
+      .uri("/users/$userName")
+      .retrieve()
+      .bodyToMono(UserDto::class.java)
+      .block()
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =

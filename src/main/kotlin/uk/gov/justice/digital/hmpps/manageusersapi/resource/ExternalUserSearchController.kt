@@ -6,10 +6,13 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSearchService
@@ -67,6 +70,45 @@ class ExternalUserSearchController(
     val users = userSearchService.findExternalUsersByEmail(email)
     return if (users == null) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
+
+  @GetMapping("/{username}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "User detail.",
+    description = "User detail."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun user(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
+  ) = userSearchService.findExternalUsersByUserName(username)
 }
 
 data class UserDto(

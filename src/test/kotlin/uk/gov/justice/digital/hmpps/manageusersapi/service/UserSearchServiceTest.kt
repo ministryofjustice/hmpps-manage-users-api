@@ -40,4 +40,14 @@ class UserSearchServiceTest {
       verify(externalUsersApiService).findUsersByEmail("testy@testing.com")
     }
   }
+
+  @Nested
+  inner class FindAuthUsersByUserName {
+    @Test
+    fun shouldCallExternalUsersWhenUserNameNotNull() {
+      userSearchService.findExternalUsersByUserName("user")
+
+      verify(externalUsersApiService).findUsersByUserName("user")
+    }
+  }
 }
