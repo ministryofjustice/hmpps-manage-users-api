@@ -12,4 +12,6 @@ class UserGroupService(
   fun addGroupByUserId(userId: UUID, group: String) = externalUsersApiService.addGroupByUserId(userId, group)
 
   fun getUserGroups(user: UUID, children: Boolean): List<UserGroup> = externalUsersApiService.getUserGroups(user, children)
+
+  fun getMyAssignableGroups(): List<UserGroup> = externalUsersApiService.getMyAssignableGroups()
 }

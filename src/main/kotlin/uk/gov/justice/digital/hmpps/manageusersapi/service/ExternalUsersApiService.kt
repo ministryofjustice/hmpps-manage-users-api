@@ -289,6 +289,13 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(UserDto::class.java)
       .block()
+
+  fun getMyAssignableGroups(): List<UserGroup> =
+    externalUsersWebClient.get()
+      .uri("/users/me/assignable-groups")
+      .retrieve()
+      .bodyToMono(GroupList::class.java)
+      .block()!!
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
