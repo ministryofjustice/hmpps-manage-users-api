@@ -14,31 +14,31 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.UserGroupService
 @RestController
 @RequestMapping("/externalusers")
 class ExternalUserController(
-    private val userGroupService: UserGroupService
+  private val userGroupService: UserGroupService
 ) {
 
-    @GetMapping("/me/assignable-groups")
-    @Operation(
-        summary = "Get list of assignable groups.",
-        description = "Get list of groups that can be assigned by the current user."
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "OK"
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized.",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class)
-                    )
-                ]
-            )
+  @GetMapping("/me/assignable-groups")
+  @Operation(
+    summary = "Get list of assignable groups.",
+    description = "Get list of groups that can be assigned by the current user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
         ]
-    )
-    fun assignableGroups(): List<UserGroup> = userGroupService.getMyAssignableGroups()
+      )
+    ]
+  )
+  fun assignableGroups(): List<UserGroup> = userGroupService.getMyAssignableGroups()
 }
