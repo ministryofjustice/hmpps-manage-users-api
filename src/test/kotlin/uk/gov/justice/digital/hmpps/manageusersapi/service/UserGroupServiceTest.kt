@@ -28,17 +28,7 @@ class UserGroupServiceTest {
   }
 
   @Test
-  fun `get user groups with children`() {
-    val groups = givenAListOfGroups()
-    val userId = UUID.randomUUID()
-    whenever(externalUsersService.getUserGroups(userId, true)).thenReturn(groups)
-
-    val userRoles = userGroupService.getUserGroups(userId, true)
-    assertThat(userRoles).isEqualTo(groups)
-  }
-
-  @Test
-  fun `get user groups without children`() {
+  fun `get user groups`() {
     val groups = givenAListOfGroups()
     val userId = UUID.randomUUID()
     whenever(externalUsersService.getUserGroups(userId, false)).thenReturn(groups)

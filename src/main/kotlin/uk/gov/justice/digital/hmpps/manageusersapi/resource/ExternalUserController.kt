@@ -40,5 +40,5 @@ class ExternalUserController(
       )
     ]
   )
-  fun assignableGroups(): List<UserGroup> = userGroupService.getMyAssignableGroups()
+  fun assignableGroups() = userGroupService.getMyAssignableGroups()
 }
