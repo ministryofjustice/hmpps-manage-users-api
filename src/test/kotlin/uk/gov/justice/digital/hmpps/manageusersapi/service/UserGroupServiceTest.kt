@@ -29,10 +29,7 @@ class UserGroupServiceTest {
 
   @Test
   fun `get user groups with children`() {
-    val groups = listOf(
-      UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
-      UserGroup(groupCode = "GROUP_CHILD", groupName = "Child Group"),
-    )
+    val groups = givenAListOfGroups()
     val userId = UUID.randomUUID()
     whenever(externalUsersService.getUserGroups(userId, true)).thenReturn(groups)
 
@@ -42,14 +39,26 @@ class UserGroupServiceTest {
 
   @Test
   fun `get user groups without children`() {
-    val groups = listOf(
-      UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
-      UserGroup(groupCode = "GROUP_TWO", groupName = "Second Group"),
-    )
+    val groups = givenAListOfGroups()
     val userId = UUID.randomUUID()
     whenever(externalUsersService.getUserGroups(userId, false)).thenReturn(groups)
 
     val userRoles = userGroupService.getUserGroups(userId, false)
     assertThat(userRoles).isEqualTo(groups)
+  }
+
+  @Test
+  fun `get my assignable groups`() {
+    val myGroups = givenAListOfGroups()
+    whenever(externalUsersService.getMyAssignableGroups()).thenReturn(myGroups)
+
+    assertThat(userGroupService.getMyAssignableGroups()).isEqualTo(myGroups)
+  }
+
+  private fun givenAListOfGroups(): List<UserGroup> {
+    return listOf(
+      UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
+      UserGroup(groupCode = "GROUP_CHILD", groupName = "Child Group")
+    )
   }
 }
