@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.EmailAddressDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
@@ -296,6 +297,14 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(GroupList::class.java)
       .block()!!
+
+  fun getUsersEmails(userList: List<String>) =
+    externalUsersWebClient.post()
+      .uri("/users/email")
+      .bodyValue(userList)
+      .retrieve()
+      .bodyToMono(EmailAddressList::class.java)
+      .block()!!
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
@@ -305,3 +314,4 @@ class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
 class UserList : MutableList<UserDto> by ArrayList()
+class EmailAddressList : MutableList<EmailAddressDto> by ArrayList()

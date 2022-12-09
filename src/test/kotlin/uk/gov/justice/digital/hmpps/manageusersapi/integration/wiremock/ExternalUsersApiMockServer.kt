@@ -1748,4 +1748,41 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetVerifiedEmails() {
+    stubFor(
+      post(urlEqualTo("/users/email"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(OK.value())
+            .withBody(
+              """
+               [
+                  {
+                      "username": "HWPV_SSCL_USER",
+                      "email": "prisonvisitsbooking@digital.justice.gov.uk",
+                      "verified": true
+                  },
+                  {
+                      "username": "ITAG_USER",
+                      "email": "itag_user@digital.justice.gov.uk",
+                      "verified": true
+                  }
+              ]
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubForbiddenPostGetVerifiedEmails() {
+    stubFor(
+      put("/users/emails")
+        .willReturn(
+          aResponse()
+            .withStatus(FORBIDDEN.value())
+        )
+    )
+  }
 }

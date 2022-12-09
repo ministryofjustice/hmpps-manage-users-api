@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import java.util.UUID
 import javax.validation.Valid
@@ -30,7 +31,8 @@ import javax.validation.constraints.NotBlank
 @RestController
 @Validated
 class UserController(
-  private val userService: UserService
+  private val userService: UserService,
+  private val userSearchService: UserSearchService,
 ) {
   @PostMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
   @Throws(UserExistsException::class)
@@ -141,6 +143,49 @@ class UserController(
   ) = userService.enableUserByUserId(
     userId
   )
+
+  @PostMapping("users/email")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Email address for users",
+    description =
+    """Verified email address for users.  Post version that accepts multiple email addresses.
+        Requires ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN.
+    """
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to enable user, the user is not within one of your groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
+  fun getUsersEmails(
+    @Parameter(description = "List of usernames.", required = true) @RequestBody
+    usernames: List<String>
+  ) = userSearchService.findUsersByUsernames(usernames)
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -169,6 +214,19 @@ data class CreateUserRequest(
 
   @Schema(description = "Default caseload (a.k.a Prison ID)", example = "BXI", required = false)
   val defaultCaseloadId: String? = null
+)
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "User email details")
+data class EmailAddressDto(
+  @Schema(required = true, description = "Username", example = "DEMO_USER1")
+  val username: String,
+
+  @Schema(description = "Email", example = "john.smith@digital.justice.gov.uk")
+  val email: String?,
+
+  @Schema(required = true, description = "Verified email", example = "true")
+  val verified: Boolean,
 )
 
 enum class UserType {

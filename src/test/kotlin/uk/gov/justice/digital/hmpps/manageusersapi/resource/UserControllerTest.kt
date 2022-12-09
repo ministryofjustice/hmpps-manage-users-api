@@ -8,12 +8,14 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 
 class UserControllerTest {
 
   private val userService: UserService = mock()
-  private val userController = UserController(userService)
+  private val userSearchService: UserSearchService = mock()
+  private val userController = UserController(userService, userSearchService)
 
   @Nested
   inner class CreateUser {
@@ -37,6 +39,16 @@ class UserControllerTest {
       assertThatThrownBy { userController.createUser(user) }
         .isInstanceOf(UserExistsException::class.java)
         .withFailMessage("Unable to create user: USER_DUP with reason: user name already exists")
+    }
+  }
+
+  @Nested
+  inner class FindVerifiedEmailsOfUsers {
+    @Test
+    fun `find verified user`() {
+      val userNames = listOf("CEN_ADM", "CEN_ADM1")
+      userController.getUsersEmails(userNames)
+      verify(userSearchService).findUsersByUsernames(userNames)
     }
   }
 }

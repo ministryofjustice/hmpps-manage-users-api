@@ -509,4 +509,46 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNoContent
     }
   }
+
+  @Nested
+  inner class FindVerifiedEmailsOfUsers {
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/users/email")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden without correct role`() {
+      externalUsersApiMockServer.stubForbiddenPostGetVerifiedEmails()
+      webTestClient.post().uri("/users/email")
+        .body(fromValue(listOf("AUTH_USER", "ITAG_USER", "delius_email", "DM_USER", "nobody")))
+        .headers(setAuthorisation(roles = listOf("ITAG_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access bad request without body and  no role`() {
+      webTestClient.post().uri("/users/email")
+        .headers(setAuthorisation(roles = listOf("ITAG_USER")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should return email list`() {
+      externalUsersApiMockServer.stubGetVerifiedEmails()
+      webTestClient.post().uri("/users/email")
+        .body(fromValue(listOf("AUTH_USER", "ITAG_USER", "delius_email", "DM_USER", "nobody")))
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*]").value<List<String>> { assertThat(it).hasSize(2) }
+        .jsonPath("$.[0].email").isEqualTo("prisonvisitsbooking@digital.justice.gov.uk")
+        .jsonPath("$.[0].username").isEqualTo("HWPV_SSCL_USER")
+    }
+  }
 }

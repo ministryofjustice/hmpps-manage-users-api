@@ -13,4 +13,6 @@ class UserSearchService(
 
   fun findExternalUsersByUserName(userName: String): UserDto? =
     userName.let { externalUsersApiService.findUsersByUserName(userName) }
+
+  fun findUsersByUsernames(usernames: List<String>) = externalUsersApiService.getUsersEmails(usernames)
 }
