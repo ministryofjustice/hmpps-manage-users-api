@@ -94,6 +94,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
+
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClient.put()
@@ -111,6 +112,15 @@ class ExternalUsersApiService(
       .bodyToMono(UserRoleList::class.java)
       .block()!!
 
+  fun addRolesByUserId(userId: UUID, roleCodes: List<String>) {
+    log.debug("Adding roles {} for user {}", roleCodes, userId)
+    externalUsersWebClient.post()
+      .uri("/users/$userId/roles")
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
   fun deleteRoleByUserId(userId: UUID, role: String) {
     log.debug("Delete role {} for user {}", role, userId)
     externalUsersWebClient.delete()
@@ -125,7 +135,7 @@ class ExternalUsersApiService(
       .uri("/users/$userId/assignable-roles")
       .retrieve()
       .bodyToMono(UserRoleList::class.java)
-      .block() !!
+      .block()!!
 
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()

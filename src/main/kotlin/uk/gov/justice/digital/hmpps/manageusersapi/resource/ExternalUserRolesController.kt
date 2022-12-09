@@ -15,12 +15,15 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.ExternalUserRolesService
 import java.util.UUID
+import javax.validation.constraints.NotEmpty
 
 @RestController
 @Validated
@@ -128,6 +131,64 @@ class ExternalUserRolesController(
     externalUserRolesService.removeRoleByUserId(userId, role)
     log.info("Remove role succeeded for userId {} and role code {}", userId, role)
   }
+
+  @PostMapping("/{userId}/roles")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Add roles to user.",
+    description = "Add role to user, post version taking multiple roles"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "204",
+        description = "Added"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "409",
+        description = "Role(s) for user already exists..",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun addRolesByUserId(
+    @Parameter(description = "The user Id of the user.", required = true)
+    @PathVariable
+    userId: UUID,
+    @Parameter(
+      description = "List of roles to be assigned.",
+      required = true
+    )
+    @RequestBody
+    @NotEmpty
+    roles: List<String>
+  ) = externalUserRolesService.addRolesByUserId(userId, roles)
 
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @GetMapping("{userId}/assignable-roles")
