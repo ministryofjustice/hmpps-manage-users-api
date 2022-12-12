@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
@@ -94,6 +95,7 @@ class ExternalUsersApiService(
       .toBodilessEntity()
       .block()
   }
+
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClient.put()
@@ -125,7 +127,7 @@ class ExternalUsersApiService(
       .uri("/users/$userId/assignable-roles")
       .retrieve()
       .bodyToMono(UserRoleList::class.java)
-      .block() !!
+      .block()!!
 
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()
@@ -135,7 +137,7 @@ class ExternalUsersApiService(
           "roleCode" to createRole.roleCode,
           "roleName" to createRole.roleName,
           "roleDescription" to createRole.roleDescription,
-          "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList(),
+          "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList()
         )
       )
       .retrieve()
@@ -175,7 +177,6 @@ class ExternalUsersApiService(
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
-
     log.debug("Updating child group details for {} with {}", group, groupAmendment)
     externalUsersWebClient.put()
       .uri("/groups/child/$group")
@@ -268,12 +269,22 @@ class ExternalUsersApiService(
   }
 
   fun enableUserById(userId: UUID): EmailNotificationDto {
-    log.debug("Enabling User for User Id for {} ", userId)
+    log.debug("Enabling User for User Id of {} ", userId)
     return externalUsersWebClient.put()
       .uri("/users/$userId/enable")
       .retrieve()
       .bodyToMono(EmailNotificationDto::class.java)
       .block()!!
+  }
+
+  fun disableUserById(userId: UUID, deactivateReason: DeactivateReason) {
+    log.debug("Disabling User for User Id of {} ", userId)
+    externalUsersWebClient.put()
+      .uri("/users/$userId/disable")
+      .bodyValue(deactivateReason)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
   }
 
   fun findUsersByEmail(email: String): List<UserDto>? =

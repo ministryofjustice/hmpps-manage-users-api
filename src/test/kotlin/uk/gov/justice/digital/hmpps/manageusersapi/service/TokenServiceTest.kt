@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -40,7 +40,6 @@ class TokenServiceTest {
 
     @Test
     fun `Send Failure Telemetry Event`() {
-
       val user = CreateUserRequest("USER_DUP", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
       val parameters = mapOf(
         "firstName" to user.firstName,
@@ -54,7 +53,7 @@ class TokenServiceTest {
       )
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
-      Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
+      assertThatExceptionOfType(NotificationClientException::class.java)
         .isThrownBy { tokenService.saveAndSendInitialEmail(user, "DPSUserCreate") }
       verify(telemetryClient).trackEvent(
         "DPSUserCreateFailure",

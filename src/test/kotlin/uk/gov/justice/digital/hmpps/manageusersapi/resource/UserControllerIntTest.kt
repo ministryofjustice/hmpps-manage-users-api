@@ -509,4 +509,81 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNoContent
     }
   }
+
+  @Nested
+  inner class DisableExternalUser {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun ` should fail with not_found for invalid user id`() {
+      externalUsersApiMockServer.stubPutDisableInvalidUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f")
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(HttpStatus.NOT_FOUND.value())
+          assertThat(it["userMessage"] as String)
+            .startsWith("User not found: User 2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f not found")
+          assertThat(it["developerMessage"] as String)
+            .startsWith("User 2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f not found")
+        }
+    }
+
+    @Test
+    fun `should fail with forbidden  for user not in group`() {
+      externalUsersApiMockServer.stubPutDisableFailUserNotInGroup()
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(HttpStatus.FORBIDDEN.value())
+          assertThat(it["userMessage"] as String)
+            .startsWith("User group relationship exception: Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups")
+          assertThat(it["developerMessage"] as String)
+            .startsWith("Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups")
+        }
+    }
+
+    @Test
+    fun disableUser() {
+      externalUsersApiMockServer.stubPutDisableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+  }
 }
