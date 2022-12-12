@@ -50,7 +50,16 @@ class RolesServiceTest {
     fun `get all paged roles`() {
       val roles = createRolePaged()
 
-      whenever(externalUsersService.getPagedRoles(anyInt(), anyInt(), anyString(), isNull(), isNull(), isNull())).thenReturn(roles)
+      whenever(
+        externalUsersService.getPagedRoles(
+          anyInt(),
+          anyInt(),
+          anyString(),
+          isNull(),
+          isNull(),
+          isNull()
+        )
+      ).thenReturn(roles)
 
       val allRoles = externalUsersService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
       assertThat(allRoles).isEqualTo(roles)
@@ -63,7 +72,9 @@ class RolesServiceTest {
     @Test
     fun `get role details`() {
       val role = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
 
@@ -112,7 +123,9 @@ class RolesServiceTest {
       val roleAmendment = RoleNameAmendment("UpdatedName")
 
       val dbRole = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
@@ -127,7 +140,9 @@ class RolesServiceTest {
       val roleAmendment = RoleNameAmendment("UpdatedName")
 
       val role = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
@@ -145,7 +160,9 @@ class RolesServiceTest {
       val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
 
       val dbRole = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
@@ -160,7 +177,9 @@ class RolesServiceTest {
       val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
 
       val role = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
@@ -178,7 +197,9 @@ class RolesServiceTest {
       val roleAmendment = RoleAdminTypeAmendment(setOf(EXT_ADM, DPS_ADM))
 
       val dbRole = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
@@ -193,7 +214,9 @@ class RolesServiceTest {
       val roleAmendment = RoleAdminTypeAmendment(setOf(EXT_ADM, DPS_ADM))
 
       val dbRole = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
       whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
@@ -208,7 +231,9 @@ class RolesServiceTest {
       val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM, DPS_LSA))
 
       val dbRole = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(
           AdminTypeReturn("DPS_ADM", "DPS Central Administrator")
         )
@@ -225,7 +250,9 @@ class RolesServiceTest {
       val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
 
       val dbRole = Role(
-        roleCode = "ROLE_1", roleName = "Role Name", roleDescription = "A Role",
+        roleCode = "ROLE_1",
+        roleName = "Role Name",
+        roleDescription = "A Role",
         adminType = listOf(
           AdminTypeReturn("DPS_ADM", "DPS Central Administrator"),
           AdminTypeReturn("DPS_LSA", "DPS Local System Administrator")

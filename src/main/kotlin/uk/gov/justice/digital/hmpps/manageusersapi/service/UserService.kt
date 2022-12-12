@@ -4,8 +4,8 @@ import com.microsoft.applicationinsights.TelemetryClient
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_GEN
@@ -22,11 +22,10 @@ class UserService(
   private val telemetryClient: TelemetryClient,
 ) {
   @Throws(UserExistsException::class, TokenException::class, HmppsValidationException::class)
-  @Transactional
   fun createUser(user: CreateUserRequest): NomisUserDetails {
-
-    if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@')))
+    if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
+    }
 
     var nomisUserDetails: NomisUserDetails? = null
     if (DPS_ADM == user.userType) {
@@ -40,7 +39,6 @@ class UserService(
     return nomisUserDetails ?: throw UserException(user.username, user.userType, "Error creating DPS User")
   }
 
-  @Transactional
   fun enableUserByUserId(userId: UUID) {
     val emailNotificationDto = externalUsersApiService.enableUserById(userId)
     emailNotificationDto.email?.let {
@@ -48,8 +46,16 @@ class UserService(
     } ?: run {
       log.warn("Notification email not sent for user {}", emailNotificationDto)
     }
-    telemetryClient.trackEvent("ExternalUserEnabled", mapOf("username" to emailNotificationDto.username, "admin" to emailNotificationDto.admin), null)
+    telemetryClient.trackEvent(
+      "ExternalUserEnabled",
+      mapOf("username" to emailNotificationDto.username, "admin" to emailNotificationDto.admin),
+      null
+    )
   }
+
+  fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
+    externalUsersApiService.disableUserById(userId, deactivateReason)
+
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
@@ -90,6 +96,6 @@ data class EmailNotificationDto(
   val email: String?,
 
   @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
-  val admin: String
+  val admin: String,
 
 )

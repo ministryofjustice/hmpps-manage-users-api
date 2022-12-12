@@ -32,7 +32,6 @@ class EmailNotificationServiceTest {
 
     @Test
     fun `Send Failure Telemetry Event`() {
-
       val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
       val parameters = mapOf(
         "firstName" to emailNotificationDto.firstName,
@@ -49,7 +48,11 @@ class EmailNotificationServiceTest {
         .isThrownBy { emailNotificationService.sendEnableEmail(emailNotificationDto) }
       verify(telemetryClient).trackEvent(
         "ExternalUserEnabledEmailFailure",
-        mapOf("username" to emailNotificationDto.username, "reason" to "NotificationClientException", "admin" to emailNotificationDto.admin),
+        mapOf(
+          "username" to emailNotificationDto.username,
+          "reason" to "NotificationClientException",
+          "admin" to emailNotificationDto.admin
+        ),
         null
       )
     }

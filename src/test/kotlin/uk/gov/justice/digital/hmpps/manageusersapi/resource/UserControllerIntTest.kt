@@ -509,4 +509,51 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNoContent
     }
   }
+
+  @Nested
+  inner class DisableExternalUser {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `error when no body`() {
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun disableUser() {
+      externalUsersApiMockServer.stubPutDisableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
+      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/disable")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
+        .body(fromValue(mapOf("reason" to "bob")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+  }
 }
