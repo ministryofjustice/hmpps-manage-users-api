@@ -18,6 +18,13 @@ class ExternalUserRolesControllerTest {
   }
 
   @Test
+  fun `add roles to a user`() {
+    val userId = UUID.randomUUID()
+    externalUserRolesController.addRolesByUserId(userId, listOf("role1", "role2"))
+    verify(externalUserRolesService).addRolesByUserId(userId, listOf("role1", "role2"))
+  }
+
+  @Test
   fun `remove a user role`() {
     val userId = UUID.randomUUID()
     externalUserRolesController.removeRoleByUserId(userId, "ROLE_TEST")

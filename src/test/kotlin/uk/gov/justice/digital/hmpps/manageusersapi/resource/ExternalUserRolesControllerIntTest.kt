@@ -1,10 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import java.util.UUID
 
@@ -54,6 +55,65 @@ class ExternalUserRolesControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class AddUserRoles {
+    private val userId = UUID.randomUUID()
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/externalusers/$userId/roles")
+        .body(BodyInserters.fromValue(listOf("ROLE_ONE", "ROLE_TWO")))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.post().uri("/externalusers/$userId/roles")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(BodyInserters.fromValue(listOf("GLOBAL_SEARCH", "LICENCE_RO")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `fail`() {
+      externalUsersApiMockServer.stubAddRolesToUserFail(userId.toString(), HttpStatus.BAD_REQUEST)
+      webTestClient.post().uri("/externalusers/$userId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(listOf("GLOBAL_SEARCH", "LICENCE_RO")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(HttpStatus.BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+        }
+    }
+
+    @Test
+    fun `success with role maintain oauth users`() {
+      externalUsersApiMockServer.stubAddRolesToUser(userId.toString())
+      webTestClient.post().uri("/externalusers/$userId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(listOf("GLOBAL_SEARCH", "LICENCE_RO")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `success with role group manager`() {
+      externalUsersApiMockServer.stubAddRolesToUser(userId.toString())
+      webTestClient.post().uri("/externalusers/$userId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .body(BodyInserters.fromValue(listOf("GLOBAL_SEARCH", "LICENCE_RO")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+  }
+
+  @Nested
   inner class RemoveUserRole {
 
     private val userId = UUID.randomUUID()
@@ -92,9 +152,9 @@ class ExternalUserRolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(HttpStatus.BAD_REQUEST.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(HttpStatus.BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 
@@ -108,9 +168,9 @@ class ExternalUserRolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it["status"] as Int).isEqualTo(HttpStatus.FORBIDDEN.value())
-          Assertions.assertThat(it["userMessage"] as String).startsWith("User error message")
-          Assertions.assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["status"] as Int).isEqualTo(HttpStatus.FORBIDDEN.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
         }
     }
 

@@ -733,6 +733,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubAddRolesToUser(userId: String) {
+    stubFor(
+      post("/users/$userId/roles")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeader("Content-Type", "application/json")
+        )
+    )
+  }
+
+  fun stubAddRolesToUserFail(userId: String, status: HttpStatus) {
+    stubFor(
+      post("/users/$userId/roles")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User error message",
+                "developerMessage": "Developer error message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubDeleteRoleFromUser(userId: String, role: String) {
     stubFor(
       delete("/users/$userId/roles/$role")
