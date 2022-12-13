@@ -117,6 +117,7 @@ class ExternalUsersApiService(
     log.debug("Adding roles {} for user {}", roleCodes, userId)
     externalUsersWebClient.post()
       .uri("/users/$userId/roles")
+      .bodyValue(roleCodes)
       .retrieve()
       .toBodilessEntity()
       .block()

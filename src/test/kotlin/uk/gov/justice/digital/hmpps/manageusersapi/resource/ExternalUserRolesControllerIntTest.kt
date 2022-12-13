@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -100,6 +103,11 @@ class ExternalUserRolesControllerIntTest : IntegrationTestBase() {
         .body(BodyInserters.fromValue(listOf("GLOBAL_SEARCH", "LICENCE_RO")))
         .exchange()
         .expectStatus().isNoContent
+
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/$userId/roles"))
+          .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]"))
+      )
     }
 
     @Test
@@ -110,6 +118,11 @@ class ExternalUserRolesControllerIntTest : IntegrationTestBase() {
         .body(BodyInserters.fromValue(listOf("GLOBAL_SEARCH", "LICENCE_RO")))
         .exchange()
         .expectStatus().isNoContent
+
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/$userId/roles"))
+          .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]"))
+      )
     }
   }
 
