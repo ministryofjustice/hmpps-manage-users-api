@@ -1,11 +1,14 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
-import java.net.URI
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.UriBuilder
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
@@ -20,11 +23,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
+import java.net.URI
 import java.util.UUID
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
-import org.springframework.web.util.UriBuilder
 import kotlin.collections.ArrayList
 
 @Service
@@ -288,15 +288,18 @@ class ExternalUsersApiService(
       .bodyToMono(UserList::class.java)
       .block()
 
-  fun findUsers(name: String?,
-                roles: List<String>?,
-                groups: List<String>?,
-                pageable: Pageable,
-                status: Status): Page<UserDto> {
+  fun findUsers(
+    name: String?,
+    roles: List<String>?,
+    groups: List<String>?,
+    pageable: Pageable,
+    status: Status
+  ): Page<UserDto> {
 
     val pageContent = externalUsersWebClient.get()
       .uri {
-          uriBuilder -> buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
+        uriBuilder ->
+        buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
       }
       .retrieve()
       .bodyToMono(UserPageContent::class.java)
@@ -327,7 +330,7 @@ class ExternalUsersApiService(
     groups?.let { uriBuilder.queryParam("groups", it.joinToString(separator = ",")) }
 
     uriBuilder.queryParam("status", status)
-    if(pageable.isPaged) {
+    if (pageable.isPaged) {
       uriBuilder.queryParam("page", pageable.pageNumber)
       uriBuilder.queryParam("size", pageable.pageSize)
       pageable.sort.forEach { sort -> uriBuilder.queryParam("sort", sort.property + "," + sort.direction) }
