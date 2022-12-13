@@ -17,12 +17,68 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSearchService
 import java.time.LocalDateTime
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
+import org.springframework.security.access.prepost.PreAuthorize
+import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 
 @RestController
 @RequestMapping("/externalusers")
 class ExternalUserSearchController(
   private val userSearchService: UserSearchService
 ) {
+
+  @GetMapping("/search")
+  @Operation(
+    summary = "Search for an external user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @PreAuthorize(
+    "hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')"
+  )
+  suspend fun searchForUser(
+    @Parameter(
+      description = "The username, email or name of the user.",
+      example = "j smith"
+    ) @RequestParam(required = false)
+    name: String?,
+    @Parameter(description = "The role codes of the user.") @RequestParam(required = false)
+    roles: List<String>?,
+    @Parameter(description = "The group codes of the user.") @RequestParam(required = false)
+    groups: List<String>?,
+    @Parameter(description = "Limit to active / inactive / show all users.") @RequestParam(
+      required = false,
+      defaultValue = "ALL"
+    )
+    status: Status,
+    @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable
+  ): Page<UserDto> =
+    userSearchService.findUsers(
+      name,
+      roles,
+      groups,
+      pageable,
+      status
+    )
 
   @GetMapping
   @Operation(
