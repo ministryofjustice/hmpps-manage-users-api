@@ -10,6 +10,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
 import java.util.UUID
 
 @Service

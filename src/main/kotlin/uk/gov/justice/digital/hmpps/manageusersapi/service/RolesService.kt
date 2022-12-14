@@ -9,6 +9,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
 
 @Service
 class RolesService(
