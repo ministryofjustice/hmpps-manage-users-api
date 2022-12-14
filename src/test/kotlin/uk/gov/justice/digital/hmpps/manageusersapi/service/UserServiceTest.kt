@@ -13,6 +13,9 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserType
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
 import java.util.UUID
 
 class UserServiceTest {

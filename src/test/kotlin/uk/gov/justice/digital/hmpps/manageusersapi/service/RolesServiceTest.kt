@@ -22,6 +22,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesSort
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.EXT_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
 
 class RolesServiceTest {
   private val nomisService: NomisApiService = mock()
