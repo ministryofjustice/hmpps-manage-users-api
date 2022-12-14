@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserGroupService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.ExternalUserGroupService
 import java.util.UUID
 
 @Validated
 @RestController
-class UserGroupController(
-  private val userGroupsService: UserGroupService
+class ExternalUserGroupController(
+  private val userGroupsService: ExternalUserGroupService
 ) {
 
   companion object {

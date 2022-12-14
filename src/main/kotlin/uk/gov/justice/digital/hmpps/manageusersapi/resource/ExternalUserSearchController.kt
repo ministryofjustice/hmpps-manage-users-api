@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSearchService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.ExternalUserSearchService
 import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/externalusers")
 class ExternalUserSearchController(
-  private val userSearchService: UserSearchService
+  private val externalUserSearchService: ExternalUserSearchService
 ) {
 
   @GetMapping
@@ -67,7 +67,7 @@ class ExternalUserSearchController(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
     email: String?
   ): ResponseEntity<Any> {
-    val users = userSearchService.findExternalUsersByEmail(email)
+    val users = externalUserSearchService.findExternalUsersByEmail(email)
     return if (users == null) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
@@ -108,7 +108,7 @@ class ExternalUserSearchController(
   fun user(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
-  ) = userSearchService.findExternalUsersByUserName(username)
+  ) = externalUserSearchService.findExternalUsersByUserName(username)
 }
 
 data class UserDto(

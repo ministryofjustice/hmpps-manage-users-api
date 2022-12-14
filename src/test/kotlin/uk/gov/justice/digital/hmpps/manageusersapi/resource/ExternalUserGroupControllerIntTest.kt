@@ -9,7 +9,7 @@ import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import java.util.UUID
 
-class UserGroupControllerIntTest : IntegrationTestBase() {
+class ExternalUserGroupControllerIntTest : IntegrationTestBase() {
 
   @Nested
   inner class GetUserGroups {

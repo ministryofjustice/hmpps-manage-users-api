@@ -5,7 +5,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import java.util.UUID
 
 @Service
-class UserGroupService(
+class ExternalUserGroupService(
   val externalUsersApiService: ExternalUsersApiService
 ) {
   fun removeGroupByUserId(userId: UUID, group: String) = externalUsersApiService.deleteGroupByUserId(userId, group)

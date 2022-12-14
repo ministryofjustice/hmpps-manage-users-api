@@ -9,33 +9,33 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 
-class UserSearchServiceTest {
+class ExternalUserSearchServiceTest {
 
   private val externalUsersApiService: ExternalUsersApiService = mock()
-  private lateinit var userSearchService: UserSearchService
+  private lateinit var externalUserSearchService: ExternalUserSearchService
 
   @BeforeEach
   fun setUp() {
-    userSearchService = UserSearchService(externalUsersApiService)
+    externalUserSearchService = ExternalUserSearchService(externalUsersApiService)
   }
 
   @Nested
   inner class FindAuthUsersByEmail {
     @Test
     fun shouldReturnNullWhenEmailNull() {
-      assertThat(userSearchService.findExternalUsersByEmail(null)).isNull()
+      assertThat(externalUserSearchService.findExternalUsersByEmail(null)).isNull()
     }
 
     @Test
     fun shouldNotInvokeExternalUsersWhenEmailNull() {
-      userSearchService.findExternalUsersByEmail(null)
+      externalUserSearchService.findExternalUsersByEmail(null)
 
       verify(externalUsersApiService, never()).findUsersByEmail(any())
     }
 
     @Test
     fun shouldCallExternalUsersWhenEmailNotNull() {
-      userSearchService.findExternalUsersByEmail("testy@testing.com")
+      externalUserSearchService.findExternalUsersByEmail("testy@testing.com")
 
       verify(externalUsersApiService).findUsersByEmail("testy@testing.com")
     }
@@ -45,7 +45,7 @@ class UserSearchServiceTest {
   inner class FindAuthUsersByUserName {
     @Test
     fun shouldCallExternalUsersWhenUserNameNotNull() {
-      userSearchService.findExternalUsersByUserName("user")
+      externalUserSearchService.findExternalUsersByUserName("user")
 
       verify(externalUsersApiService).findUsersByUserName("user")
     }

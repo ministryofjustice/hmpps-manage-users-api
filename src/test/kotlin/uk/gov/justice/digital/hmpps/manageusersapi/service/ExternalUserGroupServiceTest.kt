@@ -8,10 +8,10 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import java.util.UUID
 
-class UserGroupServiceTest {
+class ExternalUserGroupServiceTest {
 
   private val externalUsersService: ExternalUsersApiService = mock()
-  private val userGroupService = UserGroupService(externalUsersService)
+  private val userGroupService = ExternalUserGroupService(externalUsersService)
 
   @Test
   fun removeGroupByUserId() {
