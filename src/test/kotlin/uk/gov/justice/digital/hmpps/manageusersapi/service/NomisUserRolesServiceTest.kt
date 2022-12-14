@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
 
-class UserRolesServiceTest {
+class NomisUserRolesServiceTest {
   private val externalUsersService: ExternalUsersApiService = mock()
   private val nomisService: NomisApiService = mock()
   private val userRolesService = NomisUserRolesService(externalUsersService, nomisService)
