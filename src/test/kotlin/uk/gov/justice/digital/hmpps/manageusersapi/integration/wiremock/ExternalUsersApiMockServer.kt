@@ -733,6 +733,38 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubAddRolesToUser(userId: String) {
+    stubFor(
+      post("/users/$userId/roles")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeader("Content-Type", "application/json")
+        )
+    )
+  }
+
+  fun stubAddRolesToUserFail(userId: String, status: HttpStatus) {
+    stubFor(
+      post("/users/$userId/roles")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "User error message",
+                "developerMessage": "Developer error message",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubDeleteRoleFromUser(userId: String, role: String) {
     stubFor(
       delete("/users/$userId/roles/$role")
@@ -1594,9 +1626,48 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubPutDisableUser(userId: String) {
+    stubFor(
+      put("/users/$userId/disable")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withBody(
+              """
+                 {
+                    "username": "user.name",
+                    "firstName": "user.firstName",
+                    "admin": "user.name",
+                    "email": "email@ul.com"
+                }
+              """.trimIndent()
+            )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
   fun stubPutEnableInvalidUser(userId: String) {
     stubFor(
       put("/users/$userId/enable")
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${NOT_FOUND.value()},
+                "errorCode": null,
+                "userMessage": "User not found: User $userId not found",
+                "developerMessage": "User $userId not found",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  } fun stubPutDisableInvalidUser(userId: String) {
+    stubFor(
+      put("/users/$userId/disable")
         .willReturn(
           aResponse()
             .withStatus(NOT_FOUND.value())
@@ -1617,6 +1688,25 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubPutEnableFailUserNotInGroup() {
     stubFor(
       put("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
+        .willReturn(
+          aResponse()
+            .withStatus(FORBIDDEN.value())
+            .withBody(
+              """{
+                "status": ${FORBIDDEN.value()},
+                "errorCode": null,
+                "userMessage": "User group relationship exception: Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups",
+                "developerMessage": "Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+  fun stubPutDisableFailUserNotInGroup() {
+    stubFor(
+      put("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
         .willReturn(
           aResponse()
             .withStatus(FORBIDDEN.value())
