@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
@@ -15,13 +14,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import java.util.UUID
 import kotlin.collections.ArrayList

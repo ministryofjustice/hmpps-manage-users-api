@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.HmppsValidationException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.HmppsValidationException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
 import javax.validation.ValidationException
 
 @RestControllerAdvice

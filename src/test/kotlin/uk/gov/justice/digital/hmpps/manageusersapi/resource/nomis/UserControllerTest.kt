@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
 
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
@@ -7,8 +7,8 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 
 class UserControllerTest {
 

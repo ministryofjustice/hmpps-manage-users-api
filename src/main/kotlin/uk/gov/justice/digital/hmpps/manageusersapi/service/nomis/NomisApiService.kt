@@ -9,15 +9,13 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserExistsException
 
 @Service
 class NomisApiService(
