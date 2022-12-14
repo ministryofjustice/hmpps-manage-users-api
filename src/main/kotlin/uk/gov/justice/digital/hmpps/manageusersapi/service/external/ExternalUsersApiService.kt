@@ -3,8 +3,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.UriBuilder
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -22,6 +26,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
+import java.net.URI
 import java.util.UUID
 import kotlin.collections.ArrayList
 
@@ -306,6 +311,26 @@ class ExternalUsersApiService(
       .bodyToMono(UserList::class.java)
       .block()
 
+  fun findUsers(
+    name: String?,
+    roles: List<String>?,
+    groups: List<String>?,
+    pageable: Pageable,
+    status: Status
+  ): Page<UserDto> {
+
+    val pageContent = externalUsersWebClient.get()
+      .uri {
+        uriBuilder ->
+        buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
+      }
+      .retrieve()
+      .bodyToMono(UserPageContent::class.java)
+      .block()!!
+
+    return PageImpl(pageContent.content, pageable, pageContent.totalElements)
+  }
+
   fun findUsersByUserName(userName: String): UserDto? =
     externalUsersWebClient.get()
       .uri("/users/$userName")
@@ -319,6 +344,20 @@ class ExternalUsersApiService(
       .retrieve()
       .bodyToMono(GroupList::class.java)
       .block()!!
+
+  private fun buildUserSearchURI(name: String?, roles: List<String>?, groups: List<String>?, pageable: Pageable, status: Status, uriBuilder: UriBuilder): URI {
+    uriBuilder.path("/users/search")
+
+    uriBuilder.queryParam("name", name)
+    uriBuilder.queryParam("roles", roles?.joinToString(","))
+    uriBuilder.queryParam("groups", groups?.joinToString(","))
+
+    uriBuilder.queryParam("status", status)
+    uriBuilder.queryParam("page", pageable.pageNumber)
+    uriBuilder.queryParam("size", pageable.pageSize)
+    pageable.sort.forEach { sort -> uriBuilder.queryParam("sort", sort.property + "," + sort.direction) }
+    return uriBuilder.build()
+  }
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
@@ -328,3 +367,5 @@ class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
 class UserList : MutableList<UserDto> by ArrayList()
+
+class UserPageContent(val content: List<UserDto>, val totalElements: Long)

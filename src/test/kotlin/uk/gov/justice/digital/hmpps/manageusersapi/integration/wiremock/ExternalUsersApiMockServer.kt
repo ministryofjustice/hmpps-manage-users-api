@@ -1838,4 +1838,118 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubUserDefaultSearchNoResults() {
+    stubFor(
+      get("/users/search?name&roles&groups&status=ALL&page=0&size=10&sort=Person.lastName,ASC&sort=Person.firstName,ASC")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                  "content": [],
+                  "pageable": {
+                      "sort": {
+                          "empty": false,
+                          "sorted": true,
+                          "unsorted": false
+                      },
+                      "offset": 0,
+                      "pageSize": 10,
+                      "pageNumber": 0,
+                      "paged": true,
+                      "unpaged": false
+                  },
+                  "totalPages": 0,
+                  "totalElements": 0,
+                  "last": true,
+                  "size": 10,
+                  "number": 0,
+                  "sort": {
+                      "empty": false,
+                      "sorted": true,
+                      "unsorted": false
+                  },
+                  "first": true,
+                  "numberOfElements": 0,
+                  "empty": true
+              }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubUserSearchAllFiltersWithResults(name: String, roles: List<String>, groups: List<String>) {
+    val rolesJoined = roles.joinToString(",")
+    val groupsJoined = groups.joinToString(",")
+
+    stubFor(
+      get("/users/search?name=$name&roles=$rolesJoined&groups=$groupsJoined&status=ALL&page=0&size=10&sort=Person.lastName,ASC&sort=Person.firstName,ASC")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                   "content": [
+                       {
+                           "userId": "006a9299-ef3d-4990-8604-13cefac706b5",
+                           "username": "TESTER.MCTESTY@DIGITAL.JUSTICE.GOV.UK",
+                           "email": "tester.mctesty@digital.justice.gov.uk",
+                           "firstName": "Tester1",
+                           "lastName": "McTester1",
+                           "locked": false,
+                           "enabled": true,
+                           "verified": true,
+                           "lastLoggedIn": "2022-12-14T10:23:04.915132",
+                           "inactiveReason": null
+                       },
+                       {
+                           "userId": "bc7098ed-948e-456d-8b21-3afb0257aa23",
+                           "username": "TESTER.MCTESTY2@DIGITAL.JUSTICE.GOV.UK",
+                           "email": "tester.mctesty2@digital.justice.gov.uk",
+                           "firstName": "Tester2",
+                           "lastName": "McTester2",
+                           "locked": false,
+                           "enabled": true,
+                           "verified": true,
+                           "lastLoggedIn": "2022-12-14T13:57:27.85401",
+                           "inactiveReason": null
+                       }
+                   ],
+                   "pageable": {
+                       "sort": {
+                           "empty": false,
+                           "sorted": true,
+                           "unsorted": false
+                       },
+                       "offset": 0,
+                       "pageSize": 10,
+                       "pageNumber": 0,
+                       "paged": true,
+                       "unpaged": false
+                   },
+                   "totalPages": 19,
+                   "totalElements": 185,
+                   "last": false,
+                   "size": 10,
+                   "number": 0,
+                   "sort": {
+                       "empty": false,
+                       "sorted": true,
+                       "unsorted": false
+                   },
+                   "first": true,
+                   "numberOfElements": 2,
+                   "empty": false
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }
