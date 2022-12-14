@@ -20,7 +20,8 @@ class UserSearchService(
     roles: List<String>?,
     groups: List<String>?,
     pageable: Pageable,
-    status: Status) = externalUsersApiService.findUsers(name, roles, groups, pageable, status)
+    status: Status
+  ) = externalUsersApiService.findUsers(name, roles, groups, pageable, status)
 }
 
 enum class Status {
