@@ -6,7 +6,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
 
 @Service
-class UserRolesService(
+class NomisUserRolesService(
   val externalUsersApiService: ExternalUsersApiService,
   val nomisApiService: NomisApiService,
 ) {

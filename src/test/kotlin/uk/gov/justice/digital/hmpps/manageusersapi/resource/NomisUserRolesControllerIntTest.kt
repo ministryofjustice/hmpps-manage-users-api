@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
-class UserRolesControllerIntTest : IntegrationTestBase() {
+class NomisUserRolesControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get user roles when no authority`() {

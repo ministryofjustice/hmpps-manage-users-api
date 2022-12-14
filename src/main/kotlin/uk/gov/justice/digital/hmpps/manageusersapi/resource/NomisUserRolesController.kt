@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UserRolesService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserRolesService
 import javax.validation.constraints.Size
 
 @RestController
 @Validated
 @RequestMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
-class UserRolesController(
-  private val userRolesService: UserRolesService
+class NomisUserRolesController(
+  private val userRolesService: NomisUserRolesService
 ) {
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
