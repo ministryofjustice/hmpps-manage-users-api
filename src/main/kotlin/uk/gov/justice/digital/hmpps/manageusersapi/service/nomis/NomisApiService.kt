@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException

@@ -6,8 +6,8 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateEmailDomainDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.EmailDomainDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
 
 internal class EmailDomainServiceTest {

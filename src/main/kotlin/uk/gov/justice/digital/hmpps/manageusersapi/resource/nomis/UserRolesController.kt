@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
@@ -19,10 +19,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserRolesService
 import javax.validation.constraints.Size
 
-@RestController
+@RestController("NomisUserRolesController")
 @Validated
 @RequestMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
-class NomisUserRolesController(
+class UserRolesController(
   private val userRolesService: UserRolesService
 ) {
 

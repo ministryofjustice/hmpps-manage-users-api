@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/externalusers")
-class ExternalUserSearchController(
+class UserSearchController(
   private val userSearchService: UserSearchService
 ) {
 

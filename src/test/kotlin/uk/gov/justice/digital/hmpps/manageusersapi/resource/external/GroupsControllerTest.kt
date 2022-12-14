@@ -7,14 +7,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateChildGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupsController
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAssignableRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
 
 class GroupsControllerTest {

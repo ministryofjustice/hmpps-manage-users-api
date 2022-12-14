@@ -6,12 +6,12 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.GroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAssignableRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserAssignableRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 
 class GroupsServiceTest {
   private val externalUsersService: ExternalUsersApiService = mock()

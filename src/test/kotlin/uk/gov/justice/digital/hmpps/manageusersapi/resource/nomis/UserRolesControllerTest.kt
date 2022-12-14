@@ -3,13 +3,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.NomisUserRolesController
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserRolesService
 
 class UserRolesControllerTest {
 
   private val userRolesService: UserRolesService = mock()
-  private val userRolesController = NomisUserRolesController(userRolesService)
+  private val userRolesController = UserRolesController(userRolesService)
 
   @Test
   fun `get user roles`() {

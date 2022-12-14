@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 
-@RestController
+@RestController("ExternalUserController")
 @RequestMapping("/externalusers")
 class UserController(
   private val userGroupService: UserGroupService

@@ -6,11 +6,11 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDetail
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleType
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
 

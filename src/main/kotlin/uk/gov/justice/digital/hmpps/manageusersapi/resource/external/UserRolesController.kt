@@ -25,10 +25,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserRolesSer
 import java.util.UUID
 import javax.validation.constraints.NotEmpty
 
-@RestController
+@RestController("ExternalUserRolesController")
 @Validated
 @RequestMapping("/externalusers", produces = [MediaType.APPLICATION_JSON_VALUE])
-class ExternalUserRolesController(
+class UserRolesController(
   private val userRolesService: UserRolesService
 ) {
   companion object {
