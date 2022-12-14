@@ -9,6 +9,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status.ACTIVE
 
 class UserSearchServiceTest {
 
@@ -60,9 +61,9 @@ class UserSearchServiceTest {
       val roles = listOf("role1")
       val groups = listOf("group1")
 
-      userSearchService.findUsers(name, roles, groups, Pageable.unpaged(), Status.ACTIVE)
+      userSearchService.findUsers(name, roles, groups, Pageable.unpaged(), ACTIVE)
 
-      verify(externalUsersApiService).findUsers(name, roles, groups, Pageable.unpaged(), Status.ACTIVE)
+      verify(externalUsersApiService).findUsers(name, roles, groups, Pageable.unpaged(), ACTIVE)
     }
   }
 }
