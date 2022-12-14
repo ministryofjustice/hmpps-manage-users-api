@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRoleDetail
 class UserRolesServiceTest {
   private val externalUsersService: ExternalUsersApiService = mock()
   private val nomisService: NomisApiService = mock()
-  private val userRolesService = UserRolesService(externalUsersService, nomisService)
+  private val userRolesService = NomisUserRolesService(externalUsersService, nomisService)
 
   @Test
   fun `get user roles`() {
