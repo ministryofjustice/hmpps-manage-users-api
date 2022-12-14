@@ -325,17 +325,14 @@ class ExternalUsersApiService(
   private fun buildUserSearchURI(name: String?, roles: List<String>?, groups: List<String>?, pageable: Pageable, status: Status, uriBuilder: UriBuilder): URI {
     uriBuilder.path("/users/search")
 
-    name?.let { uriBuilder.queryParam("name", name) }
-    roles?.let { uriBuilder.queryParam("roles", it.joinToString(separator = ",")) }
-    groups?.let { uriBuilder.queryParam("groups", it.joinToString(separator = ",")) }
+    uriBuilder.queryParam("name", name)
+    uriBuilder.queryParam("roles", roles?.joinToString(","))
+    uriBuilder.queryParam("groups", groups?.joinToString(","))
 
     uriBuilder.queryParam("status", status)
-    if (pageable.isPaged) {
-      uriBuilder.queryParam("page", pageable.pageNumber)
-      uriBuilder.queryParam("size", pageable.pageSize)
-      pageable.sort.forEach { sort -> uriBuilder.queryParam("sort", sort.property + "," + sort.direction) }
-    }
-
+    uriBuilder.queryParam("page", pageable.pageNumber)
+    uriBuilder.queryParam("size", pageable.pageSize)
+    pageable.sort.forEach { sort -> uriBuilder.queryParam("sort", sort.property + "," + sort.direction) }
     return uriBuilder.build()
   }
 }
