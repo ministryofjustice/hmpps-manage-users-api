@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateR
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailNotificationService
 import java.util.UUID
 
-class ExternalUserServiceTest {
+class UserServiceTest {
   private val externalUsersApiService: ExternalUsersApiService = mock()
   private val emailNotificationService: EmailNotificationService = mock()
   private val telemetryClient: TelemetryClient = mock()
