@@ -39,14 +39,14 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no authority`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `access forbidden when no role`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
         .headers(setAuthorisation(roles = listOf()))
         .body(BodyInserters.fromValue(mapOf("reason" to "bob")))
         .exchange()
@@ -55,7 +55,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .body(BodyInserters.fromValue(mapOf("reason" to "bob")))
         .exchange()
@@ -64,7 +64,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `error when no body`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isBadRequest
@@ -73,7 +73,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun disableUser() {
       externalUsersApiMockServer.stubPutDisableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/disable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/disable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .body(BodyInserters.fromValue(mapOf("reason" to "bob")))
         .exchange()
@@ -82,18 +82,18 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
-  inner class SendEnableUserEmail {
+  inner class EnableExternalUser {
 
     @Test
     fun `access forbidden when no authority`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `access forbidden when no role`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -101,7 +101,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .exchange()
         .expectStatus().isForbidden
@@ -110,7 +110,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun ` should fail with not_found for invalid user id`() {
       externalUsersApiMockServer.stubPutEnableInvalidUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f")
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isNotFound
@@ -128,7 +128,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should fail with forbidden  for user not in group`() {
       externalUsersApiMockServer.stubPutEnableFailUserNotInGroup()
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isForbidden
@@ -146,7 +146,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun enableUser() {
       externalUsersApiMockServer.stubPutEnableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
-      webTestClient.put().uri("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/enable")
+      webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isNoContent

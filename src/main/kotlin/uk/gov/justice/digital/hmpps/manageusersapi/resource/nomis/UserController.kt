@@ -27,7 +27,7 @@ import javax.validation.constraints.NotBlank
 class UserController(
   private val nomisUserService: UserService
 ) {
-  @PostMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PostMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @Throws(UserExistsException::class)
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)

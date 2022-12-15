@@ -31,7 +31,7 @@ class UserGroupController(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @DeleteMapping("/users/{userId}/groups/{group}")
+  @DeleteMapping("/externalusers/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
@@ -76,7 +76,7 @@ class UserGroupController(
     log.info("Remove group succeeded for userId {} and group code {}", userId, group)
   }
 
-  @PutMapping("/users/{userId}/groups/{group}")
+  @PutMapping("/externalusers/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
@@ -131,7 +131,7 @@ class UserGroupController(
     log.info("Add group succeeded for userId {} and group {}", userId, group)
   }
 
-  @GetMapping("/users/{userId}/groups")
+  @GetMapping("/externalusers/{userId}/groups")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Get groups for userId.",
