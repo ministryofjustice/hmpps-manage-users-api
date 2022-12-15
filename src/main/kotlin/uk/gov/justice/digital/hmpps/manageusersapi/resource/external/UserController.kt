@@ -52,7 +52,7 @@ class UserController(
   )
   fun assignableGroups() = userGroupService.getMyAssignableGroups()
 
-  @PutMapping("/users/{userId}/enable")
+  @PutMapping("/externalusers/{userId}/enable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
@@ -104,7 +104,7 @@ class UserController(
     userId
   )
 
-  @PutMapping("/users/{userId}/disable")
+  @PutMapping("/externalusers/{userId}/disable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(

@@ -7,7 +7,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get user roles when no authority`() {
-    webTestClient.get().uri("users/bob/roles")
+    webTestClient.get().uri("/prisonusers/bob/roles")
       .exchange()
       .expectStatus().isUnauthorized
   }
@@ -15,7 +15,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
   @Test
   fun `get user roles forbidden when no role`() {
 
-    webTestClient.get().uri("users/bob/roles")
+    webTestClient.get().uri("/prisonusers/bob/roles")
       .headers(setAuthorisation(roles = listOf()))
       .exchange()
       .expectStatus().isForbidden
@@ -24,7 +24,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
   @Test
   fun `get user roles forbidden when wrong role`() {
 
-    webTestClient.get().uri("users/bob/roles")
+    webTestClient.get().uri("/prisonusers/bob/roles")
       .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
       .exchange()
       .expectStatus().isForbidden
@@ -35,7 +35,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
     externalUsersApiMockServer.stubGetRolesForRoleName()
     nomisApiMockServer.stubGetUserRoles("BOB")
 
-    webTestClient.get().uri("users/BOB/roles")
+    webTestClient.get().uri("/prisonusers/BOB/roles")
       .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
       .exchange()
       .expectStatus().isOk

@@ -21,7 +21,7 @@ import javax.validation.constraints.Size
 
 @RestController("NomisUserRolesController")
 @Validated
-@RequestMapping("/users", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserRolesController(
   private val userRolesService: UserRolesService
 ) {
