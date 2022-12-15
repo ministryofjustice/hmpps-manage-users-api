@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriBuilder
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
@@ -25,7 +26,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import java.net.URI
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import kotlin.collections.ArrayList
 
 @Service
@@ -56,20 +56,20 @@ class ExternalUsersApiService(
     roleCode: String?,
     adminTypes: List<AdminType>?
   ) = externalUsersWebClient.get()
-      .uri { uriBuilder ->
-        uriBuilder
-          .path("/roles/paged")
-          .queryParam("page", page)
-          .queryParam("size", size)
-          .queryParam("sort", sort)
-          .queryParam("roleName", roleName)
-          .queryParam("roleCode", roleCode)
-          .queryParam("adminTypes", adminTypes)
-          .build()
-      }
-      .retrieve()
-      .bodyToMono(PagedResponse::class.java)
-      .block()!!
+    .uri { uriBuilder ->
+      uriBuilder
+        .path("/roles/paged")
+        .queryParam("page", page)
+        .queryParam("size", size)
+        .queryParam("sort", sort)
+        .queryParam("roleName", roleName)
+        .queryParam("roleCode", roleCode)
+        .queryParam("adminTypes", adminTypes)
+        .build()
+    }
+    .retrieve()
+    .bodyToMono(PagedResponse::class.java)
+    .block()!!
 
   fun getRoleDetail(roleCode: String): Role =
     externalUsersWebClient.get()
@@ -315,13 +315,13 @@ class ExternalUsersApiService(
     pageable: Pageable,
     status: Status
   ) = externalUsersWebClient.get()
-      .uri {
-        uriBuilder ->
-        buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
-      }
-      .retrieve()
-      .bodyToMono(PagedResponse::class.java)
-      .block()!!
+    .uri {
+      uriBuilder ->
+      buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
+    }
+    .retrieve()
+    .bodyToMono(PagedResponse::class.java)
+    .block()!!
 
   fun findUsersByUserName(userName: String): UserDto? =
     externalUsersWebClient.get()
