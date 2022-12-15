@@ -1841,7 +1841,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubUserDefaultSearchNoResults() {
     stubFor(
-      get("/users/search?name&roles&groups&status=ALL&page=0&size=10&sort=Person.lastName,ASC&sort=Person.firstName,ASC")
+      get("/users/search?name&roles&groups&status=ALL&page=0&size=10")
         .willReturn(
           aResponse()
             .withStatus(OK.value())
@@ -1887,7 +1887,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     val groupsJoined = groups.joinToString(",")
 
     stubFor(
-      get("/users/search?name=$name&roles=$rolesJoined&groups=$groupsJoined&status=ALL&page=0&size=10&sort=Person.lastName,ASC&sort=Person.firstName,ASC")
+      get("/users/search?name=$name&roles=$rolesJoined&groups=$groupsJoined&status=ALL&page=0&size=10")
         .willReturn(
           aResponse()
             .withStatus(OK.value())

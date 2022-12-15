@@ -3,8 +3,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -14,7 +12,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
@@ -28,6 +25,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import java.net.URI
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import kotlin.collections.ArrayList
 
 @Service
@@ -57,8 +55,7 @@ class ExternalUsersApiService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ): RolesPaged =
-    externalUsersWebClient.get()
+  ) = externalUsersWebClient.get()
       .uri { uriBuilder ->
         uriBuilder
           .path("/roles/paged")
@@ -71,7 +68,7 @@ class ExternalUsersApiService(
           .build()
       }
       .retrieve()
-      .bodyToMono(RolesPaged::class.java)
+      .bodyToMono(PagedResponse::class.java)
       .block()!!
 
   fun getRoleDetail(roleCode: String): Role =
@@ -317,19 +314,14 @@ class ExternalUsersApiService(
     groups: List<String>?,
     pageable: Pageable,
     status: Status
-  ): Page<UserDto> {
-
-    val pageContent = externalUsersWebClient.get()
+  ) = externalUsersWebClient.get()
       .uri {
         uriBuilder ->
         buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
       }
       .retrieve()
-      .bodyToMono(UserPageContent::class.java)
+      .bodyToMono(PagedResponse::class.java)
       .block()!!
-
-    return PageImpl(pageContent.content, pageable, pageContent.totalElements)
-  }
 
   fun findUsersByUserName(userName: String): UserDto? =
     externalUsersWebClient.get()
@@ -355,7 +347,6 @@ class ExternalUsersApiService(
     uriBuilder.queryParam("status", status)
     uriBuilder.queryParam("page", pageable.pageNumber)
     uriBuilder.queryParam("size", pageable.pageSize)
-    pageable.sort.forEach { sort -> uriBuilder.queryParam("sort", sort.property + "," + sort.direction) }
     return uriBuilder.build()
   }
 }
@@ -367,5 +358,3 @@ class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
 class UserList : MutableList<UserDto> by ArrayList()
-
-class UserPageContent(val content: List<UserDto>, val totalElements: Long)
