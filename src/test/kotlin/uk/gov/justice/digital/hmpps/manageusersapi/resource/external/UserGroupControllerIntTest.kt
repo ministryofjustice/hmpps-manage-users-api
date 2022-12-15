@@ -17,14 +17,14 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get user groups when no authority`() {
-      webTestClient.get().uri("/users/$userId/groups")
+      webTestClient.get().uri("/externalusers/$userId/groups")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `get user groups forbidden when no role`() {
-      webTestClient.get().uri("/users/$userId/groups")
+      webTestClient.get().uri("/externalusers/$userId/groups")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -33,7 +33,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `get user groups when user does not exist`() {
       externalUsersApiMockServer.stubGetNotFound("/users/$userId/groups?children=true")
-      webTestClient.get().uri("/users/$userId/groups")
+      webTestClient.get().uri("/externalusers/$userId/groups")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNotFound
@@ -43,7 +43,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     fun ` get user groups with children`() {
       externalUsersApiMockServer.stubGetUserGroups(userId, true)
 
-      webTestClient.get().uri("/users/$userId/groups")
+      webTestClient.get().uri("/externalusers/$userId/groups")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
@@ -68,7 +68,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     fun ` get user groups without children`() {
       externalUsersApiMockServer.stubGetUserGroups(userId, false)
 
-      webTestClient.get().uri("/users/$userId/groups?children=false")
+      webTestClient.get().uri("/externalusers/$userId/groups?children=false")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
@@ -98,14 +98,14 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no authority`() {
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `access forbidden when no role`() {
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -113,7 +113,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUDIT")))
         .exchange()
         .expectStatus().isForbidden
@@ -122,7 +122,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `fail bad request`() {
       externalUsersApiMockServer.stubDeleteUserGroupFail(userId.toString(), group, BAD_REQUEST)
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isBadRequest
@@ -138,7 +138,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `fail forbidden`() {
       externalUsersApiMockServer.stubDeleteUserGroupFail(userId.toString(), group, FORBIDDEN)
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isForbidden
@@ -154,7 +154,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `success with role maintain oauth users`() {
       externalUsersApiMockServer.stubDeleteGroupFromUser(userId.toString(), group)
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
@@ -163,7 +163,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `success with role auth group manager`() {
       externalUsersApiMockServer.stubDeleteGroupFromUser(userId.toString(), group)
-      webTestClient.delete().uri("/users/$userId/groups/$group")
+      webTestClient.delete().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isNoContent
@@ -177,14 +177,14 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no authority`() {
-      webTestClient.put().uri("/users/$userId/groups/$group")
+      webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `access forbidden when no role`() {
-      webTestClient.put().uri("/users/$userId/groups/$group")
+      webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -192,7 +192,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-      webTestClient.put().uri("/users/$userId/groups/$group")
+      webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUDIT")))
         .exchange()
         .expectStatus().isForbidden
@@ -202,7 +202,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     fun `adds a group to a user`() {
       externalUsersApiMockServer.stubAddGroupToUser(userId.toString(), group)
       webTestClient
-        .put().uri("/users/$userId/groups/$group")
+        .put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
@@ -211,7 +211,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `fail bad request`() {
       externalUsersApiMockServer.stubAddUserGroupFail(userId.toString(), group, BAD_REQUEST)
-      webTestClient.put().uri("/users/$userId/groups/$group")
+      webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isBadRequest
@@ -227,7 +227,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `fail forbidden`() {
       externalUsersApiMockServer.stubAddUserGroupFail(userId.toString(), group, FORBIDDEN)
-      webTestClient.put().uri("/users/$userId/groups/$group")
+      webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isForbidden

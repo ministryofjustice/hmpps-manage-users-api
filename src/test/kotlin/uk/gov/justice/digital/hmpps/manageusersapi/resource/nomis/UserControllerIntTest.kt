@@ -20,14 +20,14 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no authority`() {
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `access forbidden when no role`() {
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf()))
         .body(
           fromValue(
@@ -46,7 +46,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
         .body(
           fromValue(
@@ -65,7 +65,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong scope`() {
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_ROLE"), scopes = listOf("read")))
         .body(
           fromValue(
@@ -88,7 +88,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForNewToken()
       externalUsersApiMockServer.stubValidEmailDomain()
 
-      val nomisUserDetails = webTestClient.post().uri("/users")
+      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -128,7 +128,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateGeneralUser()
       hmppsAuthMockServer.stubForNewToken()
 
-      val nomisUserDetails = webTestClient.post().uri("/users")
+      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -169,7 +169,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateLocalAdminUser()
       hmppsAuthMockServer.stubForNewToken()
 
-      val nomisUserDetails = webTestClient.post().uri("/users")
+      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -214,7 +214,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForNewToken()
       externalUsersApiMockServer.stubValidEmailDomain()
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -243,7 +243,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create central admin user passes through error when error thrown from nomisapi`() {
       nomisApiMockServer.stubCreateCentralAdminUserWithErrorFail(BAD_REQUEST)
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -271,7 +271,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateGeneralUserConflict()
       externalUsersApiMockServer.stubValidEmailDomain()
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -301,7 +301,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create general user passes through error when error thrown from nomisapi`() {
       nomisApiMockServer.stubCreateGeneralUserWithErrorFail(BAD_REQUEST)
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -330,7 +330,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateLocalAdminUserConflict()
       externalUsersApiMockServer.stubValidEmailDomain()
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -360,7 +360,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `create local admin user passes through error when error thrown from nomisapi`() {
       nomisApiMockServer.stubCreateLocalAdminUserWithErrorFail(BAD_REQUEST)
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -389,7 +389,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateLocalAdminUserConflict()
       externalUsersApiMockServer.stubInvalidEmailDomain()
 
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -420,7 +420,7 @@ class UserControllerIntTest : IntegrationTestBase() {
   inner class CreateUserMissingFieldValidation {
     @Test
     fun `create user returns error when user type does not exist`() {
-      webTestClient.post().uri("/users")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
