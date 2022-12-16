@@ -17,4 +17,28 @@ class WebClientUtils(private val client: WebClient) {
       .retrieve()
       .bodyToMono(elementClass)
       .block()
+
+  fun put(uri: String, body: Any) {
+    client.put()
+      .uri(uri)
+      .bodyValue(body)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
+  fun put(uri: String) {
+    client.put()
+      .uri(uri)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
+  fun <T : Any> putWithResponse(uri: String, elementClass: Class<T>): T =
+    client.put()
+      .uri(uri)
+      .retrieve()
+      .bodyToMono(elementClass)
+      .block()!!
 }

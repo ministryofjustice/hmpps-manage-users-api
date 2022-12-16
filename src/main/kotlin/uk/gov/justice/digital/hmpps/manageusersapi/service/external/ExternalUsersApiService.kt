@@ -80,33 +80,18 @@ class ExternalUsersApiService(
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    externalUsersWebClient.put()
-      .uri("/roles/$roleCode")
-      .bodyValue(roleAmendment)
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/roles/$roleCode", roleAmendment)
   }
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    externalUsersWebClient.put()
-      .uri("/roles/$roleCode/description")
-      .bodyValue(roleAmendment)
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/roles/$roleCode/description", roleAmendment)
   }
 
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    externalUsersWebClient.put()
-      .uri("/roles/$roleCode/admintype")
-      .bodyValue(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/roles/$roleCode/admintype", mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
   }
 
   fun getUserRoles(userId: UUID): List<UserRole> =
@@ -161,22 +146,12 @@ class ExternalUsersApiService(
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)
-    externalUsersWebClient.put()
-      .uri("/groups/$group")
-      .bodyValue(groupAmendment)
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/groups/$group", groupAmendment)
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating child group details for {} with {}", group, groupAmendment)
-    externalUsersWebClient.put()
-      .uri("/groups/child/$group")
-      .bodyValue(groupAmendment)
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/groups/child/$group", groupAmendment)
   }
 
   fun createGroup(createGroup: CreateGroup) {
@@ -249,30 +224,17 @@ class ExternalUsersApiService(
 
   fun addGroupByUserId(userId: UUID, group: String) {
     log.debug("Adding group {} for user {}", group, userId)
-    externalUsersWebClient.put()
-      .uri("/users/$userId/groups/$group")
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/users/$userId/groups/$group")
   }
 
   fun enableUserById(userId: UUID): EmailNotificationDto {
     log.debug("Enabling User for User Id of {} ", userId)
-    return externalUsersWebClient.put()
-      .uri("/users/$userId/enable")
-      .retrieve()
-      .bodyToMono(EmailNotificationDto::class.java)
-      .block()!!
+    return externalUsersWebClientUtils.putWithResponse("/users/$userId/enable", EmailNotificationDto::class.java)
   }
 
   fun disableUserById(userId: UUID, deactivateReason: DeactivateReason) {
     log.debug("Disabling User for User Id of {} ", userId)
-    externalUsersWebClient.put()
-      .uri("/users/$userId/disable")
-      .bodyValue(deactivateReason)
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.put("/users/$userId/disable", deactivateReason)
   }
 
   fun findUsersByEmail(email: String): List<UserDto>? =
