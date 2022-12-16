@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -26,7 +27,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import java.net.URI
 import java.util.UUID
-import org.springframework.core.ParameterizedTypeReference
 import kotlin.collections.ArrayList
 
 @Service
@@ -69,7 +69,7 @@ class ExternalUsersApiService(
         .build()
     }
     .retrieve()
-    .bodyToMono(object: ParameterizedTypeReference<PagedResponse<Role>> () {})
+    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<Role>> () {})
     .block()!!
 
   fun getRoleDetail(roleCode: String): Role =
@@ -321,7 +321,7 @@ class ExternalUsersApiService(
       buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
     }
     .retrieve()
-    .bodyToMono(object: ParameterizedTypeReference<PagedResponse<UserDto>> () {})
+    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<UserDto>> () {})
     .block()!!
 
   fun findUsersByUserName(userName: String): UserDto? =
