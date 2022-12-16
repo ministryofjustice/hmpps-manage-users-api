@@ -26,6 +26,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import java.net.URI
 import java.util.UUID
+import org.springframework.core.ParameterizedTypeReference
 import kotlin.collections.ArrayList
 
 @Service
@@ -68,7 +69,7 @@ class ExternalUsersApiService(
         .build()
     }
     .retrieve()
-    .bodyToMono(PagedResponse::class.java)
+    .bodyToMono(object: ParameterizedTypeReference<PagedResponse<Role>> () {})
     .block()!!
 
   fun getRoleDetail(roleCode: String): Role =
@@ -320,7 +321,7 @@ class ExternalUsersApiService(
       buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
     }
     .retrieve()
-    .bodyToMono(PagedResponse::class.java)
+    .bodyToMono(object: ParameterizedTypeReference<PagedResponse<UserDto>> () {})
     .block()!!
 
   fun findUsersByUserName(userName: String): UserDto? =
