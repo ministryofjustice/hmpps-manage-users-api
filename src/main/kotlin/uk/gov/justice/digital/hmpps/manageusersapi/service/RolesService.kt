@@ -6,7 +6,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
@@ -37,8 +36,7 @@ class RolesService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ): RolesPaged =
-    externalUsersApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
+  ) = externalUsersApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role = externalUsersApiService.getRoleDetail(roleCode)

@@ -114,7 +114,7 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = RolesPaged::class))
+            array = ArraySchema(schema = Schema(implementation = Role::class))
           )
         ]
       ),
@@ -147,7 +147,7 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = RolesPaged::class))
+            array = ArraySchema(schema = Schema(implementation = PagedResponse::class))
           )
         ]
       ),
@@ -171,7 +171,7 @@ class RolesController(
     @RequestParam(value = "roleName", required = false) roleName: String?,
     @RequestParam(value = "roleCode", required = false) roleCode: String?,
     @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
-  ): RolesPaged = rolesService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
+  ) = rolesService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
@@ -337,36 +337,6 @@ data class CreateRole(
     this.roleCode = removeRolePrefixIfNecessary(roleCode)
   }
 }
-
-@Schema(description = "Paged Role Basics")
-data class RolesPaged(
-  val content: List<Role>,
-  val pageable: RolesPageable,
-  val last: Boolean,
-  val totalPages: Int,
-  val totalElements: Long,
-  val size: Int,
-  val number: Int,
-  val sort: RolesSort,
-  val numberOfElements: Int,
-  val first: Boolean,
-  val empty: Boolean,
-)
-
-data class RolesSort(
-  val sorted: Boolean,
-  val unsorted: Boolean,
-  val empty: Boolean,
-)
-
-data class RolesPageable(
-  val sort: RolesSort,
-  val offset: Int,
-  val pageNumber: Int,
-  val pageSize: Int,
-  val paged: Boolean,
-  val unpaged: Boolean
-)
 
 @Schema(description = "Role Details")
 data class Role(

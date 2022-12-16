@@ -12,13 +12,13 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPageable
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesPaged
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RolesSort
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.EXT_ADM
@@ -268,8 +268,8 @@ class RolesServiceTest {
     }
   }
 
-  private fun createRoleSort() = RolesSort(sorted = true, unsorted = false, empty = false)
-  private fun createRolesPageable() = RolesPageable(
+  private fun createRoleSort() = PageSort(sorted = true, unsorted = false, empty = false)
+  private fun createRolesPageable() = PageDetails(
     sort = createRoleSort(),
     offset = 12,
     pageNumber = 3,
@@ -278,7 +278,7 @@ class RolesServiceTest {
     unpaged = false
   )
 
-  fun createRolePaged() = RolesPaged(
+  fun createRolePaged() = PagedResponse(
     content = listOf(
       Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
       Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
