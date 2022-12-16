@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriBuilder
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
@@ -31,7 +32,8 @@ import kotlin.collections.ArrayList
 
 @Service
 class ExternalUsersApiService(
-  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient
+  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient,
+  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -73,11 +75,7 @@ class ExternalUsersApiService(
     .block()!!
 
   fun getRoleDetail(roleCode: String): Role =
-    externalUsersWebClient.get()
-      .uri("/roles/$roleCode")
-      .retrieve()
-      .bodyToMono(Role::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/roles/$roleCode", Role::class.java)
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
@@ -112,11 +110,7 @@ class ExternalUsersApiService(
   }
 
   fun getUserRoles(userId: UUID): List<UserRole> =
-    externalUsersWebClient.get()
-      .uri("/users/$userId/roles")
-      .retrieve()
-      .bodyToMono(UserRoleList::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/users/$userId/roles", UserRoleList::class.java)
 
   fun addRolesByUserId(userId: UUID, roleCodes: List<String>) {
     log.debug("Adding roles {} for user {}", roleCodes, userId)
@@ -138,11 +132,7 @@ class ExternalUsersApiService(
   }
 
   fun getAssignableRoles(userId: UUID) =
-    externalUsersWebClient.get()
-      .uri("/users/$userId/assignable-roles")
-      .retrieve()
-      .bodyToMono(UserRoleList::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/users/$userId/assignable-roles", UserRoleList::class.java)
 
   fun createRole(createRole: CreateRole) {
     externalUsersWebClient.post()
@@ -161,25 +151,13 @@ class ExternalUsersApiService(
   }
 
   fun getGroups(): List<UserGroup> =
-    externalUsersWebClient.get()
-      .uri("/groups")
-      .retrieve()
-      .bodyToMono(GroupList::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/groups", GroupList::class.java)
 
   fun getGroupDetail(group: String): GroupDetails =
-    externalUsersWebClient.get()
-      .uri("/groups/$group")
-      .retrieve()
-      .bodyToMono(GroupDetails::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/groups/$group", GroupDetails::class.java)
 
   fun getChildGroupDetail(group: String): ChildGroupDetails =
-    externalUsersWebClient.get()
-      .uri("/groups/child/$group")
-      .retrieve()
-      .bodyToMono(ChildGroupDetails::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/groups/child/$group", ChildGroupDetails::class.java)
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)
@@ -256,13 +234,8 @@ class ExternalUsersApiService(
       .block()
   }
 
-  fun validateEmailDomain(emailDomain: String): Boolean {
-    return externalUsersWebClient.get()
-      .uri("/validate/email-domain?emailDomain=$emailDomain")
-      .retrieve()
-      .bodyToMono(Boolean::class.java)
-      .block()!!
-  }
+  fun validateEmailDomain(emailDomain: String) =
+    externalUsersWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
     externalUsersWebClient.get().uri {
@@ -303,11 +276,7 @@ class ExternalUsersApiService(
   }
 
   fun findUsersByEmail(email: String): List<UserDto>? =
-    externalUsersWebClient.get()
-      .uri("/users?email=$email")
-      .retrieve()
-      .bodyToMono(UserList::class.java)
-      .block()
+    externalUsersWebClientUtils.getIfPresent("/users?email=$email", UserList::class.java)
 
   fun findUsers(
     name: String?,
@@ -325,18 +294,10 @@ class ExternalUsersApiService(
     .block()!!
 
   fun findUsersByUserName(userName: String): UserDto? =
-    externalUsersWebClient.get()
-      .uri("/users/$userName")
-      .retrieve()
-      .bodyToMono(UserDto::class.java)
-      .block()
+    externalUsersWebClientUtils.getIfPresent("/users/$userName", UserDto::class.java)
 
   fun getMyAssignableGroups(): List<UserGroup> =
-    externalUsersWebClient.get()
-      .uri("/users/me/assignable-groups")
-      .retrieve()
-      .bodyToMono(GroupList::class.java)
-      .block()!!
+    externalUsersWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
 
   private fun buildUserSearchURI(name: String?, roles: List<String>?, groups: List<String>?, pageable: Pageable, status: Status, uriBuilder: UriBuilder): URI {
     uriBuilder.path("/users/search")
