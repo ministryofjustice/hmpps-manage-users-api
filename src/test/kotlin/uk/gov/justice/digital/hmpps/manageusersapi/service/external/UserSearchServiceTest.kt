@@ -44,12 +44,12 @@ class UserSearchServiceTest {
   }
 
   @Nested
-  inner class FindUsersByUserName {
+  inner class FindUserByUsername {
     @Test
     fun shouldCallExternalUsersWhenUserNameNotNull() {
-      userSearchService.findExternalUsersByUserName("user")
+      userSearchService.findExternalUserByUsername("user")
 
-      verify(externalUsersApiService).findUsersByUserName("user")
+      verify(externalUsersApiService).findUserByUsername("user")
     }
   }
 

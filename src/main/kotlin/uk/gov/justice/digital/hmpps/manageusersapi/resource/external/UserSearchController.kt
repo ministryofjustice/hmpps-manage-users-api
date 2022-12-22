@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserSearchService
 import java.time.LocalDateTime
+import java.util.UUID
 
 @RestController
 @RequestMapping("/externalusers")
@@ -91,7 +92,7 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = UserDto::class)
+            schema = Schema(implementation = ExternalUserDetailsDto::class)
           )
         ]
       ),
@@ -162,38 +163,26 @@ class UserSearchController(
   fun user(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
-  ) = userSearchService.findExternalUsersByUserName(username)
+  ) = userSearchService.findExternalUserByUsername(username)
 }
 
-data class UserDto(
-  @Schema(
-    required = true,
-    description = "User ID",
-    example = "91229A16-B5F4-4784-942E-A484A97AC865"
-  )
-  val userId: String? = null,
+data class ExternalUserDetailsDto(
+  @Schema(description = "User ID", example = "91229A16-B5F4-4784-942E-A484A97AC865")
+  val userId: UUID,
 
-  @Schema(required = true, description = "Username", example = "externaluser")
-  val username: String? = null,
+  @Schema(description = "Username", example = "externaluser")
+  val username: String,
 
-  @Schema(
-    required = true,
-    description = "Email address",
-    example = "external.user@someagency.justice.gov.uk"
-  )
-  val email: String? = null,
+  @Schema(description = "Email address", example = "external.user@someagency.justice.gov.uk")
+  val email: String,
 
-  @Schema(required = true, description = "First name", example = "External")
-  val firstName: String? = null,
+  @Schema(description = "First name", example = "External")
+  val firstName: String,
 
-  @Schema(required = true, description = "Last name", example = "User")
-  val lastName: String? = null,
+  @Schema(description = "Last name", example = "User")
+  val lastName: String,
 
-  @Schema(
-    required = true,
-    description = "Account is locked due to incorrect password attempts",
-    example = "true"
-  )
+  @Schema(description = "Account is locked due to incorrect password attempts", example = "true")
   val locked: Boolean = false,
 
   @Schema(required = true, description = "Account is enabled", example = "false")

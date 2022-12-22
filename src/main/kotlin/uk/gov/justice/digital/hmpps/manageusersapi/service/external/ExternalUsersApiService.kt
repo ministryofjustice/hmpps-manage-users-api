@@ -18,9 +18,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupD
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
@@ -302,7 +302,7 @@ class ExternalUsersApiService(
       .block()
   }
 
-  fun findUsersByEmail(email: String): List<UserDto>? =
+  fun findUsersByEmail(email: String): List<ExternalUserDetailsDto>? =
     externalUsersWebClient.get()
       .uri("/users?email=$email")
       .retrieve()
@@ -321,14 +321,14 @@ class ExternalUsersApiService(
       buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
     }
     .retrieve()
-    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<UserDto>> () {})
+    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>> () {})
     .block()!!
 
-  fun findUsersByUserName(userName: String): UserDto? =
+  fun findUserByUsername(username: String): ExternalUserDetailsDto? =
     externalUsersWebClient.get()
-      .uri("/users/$userName")
+      .uri("/users/$username")
       .retrieve()
-      .bodyToMono(UserDto::class.java)
+      .bodyToMono(ExternalUserDetailsDto::class.java)
       .block()
 
   fun getMyAssignableGroups(): List<UserGroup> =
@@ -358,4 +358,4 @@ private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
 class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
-class UserList : MutableList<UserDto> by ArrayList()
+class UserList : MutableList<ExternalUserDetailsDto> by ArrayList()
