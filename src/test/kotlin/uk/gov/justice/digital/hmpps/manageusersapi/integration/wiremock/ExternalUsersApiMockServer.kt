@@ -1776,7 +1776,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubUsersByUserName(userName: String) {
+  fun stubUserByUsername(userName: String) {
     stubFor(
       get("/users/$userName")
         .willReturn(
@@ -1787,9 +1787,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
               """
                {
                       "userId": "5105a589-75b3-4ca0-9433-b96228c1c8f3",
-                      "username": "AUTH_ADM",
-                      "email": "auth_test2@digital.justice.gov.uk",
-                      "firstName": "Auth",
+                      "username": "$userName",
+                      "email": "ext_test@digital.justice.gov.uk",
+                      "firstName": "Ext",
                       "lastName": "Adm",
                       "locked": false,
                       "enabled": true,
