@@ -19,9 +19,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupD
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
@@ -237,7 +237,7 @@ class ExternalUsersApiService(
     externalUsersWebClientUtils.put("/users/$userId/disable", deactivateReason)
   }
 
-  fun findUsersByEmail(email: String): List<UserDto>? =
+  fun findUsersByEmail(email: String): List<ExternalUserDetailsDto>? =
     externalUsersWebClientUtils.getIfPresent("/users?email=$email", UserList::class.java)
 
   fun findUsers(
@@ -252,11 +252,11 @@ class ExternalUsersApiService(
       buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
     }
     .retrieve()
-    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<UserDto>> () {})
+    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>> () {})
     .block()!!
 
-  fun findUsersByUserName(userName: String): UserDto? =
-    externalUsersWebClientUtils.getIfPresent("/users/$userName", UserDto::class.java)
+  fun findUserByUsername(userName: String): ExternalUserDetailsDto? =
+    externalUsersWebClientUtils.getIfPresent("/users/$userName", ExternalUserDetailsDto::class.java)
 
   fun getMyAssignableGroups(): List<UserGroup> =
     externalUsersWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
@@ -281,4 +281,4 @@ private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
 class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
 class GroupList : MutableList<UserGroup> by ArrayList()
-class UserList : MutableList<UserDto> by ArrayList()
+class UserList : MutableList<ExternalUserDetailsDto> by ArrayList()

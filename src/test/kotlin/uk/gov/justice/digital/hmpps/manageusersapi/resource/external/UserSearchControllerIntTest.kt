@@ -82,8 +82,8 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should respond with user data returned from external users api`() {
-      val userName = "AUTH_ADM"
-      externalUsersApiMockServer.stubUsersByUserName(userName)
+      val userName = "EXT_ADM"
+      externalUsersApiMockServer.stubUserByUsername(userName)
 
       webTestClient.get().uri("/externalusers/$userName")
         .headers(setAuthorisation())
@@ -91,9 +91,9 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
         .expectBody()
         .jsonPath("$.userId").isEqualTo("5105a589-75b3-4ca0-9433-b96228c1c8f3")
-        .jsonPath("$.username").isEqualTo("AUTH_ADM")
-        .jsonPath("$.email").isEqualTo("auth_test2@digital.justice.gov.uk")
-        .jsonPath("$.firstName").isEqualTo("Auth")
+        .jsonPath("$.username").isEqualTo(userName)
+        .jsonPath("$.email").isEqualTo("ext_test@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Ext")
         .jsonPath("$.lastName").isEqualTo("Adm")
         .jsonPath("$.locked").isEqualTo(false)
         .jsonPath("$.enabled").isEqualTo(true)
