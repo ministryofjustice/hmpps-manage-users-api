@@ -20,7 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import kotlin.collections.ArrayList
 
 @Service
-class ExternalUsersApiService(
+class RolesApiService(
   @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {
   companion object {

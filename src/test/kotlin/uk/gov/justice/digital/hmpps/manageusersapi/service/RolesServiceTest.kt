@@ -11,7 +11,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
@@ -27,8 +27,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
 
 class RolesServiceTest {
   private val nomisService: NomisApiService = mock()
-  private val externalUsersService: ExternalUsersApiService = mock()
-  private val rolesService = RolesService(nomisService, externalUsersService)
+  private val rolesApiService: RolesApiService = mock()
+  private val rolesService = RolesService(nomisService, rolesApiService)
 
   @Nested
   inner class GetAllRoles {
@@ -38,9 +38,9 @@ class RolesServiceTest {
         Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
         Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
       )
-      whenever(externalUsersService.getRoles(isNull())).thenReturn(roles)
+      whenever(rolesApiService.getRoles(isNull())).thenReturn(roles)
 
-      val allRoles = externalUsersService.getRoles(null)
+      val allRoles = rolesApiService.getRoles(null)
       assertThat(allRoles).isEqualTo(roles)
       verifyNoMoreInteractions(nomisService)
     }
@@ -53,7 +53,7 @@ class RolesServiceTest {
       val roles = createRolePaged()
 
       whenever(
-        externalUsersService.getPagedRoles(
+        rolesApiService.getPagedRoles(
           anyInt(),
           anyInt(),
           anyString(),
@@ -63,7 +63,7 @@ class RolesServiceTest {
         )
       ).thenReturn(roles)
 
-      val allRoles = externalUsersService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
+      val allRoles = rolesApiService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
       assertThat(allRoles).isEqualTo(roles)
       verifyNoMoreInteractions(nomisService)
     }
@@ -80,7 +80,7 @@ class RolesServiceTest {
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
 
-      whenever(externalUsersService.getRoleDetail(anyString())).thenReturn(role)
+      whenever(rolesApiService.getRoleDetail(anyString())).thenReturn(role)
       val roleDetails = rolesService.getRoleDetail("RC1")
 
       assertThat(roleDetails).isEqualTo(role)
@@ -95,7 +95,7 @@ class RolesServiceTest {
       val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM))
 
       rolesService.createRole(role)
-      verify(externalUsersService).createRole(role)
+      verify(rolesApiService).createRole(role)
       verifyNoMoreInteractions(nomisService)
     }
 
@@ -104,7 +104,7 @@ class RolesServiceTest {
       val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
 
       rolesService.createRole(role)
-      verify(externalUsersService).createRole(role)
+      verify(rolesApiService).createRole(role)
       verify(nomisService).createRole(role)
     }
 
@@ -113,7 +113,7 @@ class RolesServiceTest {
       val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
 
       rolesService.createRole(role)
-      verify(externalUsersService).createRole(role)
+      verify(rolesApiService).createRole(role)
       verify(nomisService).createRole(role)
     }
   }
@@ -130,10 +130,10 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleName("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleName("ROLE_1", roleAmendment)
       verify(nomisService).updateRoleName("ROLE_1", roleAmendment)
     }
 
@@ -147,10 +147,10 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(role)
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleName("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleName("ROLE_1", roleAmendment)
       verifyNoInteractions(nomisService)
     }
   }
@@ -167,10 +167,10 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleDescription("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleDescription("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleDescription("ROLE_1", roleAmendment)
       verifyNoInteractions(nomisService)
     }
 
@@ -184,10 +184,10 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(role)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(role)
 
       rolesService.updateRoleDescription("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleDescription("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleDescription("ROLE_1", roleAmendment)
       verifyNoInteractions(nomisService)
     }
   }
@@ -204,10 +204,10 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
       verify(nomisService).createRole(CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM, DPS_ADM)))
     }
 
@@ -221,10 +221,10 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
       verifyNoMoreInteractions(nomisService)
     }
 
@@ -240,10 +240,10 @@ class RolesServiceTest {
           AdminTypeReturn("DPS_ADM", "DPS Central Administrator")
         )
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
       verify(nomisService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
 
@@ -260,10 +260,10 @@ class RolesServiceTest {
           AdminTypeReturn("DPS_LSA", "DPS Local System Administrator")
         )
       )
-      whenever(externalUsersService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
+      whenever(rolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(externalUsersService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(rolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
       verify(nomisService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
   }
