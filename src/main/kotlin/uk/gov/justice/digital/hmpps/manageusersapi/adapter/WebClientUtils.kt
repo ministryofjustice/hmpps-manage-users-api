@@ -18,6 +18,25 @@ class WebClientUtils(private val client: WebClient) {
       .bodyToMono(elementClass)
       .block()
 
+  fun <T : Any> getWithParams(uri: String, elementClass: Class<T>, queryParams: Map<String, Any?>): T =
+    client.get()
+      .uri { uriBuilder ->
+        uriBuilder.path(uri)
+        queryParams.forEach { (key, value) ->
+          value?.let {
+            if(value is Collection<*>) {
+              uriBuilder.queryParam(key, value)
+            } else {
+              uriBuilder.queryParam(key, value)
+            }
+          }?: run { uriBuilder.queryParam(key, value) }
+        }
+        uriBuilder.build()
+      }
+      .retrieve()
+      .bodyToMono(elementClass)
+      .block()!!
+
   fun put(uri: String, body: Any) {
     client.put()
       .uri(uri)

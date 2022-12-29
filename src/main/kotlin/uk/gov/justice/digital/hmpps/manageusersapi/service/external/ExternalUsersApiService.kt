@@ -40,16 +40,7 @@ class ExternalUsersApiService(
   }
 
   fun getRoles(adminTypes: List<AdminType>?): List<Role> =
-    externalUsersWebClient.get()
-      .uri { uriBuilder ->
-        uriBuilder
-          .path("/roles")
-          .queryParam("adminTypes", adminTypes)
-          .build()
-      }
-      .retrieve()
-      .bodyToMono(RoleList::class.java)
-      .block()!!
+    externalUsersWebClientUtils.getWithParams("/roles", RoleList::class.java, mapOf("adminTypes" to adminTypes as Any?))
 
   fun getPagedRoles(
     page: Int,
