@@ -49,14 +49,17 @@ class ExternalUsersApiService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ) = externalUsersWebClientUtils.getWithParams("/roles/paged", object : ParameterizedTypeReference<PagedResponse<Role>> () {},
+  ) = externalUsersWebClientUtils.getWithParams(
+    "/roles/paged", object : ParameterizedTypeReference<PagedResponse<Role>> () {},
     mapOf(
       "page" to page,
       "size" to size,
       "sort" to sort,
       "roleName" to roleName,
       "roleCode" to roleCode,
-      "adminTypes" to adminTypes))
+      "adminTypes" to adminTypes
+    )
+  )
 
   fun getRoleDetail(roleCode: String): Role =
     externalUsersWebClientUtils.get("/roles/$roleCode", Role::class.java)

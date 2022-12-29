@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter
 
-import java.net.URI
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriBuilder
+import java.net.URI
 
 class WebClientUtils(private val client: WebClient) {
 
@@ -48,7 +48,6 @@ class WebClientUtils(private val client: WebClient) {
     }
     return uriBuilder.build()
   }
-
 
   fun put(uri: String, body: Any) {
     client.put()
