@@ -4,20 +4,20 @@ import com.microsoft.applicationinsights.TelemetryClient
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailNotificationService
 import java.util.UUID
 
 @Service("ExternalUserService")
 class UserService(
-  private val externalUsersApiService: ExternalUsersApiService,
+  private val userApiService: UserApiService,
   private val emailNotificationService: EmailNotificationService,
   private val telemetryClient: TelemetryClient,
 ) {
 
   fun enableUserByUserId(userId: UUID) {
-    val emailNotificationDto = externalUsersApiService.enableUserById(userId)
+    val emailNotificationDto = userApiService.enableUserById(userId)
     emailNotificationDto.email?.let {
       emailNotificationService.sendEnableEmail(emailNotificationDto)
     } ?: run {
@@ -30,7 +30,7 @@ class UserService(
     )
   }
   fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
-    externalUsersApiService.disableUserById(userId, deactivateReason)
+    userApiService.disableUserById(userId, deactivateReason)
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

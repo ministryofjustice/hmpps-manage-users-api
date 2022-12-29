@@ -12,14 +12,11 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailNotificationDto
-import java.util.UUID
 import kotlin.collections.ArrayList
 
 @Service
@@ -86,16 +83,6 @@ class ExternalUsersApiService(
 
   fun validateEmailDomain(emailDomain: String) =
     externalUsersWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
-
-  fun enableUserById(userId: UUID): EmailNotificationDto {
-    log.debug("Enabling User for User Id of {} ", userId)
-    return externalUsersWebClientUtils.putWithResponse("/users/$userId/enable", EmailNotificationDto::class.java)
-  }
-
-  fun disableUserById(userId: UUID, deactivateReason: DeactivateReason) {
-    log.debug("Disabling User for User Id of {} ", userId)
-    externalUsersWebClientUtils.put("/users/$userId/disable", deactivateReason)
-  }
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
