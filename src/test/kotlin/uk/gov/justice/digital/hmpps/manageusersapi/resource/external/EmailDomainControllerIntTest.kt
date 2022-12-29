@@ -227,6 +227,7 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun delete() {
+      externalUsersApiMockServer.stubDeleteEmailDomain(id)
       webTestClient.delete().uri("/email-domains/$id")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
         .exchange()
