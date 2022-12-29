@@ -68,6 +68,14 @@ class WebClientUtils(private val client: WebClient) {
       .block()
   }
 
+  fun delete(uri: String) {
+    client.delete()
+      .uri(uri)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
   private fun buildURI(path: String, queryParams: Map<String, Any?>, uriBuilder: UriBuilder): URI {
     uriBuilder.path(path)
     queryParams.forEach { (key, value) ->

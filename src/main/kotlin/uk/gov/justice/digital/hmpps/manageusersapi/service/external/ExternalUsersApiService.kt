@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -30,7 +29,6 @@ import kotlin.collections.ArrayList
 
 @Service
 class ExternalUsersApiService(
-  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient,
   @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {
   companion object {
@@ -89,11 +87,7 @@ class ExternalUsersApiService(
 
   fun deleteRoleByUserId(userId: UUID, role: String) {
     log.debug("Delete role {} for user {}", role, userId)
-    externalUsersWebClient.delete()
-      .uri("/users/$userId/roles/$role")
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.delete("/users/$userId/roles/$role")
   }
 
   fun getAssignableRoles(userId: UUID) =
@@ -153,28 +147,16 @@ class ExternalUsersApiService(
 
   fun deleteGroupByUserId(userId: UUID, group: String) {
     log.debug("Delete group {} for user {}", group, userId)
-    externalUsersWebClient.delete()
-      .uri("/users/$userId/groups/$group")
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.delete("/users/$userId/groups/$group")
   }
 
   fun deleteChildGroup(group: String) {
     log.debug("Deleting child group {}", group)
-    externalUsersWebClient.delete()
-      .uri("/groups/child/$group")
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.delete("/groups/child/$group")
   }
 
   fun deleteGroup(group: String) {
-    externalUsersWebClient.delete()
-      .uri("/groups/$group")
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.delete("/groups/$group")
   }
 
   fun validateEmailDomain(emailDomain: String) =
