@@ -13,7 +13,7 @@ class EmailDomainApiService(
   @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {
 
-  fun domainList() = externalUsersWebClientUtils.get("/email-domains", EmailDomainList::class.java)
+  fun domainList(): List<EmailDomainDto> = externalUsersWebClientUtils.get("/email-domains", EmailDomainList::class.java)
 
   fun domain(id: UUID) = externalUsersWebClientUtils.get("/email-domains/$id", EmailDomainDto::class.java)
 
