@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.external
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers
 
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -6,6 +6,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
+import kotlin.collections.ArrayList
 
 @Service
 class EmailDomainApiService(
