@@ -68,6 +68,14 @@ class WebClientUtils(private val client: WebClient) {
       .block()
   }
 
+  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>): T =
+    client.post()
+      .uri(uri)
+      .bodyValue(body)
+      .retrieve()
+      .bodyToMono(elementClass)
+      .block()!!
+
   fun delete(uri: String) {
     client.delete()
       .uri(uri)

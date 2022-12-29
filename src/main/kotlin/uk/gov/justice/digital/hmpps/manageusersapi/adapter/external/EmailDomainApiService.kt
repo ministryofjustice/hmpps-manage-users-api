@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.external
 
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
@@ -10,39 +10,17 @@ import kotlin.collections.ArrayList
 
 @Service
 class EmailDomainApiService(
-  @Qualifier("externalUsersWebClient") val externalUsersWebClient: WebClient
+  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {
 
-  fun domainList(): List<EmailDomainDto> {
-    return externalUsersWebClient.get()
-      .uri("/email-domains")
-      .retrieve()
-      .bodyToMono(EmailDomainList::class.java)
-      .block()!!
-  }
+  fun domainList() = externalUsersWebClientUtils.get("/email-domains", EmailDomainList::class.java)
 
-  fun domain(id: UUID): EmailDomainDto {
-    return externalUsersWebClient.get()
-      .uri("/email-domains/$id")
-      .retrieve()
-      .bodyToMono(EmailDomainDto::class.java)
-      .block()!!
-  }
+  fun domain(id: UUID) = externalUsersWebClientUtils.get("/email-domains/$id", EmailDomainDto::class.java)
 
-  fun addEmailDomain(emailDomain: CreateEmailDomainDto): EmailDomainDto {
-    return externalUsersWebClient.post()
-      .uri("/email-domains")
-      .bodyValue(emailDomain)
-      .retrieve()
-      .bodyToMono(EmailDomainDto::class.java)
-      .block()!!
-  }
+  fun addEmailDomain(emailDomain: CreateEmailDomainDto) =
+    externalUsersWebClientUtils.postWithResponse("/email-domains", emailDomain, EmailDomainDto::class.java)
 
-  fun deleteEmailDomain(id: UUID) {
-    externalUsersWebClient.delete()
-      .uri("/email-domains/$id")
-      .retrieve()
-  }
-
-  class EmailDomainList : MutableList<EmailDomainDto> by ArrayList()
+  fun deleteEmailDomain(id: UUID) = externalUsersWebClientUtils.delete("/email-domains/$id")
 }
+
+class EmailDomainList : MutableList<EmailDomainDto> by ArrayList()
