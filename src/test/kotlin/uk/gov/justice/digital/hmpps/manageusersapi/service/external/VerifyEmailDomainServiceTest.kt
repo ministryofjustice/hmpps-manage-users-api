@@ -6,21 +6,21 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.VerifyEmailDomainApiService
 
 class VerifyEmailDomainServiceTest {
-  private val externalUsersService: ExternalUsersApiService = mock()
-  private val verifyService = VerifyEmailDomainService(externalUsersService)
+  private val verifyEmailDomainApiService: VerifyEmailDomainApiService = mock()
+  private val verifyService = VerifyEmailDomainService(verifyEmailDomainApiService)
 
   @Test
   fun shouldBeValidIfDomainMatches() {
-    whenever(externalUsersService.validateEmailDomain(anyString())).thenReturn(true)
+    whenever(verifyEmailDomainApiService.validateEmailDomain(anyString())).thenReturn(true)
     assertTrue(verifyService.isValidEmailDomain("validDomain.com"))
   }
 
   @Test
   fun shouldNotBeValidIfDomainDoesntMatch() {
-    whenever(externalUsersService.validateEmailDomain(anyString())).thenReturn(false)
+    whenever(verifyEmailDomainApiService.validateEmailDomain(anyString())).thenReturn(false)
     assertFalse(verifyService.isValidEmailDomain("validDomain.com"))
   }
 }

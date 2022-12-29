@@ -80,9 +80,6 @@ class ExternalUsersApiService(
       )
     )
   }
-
-  fun validateEmailDomain(emailDomain: String) =
-    externalUsersWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
