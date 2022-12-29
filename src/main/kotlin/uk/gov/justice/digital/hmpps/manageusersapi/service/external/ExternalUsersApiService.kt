@@ -49,21 +49,14 @@ class ExternalUsersApiService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ) = externalUsersWebClient.get()
-    .uri { uriBuilder ->
-      uriBuilder
-        .path("/roles/paged")
-        .queryParam("page", page)
-        .queryParam("size", size)
-        .queryParam("sort", sort)
-        .queryParam("roleName", roleName)
-        .queryParam("roleCode", roleCode)
-        .queryParam("adminTypes", adminTypes)
-        .build()
-    }
-    .retrieve()
-    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<Role>> () {})
-    .block()!!
+  ) = externalUsersWebClientUtils.getWithParams("/roles/paged", object : ParameterizedTypeReference<PagedResponse<Role>> () {},
+    mapOf(
+      "page" to page,
+      "size" to size,
+      "sort" to sort,
+      "roleName" to roleName,
+      "roleCode" to roleCode,
+      "adminTypes" to adminTypes))
 
   fun getRoleDetail(roleCode: String): Role =
     externalUsersWebClientUtils.get("/roles/$roleCode", Role::class.java)
@@ -204,14 +197,7 @@ class ExternalUsersApiService(
     externalUsersWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
-    externalUsersWebClient.get().uri {
-      it.path("/users/$userId/groups")
-        .queryParam("children", children)
-        .build()
-    }
-      .retrieve()
-      .bodyToMono(GroupList::class.java)
-      .block()!!
+    externalUsersWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
 
   fun addGroupByUserId(userId: UUID, group: String) {
     log.debug("Adding group {} for user {}", group, userId)
