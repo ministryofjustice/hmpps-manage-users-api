@@ -7,7 +7,6 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.util.UriBuilder
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -26,7 +25,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
-import java.net.URI
 import java.util.UUID
 import kotlin.collections.ArrayList
 
@@ -226,33 +224,24 @@ class ExternalUsersApiService(
     groups: List<String>?,
     pageable: Pageable,
     status: Status
-  ) = externalUsersWebClient.get()
-    .uri {
-      uriBuilder ->
-      buildUserSearchURI(name, roles, groups, pageable, status, uriBuilder)
-    }
-    .retrieve()
-    .bodyToMono(object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>> () {})
-    .block()!!
+  ) =
+    externalUsersWebClientUtils.getWithParams(
+      "/users/search", object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>> () {},
+      mapOf(
+        "name" to name,
+        "roles" to roles?.joinToString(","),
+        "groups" to groups?.joinToString(","),
+        "status" to status,
+        "page" to pageable.pageNumber,
+        "size" to pageable.pageSize
+      )
+    )
 
   fun findUserByUsername(userName: String): ExternalUserDetailsDto? =
     externalUsersWebClientUtils.getIfPresent("/users/$userName", ExternalUserDetailsDto::class.java)
 
   fun getMyAssignableGroups(): List<UserGroup> =
     externalUsersWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
-
-  private fun buildUserSearchURI(name: String?, roles: List<String>?, groups: List<String>?, pageable: Pageable, status: Status, uriBuilder: UriBuilder): URI {
-    uriBuilder.path("/users/search")
-
-    uriBuilder.queryParam("name", name)
-    uriBuilder.queryParam("roles", roles?.joinToString(","))
-    uriBuilder.queryParam("groups", groups?.joinToString(","))
-
-    uriBuilder.queryParam("status", status)
-    uriBuilder.queryParam("page", pageable.pageNumber)
-    uriBuilder.queryParam("size", pageable.pageSize)
-    return uriBuilder.build()
-  }
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
