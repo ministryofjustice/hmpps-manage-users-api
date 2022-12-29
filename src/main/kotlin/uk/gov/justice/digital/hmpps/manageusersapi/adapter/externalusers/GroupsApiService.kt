@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
@@ -14,6 +16,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 class GroupsApiService(
   @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
+
   fun getGroups(): List<UserGroup> =
     externalUsersWebClientUtils.get("/groups", GroupList::class.java)
 
@@ -24,12 +30,12 @@ class GroupsApiService(
     externalUsersWebClientUtils.get("/groups/child/$group", ChildGroupDetails::class.java)
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
-    ExternalUsersApiService.log.debug("Updating group details for {} with {}", group, groupAmendment)
+    log.debug("Updating group details for {} with {}", group, groupAmendment)
     externalUsersWebClientUtils.put("/groups/$group", groupAmendment)
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
-    ExternalUsersApiService.log.debug("Updating child group details for {} with {}", group, groupAmendment)
+    log.debug("Updating child group details for {} with {}", group, groupAmendment)
     externalUsersWebClientUtils.put("/groups/child/$group", groupAmendment)
   }
 
@@ -55,7 +61,7 @@ class GroupsApiService(
   }
 
   fun deleteChildGroup(group: String) {
-    ExternalUsersApiService.log.debug("Deleting child group {}", group)
+    log.debug("Deleting child group {}", group)
     externalUsersWebClientUtils.delete("/groups/child/$group")
   }
 

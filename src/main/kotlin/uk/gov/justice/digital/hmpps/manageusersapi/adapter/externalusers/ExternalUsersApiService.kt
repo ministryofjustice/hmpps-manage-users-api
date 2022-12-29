@@ -102,21 +102,8 @@ class ExternalUsersApiService(
     )
   }
 
-  fun deleteGroupByUserId(userId: UUID, group: String) {
-    log.debug("Delete group {} for user {}", group, userId)
-    externalUsersWebClientUtils.delete("/users/$userId/groups/$group")
-  }
-
   fun validateEmailDomain(emailDomain: String) =
     externalUsersWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
-
-  fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
-    externalUsersWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
-
-  fun addGroupByUserId(userId: UUID, group: String) {
-    log.debug("Adding group {} for user {}", group, userId)
-    externalUsersWebClientUtils.put("/users/$userId/groups/$group")
-  }
 
   fun enableUserById(userId: UUID): EmailNotificationDto {
     log.debug("Enabling User for User Id of {} ", userId)
@@ -152,9 +139,6 @@ class ExternalUsersApiService(
 
   fun findUserByUsername(userName: String): ExternalUserDetailsDto? =
     externalUsersWebClientUtils.getIfPresent("/users/$userName", ExternalUserDetailsDto::class.java)
-
-  fun getMyAssignableGroups(): List<UserGroup> =
-    externalUsersWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
 }
 
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
