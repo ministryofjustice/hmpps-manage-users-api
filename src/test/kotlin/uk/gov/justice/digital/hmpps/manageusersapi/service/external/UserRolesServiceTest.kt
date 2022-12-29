@@ -6,13 +6,13 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import java.util.UUID
 
 class UserRolesServiceTest {
-  private val externalUsersService: ExternalUsersApiService = mock()
-  private val userRolesService = UserRolesService(externalUsersService)
+  private val userRolesApiService: UserRolesApiService = mock()
+  private val userRolesService = UserRolesService(userRolesApiService)
 
   @Test
   fun `get user roles`() {
@@ -27,10 +27,10 @@ class UserRolesServiceTest {
         roleDescription = "Gives group manager ability to administer user in there groups"
       )
     )
-    whenever(externalUsersService.getUserRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(userRolesApiService.getUserRoles(any())).thenReturn(rolesFromExternalUsers)
 
     val userRoles = userRolesService.getUserRoles(UUID.randomUUID())
-    verify(externalUsersService).getUserRoles(any())
+    verify(userRolesApiService).getUserRoles(any())
     assertThat(userRoles[0].roleName).isEqualTo("viewer")
     assertThat(userRoles[1].roleName).isEqualTo("Auth Group Manager that has more than 30 characters in the role name")
   }
@@ -41,7 +41,7 @@ class UserRolesServiceTest {
     val roles = listOf("ROLE_1", "ROLE_2")
 
     userRolesService.addRolesByUserId(userId, roles)
-    verify(externalUsersService).addRolesByUserId(userId, roles)
+    verify(userRolesApiService).addRolesByUserId(userId, roles)
   }
 
   @Test
@@ -49,6 +49,6 @@ class UserRolesServiceTest {
     val userId = UUID.randomUUID()
 
     userRolesService.removeRoleByUserId(userId, "ROLE_1")
-    verify(externalUsersService).deleteRoleByUserId(userId, "ROLE_1")
+    verify(userRolesApiService).deleteRoleByUserId(userId, "ROLE_1")
   }
 }
