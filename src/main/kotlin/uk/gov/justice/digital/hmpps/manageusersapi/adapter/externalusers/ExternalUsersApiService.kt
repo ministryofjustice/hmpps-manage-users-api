@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.external
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,6 +24,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailNotificationDto
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
 import java.util.UUID
 import kotlin.collections.ArrayList
 

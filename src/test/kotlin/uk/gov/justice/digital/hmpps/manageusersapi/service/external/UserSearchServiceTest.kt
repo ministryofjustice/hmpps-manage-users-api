@@ -9,6 +9,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status.ACTIVE
 
 class UserSearchServiceTest {

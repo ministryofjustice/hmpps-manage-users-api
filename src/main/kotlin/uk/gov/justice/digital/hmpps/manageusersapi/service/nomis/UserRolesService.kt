@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
 
 @Service("NomisUserRolesService")
 class UserRolesService(

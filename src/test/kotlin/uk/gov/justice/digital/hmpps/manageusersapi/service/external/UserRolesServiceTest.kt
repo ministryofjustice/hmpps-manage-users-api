@@ -6,6 +6,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import java.util.UUID
 

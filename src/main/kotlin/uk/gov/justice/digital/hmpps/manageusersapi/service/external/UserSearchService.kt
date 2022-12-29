@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
 
 @Service
 class UserSearchService(
