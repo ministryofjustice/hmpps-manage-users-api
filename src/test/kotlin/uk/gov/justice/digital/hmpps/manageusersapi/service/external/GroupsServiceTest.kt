@@ -6,7 +6,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.GroupsApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
@@ -15,17 +15,17 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserAssigna
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 
 class GroupsServiceTest {
-  private val externalUsersService: ExternalUsersApiService = mock()
-  private val groupsService = GroupsService(externalUsersService)
+  private val groupsApiService: GroupsApiService = mock()
+  private val groupsService = GroupsService(groupsApiService)
 
   @Test
   fun `Get all groups`() {
     val groups = listOf(UserGroup(groupCode = "FRED", groupName = "desc"))
-    whenever(externalUsersService.getGroups()).thenReturn(groups)
+    whenever(groupsApiService.getGroups()).thenReturn(groups)
 
     val actualGroups = groupsService.getGroups()
     assertThat(actualGroups).isEqualTo(groups)
-    verify(externalUsersService).getGroups()
+    verify(groupsApiService).getGroups()
   }
 
   @Test
@@ -36,53 +36,53 @@ class GroupsServiceTest {
       assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
       children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
     )
-    whenever(externalUsersService.getGroupDetail(anyString())).thenReturn(groupDetails)
+    whenever(groupsApiService.getGroupDetail(anyString())).thenReturn(groupDetails)
     val group = groupsService.getGroupDetail("bob")
 
     assertThat(group).isEqualTo(groupDetails)
-    verify(externalUsersService).getGroupDetail("bob")
+    verify(groupsApiService).getGroupDetail("bob")
   }
 
   @Test
   fun `get child group details`() {
     val childGroupDetails = ChildGroupDetails(groupCode = "CHILD_1", groupName = "Child - Site 1 - Group 2")
-    whenever(externalUsersService.getChildGroupDetail(anyString())).thenReturn(childGroupDetails)
+    whenever(groupsApiService.getChildGroupDetail(anyString())).thenReturn(childGroupDetails)
 
     val actualChildGroup = groupsService.getChildGroupDetail(childGroupDetails.groupCode)
 
     assertThat(actualChildGroup).isEqualTo(childGroupDetails)
-    verify(externalUsersService).getChildGroupDetail(childGroupDetails.groupCode)
+    verify(groupsApiService).getChildGroupDetail(childGroupDetails.groupCode)
   }
 
   @Test
   fun `update child group details`() {
     val groupAmendment = GroupAmendment("Group Name")
     groupsService.updateChildGroup("code", groupAmendment)
-    verify(externalUsersService).updateChildGroup("code", groupAmendment)
+    verify(groupsApiService).updateChildGroup("code", groupAmendment)
   }
 
   @Test
   fun `update group details`() {
     val groupAmendment = GroupAmendment("Group Name")
     groupsService.updateGroup("code", groupAmendment)
-    verify(externalUsersService).updateGroup("code", groupAmendment)
+    verify(groupsApiService).updateGroup("code", groupAmendment)
   }
 
   @Test
   fun `Create group details`() {
     val createGroup = CreateGroup("Group Code", "Group Name")
     groupsService.createGroup(createGroup)
-    verify(externalUsersService).createGroup(createGroup)
+    verify(groupsApiService).createGroup(createGroup)
   }
 
   @Test
   fun `Delete child group`() {
     groupsService.deleteChildGroup("CHILD_1")
-    verify(externalUsersService).deleteChildGroup("CHILD_1")
+    verify(groupsApiService).deleteChildGroup("CHILD_1")
   }
   @Test
   fun `Delete group`() {
     groupsService.deleteGroup("group")
-    verify(externalUsersService).deleteGroup("group")
+    verify(groupsApiService).deleteGroup("group")
   }
 }

@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.GroupsApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
@@ -11,27 +11,27 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 
 @Service
 class GroupsService(
-  val externalUsersApiService: ExternalUsersApiService
+  val groupsApiService: GroupsApiService
 ) {
 
-  fun getGroups(): List<UserGroup> = externalUsersApiService.getGroups()
+  fun getGroups(): List<UserGroup> = groupsApiService.getGroups()
   fun getGroupDetail(
     group: String
-  ): GroupDetails = externalUsersApiService.getGroupDetail(group)
+  ): GroupDetails = groupsApiService.getGroupDetail(group)
 
   fun getChildGroupDetail(
     group: String
-  ): ChildGroupDetails = externalUsersApiService.getChildGroupDetail(group)
+  ): ChildGroupDetails = groupsApiService.getChildGroupDetail(group)
 
-  fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateGroup(groupCode, groupAmendment)
+  fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) = groupsApiService.updateGroup(groupCode, groupAmendment)
 
-  fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) = externalUsersApiService.updateChildGroup(groupCode, groupAmendment)
+  fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) = groupsApiService.updateChildGroup(groupCode, groupAmendment)
 
-  fun createGroup(createGroup: CreateGroup) = externalUsersApiService.createGroup(createGroup)
+  fun createGroup(createGroup: CreateGroup) = groupsApiService.createGroup(createGroup)
 
-  fun createChildGroup(createChildGroup: CreateChildGroup) = externalUsersApiService.createChildGroup(createChildGroup)
+  fun createChildGroup(createChildGroup: CreateChildGroup) = groupsApiService.createChildGroup(createChildGroup)
 
-  fun deleteChildGroup(group: String) = externalUsersApiService.deleteChildGroup(group)
+  fun deleteChildGroup(group: String) = groupsApiService.deleteChildGroup(group)
 
-  fun deleteGroup(group: String) = externalUsersApiService.deleteGroup(group)
+  fun deleteGroup(group: String) = groupsApiService.deleteGroup(group)
 }

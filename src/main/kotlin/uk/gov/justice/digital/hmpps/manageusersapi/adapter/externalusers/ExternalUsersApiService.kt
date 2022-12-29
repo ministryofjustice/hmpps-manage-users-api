@@ -13,13 +13,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
@@ -107,58 +102,9 @@ class ExternalUsersApiService(
     )
   }
 
-  fun getGroups(): List<UserGroup> =
-    externalUsersWebClientUtils.get("/groups", GroupList::class.java)
-
-  fun getGroupDetail(group: String): GroupDetails =
-    externalUsersWebClientUtils.get("/groups/$group", GroupDetails::class.java)
-
-  fun getChildGroupDetail(group: String): ChildGroupDetails =
-    externalUsersWebClientUtils.get("/groups/child/$group", ChildGroupDetails::class.java)
-
-  fun updateGroup(group: String, groupAmendment: GroupAmendment) {
-    log.debug("Updating group details for {} with {}", group, groupAmendment)
-    externalUsersWebClientUtils.put("/groups/$group", groupAmendment)
-  }
-
-  fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
-    log.debug("Updating child group details for {} with {}", group, groupAmendment)
-    externalUsersWebClientUtils.put("/groups/child/$group", groupAmendment)
-  }
-
-  fun createGroup(createGroup: CreateGroup) {
-    externalUsersWebClientUtils.post(
-      "/groups",
-      mapOf(
-        "groupCode" to createGroup.groupCode,
-        "groupName" to createGroup.groupName
-      )
-    )
-  }
-
-  fun createChildGroup(createChildGroup: CreateChildGroup) {
-    externalUsersWebClientUtils.post(
-      "/groups/child",
-      mapOf(
-        "groupCode" to createChildGroup.groupCode,
-        "groupName" to createChildGroup.groupName,
-        "parentGroupCode" to createChildGroup.parentGroupCode
-      )
-    )
-  }
-
   fun deleteGroupByUserId(userId: UUID, group: String) {
     log.debug("Delete group {} for user {}", group, userId)
     externalUsersWebClientUtils.delete("/users/$userId/groups/$group")
-  }
-
-  fun deleteChildGroup(group: String) {
-    log.debug("Deleting child group {}", group)
-    externalUsersWebClientUtils.delete("/groups/child/$group")
-  }
-
-  fun deleteGroup(group: String) {
-    externalUsersWebClientUtils.delete("/groups/$group")
   }
 
   fun validateEmailDomain(emailDomain: String) =
