@@ -84,12 +84,7 @@ class ExternalUsersApiService(
 
   fun addRolesByUserId(userId: UUID, roleCodes: List<String>) {
     log.debug("Adding roles {} for user {}", roleCodes, userId)
-    externalUsersWebClient.post()
-      .uri("/users/$userId/roles")
-      .bodyValue(roleCodes)
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    externalUsersWebClientUtils.post("/users/$userId/roles", roleCodes)
   }
 
   fun deleteRoleByUserId(userId: UUID, role: String) {
@@ -105,19 +100,15 @@ class ExternalUsersApiService(
     externalUsersWebClientUtils.get("/users/$userId/assignable-roles", UserRoleList::class.java)
 
   fun createRole(createRole: CreateRole) {
-    externalUsersWebClient.post()
-      .uri("/roles")
-      .bodyValue(
-        mapOf(
-          "roleCode" to createRole.roleCode,
-          "roleName" to createRole.roleName,
-          "roleDescription" to createRole.roleDescription,
-          "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList()
-        )
+    externalUsersWebClientUtils.post(
+      "/roles",
+      mapOf(
+        "roleCode" to createRole.roleCode,
+        "roleName" to createRole.roleName,
+        "roleDescription" to createRole.roleDescription,
+        "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList()
       )
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    )
   }
 
   fun getGroups(): List<UserGroup> =
@@ -154,18 +145,14 @@ class ExternalUsersApiService(
   }
 
   fun createChildGroup(createChildGroup: CreateChildGroup) {
-    externalUsersWebClient.post()
-      .uri("/groups/child")
-      .bodyValue(
-        mapOf(
-          "groupCode" to createChildGroup.groupCode,
-          "groupName" to createChildGroup.groupName,
-          "parentGroupCode" to createChildGroup.parentGroupCode
-        )
+    externalUsersWebClientUtils.post(
+      "/groups/child",
+      mapOf(
+        "groupCode" to createChildGroup.groupCode,
+        "groupName" to createChildGroup.groupName,
+        "parentGroupCode" to createChildGroup.parentGroupCode
       )
-      .retrieve()
-      .toBodilessEntity()
-      .block()
+    )
   }
 
   fun deleteGroupByUserId(userId: UUID, group: String) {

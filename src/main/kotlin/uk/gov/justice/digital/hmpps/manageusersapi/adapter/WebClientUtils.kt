@@ -35,20 +35,6 @@ class WebClientUtils(private val client: WebClient) {
       .bodyToMono(elementClass)
       .block()!!
 
-  private fun buildURI(path: String, queryParams: Map<String, Any?>, uriBuilder: UriBuilder): URI {
-    uriBuilder.path(path)
-    queryParams.forEach { (key, value) ->
-      value?.let {
-        if (value is Collection<*>) {
-          uriBuilder.queryParam(key, value)
-        } else {
-          uriBuilder.queryParam(key, value)
-        }
-      } ?: run { uriBuilder.queryParam(key, value) }
-    }
-    return uriBuilder.build()
-  }
-
   fun put(uri: String, body: Any) {
     client.put()
       .uri(uri)
@@ -72,4 +58,27 @@ class WebClientUtils(private val client: WebClient) {
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
+
+  fun post(uri: String, body: Any) {
+    client.post()
+      .uri(uri)
+      .bodyValue(body)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
+  private fun buildURI(path: String, queryParams: Map<String, Any?>, uriBuilder: UriBuilder): URI {
+    uriBuilder.path(path)
+    queryParams.forEach { (key, value) ->
+      value?.let {
+        if (value is Collection<*>) {
+          uriBuilder.queryParam(key, value)
+        } else {
+          uriBuilder.queryParam(key, value)
+        }
+      } ?: run { uriBuilder.queryParam(key, value) }
+    }
+    return uriBuilder.build()
+  }
 }
