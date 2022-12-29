@@ -12,9 +12,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import kotlin.collections.ArrayList
@@ -85,7 +82,4 @@ class RolesApiService(
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
   (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
-class UserRoleList : MutableList<UserRole> by ArrayList()
 class RoleList : MutableList<Role> by ArrayList()
-class GroupList : MutableList<UserGroup> by ArrayList()
-class UserList : MutableList<ExternalUserDetailsDto> by ArrayList()

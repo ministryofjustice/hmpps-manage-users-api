@@ -38,3 +38,5 @@ class UserSearchApiService(
       )
     )
 }
+
+class UserList : MutableList<ExternalUserDetailsDto> by ArrayList()

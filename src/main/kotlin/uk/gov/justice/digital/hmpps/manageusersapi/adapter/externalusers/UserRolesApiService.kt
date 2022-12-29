@@ -32,3 +32,5 @@ class UserRolesApiService(
   fun getAssignableRoles(userId: UUID) =
     externalUsersWebClientUtils.get("/users/$userId/assignable-roles", UserRoleList::class.java)
 }
+
+class UserRoleList : MutableList<UserRole> by ArrayList()

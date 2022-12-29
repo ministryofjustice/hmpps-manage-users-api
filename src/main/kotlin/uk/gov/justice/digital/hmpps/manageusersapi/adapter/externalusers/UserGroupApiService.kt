@@ -32,3 +32,5 @@ class UserGroupApiService(
   fun getMyAssignableGroups(): List<UserGroup> =
     externalUsersWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
 }
+
+class GroupList : MutableList<UserGroup> by ArrayList()
