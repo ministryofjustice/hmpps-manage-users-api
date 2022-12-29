@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.external
 
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service

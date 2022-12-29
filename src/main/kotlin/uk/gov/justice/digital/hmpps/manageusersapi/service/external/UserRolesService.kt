@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.UserRolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import java.util.UUID
 
 @Service("ExternalUserRolesService")

@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.UserGroupApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import java.util.UUID
 

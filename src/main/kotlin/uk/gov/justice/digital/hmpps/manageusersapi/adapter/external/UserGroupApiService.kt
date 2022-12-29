@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.external
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

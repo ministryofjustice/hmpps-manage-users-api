@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.VerifyEmailDomainApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.VerifyEmailDomainApiService
 
 @Service
 @Transactional(readOnly = true)

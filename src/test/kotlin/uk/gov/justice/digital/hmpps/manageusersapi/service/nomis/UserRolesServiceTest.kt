@@ -6,7 +6,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.RolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail

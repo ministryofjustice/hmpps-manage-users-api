@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.RolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment

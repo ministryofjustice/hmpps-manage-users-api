@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.VerifyEmailDomainApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.VerifyEmailDomainApiService
 
 class VerifyEmailDomainServiceTest {
   private val verifyEmailDomainApiService: VerifyEmailDomainApiService = mock()
