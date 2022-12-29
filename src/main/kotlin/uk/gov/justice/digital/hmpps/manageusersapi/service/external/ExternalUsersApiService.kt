@@ -131,17 +131,13 @@ class ExternalUsersApiService(
   }
 
   fun createGroup(createGroup: CreateGroup) {
-    externalUsersWebClient.post()
-      .uri("/groups")
-      .bodyValue(
-        mapOf(
-          "groupCode" to createGroup.groupCode,
-          "groupName" to createGroup.groupName
-        )
+    externalUsersWebClientUtils.post(
+      "/groups",
+      mapOf(
+        "groupCode" to createGroup.groupCode,
+        "groupName" to createGroup.groupName
       )
-      .retrieve()
-      .toBodilessEntity()
-      .block()!!
+    )
   }
 
   fun createChildGroup(createChildGroup: CreateChildGroup) {
