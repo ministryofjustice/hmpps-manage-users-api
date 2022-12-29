@@ -9,17 +9,17 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.data.domain.Pageable
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.ExternalUsersApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.externalusers.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status.ACTIVE
 
 class UserSearchServiceTest {
 
-  private val externalUsersApiService: ExternalUsersApiService = mock()
+  private val userSearchApiService: UserSearchApiService = mock()
   private lateinit var userSearchService: UserSearchService
 
   @BeforeEach
   fun setUp() {
-    userSearchService = UserSearchService(externalUsersApiService)
+    userSearchService = UserSearchService(userSearchApiService)
   }
 
   @Nested
@@ -33,14 +33,14 @@ class UserSearchServiceTest {
     fun shouldNotInvokeExternalUsersWhenEmailNull() {
       userSearchService.findExternalUsersByEmail(null)
 
-      verify(externalUsersApiService, never()).findUsersByEmail(any())
+      verify(userSearchApiService, never()).findUsersByEmail(any())
     }
 
     @Test
     fun shouldCallExternalUsersWhenEmailNotNull() {
       userSearchService.findExternalUsersByEmail("testy@testing.com")
 
-      verify(externalUsersApiService).findUsersByEmail("testy@testing.com")
+      verify(userSearchApiService).findUsersByEmail("testy@testing.com")
     }
   }
 
@@ -50,7 +50,7 @@ class UserSearchServiceTest {
     fun shouldCallExternalUsersWhenUserNameNotNull() {
       userSearchService.findExternalUserByUsername("user")
 
-      verify(externalUsersApiService).findUserByUsername("user")
+      verify(userSearchApiService).findUserByUsername("user")
     }
   }
 
@@ -64,7 +64,7 @@ class UserSearchServiceTest {
 
       userSearchService.findUsers(name, roles, groups, Pageable.unpaged(), ACTIVE)
 
-      verify(externalUsersApiService).findUsers(name, roles, groups, Pageable.unpaged(), ACTIVE)
+      verify(userSearchApiService).findUsers(name, roles, groups, Pageable.unpaged(), ACTIVE)
     }
   }
 }
