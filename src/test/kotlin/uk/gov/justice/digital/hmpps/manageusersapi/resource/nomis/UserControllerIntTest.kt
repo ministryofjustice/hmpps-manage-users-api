@@ -350,9 +350,9 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+          assertThat(it["userMessage"] as String).isEqualTo("User already exists")
           assertThat(it["errorCode"] as Int).isEqualTo(601)
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: TEST1 with reason: username already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("User TEST21 already exists")
         }
     }
 

@@ -18,7 +18,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
 
 @Service
 class NomisApiService(
@@ -58,29 +57,19 @@ class NomisApiService(
     )
   }
 
-  @Throws(UserExistsException::class)
   fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
-    try {
-      return nomisWebClient.post().uri("/users/local-admin-account")
-        .bodyValue(
-          mapOf(
-            "username" to localAdminUser.username,
-            "email" to localAdminUser.email,
-            "firstName" to localAdminUser.firstName,
-            "lastName" to localAdminUser.lastName,
-            "localAdminGroup" to localAdminUser.defaultCaseloadId,
-          )
-        )
-        .retrieve()
-        .bodyToMono(NomisUserDetails::class.java)
-        .block()!!
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
-        localAdminUser.username,
-        "username already exists"
-      ) else e
-    }
+    return nomisWebClientUtils.postWithResponse(
+      "/users/local-admin-account",
+      mapOf(
+        "username" to localAdminUser.username,
+        "email" to localAdminUser.email,
+        "firstName" to localAdminUser.firstName,
+        "lastName" to localAdminUser.lastName,
+        "localAdminGroup" to localAdminUser.defaultCaseloadId,
+      ),
+      NomisUserDetails::class.java
+    )
   }
 
   @Throws(RoleExistsException::class)
