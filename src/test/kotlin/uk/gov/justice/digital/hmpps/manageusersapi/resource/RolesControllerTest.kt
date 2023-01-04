@@ -71,8 +71,8 @@ class RolesControllerTest {
 
     @Test
     fun `Get all roles with filters`() {
-      rolesController.getRoles(listOf(AdminType.DPS_ADM))
-      verify(rolesService).getRoles(listOf(AdminType.DPS_ADM))
+      rolesController.getRoles(listOf(DPS_ADM))
+      verify(rolesService).getRoles(listOf(DPS_ADM))
     }
   }
 
@@ -88,8 +88,8 @@ class RolesControllerTest {
     @Test
     fun `Get all roles with filters`() {
 
-      rolesController.getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
-      verify(rolesService).getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(AdminType.DPS_ADM))
+      rolesController.getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(DPS_ADM))
+      verify(rolesService).getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(DPS_ADM))
     }
   }
 
@@ -115,15 +115,6 @@ class RolesControllerTest {
           adminType = listOf(AdminTypeReturn("Code", "Name"))
         )
       )
-    }
-
-    @Test
-    fun `Get role details with no match throws exception`() {
-      whenever(rolesService.getRoleDetail(any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
-
-      assertThatThrownBy { rolesController.getRoleDetail("ROLE_DOES_NOT_EXIST") }
-        .isInstanceOf(RoleNotFoundException::class.java)
-        .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
 
@@ -167,16 +158,6 @@ class RolesControllerTest {
       val roleAmendment = RoleDescriptionAmendment(null)
       rolesController.amendRoleDescription("role1", roleAmendment)
       verify(rolesService).updateRoleDescription("role1", roleAmendment)
-    }
-
-    @Test
-    fun `amend role description with no match throws exception`() {
-      whenever(rolesService.updateRoleDescription(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
-      val roleAmendment = RoleDescriptionAmendment("role description")
-
-      assertThatThrownBy { rolesController.amendRoleDescription("NoRole", roleAmendment) }
-        .isInstanceOf(RoleNotFoundException::class.java)
-        .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
 

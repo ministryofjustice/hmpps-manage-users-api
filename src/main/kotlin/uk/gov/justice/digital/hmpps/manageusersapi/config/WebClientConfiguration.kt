@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 
 @Configuration
@@ -46,6 +48,10 @@ class WebClientConfiguration(
       .filter(addAuthHeaderFilterFunction())
       .build()
   }
+
+  @Bean
+  fun externalUsersWebClientUtils(@Qualifier("externalUsersWebClient") externalUsersWebClient: WebClient) =
+    WebClientUtils(externalUsersWebClient)
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()

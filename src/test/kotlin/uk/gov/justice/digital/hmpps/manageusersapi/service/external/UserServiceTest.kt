@@ -8,17 +8,18 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailNotificationService
 import java.util.UUID
 
 class UserServiceTest {
-  private val externalUsersApiService: ExternalUsersApiService = mock()
+  private val userApiService: UserApiService = mock()
   private val emailNotificationService: EmailNotificationService = mock()
   private val telemetryClient: TelemetryClient = mock()
 
   private val userService = UserService(
-    externalUsersApiService,
+    userApiService,
     emailNotificationService,
     telemetryClient
   )
@@ -30,7 +31,7 @@ class UserServiceTest {
     @Test
     fun `enable user by userId sends email`() {
       val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(externalUsersApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
       userService.enableUserByUserId(userUUID)
       verify(emailNotificationService).sendEnableEmail(emailNotificationDto)
     }
@@ -38,7 +39,7 @@ class UserServiceTest {
     @Test
     fun `enable user by userId doesn't sends notification email`() {
       val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", null, "admin")
-      whenever(externalUsersApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
       userService.enableUserByUserId(userUUID)
       verifyNoInteractions(emailNotificationService)
     }
@@ -51,7 +52,7 @@ class UserServiceTest {
     fun `disable user by userId sends email`() {
       val reason = DeactivateReason("Fired")
       userService.disableUserByUserId(userUUID, reason)
-      verify(externalUsersApiService).disableUserById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), reason)
+      verify(userApiService).disableUserById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), reason)
     }
   }
 }

@@ -2,10 +2,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.VerifyEmailDomainApiService
 
 @Service
 @Transactional(readOnly = true)
-class VerifyEmailDomainService(val externalUsersApiService: ExternalUsersApiService) {
+class VerifyEmailDomainService(val verifyEmailDomainApiService: VerifyEmailDomainApiService) {
+
   fun isValidEmailDomain(emailDomain: String): Boolean =
-    externalUsersApiService.validateEmailDomain(emailDomain)
+    verifyEmailDomainApiService.validateEmailDomain(emailDomain)
 }

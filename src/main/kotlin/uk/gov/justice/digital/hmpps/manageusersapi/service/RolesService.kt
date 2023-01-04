@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -8,13 +9,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmend
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
 
 @Service
 class RolesService(
   val nomisApiService: NomisApiService,
-  val externalUsersApiService: ExternalUsersApiService
+  val rolesApiService: RolesApiService
 ) {
 
   @Throws(RoleExistsException::class)
@@ -22,12 +22,12 @@ class RolesService(
     if (role.adminType.hasDPSAdminType()) {
       nomisApiService.createRole(role)
     }
-    externalUsersApiService.createRole(role)
+    rolesApiService.createRole(role)
   }
 
   fun getRoles(
     adminTypes: List<AdminType>?
-  ): List<Role> = externalUsersApiService.getRoles(adminTypes)
+  ): List<Role> = rolesApiService.getRoles(adminTypes)
 
   fun getPagedRoles(
     page: Int,
@@ -36,10 +36,9 @@ class RolesService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ) = externalUsersApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
+  ) = rolesApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
-  @Throws(RoleNotFoundException::class)
-  fun getRoleDetail(roleCode: String): Role = externalUsersApiService.getRoleDetail(roleCode)
+  fun getRoleDetail(roleCode: String): Role = rolesApiService.getRoleDetail(roleCode)
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
@@ -47,16 +46,15 @@ class RolesService(
     if (originalRole.isDPSRole()) {
       nomisApiService.updateRoleName(roleCode, roleAmendment)
     }
-    externalUsersApiService.updateRoleName(roleCode, roleAmendment)
+    rolesApiService.updateRoleName(roleCode, roleAmendment)
   }
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
-    externalUsersApiService.updateRoleDescription(roleCode, roleAmendment)
+    rolesApiService.updateRoleDescription(roleCode, roleAmendment)
 
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    val originalRole = externalUsersApiService.getRoleDetail(roleCode)
+    val originalRole = rolesApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
       nomisApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
@@ -69,7 +67,7 @@ class RolesService(
         )
       )
     }
-    externalUsersApiService.updateRoleAdminType(roleCode, roleAmendment)
+    rolesApiService.updateRoleAdminType(roleCode, roleAmendment)
   }
 
   private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()

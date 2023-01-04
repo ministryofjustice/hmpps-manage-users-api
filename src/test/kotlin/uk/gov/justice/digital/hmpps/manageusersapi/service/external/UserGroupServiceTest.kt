@@ -5,33 +5,34 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import java.util.UUID
 
 class UserGroupServiceTest {
 
-  private val externalUsersService: ExternalUsersApiService = mock()
-  private val userGroupService = UserGroupService(externalUsersService)
+  private val userGroupApiService: UserGroupApiService = mock()
+  private val userGroupService = UserGroupService(userGroupApiService)
 
   @Test
   fun removeGroupByUserId() {
     val userId = UUID.randomUUID()
     userGroupService.removeGroupByUserId(userId, "test")
-    verify(externalUsersService).deleteGroupByUserId(userId, "test")
+    verify(userGroupApiService).deleteGroupByUserId(userId, "test")
   }
 
   @Test
   fun addGroupByUserId() {
     val userId = UUID.randomUUID()
     userGroupService.addGroupByUserId(userId, "test")
-    verify(externalUsersService).addGroupByUserId(userId, "test")
+    verify(userGroupApiService).addGroupByUserId(userId, "test")
   }
 
   @Test
   fun `get user groups`() {
     val groups = givenAListOfGroups()
     val userId = UUID.randomUUID()
-    whenever(externalUsersService.getUserGroups(userId, false)).thenReturn(groups)
+    whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(groups)
 
     val userRoles = userGroupService.getUserGroups(userId, false)
     assertThat(userRoles).isEqualTo(groups)
@@ -40,7 +41,7 @@ class UserGroupServiceTest {
   @Test
   fun `get my assignable groups`() {
     val myGroups = givenAListOfGroups()
-    whenever(externalUsersService.getMyAssignableGroups()).thenReturn(myGroups)
+    whenever(userGroupApiService.getMyAssignableGroups()).thenReturn(myGroups)
 
     assertThat(userGroupService.getMyAssignableGroups()).isEqualTo(myGroups)
   }

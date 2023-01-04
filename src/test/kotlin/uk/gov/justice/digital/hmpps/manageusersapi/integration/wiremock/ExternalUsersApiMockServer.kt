@@ -172,6 +172,17 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubDeleteEmailDomain(id: String) {
+    stubFor(
+      delete("/email-domains/$id")
+        .willReturn(
+          aResponse()
+            .withStatus(NO_CONTENT.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
   fun stubGetEmailDomains() {
     stubFor(
       get(urlEqualTo("/email-domains"))

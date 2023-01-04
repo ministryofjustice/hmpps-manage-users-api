@@ -6,18 +6,18 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ExternalUsersApiService
 
 class UserRolesServiceTest {
-  private val externalUsersService: ExternalUsersApiService = mock()
+  private val rolesApiService: RolesApiService = mock()
   private val nomisService: NomisApiService = mock()
-  private val userRolesService = UserRolesService(externalUsersService, nomisService)
+  private val userRolesService = UserRolesService(rolesApiService, nomisService)
 
   @Test
   fun `get user roles`() {
@@ -37,7 +37,7 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(externalUsersService.getRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(rolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
@@ -62,7 +62,7 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(externalUsersService.getRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(rolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
@@ -88,7 +88,7 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(externalUsersService.getRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(rolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
     whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 

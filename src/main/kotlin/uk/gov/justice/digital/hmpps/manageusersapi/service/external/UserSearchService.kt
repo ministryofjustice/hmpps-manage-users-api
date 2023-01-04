@@ -2,17 +2,18 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 
 @Service
 class UserSearchService(
-  val externalUsersApiService: ExternalUsersApiService
+  val userSearchApiService: UserSearchApiService
 ) {
 
   fun findExternalUsersByEmail(email: String?) =
-    email ?.let { externalUsersApiService.findUsersByEmail(email) }
+    email ?.let { userSearchApiService.findUsersByEmail(email) }
 
   fun findExternalUserByUsername(username: String) =
-    username.let { externalUsersApiService.findUserByUsername(username) }
+    username.let { userSearchApiService.findUserByUsername(username) }
 
   fun findUsers(
     name: String?,
@@ -20,7 +21,7 @@ class UserSearchService(
     groups: List<String>?,
     pageable: Pageable,
     status: Status
-  ) = externalUsersApiService.findUsers(name, roles, groups, pageable, status)
+  ) = userSearchApiService.findUsers(name, roles, groups, pageable, status)
 }
 
 enum class Status {
