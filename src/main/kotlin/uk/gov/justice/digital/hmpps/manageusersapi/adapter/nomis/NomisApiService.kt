@@ -32,13 +32,16 @@ class NomisApiService(
   @Throws(UserExistsException::class)
   fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
-    return nomisWebClientUtils.postWithResponse("/users/admin-account",
+    return nomisWebClientUtils.postWithResponse(
+      "/users/admin-account",
       mapOf(
-      "username" to centralAdminUser.username,
-      "email" to centralAdminUser.email,
-      "firstName" to centralAdminUser.firstName,
-      "lastName" to centralAdminUser.lastName),
-      NomisUserDetails::class.java)
+        "username" to centralAdminUser.username,
+        "email" to centralAdminUser.email,
+        "firstName" to centralAdminUser.firstName,
+        "lastName" to centralAdminUser.lastName
+      ),
+      NomisUserDetails::class.java
+    )
   }
 
   @Throws(UserExistsException::class)
