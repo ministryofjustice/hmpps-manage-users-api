@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
@@ -21,7 +22,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsExcep
 
 @Service
 class NomisApiService(
-  @Qualifier("nomisWebClient") val nomisWebClient: WebClient
+  @Qualifier("nomisWebClient") val nomisWebClient: WebClient,
+  @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -30,25 +32,13 @@ class NomisApiService(
   @Throws(UserExistsException::class)
   fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
-    try {
-      return nomisWebClient.post().uri("/users/admin-account")
-        .bodyValue(
-          mapOf(
-            "username" to centralAdminUser.username,
-            "email" to centralAdminUser.email,
-            "firstName" to centralAdminUser.firstName,
-            "lastName" to centralAdminUser.lastName,
-          )
-        )
-        .retrieve()
-        .bodyToMono(NomisUserDetails::class.java)
-        .block()!!
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
-        centralAdminUser.username,
-        "username already exists"
-      ) else e
-    }
+    return nomisWebClientUtils.postWithResponse("/users/admin-account",
+      mapOf(
+      "username" to centralAdminUser.username,
+      "email" to centralAdminUser.email,
+      "firstName" to centralAdminUser.firstName,
+      "lastName" to centralAdminUser.lastName),
+      NomisUserDetails::class.java)
   }
 
   @Throws(UserExistsException::class)
