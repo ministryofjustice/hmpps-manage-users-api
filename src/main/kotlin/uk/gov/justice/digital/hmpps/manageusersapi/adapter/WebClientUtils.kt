@@ -23,14 +23,14 @@ class WebClientUtils(private val client: WebClient) {
 
   fun <T : Any> getWithParams(uri: String, elementClass: Class<T>, queryParams: Map<String, Any?>): T =
     client.get()
-      .uri { uriBuilder -> buildURI(uri, queryParams, uriBuilder) }
+      .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
 
   fun <T : Any> getWithParams(uri: String, elementClass: ParameterizedTypeReference<T>, queryParams: Map<String, Any?>): T =
     client.get()
-      .uri { uriBuilder -> buildURI(uri, queryParams, uriBuilder) }
+      .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
@@ -84,18 +84,18 @@ class WebClientUtils(private val client: WebClient) {
       .block()
   }
 
-  private fun buildURI(path: String, queryParams: Map<String, Any?>, uriBuilder: UriBuilder): URI {
-    uriBuilder.path(path)
+  private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
+    path(path)
     queryParams.forEach { (key, value) ->
       value?.let {
         // Force usage of correct overloaded queryParam method
         if (value is Collection<*>) {
-          uriBuilder.queryParam(key, value)
+          queryParam(key, value)
         } else {
-          uriBuilder.queryParam(key, value)
+          queryParam(key, value)
         }
-      } ?: run { uriBuilder.queryParam(key, value) }
+      } ?: run { queryParam(key, value) }
     }
-    return uriBuilder.build()
+    return build()
   }
 }
