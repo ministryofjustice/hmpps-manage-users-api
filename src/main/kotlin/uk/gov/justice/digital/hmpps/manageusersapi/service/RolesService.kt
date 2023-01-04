@@ -17,7 +17,6 @@ class RolesService(
   val rolesApiService: RolesApiService
 ) {
 
-  @Throws(RoleExistsException::class)
   fun createRole(role: CreateRole) {
     if (role.adminType.hasDPSAdminType()) {
       nomisApiService.createRole(role)
@@ -38,10 +37,8 @@ class RolesService(
     adminTypes: List<AdminType>?
   ) = rolesApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
-  @Throws(RoleNotFoundException::class)
   fun getRoleDetail(roleCode: String): Role = rolesApiService.getRoleDetail(roleCode)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     val originalRole = getRoleDetail(roleCode)
     if (originalRole.isDPSRole()) {
@@ -50,11 +47,9 @@ class RolesService(
     rolesApiService.updateRoleName(roleCode, roleAmendment)
   }
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
     rolesApiService.updateRoleDescription(roleCode, roleAmendment)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val originalRole = rolesApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
