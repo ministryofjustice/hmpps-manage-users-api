@@ -43,29 +43,19 @@ class NomisApiService(
     )
   }
 
-  @Throws(UserExistsException::class)
   fun createGeneralUser(generalUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS general user - {}", generalUser.username)
-    try {
-      return nomisWebClient.post().uri("/users/general-account")
-        .bodyValue(
-          mapOf(
-            "username" to generalUser.username,
-            "email" to generalUser.email,
-            "firstName" to generalUser.firstName,
-            "lastName" to generalUser.lastName,
-            "defaultCaseloadId" to generalUser.defaultCaseloadId,
-          )
-        )
-        .retrieve()
-        .bodyToMono(NomisUserDetails::class.java)
-        .block()!!
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) UserExistsException(
-        generalUser.username,
-        "username already exists"
-      ) else e
-    }
+    return nomisWebClientUtils.postWithResponse(
+      "/users/general-account",
+      mapOf(
+        "username" to generalUser.username,
+        "email" to generalUser.email,
+        "firstName" to generalUser.firstName,
+        "lastName" to generalUser.lastName,
+        "defaultCaseloadId" to generalUser.defaultCaseloadId,
+      ),
+      NomisUserDetails::class.java
+    )
   }
 
   @Throws(UserExistsException::class)
