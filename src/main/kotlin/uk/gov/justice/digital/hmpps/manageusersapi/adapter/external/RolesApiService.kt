@@ -13,7 +13,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendme
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import kotlin.collections.ArrayList
 
 @Service
@@ -49,13 +48,11 @@ class RolesApiService(
   fun getRoleDetail(roleCode: String): Role =
     externalUsersWebClientUtils.get("/roles/$roleCode", Role::class.java)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClientUtils.put("/roles/$roleCode", roleAmendment)
   }
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
     externalUsersWebClientUtils.put("/roles/$roleCode/description", roleAmendment)
