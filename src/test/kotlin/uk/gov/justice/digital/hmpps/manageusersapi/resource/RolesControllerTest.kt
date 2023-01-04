@@ -1,8 +1,10 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.mock
@@ -11,6 +13,8 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 
 class RolesControllerTest {
@@ -39,6 +43,21 @@ class RolesControllerTest {
           true
         }
       )
+    }
+
+    @Test
+    fun `amend role name with no match throws exception`() {
+      whenever(rolesService.createRole(any())).thenThrow(
+        RoleExistsException(
+          "RO1",
+          "role code already exists"
+        )
+      )
+      val role = CreateRole("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
+
+      assertThatThrownBy { rolesController.createRole(role) }
+        .isInstanceOf(RoleExistsException::class.java)
+        .withFailMessage("Unable to create role: RO1 with reason: role code already exists")
     }
   }
 
@@ -107,6 +126,22 @@ class RolesControllerTest {
       rolesController.amendRoleName("role1", roleAmendment)
       verify(rolesService).updateRoleName("role1", roleAmendment)
     }
+
+    @Test
+    fun `amend role name with no match throws exception`() {
+      whenever(rolesService.updateRoleName(anyString(), any())).thenThrow(
+        RoleNotFoundException(
+          "find",
+          "NoRole",
+          "not found"
+        )
+      )
+      val roleAmendment = RoleNameAmendment("role")
+
+      assertThatThrownBy { rolesController.amendRoleName("NoRole", roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
+    }
   }
 
   @Nested
@@ -133,6 +168,16 @@ class RolesControllerTest {
       val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
       rolesController.amendRoleAdminType("role1", roleAmendment)
       verify(rolesService).updateRoleAdminType("role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role admin type with no match throws exception`() {
+      whenever(rolesService.updateRoleAdminType(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
+
+      assertThatThrownBy { rolesController.amendRoleAdminType("NoRole", roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
 }
