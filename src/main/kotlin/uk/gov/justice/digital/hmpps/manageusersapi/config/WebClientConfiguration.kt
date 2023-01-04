@@ -53,8 +53,9 @@ class WebClientConfiguration(
   fun externalUsersWebClientUtils(@Qualifier("externalUsersWebClient") externalUsersWebClient: WebClient) =
     WebClientUtils(externalUsersWebClient)
 
-  @Bean("authClientRegistration")
-  fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
+  @Bean
+  fun nomisWebClientUtils(@Qualifier("nomisWebClient") nomisWebClient: WebClient) =
+    WebClientUtils(nomisWebClient)
 
   @Bean
   fun nomisWebClient(builder: WebClient.Builder): WebClient {
@@ -63,6 +64,9 @@ class WebClientConfiguration(
       .filter(addAuthHeaderFilterFunction())
       .build()
   }
+
+  @Bean("authClientRegistration")
+  fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
 
   private fun addAuthHeaderFilterFunction(): ExchangeFilterFunction {
     return ExchangeFilterFunction { request: ClientRequest?, next: ExchangeFunction ->
