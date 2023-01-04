@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
@@ -16,6 +16,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
 
 @Service
 class NomisApiService(

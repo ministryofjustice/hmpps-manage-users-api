@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
