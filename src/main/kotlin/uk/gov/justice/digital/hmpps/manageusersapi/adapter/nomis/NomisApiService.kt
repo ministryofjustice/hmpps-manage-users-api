@@ -29,7 +29,6 @@ class NomisApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Throws(UserExistsException::class)
   fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     return nomisWebClientUtils.postWithResponse(
