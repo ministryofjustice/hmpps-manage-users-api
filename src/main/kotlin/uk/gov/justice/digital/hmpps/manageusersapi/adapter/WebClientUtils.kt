@@ -88,11 +88,14 @@ class WebClientUtils(private val client: WebClient) {
     uriBuilder.path(path)
     queryParams.forEach { (key, value) ->
       value?.let {
-        if (value is Collection<*>) {
-          uriBuilder.queryParam(key, value)
-        } else {
-          uriBuilder.queryParam(key, value)
-        }
+
+        uriBuilder.queryParam(key, value)
+
+//        if (value is Collection<*>) {
+//          uriBuilder.queryParam(key, value)
+//        } else {
+//          uriBuilder.queryParam(key, value)
+//        }
       } ?: run { uriBuilder.queryParam(key, value) }
     }
     return uriBuilder.build()
