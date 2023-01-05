@@ -17,7 +17,7 @@ class UserApiService(
   }
 
   fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserDetails {
-    RolesApiService.log.debug("Create DPS central admin user - {}", centralAdminUser.username)
+    log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     return nomisWebClientUtils.postWithResponse(
       "/users/admin-account",
       mapOf(
@@ -31,7 +31,7 @@ class UserApiService(
   }
 
   fun createGeneralUser(generalUser: CreateUserRequest): NomisUserDetails {
-    RolesApiService.log.debug("Create DPS general user - {}", generalUser.username)
+    log.debug("Create DPS general user - {}", generalUser.username)
     return nomisWebClientUtils.postWithResponse(
       "/users/general-account",
       mapOf(
@@ -46,7 +46,7 @@ class UserApiService(
   }
 
   fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserDetails {
-    RolesApiService.log.debug("Create DPS local admin user - {}", localAdminUser.username)
+    log.debug("Create DPS local admin user - {}", localAdminUser.username)
     return nomisWebClientUtils.postWithResponse(
       "/users/local-admin-account",
       mapOf(
