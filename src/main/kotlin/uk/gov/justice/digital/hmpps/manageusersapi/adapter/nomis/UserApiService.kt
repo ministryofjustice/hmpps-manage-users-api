@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
 
-@Service
+@Service(value = "nomisUserApiService")
 class UserApiService(
   @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils
 ) {

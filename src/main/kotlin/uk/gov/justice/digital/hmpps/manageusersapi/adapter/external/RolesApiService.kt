@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 import kotlin.collections.ArrayList
 
-@Service
+@Service(value = "externalRolesApiService")
 class RolesApiService(
   @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {

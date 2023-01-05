@@ -9,7 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateR
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailNotificationDto
 import java.util.UUID
 
-@Service
+@Service(value = "externalUserApiService")
 class UserApiService(
   @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
 ) {

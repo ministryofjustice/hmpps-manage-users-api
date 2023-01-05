@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 
-@Service
+@Service(value = "nomisRolesApiService")
 class RolesApiService(
   @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils
 ) {
