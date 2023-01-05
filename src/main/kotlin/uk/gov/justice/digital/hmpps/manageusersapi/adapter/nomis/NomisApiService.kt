@@ -72,27 +72,16 @@ class NomisApiService(
     )
   }
 
-  @Throws(RoleExistsException::class)
   fun createRole(createRole: CreateRole) {
     log.debug("Create dps role for {} with {}", createRole.roleCode, createRole)
-    try {
-      nomisWebClient.post().uri("/roles")
-        .bodyValue(
-          mapOf(
-            "code" to createRole.roleCode,
-            "name" to createRole.roleName.nomisRoleName(),
-            "adminRoleOnly" to createRole.adminType.adminRoleOnly(),
-          )
-        )
-        .retrieve()
-        .toBodilessEntity()
-        .block()
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) RoleExistsException(
-        createRole.roleCode,
-        "role code already exists"
-      ) else e
-    }
+    return nomisWebClientUtils.post(
+      "/roles",
+      mapOf(
+        "code" to createRole.roleCode,
+        "name" to createRole.roleName.nomisRoleName(),
+        "adminRoleOnly" to createRole.adminType.adminRoleOnly(),
+      )
+    )
   }
 
   fun createRole(createRole: NomisRole) {
