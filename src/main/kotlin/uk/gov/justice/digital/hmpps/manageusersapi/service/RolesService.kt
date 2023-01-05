@@ -16,7 +16,6 @@ class RolesService(
   val externalRolesApiService: RolesApiService
 ) {
 
-  @Throws(RoleExistsException::class)
   fun createRole(role: CreateRole) {
     if (role.adminType.hasDPSAdminType()) {
       nomisRolesApiService.createRole(role)
@@ -39,7 +38,6 @@ class RolesService(
 
   fun getRoleDetail(roleCode: String): Role = externalRolesApiService.getRoleDetail(roleCode)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     val originalRole = getRoleDetail(roleCode)
     if (originalRole.isDPSRole()) {
@@ -51,7 +49,6 @@ class RolesService(
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
     externalRolesApiService.updateRoleDescription(roleCode, roleAmendment)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val originalRole = externalRolesApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
@@ -78,9 +75,3 @@ class RolesService(
 }
 
 fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeCode) }
-
-class RoleExistsException(role: String, errorCode: String) :
-  Exception("Unable to create role: $role with reason: $errorCode")
-
-class RoleNotFoundException(action: String, role: String, errorCode: String) :
-  Exception("Unable to $action role: $role with reason: $errorCode")

@@ -18,7 +18,7 @@ class UserService(
   private val tokenService: TokenService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
-  @Throws(UserExistsException::class, TokenException::class, HmppsValidationException::class)
+  @Throws(TokenException::class, HmppsValidationException::class)
   fun createUser(user: CreateUserRequest): NomisUserDetails {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
@@ -54,9 +54,6 @@ data class NomisUserDetails(
 
 class HmppsValidationException(emailDomain: String, errorCode: String) :
   Exception("Invalid Email domain: $emailDomain with reason: $errorCode")
-
-class UserExistsException(user: String, errorCode: String) :
-  Exception("Unable to create user: $user with reason: $errorCode")
 
 class UserException(user: String, userType: UserType, errorCode: String) :
   Exception("Unable to create user: $user of type $userType, with reason: $errorCode")

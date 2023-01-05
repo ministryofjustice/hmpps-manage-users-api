@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
-import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -19,10 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.HmppsValidationException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -126,52 +122,6 @@ class HmppsManageUsersApiExceptionHandler {
       .status(BAD_REQUEST)
       .contentType(APPLICATION_JSON)
       .body(ErrorResponse(status = BAD_REQUEST.value(), developerMessage = e.message))
-  }
-
-  @ExceptionHandler(RoleNotFoundException::class)
-  fun handleRoleNotFoundException(e: RoleNotFoundException): ResponseEntity<ErrorResponse?>? {
-    log.debug("Role not found exception caught: {}", e.message)
-    return ResponseEntity
-      .status(NOT_FOUND)
-      .contentType(APPLICATION_JSON)
-      .body(
-        ErrorResponse(
-          status = NOT_FOUND,
-          userMessage = "Unexpected error: ${e.message}",
-          developerMessage = e.message
-        )
-      )
-  }
-
-  @ExceptionHandler(RoleExistsException::class)
-  fun handleRoleExistsException(e: RoleExistsException): ResponseEntity<ErrorResponse?>? {
-    log.debug("Role exists exception caught: {}", e.message)
-    return ResponseEntity
-      .status(CONFLICT)
-      .contentType(APPLICATION_JSON)
-      .body(
-        ErrorResponse(
-          status = CONFLICT,
-          userMessage = "Unexpected error: ${e.message}",
-          developerMessage = e.message
-        )
-      )
-  }
-
-  @ExceptionHandler(UserExistsException::class)
-  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse?>? {
-    log.debug("User exists exception caught: {}", e.message)
-    return ResponseEntity
-      .status(CONFLICT)
-      .contentType(APPLICATION_JSON)
-      .body(
-        ErrorResponse(
-          status = CONFLICT,
-          errorCode = 601,
-          userMessage = "${e.message}",
-          developerMessage = e.message
-        )
-      )
   }
 
   @ExceptionHandler(HmppsValidationException::class)
