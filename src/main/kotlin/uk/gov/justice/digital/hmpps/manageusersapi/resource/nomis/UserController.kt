@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -28,7 +27,6 @@ class UserController(
   private val nomisUserService: UserService
 ) {
   @PostMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
-  @Throws(UserExistsException::class)
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(

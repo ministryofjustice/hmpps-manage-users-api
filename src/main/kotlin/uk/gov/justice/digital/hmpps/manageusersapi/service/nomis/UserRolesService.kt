@@ -9,13 +9,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 
 @Service("NomisUserRolesService")
 class UserRolesService(
-  val rolesApiService: RolesApiService,
-  val nomisApiService: NomisApiService,
+  val externalRolesApiService: RolesApiService,
+  val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService,
 ) {
 
   fun getUserRoles(username: String): UserRoleDetail {
-    val userRoleDetail = nomisApiService.getUserRoles(username)
-    val externalUserRoles = rolesApiService.getRoles(listOf(AdminType.DPS_ADM))
+    val userRoleDetail = nomisRolesApiService.getUserRoles(username)
+    val externalUserRoles = externalRolesApiService.getRoles(listOf(AdminType.DPS_ADM))
 
     return userRoleDetail.copy(dpsRoles = userExternalUsersRoleNames(userRoleDetail.dpsRoles, externalUserRoles))
   }

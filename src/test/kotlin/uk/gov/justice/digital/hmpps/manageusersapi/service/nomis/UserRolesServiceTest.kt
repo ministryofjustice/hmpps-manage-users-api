@@ -15,9 +15,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
 
 class UserRolesServiceTest {
-  private val rolesApiService: RolesApiService = mock()
-  private val nomisService: NomisApiService = mock()
-  private val userRolesService = UserRolesService(rolesApiService, nomisService)
+  private val externalRolesApiService: RolesApiService = mock()
+  private val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService = mock()
+  private val userRolesService = UserRolesService(externalRolesApiService, nomisRolesApiService)
 
   @Test
   fun `get user roles`() {
@@ -37,8 +37,8 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(rolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
-    whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(nomisRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
     assertThat(userRoles).isEqualTo(userRolesFromNomis)
@@ -62,8 +62,8 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(rolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
-    whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(nomisRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
     assertThat(userRoles).isNotEqualTo(userRolesFromNomis)
@@ -88,8 +88,8 @@ class UserRolesServiceTest {
       )
     )
 
-    whenever(rolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
-    whenever(nomisService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
+    whenever(nomisRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
     assertThat(userRoles).isNotEqualTo(userRolesFromNomis)

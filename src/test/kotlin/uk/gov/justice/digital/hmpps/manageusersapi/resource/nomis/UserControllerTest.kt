@@ -1,13 +1,9 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
 
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 
 class UserControllerTest {
@@ -22,21 +18,6 @@ class UserControllerTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
       userController.createUser(user)
       verify(userService).createUser(user)
-    }
-
-    @Test
-    fun `create user that already exists throws exception`() {
-      whenever(userService.createUser(any())).thenThrow(
-        UserExistsException(
-          "USER_DUP",
-          "user name already exists"
-        )
-      )
-      val user = CreateUserRequest("USER_DUP", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
-
-      assertThatThrownBy { userController.createUser(user) }
-        .isInstanceOf(UserExistsException::class.java)
-        .withFailMessage("Unable to create user: USER_DUP with reason: user name already exists")
     }
   }
 }

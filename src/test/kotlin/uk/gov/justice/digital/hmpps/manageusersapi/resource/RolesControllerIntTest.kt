@@ -123,7 +123,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role doesn't call external users api if nomis fails`() {
-      nomisApiMockServer.stubCreateRoleFail(CONFLICT)
+      nomisApiMockServer.stubCreateRoleFail(CONFLICT, "RC1")
       externalUsersApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -144,8 +144,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Unexpected error: Unable to create role: RC1 with reason: role code already exists")
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create role: RC1 with reason: role code already exists")
+          assertThat(it["userMessage"] as String).isEqualTo("Role already exists: Role with code RC1 already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Role with code RC1 already exists")
         }
 
       externalUsersApiMockServer.verify(0, postRequestedFor(urlEqualTo("/roles")))
@@ -1152,7 +1152,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     fun `Change role admin type does not call external users when nomis fails - creating new DPS Role`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN2")
       externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN2")
-      nomisApiMockServer.stubCreateRoleFail(REQUEST_TIMEOUT)
+      nomisApiMockServer.stubPostFailEmptyResponse("/roles", REQUEST_TIMEOUT)
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN2/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

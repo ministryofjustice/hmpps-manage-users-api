@@ -226,9 +226,29 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubCreateRoleFail(status: HttpStatus) {
+  fun stubCreateRoleFail(status: HttpStatus, roleCode: String) {
     stubFor(
       post(urlEqualTo("/roles"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": 601,
+                "userMessage": "Role already exists: Role with code $roleCode already exists",
+                "developerMessage": "Role with code $roleCode already exists"
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubPostFailEmptyResponse(url: String, status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo(url))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")

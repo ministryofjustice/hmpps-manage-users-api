@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -9,25 +8,25 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmend
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService as ExternalRolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as NomisRolesApiService
 
 @Service
 class RolesService(
-  val nomisApiService: NomisApiService,
-  val rolesApiService: RolesApiService
+  val nomisRolesApiService: NomisRolesApiService,
+  val externalRolesApiService: ExternalRolesApiService
 ) {
 
-  @Throws(RoleExistsException::class)
   fun createRole(role: CreateRole) {
     if (role.adminType.hasDPSAdminType()) {
-      nomisApiService.createRole(role)
+      nomisRolesApiService.createRole(role)
     }
-    rolesApiService.createRole(role)
+    externalRolesApiService.createRole(role)
   }
 
   fun getRoles(
     adminTypes: List<AdminType>?
-  ): List<Role> = rolesApiService.getRoles(adminTypes)
+  ): List<Role> = externalRolesApiService.getRoles(adminTypes)
 
   fun getPagedRoles(
     page: Int,
@@ -36,29 +35,27 @@ class RolesService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ) = rolesApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
+  ) = externalRolesApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
-  fun getRoleDetail(roleCode: String): Role = rolesApiService.getRoleDetail(roleCode)
+  fun getRoleDetail(roleCode: String): Role = externalRolesApiService.getRoleDetail(roleCode)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     val originalRole = getRoleDetail(roleCode)
     if (originalRole.isDPSRole()) {
-      nomisApiService.updateRoleName(roleCode, roleAmendment)
+      nomisRolesApiService.updateRoleName(roleCode, roleAmendment)
     }
-    rolesApiService.updateRoleName(roleCode, roleAmendment)
+    externalRolesApiService.updateRoleName(roleCode, roleAmendment)
   }
 
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
-    rolesApiService.updateRoleDescription(roleCode, roleAmendment)
+    externalRolesApiService.updateRoleDescription(roleCode, roleAmendment)
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    val originalRole = rolesApiService.getRoleDetail(roleCode)
+    val originalRole = externalRolesApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
-      nomisApiService.updateRoleAdminType(roleCode, roleAmendment)
+      nomisRolesApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
-      nomisApiService.createRole(
+      nomisRolesApiService.createRole(
         CreateRole(
           originalRole.roleCode,
           originalRole.roleName,
@@ -67,7 +64,7 @@ class RolesService(
         )
       )
     }
-    rolesApiService.updateRoleAdminType(roleCode, roleAmendment)
+    externalRolesApiService.updateRoleAdminType(roleCode, roleAmendment)
   }
 
   private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
@@ -79,9 +76,3 @@ class RolesService(
 }
 
 fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeCode) }
-
-class RoleExistsException(role: String, errorCode: String) :
-  Exception("Unable to create role: $role with reason: $errorCode")
-
-class RoleNotFoundException(action: String, role: String, errorCode: String) :
-  Exception("Unable to $action role: $role with reason: $errorCode")
