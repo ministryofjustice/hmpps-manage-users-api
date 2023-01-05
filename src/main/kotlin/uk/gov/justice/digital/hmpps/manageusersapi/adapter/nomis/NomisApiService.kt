@@ -82,22 +82,14 @@ class NomisApiService(
     )
   }
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
-    try {
-      nomisWebClient.put().uri("/roles/$roleCode")
-        .bodyValue(
-          mapOf(
-            "name" to roleNameAmendment.roleName.nomisRoleName()
-          )
-        )
-        .retrieve()
-        .toBodilessEntity()
-        .block()
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
-    }
+    nomisWebClientUtils.put(
+      "/roles/$roleCode",
+      mapOf(
+        "name" to roleNameAmendment.roleName.nomisRoleName()
+      )
+    )
   }
 
   @Throws(RoleNotFoundException::class)
