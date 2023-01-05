@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -9,11 +8,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmend
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService as ExternalRolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as NomisRolesApiService
 
 @Service
 class RolesService(
-  val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService,
-  val externalRolesApiService: RolesApiService
+  val nomisRolesApiService: NomisRolesApiService,
+  val externalRolesApiService: ExternalRolesApiService
 ) {
 
   fun createRole(role: CreateRole) {
