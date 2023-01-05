@@ -3,10 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
@@ -18,7 +15,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetail
 
 @Service
 class NomisApiService(
-  @Qualifier("nomisWebClient") val nomisWebClient: WebClient,
   @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils
 ) {
   companion object {
@@ -101,22 +97,10 @@ class NomisApiService(
     )
   }
 
-  private fun String.nomisRoleName(): String = take(30)
+  fun getUserRoles(username: String) =
+    nomisWebClientUtils.get("/users/$username/roles", UserRoleDetail::class.java)
 
-  fun getUserRoles(username: String): UserRoleDetail {
-    try {
-      return nomisWebClient.get()
-        .uri("/users/$username/roles")
-        .retrieve()
-        .bodyToMono(UserRoleDetail::class.java)
-        .block()!!
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) UserNotFoundException("get", username, "notfound") else e
-    }
-  }
+  private fun String.nomisRoleName(): String = take(30)
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)
 }
-
-class UserNotFoundException(action: String, username: String, errorCode: String) :
-  Exception("Unable to $action user: $username with reason: $errorCode")
