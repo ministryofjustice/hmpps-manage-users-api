@@ -7,18 +7,18 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
 class UserServiceTest {
-  private val nomisService: NomisApiService = mock()
+  private val nomisUserCreateService: UserApiService = mock()
   private val tokenService: TokenService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
   private val nomisUserService = UserService(
-    nomisService,
+    nomisUserCreateService,
     tokenService,
     verifyEmailDomainService,
   )
@@ -30,7 +30,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
 
-      whenever(nomisService.createCentralAdminUser(user)).thenReturn(
+      whenever(nomisUserCreateService.createCentralAdminUser(user)).thenReturn(
         NomisUserDetails(
           user.username,
           user.email,
@@ -39,7 +39,7 @@ class UserServiceTest {
         )
       )
       nomisUserService.createUser(user)
-      verify(nomisService).createCentralAdminUser(user)
+      verify(nomisUserCreateService).createCentralAdminUser(user)
       verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
     }
 
@@ -47,7 +47,7 @@ class UserServiceTest {
     fun `create a DPS general user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
-      whenever(nomisService.createGeneralUser(user)).thenReturn(
+      whenever(nomisUserCreateService.createGeneralUser(user)).thenReturn(
         NomisUserDetails(
           user.username,
           user.email,
@@ -56,7 +56,7 @@ class UserServiceTest {
         )
       )
       nomisUserService.createUser(user)
-      verify(nomisService).createGeneralUser(user)
+      verify(nomisUserCreateService).createGeneralUser(user)
       verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
     }
 
@@ -64,7 +64,7 @@ class UserServiceTest {
     fun `create a DPS local admin user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
-      whenever(nomisService.createLocalAdminUser(user)).thenReturn(
+      whenever(nomisUserCreateService.createLocalAdminUser(user)).thenReturn(
         NomisUserDetails(
           user.username,
           user.email,
@@ -73,7 +73,7 @@ class UserServiceTest {
         )
       )
       nomisUserService.createUser(user)
-      verify(nomisService).createLocalAdminUser(user)
+      verify(nomisUserCreateService).createLocalAdminUser(user)
       verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
     }
 

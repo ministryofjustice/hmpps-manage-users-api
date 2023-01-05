@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
@@ -14,7 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailD
 
 @Service("NomisUserService")
 class UserService(
-  private val nomisApiService: NomisApiService,
+  private val nomisUserCreateService: UserApiService,
   private val tokenService: TokenService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
@@ -26,11 +26,11 @@ class UserService(
 
     var nomisUserDetails: NomisUserDetails? = null
     if (DPS_ADM == user.userType) {
-      nomisUserDetails = nomisApiService.createCentralAdminUser(user)
+      nomisUserDetails = nomisUserCreateService.createCentralAdminUser(user)
     } else if (DPS_GEN == user.userType) {
-      nomisUserDetails = nomisApiService.createGeneralUser(user)
+      nomisUserDetails = nomisUserCreateService.createGeneralUser(user)
     } else if (DPS_LSA == user.userType) {
-      nomisUserDetails = nomisApiService.createLocalAdminUser(user)
+      nomisUserDetails = nomisUserCreateService.createLocalAdminUser(user)
     }
     tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
     return nomisUserDetails ?: throw UserException(user.username, user.userType, "Error creating DPS User")

@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
@@ -10,13 +9,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 
 @Service("NomisUserRolesService")
 class UserRolesService(
-  val rolesApiService: RolesApiService,
-  val nomisApiService: NomisApiService,
+  val externalRolesApiService: RolesApiService,
+  val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService,
 ) {
 
   fun getUserRoles(username: String): UserRoleDetail {
-    val userRoleDetail = nomisApiService.getUserRoles(username)
-    val externalUserRoles = rolesApiService.getRoles(listOf(AdminType.DPS_ADM))
+    val userRoleDetail = nomisRolesApiService.getUserRoles(username)
+    val externalUserRoles = externalRolesApiService.getRoles(listOf(AdminType.DPS_ADM))
 
     return userRoleDetail.copy(dpsRoles = userExternalUsersRoleNames(userRoleDetail.dpsRoles, externalUserRoles))
   }
