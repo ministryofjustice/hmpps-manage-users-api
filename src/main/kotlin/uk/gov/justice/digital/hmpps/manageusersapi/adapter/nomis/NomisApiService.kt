@@ -14,7 +14,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
 
 @Service
@@ -92,22 +91,14 @@ class NomisApiService(
     )
   }
 
-  @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
-    try {
-      nomisWebClient.put().uri("/roles/$roleCode")
-        .bodyValue(
-          mapOf(
-            "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly()
-          )
-        )
-        .retrieve()
-        .toBodilessEntity()
-        .block()
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.NOT_FOUND)) RoleNotFoundException("get", roleCode, "notfound") else e
-    }
+    nomisWebClientUtils.put(
+      "/roles/$roleCode",
+      mapOf(
+        "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly()
+      )
+    )
   }
 
   private fun String.nomisRoleName(): String = take(30)
