@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
-import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -15,7 +14,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
 
@@ -84,21 +82,6 @@ class NomisApiService(
     )
   }
 
-  fun createRole(createRole: NomisRole) {
-    log.debug("Create dps role for {} with {}", createRole.code, createRole)
-    try {
-      nomisWebClient.post().uri("/roles")
-        .bodyValue(createRole)
-        .retrieve()
-        .toBodilessEntity()
-        .block()
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(HttpStatus.CONFLICT)) RoleExistsException(
-        createRole.code,
-        "role code already exists"
-      ) else e
-    }
-  }
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
@@ -154,14 +137,3 @@ class NomisApiService(
 
 class UserNotFoundException(action: String, username: String, errorCode: String) :
   Exception("Unable to $action user: $username with reason: $errorCode")
-
-data class NomisRole(
-  @Schema(description = "Role Code", example = "GLOBAL_SEARCH", required = true)
-  val code: String,
-
-  @Schema(description = "Role Name", example = "Global Search Role", required = true)
-  val name: String,
-
-  @Schema(description = "If the role is for admin users only", example = "false", required = true)
-  val adminRoleOnly: Boolean
-)
