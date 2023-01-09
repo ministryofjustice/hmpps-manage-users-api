@@ -37,6 +37,26 @@ class AuthService(
       throw TokenException(createTokenRequest.username, e.statusCode.value())
     }
   }
+
+  @Throws(TokenException::class)
+  fun createTokenByEmailType(tokenByEmailTypeRequest: TokenByEmailTypeRequest): String {
+    log.debug("Create Token for user and email type {}", tokenByEmailTypeRequest)
+    try {
+      return authWebWithClientId.post().uri("/api/token/email-type")
+        .bodyValue(
+          mapOf(
+            "username" to tokenByEmailTypeRequest.username,
+            "emailType" to tokenByEmailTypeRequest.emailType
+          )
+        )
+        .retrieve()
+        .bodyToMono(String::class.java)
+        .block()!!
+    } catch (e: WebClientResponseException) {
+      e.statusCode
+      throw TokenException(tokenByEmailTypeRequest.username!!, e.statusCode.value())
+    }
+  }
 }
 
 class TokenException(userName: String, errorCode: Int) :
@@ -48,4 +68,9 @@ data class CreateTokenRequest(
   val source: String,
   val firstName: String,
   val lastName: String,
+)
+
+data class TokenByEmailTypeRequest(
+  val username: String?,
+  val emailType: String,
 )

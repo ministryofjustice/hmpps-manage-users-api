@@ -9,6 +9,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailNotificationService
 import java.util.UUID
@@ -17,11 +18,15 @@ class UserServiceTest {
   private val userApiService: UserApiService = mock()
   private val emailNotificationService: EmailNotificationService = mock()
   private val telemetryClient: TelemetryClient = mock()
+  private val externalUsersApiService: UserSearchApiService = mock()
+  private val verifyEmailService: VerifyEmailService = mock()
 
   private val userService = UserService(
     userApiService,
     emailNotificationService,
-    telemetryClient
+    telemetryClient,
+    externalUsersApiService,
+    verifyEmailService,
   )
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
 

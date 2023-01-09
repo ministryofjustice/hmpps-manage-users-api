@@ -171,10 +171,10 @@ data class ExternalUserDetailsDto(
   val userId: UUID,
 
   @Schema(description = "Username", example = "externaluser")
-  val username: String,
+  var username: String,
 
   @Schema(description = "Email address", example = "external.user@someagency.justice.gov.uk")
-  val email: String,
+  var email: String,
 
   @Schema(description = "First name", example = "External")
   val firstName: String,
@@ -189,7 +189,7 @@ data class ExternalUserDetailsDto(
   val enabled: Boolean = false,
 
   @Schema(required = true, description = "Email address has been verified", example = "false")
-  val verified: Boolean = false,
+  var verified: Boolean = false,
 
   @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
   val lastLoggedIn: LocalDateTime? = null,

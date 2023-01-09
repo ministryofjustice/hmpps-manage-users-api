@@ -4,19 +4,20 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserService
+import uk.gov.service.notify.NotificationClientException
 import java.util.UUID
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -24,7 +25,7 @@ import javax.validation.constraints.Size
 @RestController("ExternalUserController")
 class UserController(
   private val userService: UserService,
-  private val userGroupService: UserGroupService
+  private val userGroupService: UserGroupService,
 ) {
 
   @GetMapping("/externalusers/me/assignable-groups")
@@ -161,6 +162,77 @@ class UserController(
     userId,
     deactivateReason
   )
+
+  @PostMapping("/externalusers/{userId}/email")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Amend a user email address.",
+    description = "Amend a user email address."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "204",
+        description = "OK."
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Bad request e.g. if validation failed or if the email changes are disallowed",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to amend user, the user is not within one of your groups or you don't have ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER roles",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @Throws(NotificationClientException::class)
+  fun alterUserEmail(
+    @Parameter(description = "The ID of the user.", required = true) @PathVariable
+    userId: UUID,
+    @org.springframework.web.bind.annotation.RequestBody amendUser: AmendUser,
+  ): String? {
+    // TODO: 1. Create createInitialPasswordUrl
+    // val setPasswordUrl = createInitialPasswordUrl(request)
+    val resetLink = userService.amendUserEmailByUserId(
+      userId,
+      amendUser.email,
+      "", // TODO 2. setPasswordUrl
+    )
+    // return if (smokeTestEnabled) resetLink else null
+    return ""
+  }
 }
 
 @Schema(description = "Deactivate Reason")
@@ -168,4 +240,9 @@ data class DeactivateReason(
   @Schema(required = true, description = "Deactivate Reason", example = "User has left")
   @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank
   val reason: String
+)
+
+data class AmendUser(
+  @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
+  val email: String?
 )
