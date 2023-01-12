@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.1-beta-1"
   kotlin("plugin.spring") version "1.8.0"
 }
 
@@ -18,7 +18,7 @@ dependencies {
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
-  implementation("com.google.code.gson:gson:2.10")
+  implementation("com.google.code.gson:gson:2.10.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
   implementation("uk.gov.service.notify:notifications-java-client:3.19.0-RELEASE")
