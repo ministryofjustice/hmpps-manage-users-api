@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

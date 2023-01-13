@@ -8,6 +8,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.service.notify.NotificationClientApi

@@ -2,13 +2,13 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
