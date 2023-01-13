@@ -27,6 +27,8 @@ class VerifyEmailService(
   // @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
 
 ) {
+
+  // TODO wire this in from config
   private val notifyTemplateId: String = "template"
 
   @Transactional
@@ -35,44 +37,42 @@ class VerifyEmailService(
     username: String,
     emailInput: String?,
     firstName: String?,
-    fullname: String?,
+    fullName: String?,
     url: String,
   ): LinkEmailAndUsername {
-    // TODO: 6. Find a user by UserId and check whether it's part of the Group (External User API)
+    // TODO Confirm in Auth but this call should not be necessary as in our context we already have the user
     // val user = externalUsersApiService.findUserByUserId(userId)
+
     val verifyLink =
-      url + authService.createTokenByEmailType(TokenByEmailTypeRequest(username, "PRIMARY")) // if (emailType == EmailType.PRIMARY) UserToken.TokenType.VERIFIED else UserToken.TokenType.SECONDARY).token
-    val parameters = mapOf("firstName" to firstName, "fullName" to fullname, "verifyLink" to verifyLink)
+      url + authService.createTokenByEmailType(TokenByEmailTypeRequest(username, EmailType.PRIMARY.name))
+
+    val parameters = mapOf(
+      "firstName" to firstName,
+      "fullName" to fullName,
+      "verifyLink" to verifyLink)
+
     val email = EmailHelper.format(emailInput)
-
+    var usernameToUpdate = username
     validateEmailAddress(email, EmailType.PRIMARY)
-    //  when (emailType) {
-    // EmailType.PRIMARY -> {
-    // if the user is configured so that the email address is their username, need to check it is unique
-    username.let {
-      if (username.contains("@") && email!!.uppercase() != username) {
-        // TODO  need to raise ValidEmailException if user exists
-        val userWithEmailInDatabase = externalUsersApiService.findUserByUsername(email.uppercase())
 
-      /*  if (userWithEmailInDatabase.isPresent) {
-          // there's already a user in the database with that username
+    username.let {
+
+      // if the user is configured so that the email address is their username, need to check it is unique
+      if (it.contains("@") && email!!.uppercase() != username) {
+        val userWithEmailInDatabase = externalUsersApiService.findUserByUsername(email.uppercase())
+        if(userWithEmailInDatabase != null) {
           throw ValidEmailException("duplicate")
         } else {
-          username = email
+          usernameToUpdate = email
           telemetryClient.trackEvent(
-            "AuthUserChangeUsername",
-            mapOf("username" to email, "previous" to username),
+            "ExternalUserChangeUsername",
+            mapOf("username" to usernameToUpdate, "previous" to username),
             null
           )
-        }*/
+        }
       }
-      // TODO add this user.email = email
-      // TODO Add this user.verified = false
     }
-    // }
-    // TODO : EmailType.SECONDARY
-    // EmailType.SECONDARY -> user.addContact(ContactType.SECONDARY_EMAIL, email)
-    // }
+
     try {
       log.info("Sending email verification to notify for user {}", username)
       notificationClient.sendEmail(notifyTemplateId, email, parameters, null)
@@ -91,6 +91,8 @@ class VerifyEmailService(
       }
       throw e
     }
+
+    // TODO call new external users end point to update the email and username, (in some cases the username will be unchanged). Internally this will set verified to false
     // userRepository.save(user)
 
     return LinkEmailAndUsername(verifyLink, email!!, username)

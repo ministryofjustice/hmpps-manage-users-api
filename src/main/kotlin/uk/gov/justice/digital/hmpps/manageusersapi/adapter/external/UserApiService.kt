@@ -26,4 +26,9 @@ class UserApiService(
     log.debug("Disabling User for User Id of {} ", userId)
     externalUsersWebClientUtils.put("/users/$userId/disable", deactivateReason)
   }
+
+  fun updateEmailAddress(userId: UUID, userName: String, email: String) {
+    // TODO implement this
+
+  }
 }

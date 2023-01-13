@@ -54,7 +54,7 @@ class AuthService(
         .block()!!
     } catch (e: WebClientResponseException) {
       e.statusCode
-      throw TokenException(tokenByEmailTypeRequest.username!!, e.statusCode.value())
+      throw TokenException(tokenByEmailTypeRequest.username, e.statusCode.value())
     }
   }
 }
@@ -71,6 +71,6 @@ data class CreateTokenRequest(
 )
 
 data class TokenByEmailTypeRequest(
-  val username: String?,
+  val username: String,
   val emailType: String,
 )
