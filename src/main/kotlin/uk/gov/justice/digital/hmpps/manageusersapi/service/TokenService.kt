@@ -4,7 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.service.notify.NotificationClientApi
@@ -14,7 +14,7 @@ import uk.gov.service.notify.NotificationClientException
 class TokenService(
   private val notificationClient: NotificationClientApi,
   private val telemetryClient: TelemetryClient,
-  private val authService: AuthService,
+  private val authService: AuthApiService,
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
   @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
 ) {

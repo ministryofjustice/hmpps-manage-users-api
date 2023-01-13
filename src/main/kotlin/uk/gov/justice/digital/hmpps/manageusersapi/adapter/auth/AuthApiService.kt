@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 
 @Service
-class AuthService(
+class AuthApiService(
   @Qualifier("authWebClientUtils") val authWebClientUtils: WebClientUtils
 ) {
   companion object {
