@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
@@ -18,7 +17,7 @@ class UserService(
   private val tokenService: TokenService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
-  @Throws(TokenException::class, HmppsValidationException::class)
+  @Throws(HmppsValidationException::class)
   fun createUser(user: CreateUserRequest): NomisUserDetails {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
