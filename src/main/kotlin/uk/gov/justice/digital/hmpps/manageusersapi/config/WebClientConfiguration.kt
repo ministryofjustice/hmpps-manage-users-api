@@ -50,6 +50,14 @@ class WebClientConfiguration(
   }
 
   @Bean
+  fun nomisWebClient(builder: WebClient.Builder): WebClient {
+    return builder
+      .baseUrl(nomisBaseUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+  }
+
+  @Bean
   fun externalUsersWebClientUtils(@Qualifier("externalUsersWebClient") externalUsersWebClient: WebClient) =
     WebClientUtils(externalUsersWebClient)
 
@@ -58,12 +66,8 @@ class WebClientConfiguration(
     WebClientUtils(nomisWebClient)
 
   @Bean
-  fun nomisWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(nomisBaseUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun authWebClientUtils(@Qualifier("authWebClient") authWebClient: WebClient) =
+    WebClientUtils(authWebClient)
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()

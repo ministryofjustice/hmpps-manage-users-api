@@ -8,7 +8,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
@@ -18,7 +17,7 @@ class UserService(
   private val tokenService: TokenService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
-  @Throws(TokenException::class, HmppsValidationException::class)
+  @Throws(HmppsValidationException::class)
   fun createUser(user: CreateUserRequest): NomisUserDetails {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")

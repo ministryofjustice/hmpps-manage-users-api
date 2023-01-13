@@ -8,6 +8,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.service.notify.NotificationClientApi
@@ -16,7 +17,7 @@ import uk.gov.service.notify.NotificationClientException
 class TokenServiceTest {
   private val notificationClient: NotificationClientApi = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val authService: AuthService = mock()
+  private val authService: AuthApiService = mock()
   private val tokenService =
     TokenService(notificationClient, telemetryClient, authService, "http://localhost:9090/auth", "template-id")
 
