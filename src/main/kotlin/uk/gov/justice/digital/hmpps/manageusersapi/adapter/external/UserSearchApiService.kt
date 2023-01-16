@@ -16,8 +16,8 @@ class UserSearchApiService(
   fun findUsersByEmail(email: String): List<ExternalUserDetailsDto>? =
     externalUsersWebClientUtils.getIfPresent("/users?email=$email", UserList::class.java)
 
-  fun findUserByUsername(userName: String): ExternalUserDetailsDto? =
-    externalUsersWebClientUtils.getIfPresent("/users/$userName", ExternalUserDetailsDto::class.java)
+  fun findUserByUsername(username: String): ExternalUserDetailsDto =
+    externalUsersWebClientUtils.get("/users/$username", ExternalUserDetailsDto::class.java)
 
   fun findUsers(
     name: String?,

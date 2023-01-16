@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus.NOT_FOUND
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
 class UserSearchControllerIntTest : IntegrationTestBase() {
@@ -72,15 +73,6 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `should respond with not found when user not found`() {
-      val userName = "fred"
-      webTestClient.get().uri("/externalusers/$userName")
-        .headers(setAuthorisation())
-        .exchange()
-        .expectStatus().isNotFound
-    }
-
-    @Test
     fun `should respond with user data returned from external users api`() {
       val userName = "EXT_ADM"
       externalUsersApiMockServer.stubUserByUsername(userName)
@@ -104,13 +96,18 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should respond with NOT_FOUND from external users api`() {
-      val userName = "AUTH_ADM"
-      externalUsersApiMockServer.stubNoUsersFoundForUserName(userName)
+      val username = "AUTH_ADM"
+      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
 
-      webTestClient.get().uri("/externalusers/$userName")
+      webTestClient.get().uri("/externalusers/$username")
         .headers(setAuthorisation())
         .exchange()
         .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
+          assertThat(it["userMessage"]).isEqualTo("User not found: Account for username AUTH_ADM not found")
+        }
     }
   }
 

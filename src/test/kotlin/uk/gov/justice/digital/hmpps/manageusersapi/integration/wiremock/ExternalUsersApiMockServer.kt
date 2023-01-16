@@ -1797,16 +1797,16 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """
                {
-                      "userId": "5105a589-75b3-4ca0-9433-b96228c1c8f3",
-                      "username": "$userName",
-                      "email": "ext_test@digital.justice.gov.uk",
-                      "firstName": "Ext",
-                      "lastName": "Adm",
-                      "locked": false,
-                      "enabled": true,
-                      "verified": true,
-                      "lastLoggedIn": "2022-12-01T09:30:07.933161",
-                      "inactiveReason": "Expired"
+                  "userId": "5105a589-75b3-4ca0-9433-b96228c1c8f3",
+                  "username": "$userName",
+                  "email": "ext_test@digital.justice.gov.uk",
+                  "firstName": "Ext",
+                  "lastName": "Adm",
+                  "locked": false,
+                  "enabled": true,
+                  "verified": true,
+                  "lastLoggedIn": "2022-12-01T09:30:07.933161",
+                  "inactiveReason": "Expired"
                   }
               """.trimIndent()
             )
@@ -1814,13 +1814,24 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubNoUsersFoundForUserName(userName: String) {
+  fun stubNoUsersFoundForUsername(username: String) {
     stubFor(
-      get("/users/$userName")
+      get("/users/$username")
         .willReturn(
           aResponse()
             .withStatus(NOT_FOUND.value())
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                  "status": 404,
+                  "errorCode": null,
+                  "userMessage": "User not found: Account for username $username not found",
+                  "developerMessage": "Account for username $username not found",
+                  "moreInfo": null
+                } 
+              """.trimIndent()
+            )
         )
     )
   }
