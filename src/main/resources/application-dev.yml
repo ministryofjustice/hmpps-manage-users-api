@@ -8,6 +8,7 @@ api:
       oauth: http://localhost:9090/auth
       nomis: http://localhost:8082
       external: http://localhost:8088
+      delius: http://localhost:8099
 
 notification:
   banner:

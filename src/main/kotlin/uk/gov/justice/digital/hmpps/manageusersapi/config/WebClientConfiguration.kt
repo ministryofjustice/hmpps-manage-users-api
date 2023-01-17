@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -20,12 +19,12 @@ class WebClientConfiguration(
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
   @Value("\${api.base.url.nomis}") val nomisBaseUri: String,
   @Value("\${api.base.url.external}") val externalUsersBaseUri: String,
+  @Value("\${api.base.url.delius}") val deliusBaseUri: String,
   appContext: ApplicationContext
 ) :
   AbstractWebClientConfiguration(
     appContext, "hmpps-auth"
   ) {
-  private val environment = appContext.environment
 
   @Bean
   fun authWebClient(builder: WebClient.Builder): WebClient {
@@ -58,16 +57,27 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun externalUsersWebClientUtils(@Qualifier("externalUsersWebClient") externalUsersWebClient: WebClient) =
+  fun deliusWebClient(builder: WebClient.Builder) =
+    builder
+      .baseUrl(deliusBaseUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+
+  @Bean
+  fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) =
     WebClientUtils(externalUsersWebClient)
 
   @Bean
-  fun nomisWebClientUtils(@Qualifier("nomisWebClient") nomisWebClient: WebClient) =
+  fun nomisWebClientUtils(nomisWebClient: WebClient) =
     WebClientUtils(nomisWebClient)
 
   @Bean
-  fun authWebClientUtils(@Qualifier("authWebClient") authWebClient: WebClient) =
+  fun authWebClientUtils(authWebClient: WebClient) =
     WebClientUtils(authWebClient)
+
+  @Bean
+  fun deliusWebClientUtils(deliusWebClient: WebClient) =
+    WebClientUtils(deliusWebClient)
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
