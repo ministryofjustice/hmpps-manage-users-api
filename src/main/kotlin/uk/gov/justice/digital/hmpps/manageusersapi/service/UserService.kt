@@ -1,21 +1,17 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
-import com.microsoft.applicationinsights.TelemetryClient
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
+import java.util.Optional
 
 @Service
 class UserService(
-  private val nomisRolesApiService: RolesApiService,
-  private val tokenService: TokenService,
-  private val verifyEmailDomainService: VerifyEmailDomainService,
-  private val emailNotificationService: EmailNotificationService,
-  private val telemetryClient: TelemetryClient,
-
+  private val externalUsersSearchApiService: UserSearchApiService
 ) {
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
-  }
+  fun findUserByUsername(username: String): Optional<UserDetailsDto> =
+    Optional.ofNullable(externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toUserDetails())
+  // or nomis user
+  // or delius user
+  // or azure user
 }

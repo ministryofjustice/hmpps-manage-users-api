@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserSearchService
 import java.time.LocalDateTime
@@ -196,4 +198,14 @@ data class ExternalUserDetailsDto(
 
   @Schema(required = true, description = "Inactive reason", example = "Left department")
   val inactiveReason: String? = null
-)
+) {
+  fun toUserDetails(): UserDetailsDto =
+    UserDetailsDto(
+      username = username,
+      active = enabled,
+      authSource = AuthSource.auth,
+      name = "$firstName $lastName",
+      userId = userId.toString(),
+      uuid = userId,
+    )
+}

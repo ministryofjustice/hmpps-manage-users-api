@@ -1,18 +1,35 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriBuilder
+import reactor.core.publisher.Mono
 import java.net.URI
 
 class WebClientUtils(private val client: WebClient) {
-
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
   fun <T : Any> get(uri: String, elementClass: Class<T>): T =
     client.get()
       .uri(uri)
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
+
+  fun <T : Any> getIgnoreError(uri: String, elementClass: Class<T>): T? {
+    return client.get()
+      .uri(uri)
+      .retrieve()
+      .bodyToMono(elementClass)
+      .onErrorResume {
+        log.warn("Unable to retrieve details due to {}", it.message)
+        Mono.empty()
+      }
+      .block()
+  }
 
   fun <T : Any> getIfPresent(uri: String, elementClass: Class<T>): T? =
     client.get()
