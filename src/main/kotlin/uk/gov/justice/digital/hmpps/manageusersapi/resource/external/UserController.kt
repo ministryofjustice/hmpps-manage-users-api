@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.HttpStatus
@@ -150,7 +149,8 @@ class UserController(
     ]
   )
   fun disableUserByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    @Parameter(description = "The userId of the user.", required = true)
+    @PathVariable
     userId: UUID,
     @Parameter(
       description = "The reason user made inactive.",

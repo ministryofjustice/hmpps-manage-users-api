@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -18,11 +19,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.HmppsValidationException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
 class HmppsManageUsersApiExceptionHandler {
+
+  @ExceptionHandler(NotFoundException::class)
+  fun handleNotFoundException(e: NotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("Not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
 
   @ExceptionHandler(AccessDeniedException::class)
   fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {

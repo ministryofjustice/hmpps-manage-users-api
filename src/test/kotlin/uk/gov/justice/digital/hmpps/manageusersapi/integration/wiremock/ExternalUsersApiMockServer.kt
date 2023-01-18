@@ -1974,4 +1974,25 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetFail(url: String, status: HttpStatus) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "External User message for GET failed",
+                "developerMessage": "Developer External user message for GET failed",
+                "moreInfo": null
+               }
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }
