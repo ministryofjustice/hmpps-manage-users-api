@@ -12,7 +12,6 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -20,15 +19,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.HmppsValidationException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
 class HmppsManageUsersApiExceptionHandler {
 
-  @ExceptionHandler(UsernameNotFoundException::class)
-  fun handleNotFoundException(e: UsernameNotFoundException): ResponseEntity<ErrorResponse> {
-    log.debug("Username not found exception caught: {}", e.message)
+  @ExceptionHandler(NotFoundException::class)
+  fun handleNotFoundException(e: NotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("Not found exception caught: {}", e.message)
     return ResponseEntity
       .status(NOT_FOUND)
       .body(
