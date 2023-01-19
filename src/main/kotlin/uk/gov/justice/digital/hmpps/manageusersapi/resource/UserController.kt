@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 
@@ -56,6 +55,6 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true)
     @PathVariable
     username: String
-  ): UserDetailsDto = userService.findUserByUsername(username)
-    .orElseThrow { NotFoundException("Account for username $username not found") }
+  ) = userService.findUserByUsername(username)
+    ?: throw NotFoundException("Account for username $username not found")
 }
