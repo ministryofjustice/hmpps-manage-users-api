@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.verify
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -23,9 +22,11 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun ` should fail with not_found`() {
-      externalUsersApiMockServer.stubGetFail("/users/AUTH_ADM", NOT_FOUND)
-      webTestClient.get().uri("/users/AUTH_ADM")
+    fun ` should fail with not_found for basic username`() {
+      val username = "AUTH_ADM"
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
+      webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isNotFound
@@ -33,15 +34,17 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"]).isEqualTo("Account for username AUTH_ADM not found")
-          assertThat(it["developerMessage"]).isEqualTo("Account for username AUTH_ADM not found")
+          assertThat(it["userMessage"]).isEqualTo("Account for username $username not found")
+          assertThat(it["developerMessage"]).isEqualTo("Account for username $username not found")
         }
+      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
     }
 
     @Test
-    fun ` should fail with not_found for azure user`() {
+    fun ` should fail with not_found for UUID username`() {
       val username = UUID.randomUUID()
       externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
       hmppsAuthMockServer.stubGetFail("/auth/api/azureuser/$username", NOT_FOUND)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
@@ -54,13 +57,25 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it["userMessage"]).isEqualTo("Account for username $username not found")
           assertThat(it["developerMessage"]).isEqualTo("Account for username $username not found")
         }
-      hmppsAuthMockServer.verify(getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
+    }
+
+    @Test
+    fun ` should fail with not_found for email address username`() {
+      val username = "testing@digital.justice.gov.uk"
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.get().uri("/users/$username")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username/details")))
+      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
     }
 
     @Test
     fun ` external user found success`() {
-      externalUsersApiMockServer.stubUserByUsername("EXT_ADM")
-      webTestClient.get().uri("/users/EXT_ADM")
+      val username = "EXT_ADM"
+      externalUsersApiMockServer.stubUserByUsername(username)
+      webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isOk
@@ -69,12 +84,36 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "EXT_ADM",
+              "username" to username,
               "active" to true,
               "name" to "Ext Adm",
               "authSource" to "auth",
               "userId" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
               "uuid" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
+            )
+          )
+        }
+    }
+
+    @Test
+    fun ` delius user found success`() {
+      val username = "deliususer"
+      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
+      deliusApiMockServer.stubGetUser(username)
+      webTestClient.get().uri("/users/$username")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username.uppercase(),
+              "active" to true,
+              "name" to "Delius Smith",
+              "authSource" to "delius",
+              "userId" to "1234567890",
             )
           )
         }
