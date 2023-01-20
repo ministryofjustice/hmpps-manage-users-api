@@ -90,7 +90,6 @@ class UserServiceTest {
       userId = "1234567890",
       firstName = "Delius",
       surname = "Smith",
-      email = "delius.smithy@digital.justice.gov.uk",
       enabled = true
     )
 
