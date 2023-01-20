@@ -21,7 +21,7 @@ import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 
-@RestController
+@RestController("NomisUserController")
 @Validated
 class UserController(
   private val nomisUserService: UserService

@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
+import java.util.UUID
 
 @Service
 class AuthApiService(
@@ -28,6 +30,15 @@ class AuthApiService(
       String::class.java
     )
   }
+
+  fun findAzureUserByUsername(username: String): UserDetailsDto? =
+    try {
+      UUID.fromString(username)
+      authWebClientUtils.getIgnoreError("/api/azureuser/$username", UserDetailsDto::class.java)
+    } catch (exception: IllegalArgumentException) {
+      log.debug("Auth not called for Azure user as username not valid UUID: {}", username)
+      null
+    }
 }
 
 data class CreateTokenRequest(
