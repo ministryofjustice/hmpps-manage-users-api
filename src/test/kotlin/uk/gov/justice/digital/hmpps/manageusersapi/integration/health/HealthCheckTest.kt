@@ -27,11 +27,16 @@ class HealthCheckTest : IntegrationTestBase() {
     webTestClient.get().uri("/health")
       .exchange()
       .expectStatus().isOk
-      .expectBody().jsonPath("components.healthInfo.details.version").value(
+      .expectBody()
+      .jsonPath("components.healthInfo.details.version").value(
         Consumer<String> {
           assertThat(it).startsWith(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
         }
       )
+      .jsonPath("components.authHealthCheck.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("components.deliusApiHealthCheck.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("components.externalUsersApiHealthCheck.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("components.nomisApiHealthCheck.details.HttpStatus").isEqualTo("OK")
   }
 
   @Test
@@ -75,6 +80,7 @@ class HealthCheckTest : IntegrationTestBase() {
 
   private fun stubPingWithResponse(status: Int) {
     hmppsAuthMockServer.stubHealthPing(status)
+    deliusApiMockServer.stubHealthPing(status)
     nomisApiMockServer.stubHealthPing(status)
     externalUsersApiMockServer.stubHealthPing(status)
   }
