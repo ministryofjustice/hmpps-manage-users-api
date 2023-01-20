@@ -5,14 +5,11 @@ data class DeliusUserDetails(
   override val userId: String,
   override val firstName: String,
   val surname: String,
-  val email: String,
   private val enabled: Boolean = false,
 ) : UserDetails {
 
   override val name: String
     get() = "$firstName $surname"
-
-  override val isAdmin: Boolean = false
 
   override val authSource: String
     get() = "delius"
@@ -22,7 +19,7 @@ data class DeliusUserDetails(
       username = username,
       active = enabled,
       authSource = AuthSource.delius,
-      name = "$firstName $surname",
+      name = name,
       userId = userId,
       uuid = null
     )
