@@ -41,6 +41,13 @@ class WebClientConfiguration(
   ): WebClient = getWebClient(builder, authorizedClientManager)
 
   @Bean
+  fun deliusWebClient(builder: WebClient.Builder): WebClient =
+    builder
+      .baseUrl(deliusBaseUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+
+  @Bean
   fun externalUsersWebClient(builder: WebClient.Builder): WebClient {
     return builder
       .baseUrl(externalUsersBaseUri)
@@ -57,19 +64,16 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun deliusWebClient(builder: WebClient.Builder) =
-    builder
-      .baseUrl(deliusBaseUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
+  fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(authBaseUri).build()
 
   @Bean
-  fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) =
-    WebClientUtils(externalUsersWebClient)
+  fun deliusHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(deliusBaseUri).build()
 
   @Bean
-  fun nomisWebClientUtils(nomisWebClient: WebClient) =
-    WebClientUtils(nomisWebClient)
+  fun externalUsersHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(externalUsersBaseUri).build()
+
+  @Bean
+  fun nomisHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(nomisBaseUri).build()
 
   @Bean
   fun authWebClientUtils(authWebClient: WebClient) =
@@ -78,6 +82,14 @@ class WebClientConfiguration(
   @Bean
   fun deliusWebClientUtils(deliusWebClient: WebClient) =
     WebClientUtils(deliusWebClient)
+
+  @Bean
+  fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) =
+    WebClientUtils(externalUsersWebClient)
+
+  @Bean
+  fun nomisWebClientUtils(nomisWebClient: WebClient) =
+    WebClientUtils(nomisWebClient)
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()

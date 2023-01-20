@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.manageusersapi.helper.JwtAuthHelper
+import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.DeliusApiMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.ExternalUsersApiMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.HmppsAuthMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.NomisApiMockServer
@@ -34,6 +35,9 @@ abstract class IntegrationTestBase {
     @JvmField
     internal val externalUsersApiMockServer = ExternalUsersApiMockServer()
 
+    @JvmField
+    internal val deliusApiMockServer = DeliusApiMockServer()
+
     @BeforeAll
     @JvmStatic
     fun startMocks() {
@@ -42,6 +46,7 @@ abstract class IntegrationTestBase {
 
       nomisApiMockServer.start()
       externalUsersApiMockServer.start()
+      deliusApiMockServer.start()
     }
 
     @AfterAll
@@ -50,6 +55,7 @@ abstract class IntegrationTestBase {
       nomisApiMockServer.stop()
       hmppsAuthMockServer.stop()
       externalUsersApiMockServer.stop()
+      deliusApiMockServer.stop()
     }
   }
 

@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import java.time.Duration
 
 @Component
-class ExternalUsersApiHealthCheck @Autowired constructor(
-  @Qualifier("externalUsersHealthWebClient") externalUsersHealthWebClient: WebClient,
+class DeliusApiHealthCheck @Autowired constructor(
+  @Qualifier("deliusHealthWebClient") deliusHealthWebClient: WebClient,
   @Value("\${api.health-timeout-ms}") timeout: Duration
-) : HealthCheck(externalUsersHealthWebClient, timeout)
+) : HealthCheck(deliusHealthWebClient, timeout)
