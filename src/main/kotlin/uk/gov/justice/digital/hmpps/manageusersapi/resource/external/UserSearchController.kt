@@ -132,8 +132,8 @@ class UserSearchController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
-    summary = "User detail by user id.",
-    description = "User detail by user id."
+    summary = "Retrieve user details by user id.",
+    description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user"
   )
   @ApiResponses(
     value = [
@@ -144,6 +144,16 @@ class UserSearchController(
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to view user, either you do not have authority or the user is not within one of your groups.",
         content = [
           Content(
             mediaType = "application/json",
