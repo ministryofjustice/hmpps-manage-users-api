@@ -1787,6 +1787,33 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubUserById(userId: String) {
+    stubFor(
+      get("/users/id/$userId")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                  "userId": "$userId",
+                  "username": "EXT_TEST",
+                  "email": "ext_test@digital.justice.gov.uk",
+                  "firstName": "Ext",
+                  "lastName": "Adm",
+                  "locked": false,
+                  "enabled": true,
+                  "verified": true,
+                  "lastLoggedIn": "2022-12-01T09:30:07.933161",
+                  "inactiveReason": "Expired"
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubUserByUsername(userName: String) {
     stubFor(
       get("/users/$userName")
@@ -1808,6 +1835,28 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "lastLoggedIn": "2022-12-01T09:30:07.933161",
                   "inactiveReason": "Expired"
                   }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubUserNotFoundForUserId(userId: String) {
+    stubFor(
+      get("/users/id/$userId")
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                  "status": 404,
+                  "errorCode": null,
+                  "userMessage": "User not found: Account for user id $userId not found",
+                  "developerMessage": "Account for username $userId not found",
+                  "moreInfo": null
+                } 
               """.trimIndent()
             )
         )

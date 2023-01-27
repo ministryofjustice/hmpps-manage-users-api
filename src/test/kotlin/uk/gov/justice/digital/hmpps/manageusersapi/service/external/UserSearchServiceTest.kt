@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -8,9 +9,12 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status.ACTIVE
+import java.util.UUID
 
 class UserSearchServiceTest {
 
@@ -51,6 +55,21 @@ class UserSearchServiceTest {
       userSearchService.findExternalUserByUsername("user")
 
       verify(userSearchApiService).findUserByUsername("user")
+    }
+  }
+
+  @Nested
+  inner class FindUserById {
+
+    @Test
+    fun shouldCallExternalUsersApi() {
+      val userId = UUID.randomUUID()
+      val expectedUser = ExternalUserDetailsDto(userId = userId, username = "testy", email = "testy@testing.com", firstName = "Testy", lastName = "McTesting")
+      whenever(userSearchApiService.findByUserId(userId)).thenReturn(expectedUser)
+
+      val actualUser = userSearchService.findExternalUserById(userId)
+
+      assertEquals(expectedUser, actualUser)
     }
   }
 

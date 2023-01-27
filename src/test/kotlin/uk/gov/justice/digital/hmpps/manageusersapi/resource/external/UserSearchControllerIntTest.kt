@@ -62,6 +62,61 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class FindUserByUserId {
+    @Test
+    fun `no access when unauthorised`() {
+      webTestClient.get().uri("/externalusers/id/608955ae-52ed-44cc-884c-011597a77949")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `no access without correct authority`() {
+      webTestClient.get().uri("/externalusers/id/608955ae-52ed-44cc-884c-011597a77949")
+        .headers(setAuthorisation(roles = listOf("ROLE_ADD_SENSITIVE_CASE_NOTES")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should respond with not found when external users api responds with not found`() {
+      val userId = "608955ae-52ed-44cc-884c-011597a77949"
+      externalUsersApiMockServer.stubUserNotFoundForUserId(userId)
+      webTestClient.get().uri("/externalusers/id/608955ae-52ed-44cc-884c-011597a77949")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
+          assertThat(it["userMessage"]).isEqualTo("User not found: Account for user id $userId not found")
+          assertThat(it["developerMessage"]).isEqualTo("Account for username $userId not found")
+        }
+    }
+
+    @Test
+    fun `should respond with user details when found`() {
+      val userId = "608955ae-52ed-44cc-884c-011597a77949"
+      externalUsersApiMockServer.stubUserById(userId)
+      webTestClient.get().uri("/externalusers/id/$userId")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.userId").isEqualTo(userId)
+        .jsonPath("$.username").isEqualTo("EXT_TEST")
+        .jsonPath("$.email").isEqualTo("ext_test@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Ext")
+        .jsonPath("$.lastName").isEqualTo("Adm")
+        .jsonPath("$.locked").isEqualTo(false)
+        .jsonPath("$.enabled").isEqualTo(true)
+        .jsonPath("$.verified").isEqualTo(true)
+        .jsonPath("$.lastLoggedIn").isNotEmpty
+        .jsonPath("$.inactiveReason").isEqualTo("Expired")
+    }
+  }
+
+  @Nested
   inner class FindUsersByUserName {
 
     @Test
