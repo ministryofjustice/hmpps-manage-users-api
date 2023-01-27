@@ -128,6 +128,56 @@ class UserSearchController(
     return if (users == null) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
+  @GetMapping("/id/{userId}")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Retrieve user details by user id.",
+    description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to view user, either you do not have authority or the user is not within one of your groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun userById(
+    @Parameter(description = "The id of the user.", required = true) @PathVariable
+    userId: UUID
+  ) = userSearchService.findExternalUserById(userId)
+
   @GetMapping("/{username}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
