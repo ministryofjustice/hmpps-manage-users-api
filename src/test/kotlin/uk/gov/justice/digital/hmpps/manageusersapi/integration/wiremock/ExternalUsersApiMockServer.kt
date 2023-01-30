@@ -2044,4 +2044,53 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubMeRolePrincipleUserDataAuthUser() {
+    stubFor(
+      get("/externalusers/me/roles")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               [
+                   {
+                      "roleCode": "MAINTAIN_ACCESS_ROLES_ADMIN"
+                   },
+                   {
+                       "roleCode": "ROLE_GLOBAL_SEARCH"
+                   }
+               ]
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubMeRolePrincipleUserData() {
+    stubFor(
+      get("/externalusers/me/roles")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               [
+                   {
+                      "roleCode": "MAINTAIN_ACCESS_ROLES_ADMIN"
+                   },
+                   {
+                       "roleCode": "MAINTAIN_OAUTH_USERS"
+                   },
+                   {
+                       "roleCode": "MAINTAIN_OAUTH_ADMIN"
+                   }
+               ]
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }
