@@ -8,9 +8,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
@@ -21,11 +24,14 @@ class UserServiceTest {
   private val externalUsersApiService: UserSearchApiService = mock()
   private val authApiService: AuthApiService = mock()
   private val deliusUserApiService: UserApiService = mock()
+  private val authenticationFacade: AuthenticationFacade = mock()
+  private val authentication: Authentication = mock()
 
   private val userService = UserService(
     authApiService,
     deliusUserApiService,
-    externalUsersApiService
+    externalUsersApiService,
+    authenticationFacade,
   )
 
   @Nested
@@ -71,6 +77,23 @@ class UserServiceTest {
       val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       verify(authApiService).findAzureUserByUsername(anyString())
       assertThat(user).isNull()
+    }
+
+    @Nested
+    inner class MyRoles {
+      @Test
+      fun myRoles() {
+        whenever(authenticationFacade.authentication).thenReturn(authentication)
+        whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_BOB"), SimpleGrantedAuthority("ROLE_JOE_FRED")))
+        assertThat(userService.myRoles()).containsOnly(ExternalUserRole("BOB"), ExternalUserRole("JOE_FRED"))
+      }
+
+      @Test
+      fun myRoles_noRoles() {
+        whenever(authenticationFacade.authentication).thenReturn(authentication)
+        whenever(authentication.authorities).thenReturn(emptyList())
+        assertThat(userService.myRoles()).isEmpty()
+      }
     }
   }
 
