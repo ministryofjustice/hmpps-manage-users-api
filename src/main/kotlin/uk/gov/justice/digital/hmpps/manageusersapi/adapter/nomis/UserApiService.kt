@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
@@ -16,7 +16,7 @@ class UserApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserDetails {
+  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     return nomisWebClientUtils.postWithResponse(
       "/users/admin-account",
@@ -26,11 +26,11 @@ class UserApiService(
         "firstName" to centralAdminUser.firstName,
         "lastName" to centralAdminUser.lastName
       ),
-      NomisUserDetails::class.java
+      NomisUserCreatedDetails::class.java
     )
   }
 
-  fun createGeneralUser(generalUser: CreateUserRequest): NomisUserDetails {
+  fun createGeneralUser(generalUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS general user - {}", generalUser.username)
     return nomisWebClientUtils.postWithResponse(
       "/users/general-account",
@@ -41,11 +41,11 @@ class UserApiService(
         "lastName" to generalUser.lastName,
         "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
-      NomisUserDetails::class.java
+      NomisUserCreatedDetails::class.java
     )
   }
 
-  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserDetails {
+  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
     return nomisWebClientUtils.postWithResponse(
       "/users/local-admin-account",
@@ -56,7 +56,7 @@ class UserApiService(
         "lastName" to localAdminUser.lastName,
         "localAdminGroup" to localAdminUser.defaultCaseloadId,
       ),
-      NomisUserDetails::class.java
+      NomisUserCreatedDetails::class.java
     )
   }
 }
