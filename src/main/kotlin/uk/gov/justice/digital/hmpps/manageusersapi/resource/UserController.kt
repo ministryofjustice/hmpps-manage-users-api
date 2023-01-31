@@ -58,7 +58,7 @@ class UserController(
   ) = userService.findUserByUsername(username)
     ?: throw NotFoundException("Account for username $username not found")
 
-  @GetMapping("/user/me/roles")
+  @GetMapping("/users/me/roles")
   @Operation(
     summary = "List of roles for current user.",
     description = "List of roles for current user."

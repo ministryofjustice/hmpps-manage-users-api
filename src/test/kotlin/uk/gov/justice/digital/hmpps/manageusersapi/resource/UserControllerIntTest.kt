@@ -150,9 +150,8 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User Me Roles endpoint returns principal user data`() {
 
-      externalUsersApiMockServer.stubMeRolePrincipleUserData()
       webTestClient
-        .get().uri("/user/me/roles")
+        .get().uri("/users/me/roles")
         .headers(
           setAuthorisation(
             "ITAG_USER",
@@ -171,9 +170,8 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User Me Roles endpoint returns principal user data for auth user`() {
 
-      externalUsersApiMockServer.stubMeRolePrincipleUserDataAuthUser()
       webTestClient
-        .get().uri("/user/me/roles")
+        .get().uri("/users/me/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_GLOBAL_SEARCH")))
         .exchange()
         .expectStatus().isOk
@@ -186,7 +184,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User Me Roles endpoint not accessible without valid token`() {
       webTestClient
-        .get().uri("/user/me/roles")
+        .get().uri("/users/me/roles")
         .exchange()
         .expectStatus().isUnauthorized
     }

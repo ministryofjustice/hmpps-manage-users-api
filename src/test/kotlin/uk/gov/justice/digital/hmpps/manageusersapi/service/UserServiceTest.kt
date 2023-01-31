@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -83,14 +82,14 @@ class UserServiceTest {
     @Nested
     inner class MyRoles {
       @Test
-      fun myRoles(): Unit = runBlocking {
+      fun myRoles() {
         whenever(authenticationFacade.authentication).thenReturn(authentication)
         whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_BOB"), SimpleGrantedAuthority("ROLE_JOE_FRED")))
         assertThat(userService.myRoles()).containsOnly(ExternalUserRole("BOB"), ExternalUserRole("JOE_FRED"))
       }
 
       @Test
-      fun myRoles_noRoles(): Unit = runBlocking {
+      fun myRoles_noRoles() {
         whenever(authenticationFacade.authentication).thenReturn(authentication)
         whenever(authentication.authorities).thenReturn(emptyList())
         assertThat(userService.myRoles()).isEmpty()
