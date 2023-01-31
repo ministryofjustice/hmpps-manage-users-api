@@ -31,7 +31,7 @@ class UserServiceTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
 
       whenever(nomisUserCreateService.createCentralAdminUser(user)).thenReturn(
-        NomisUserDetails(
+        NomisUserCreatedDetails(
           user.username,
           user.email,
           user.firstName,
@@ -48,7 +48,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
       whenever(nomisUserCreateService.createGeneralUser(user)).thenReturn(
-        NomisUserDetails(
+        NomisUserCreatedDetails(
           user.username,
           user.email,
           user.firstName,
@@ -65,7 +65,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
       whenever(nomisUserCreateService.createLocalAdminUser(user)).thenReturn(
-        NomisUserDetails(
+        NomisUserCreatedDetails(
           user.username,
           user.email,
           user.firstName,

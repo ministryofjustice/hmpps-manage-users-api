@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_LSA
@@ -18,26 +17,23 @@ class UserService(
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
   @Throws(HmppsValidationException::class)
-  fun createUser(user: CreateUserRequest): NomisUserDetails {
+  fun createUser(user: CreateUserRequest): NomisUserCreatedDetails {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
     }
 
-    var nomisUserDetails: NomisUserDetails? = null
-    if (DPS_ADM == user.userType) {
-      nomisUserDetails = nomisUserCreateService.createCentralAdminUser(user)
-    } else if (DPS_GEN == user.userType) {
-      nomisUserDetails = nomisUserCreateService.createGeneralUser(user)
-    } else if (DPS_LSA == user.userType) {
-      nomisUserDetails = nomisUserCreateService.createLocalAdminUser(user)
+    val nomisUserDetails = when (user.userType) {
+      DPS_ADM -> nomisUserCreateService.createCentralAdminUser(user)
+      DPS_GEN -> nomisUserCreateService.createGeneralUser(user)
+      DPS_LSA -> nomisUserCreateService.createLocalAdminUser(user)
     }
     tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
-    return nomisUserDetails ?: throw UserException(user.username, user.userType, "Error creating DPS User")
+    return nomisUserDetails
   }
 }
 
-@Schema(description = "Nomis User Details")
-data class NomisUserDetails(
+@Schema(description = "Nomis User Created Details")
+data class NomisUserCreatedDetails(
   @Schema(description = "Username", example = "TEST_USER")
   val username: String,
 
@@ -53,6 +49,3 @@ data class NomisUserDetails(
 
 class HmppsValidationException(emailDomain: String, errorCode: String) :
   Exception("Invalid Email domain: $emailDomain with reason: $errorCode")
-
-class UserException(user: String, userType: UserType, errorCode: String) :
-  Exception("Unable to create user: $user of type $userType, with reason: $errorCode")

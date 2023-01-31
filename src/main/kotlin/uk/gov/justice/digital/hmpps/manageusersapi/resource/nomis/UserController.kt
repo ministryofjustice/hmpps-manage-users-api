@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -41,7 +41,7 @@ class UserController(
           io.swagger.v3.oas.annotations.media.Content(
             mediaType = "application/json",
             schema = io.swagger.v3.oas.annotations.media.Schema(
-              implementation = NomisUserDetails::class
+              implementation = NomisUserCreatedDetails::class
             )
           )
         ]
