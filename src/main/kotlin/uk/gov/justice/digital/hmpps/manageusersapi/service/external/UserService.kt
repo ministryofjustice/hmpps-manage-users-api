@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailNotificationService
 import java.util.UUID
@@ -15,7 +14,6 @@ class UserService(
   private val userApiService: UserApiService,
   private val emailNotificationService: EmailNotificationService,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade,
 ) {
 
   fun enableUserByUserId(userId: UUID) {
@@ -33,10 +31,6 @@ class UserService(
   }
   fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
     userApiService.disableUserById(userId, deactivateReason)
-
-  fun myRoles() =
-    authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
-      .map { ExternalUserRole(it!!.authority.substring(5)) }
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -56,10 +50,4 @@ data class EmailNotificationDto(
   @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
   val admin: String,
 
-)
-
-@Schema(description = "User Role")
-data class ExternalUserRole(
-  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
-  val roleCode: String,
 )

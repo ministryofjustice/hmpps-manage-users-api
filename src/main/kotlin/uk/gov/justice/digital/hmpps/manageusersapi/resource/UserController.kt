@@ -57,4 +57,29 @@ class UserController(
     username: String
   ) = userService.findUserByUsername(username)
     ?: throw NotFoundException("Account for username $username not found")
+
+  @GetMapping("/user/me/roles")
+  @Operation(
+    summary = "List of roles for current user.",
+    description = "List of roles for current user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun myRoles() = userService.myRoles()
 }

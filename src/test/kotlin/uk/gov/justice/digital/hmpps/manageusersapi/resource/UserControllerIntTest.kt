@@ -144,4 +144,51 @@ class UserControllerIntTest : IntegrationTestBase() {
         }
     }
   }
+
+  @Nested
+  inner class MyRoles {
+    @Test
+    fun `User Me Roles endpoint returns principal user data`() {
+
+      externalUsersApiMockServer.stubMeRolePrincipleUserData()
+      webTestClient
+        .get().uri("/user/me/roles")
+        .headers(
+          setAuthorisation(
+            "ITAG_USER",
+            listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MAINTAIN_OAUTH_USERS", "ROLE_OAUTH_ADMIN")
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].roleCode").value<List<String>> {
+          assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+          assertThat(it).contains("OAUTH_ADMIN")
+        }
+    }
+
+    @Test
+    fun `User Me Roles endpoint returns principal user data for auth user`() {
+
+      externalUsersApiMockServer.stubMeRolePrincipleUserDataAuthUser()
+      webTestClient
+        .get().uri("/user/me/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].roleCode").value<List<String>> {
+          assertThat(it).contains("GLOBAL_SEARCH")
+        }
+    }
+
+    @Test
+    fun `User Me Roles endpoint not accessible without valid token`() {
+      webTestClient
+        .get().uri("/user/me/roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
 }
