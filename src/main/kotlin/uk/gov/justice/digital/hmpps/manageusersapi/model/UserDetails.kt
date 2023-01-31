@@ -5,4 +5,5 @@ interface UserDetails {
   val name: String
   val firstName: String
   val authSource: String
+  fun toUserDetails(): UserDetailsDto
 }

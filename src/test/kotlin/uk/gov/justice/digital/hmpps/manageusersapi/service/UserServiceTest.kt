@@ -16,14 +16,16 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchAp
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import java.util.UUID
 
 class UserServiceTest {
-  private val externalUsersApiService: UserSearchApiService = mock()
   private val authApiService: AuthApiService = mock()
   private val deliusUserApiService: UserApiService = mock()
+  private val externalUsersApiService: UserSearchApiService = mock()
+  private val nomisUserApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val authentication: Authentication = mock()
 
@@ -31,6 +33,7 @@ class UserServiceTest {
     authApiService,
     deliusUserApiService,
     externalUsersApiService,
+    nomisUserApiService,
     authenticationFacade,
   )
 
@@ -42,6 +45,19 @@ class UserServiceTest {
 
       val user = userService.findUserByUsername("external_user")
       assertThat(user?.username).isEqualTo("external_user")
+      verifyNoInteractions(nomisUserApiService)
+      verifyNoInteractions(deliusUserApiService)
+      verifyNoInteractions(authApiService)
+    }
+
+    @Test
+    fun `find nomis user`() {
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
+
+      val user = userService.findUserByUsername("NUSER_GEN")
+      assertThat(user?.username).isEqualTo("NUSER_GEN")
+      assertThat(user?.name).isEqualTo("Nomis Take")
       verifyNoInteractions(deliusUserApiService)
       verifyNoInteractions(authApiService)
     }
@@ -49,6 +65,7 @@ class UserServiceTest {
     @Test
     fun `find delius user`() {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
 
       val user = userService.findUserByUsername("DELIUSUSER")
@@ -60,6 +77,7 @@ class UserServiceTest {
     @Test
     fun `find azure user`() {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
 
@@ -71,6 +89,7 @@ class UserServiceTest {
     @Test
     fun `user not found`() {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
 
@@ -123,5 +142,16 @@ class UserServiceTest {
       email = "someemail@hello.com",
       firstName = "fred",
       lastName = "Smith"
+    )
+
+  fun createNomisUser() =
+    NomisUserDetails(
+      username = "NUSER_GEN",
+      staffId = "123456",
+      firstName = "Nomis",
+      lastName = "Take",
+      activeCaseLoadId = "MDI",
+      email = "nomis.usergen@digital.justice.gov.uk",
+      enabled = true,
     )
 }

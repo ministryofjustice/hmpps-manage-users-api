@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
 
@@ -58,5 +59,13 @@ class UserApiService(
       ),
       NomisUserCreatedDetails::class.java
     )
+  }
+
+  fun findUserByUsername(username: String): NomisUserDetails? {
+    if ("@" in username) {
+      log.debug("Nomis not called with username as contained @: {}", username)
+      return null
+    }
+    return nomisWebClientUtils.getIgnoreError("/users/$username", NomisUserDetails::class.java)
   }
 }

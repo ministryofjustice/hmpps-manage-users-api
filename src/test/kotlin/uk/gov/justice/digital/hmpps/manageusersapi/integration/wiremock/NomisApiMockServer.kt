@@ -287,30 +287,85 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
               """{
-                    "username": "BOB",
-                    "active": true,
-                    "accountType": "ADMIN",
-                    "activeCaseload": {
-                    "id": "CADM_I",
-                    "name": "Central Administration Caseload For Hmps"
+                  "username": "BOB",
+                  "active": true,
+                  "accountType": "ADMIN",
+                  "activeCaseload": {
+                  "id": "CADM_I",
+                  "name": "Central Administration Caseload For Hmps"
+                  },
+                  "dpsRoles": [
+                    {
+                      "code": "AUDIT_VIEWER",
+                      "name": "Audit viewer",
+                      "sequence": 1,
+                      "type": "APP",
+                      "adminRoleOnly": true
                     },
-                     "dpsRoles": [
-                      {
-                        "code": "AUDIT_VIEWER",
-                        "name": "Audit viewer",
-                        "sequence": 1,
-                        "type": "APP",
-                        "adminRoleOnly": true
-                      },
-                      {
-                        "code": "AUTH_GROUP_MANAGER",
-                        "name": "Auth Group Manager that has mo",
-                        "sequence": 1,
-                        "type": "APP",
-                        "adminRoleOnly": true
-                      }
-                      ]
+                    {
+                      "code": "AUTH_GROUP_MANAGER",
+                      "name": "Auth Group Manager that has mo",
+                      "sequence": 1,
+                      "type": "APP",
+                      "adminRoleOnly": true
+                    }
+                  ]
                 }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubFindUserByUsername(username: String) {
+    stubFor(
+      get("/users/$username")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """ {
+                "username": "NUSER_GEN",
+                "staffId": 123456,
+                "firstName": "Nomis",
+                "lastName": "Take",
+                "activeCaseloadId": "MDI",
+                "accountStatus": "OPEN",
+                "accountType": "GENERAL",
+                "primaryEmail": "nomis.usergen@digital.justice.gov.uk",
+                "dpsRoleCodes": [
+                  "MAINTAIN_ACCESS_ROLES",
+                  "GLOBAL_SEARCH",
+                  "HMPPS_REGISTERS_MAINTAINER",
+                  "HPA_USER"
+                ],
+                "accountNonLocked": true,
+                "credentialsNonExpired": false,
+                "enabled": true,
+                "admin": false,
+                "active": true,
+                "staffStatus": "ACTIVE"
+              }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetFail(url: String, status: HttpStatus) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Nomis User message for GET failed",
+                "developerMessage": "Developer Nomis user message for GET failed"
+              }
               """.trimIndent()
             )
         )
