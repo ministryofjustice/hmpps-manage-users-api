@@ -64,27 +64,27 @@ class UserServiceTest {
     }
 
     @Test
-    fun `find delius user`() {
-      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
-      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
-
-      val user = userService.findUserByUsername("DELIUSUSER")
-      assertThat(user?.username).isEqualTo("DELIUSUSER")
-      assertThat(user?.name).isEqualTo("Delius Smith")
-      verifyNoInteractions(authApiService)
-    }
-
-    @Test
     fun `find azure user`() {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
-      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
 
       val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       assertThat(user?.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       assertThat(user?.name).isEqualTo("Azure User")
+      verifyNoInteractions(deliusUserApiService)
+    }
+
+    @Test
+    fun `find delius user`() {
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
+      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
+
+      val user = userService.findUserByUsername("DELIUSUSER")
+      assertThat(user?.username).isEqualTo("DELIUSUSER")
+      assertThat(user?.name).isEqualTo("Delius Smith")
     }
 
     @Test

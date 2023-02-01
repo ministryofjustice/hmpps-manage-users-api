@@ -46,8 +46,8 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = UUID.randomUUID()
       externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
-      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
       hmppsAuthMockServer.stubGetFail("/auth/api/azureuser/$username", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -69,9 +69,9 @@ class UserControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isNotFound
-      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username/details")))
-      nomisApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users//$username")))
+      nomisApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username")))
       hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
+      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username/details")))
     }
 
     @Test
@@ -124,6 +124,32 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun ` azure user found success`() {
+      val username = "ce232d07-40c3-47c6-9903-613bb31132af"
+      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      hmppsAuthMockServer.stubAzureUserByUsername(username)
+      webTestClient.get().uri("/users/$username")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username.uppercase(),
+              "active" to true,
+              "name" to "Azure User",
+              "authSource" to "azuread",
+              "userId" to "azure.user@justice.gov.uk",
+              "uuid" to "76ed3c80-2fe6-424f-95a4-556e32d749a7",
+            )
+          )
+        }
+    }
+
+    @Test
     fun ` delius user found success`() {
       val username = "deliususer"
       externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
@@ -143,33 +169,6 @@ class UserControllerIntTest : IntegrationTestBase() {
               "name" to "Delius Smith",
               "authSource" to "delius",
               "userId" to "1234567890",
-            )
-          )
-        }
-    }
-
-    @Test
-    fun ` azure user found success`() {
-      val username = "ce232d07-40c3-47c6-9903-613bb31132af"
-      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
-      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
-      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
-      hmppsAuthMockServer.stubAzureUserByUsername(username)
-      webTestClient.get().uri("/users/$username")
-        .headers(setAuthorisation(roles = listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectHeader().contentType(APPLICATION_JSON)
-        .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it).containsExactlyInAnyOrderEntriesOf(
-            mapOf(
-              "username" to "CE232D07-40C3-47C6-9903-613BB31132AF",
-              "active" to true,
-              "name" to "Azure User",
-              "authSource" to "azuread",
-              "userId" to "azure.user@justice.gov.uk",
-              "uuid" to "76ed3c80-2fe6-424f-95a4-556e32d749a7",
             )
           )
         }

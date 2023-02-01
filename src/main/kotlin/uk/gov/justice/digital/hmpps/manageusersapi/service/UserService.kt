@@ -21,9 +21,9 @@ class UserService(
       ?: run {
         nomisApiService.findUserByUsername(username)?.toUserDetails()
           ?: run {
-            deliusApiService.findUserByUsername(username)?.toUserDetails()
+            authApiService.findAzureUserByUsername(username)
               ?: run {
-                authApiService.findAzureUserByUsername(username)
+                deliusApiService.findUserByUsername(username)?.toUserDetails()
               }
           }
       }
