@@ -14,7 +14,7 @@ data class DeliusUserDetails(
   override val authSource: String
     get() = "delius"
 
-  fun toUserDetails(): UserDetailsDto =
+  override fun toUserDetails(): UserDetailsDto =
     UserDetailsDto(
       username = username,
       active = enabled,
