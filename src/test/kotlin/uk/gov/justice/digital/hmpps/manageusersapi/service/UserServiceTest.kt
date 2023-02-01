@@ -20,12 +20,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
 class UserServiceTest {
   private val authApiService: AuthApiService = mock()
   private val deliusUserApiService: UserApiService = mock()
   private val externalUsersApiService: UserSearchApiService = mock()
-  private val nomisUserApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService = mock()
+  private val nomisUserApiService: NomisUserApiService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val authentication: Authentication = mock()
 
