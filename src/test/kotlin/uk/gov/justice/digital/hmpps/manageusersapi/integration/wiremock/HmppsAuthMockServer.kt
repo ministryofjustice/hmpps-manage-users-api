@@ -8,6 +8,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import java.util.UUID
 
 class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -70,6 +72,30 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 "authSource": "azuread",
                 "userId": "azure.user@justice.gov.uk",
                 "uuid": "76ed3c80-2fe6-424f-95a4-556e32d749a7"
+              }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubUserByUsernameAndSource(username: String, source: AuthSource, uuid: UUID) {
+    stubFor(
+      get("/auth/api/user?username=$username&source=${source.name}")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """{
+                "username": "$username",
+                "active": true,
+                "name": "Test User",
+                "authSource": "${source.name}",
+                "staffId": 1,
+                "activeCaseLoadId": "MDI",
+                "userId": "1234",
+                "uuid": "$uuid"
               }
               """.trimIndent()
             )

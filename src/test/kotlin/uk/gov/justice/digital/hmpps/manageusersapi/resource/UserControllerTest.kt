@@ -23,10 +23,10 @@ class UserControllerTest {
     val userDetails = UserDetailsDto(
       username,
       true,
-      "External User",
+      "Any User",
       AuthSource.azuread,
-      UUID.randomUUID().toString(),
-      UUID.randomUUID()
+      userId = UUID.randomUUID().toString(),
+      uuid = UUID.randomUUID()
     )
     whenever(userService.findUserByUsername(username)).thenReturn(userDetails)
 

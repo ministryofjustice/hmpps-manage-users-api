@@ -20,17 +20,18 @@ data class UserDetailsDto(
   @Schema(title = "Authentication Source", description = "auth for external users, nomis for nomis authenticated users", example = "nomis")
   var authSource: AuthSource,
 
-  @Schema(title = "User Id", description = "Unique identifier for user, will be UUID for external users or staff ID for nomis users", example = "231232")
-  var userId: String,
-
-  @Schema(title = "Unique Id", description = "Universally unique identifier for user, generated and stored in auth database for all users", example = "5105a589-75b3-4ca0-9433-b96228c1c8f3")
-  var uuid: UUID? = null,
-
   @Deprecated("")
   @Schema(title = "Staff Id", description = "Deprecated, use userId instead", example = "231232")
   var staffId: Long? = null,
 
   @Deprecated("")
   @Schema(title = "Current Active Caseload", description = "Deprecated, retrieve from prison API rather than manage users", example = "MDI")
-  var activeCaseLoadId: String? = null
+  var activeCaseLoadId: String? = null,
+
+  @Schema(title = "User Id", description = "Unique identifier for user, will be UUID for external users or staff ID for nomis users", example = "231232")
+  var userId: String,
+
+  @Schema(title = "Unique Id", description = "Universally unique identifier for user, generated and stored in auth database for all users", example = "5105a589-75b3-4ca0-9433-b96228c1c8f3")
+  var uuid: UUID? = null
+
 )

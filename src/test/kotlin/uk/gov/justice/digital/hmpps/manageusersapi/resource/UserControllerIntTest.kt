@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
 import java.util.UUID
 
 class UserControllerIntTest : IntegrationTestBase() {
@@ -77,7 +81,9 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun ` external user found success`() {
       val username = "EXT_ADM"
+      val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -92,7 +98,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "name" to "Ext Adm",
               "authSource" to "auth",
               "userId" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
-              "uuid" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
+              "uuid" to uuid.toString(),
             )
           )
         }
@@ -101,8 +107,10 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun ` nomis user found success`() {
       val username = "NUSER_GEN"
+      val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
       nomisApiMockServer.stubFindUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -118,6 +126,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "authSource" to "nomis",
               "userId" to "123456",
               "staffId" to 123456,
+              "activeCaseLoadId" to "MDI",
+              "uuid" to uuid.toString(),
             )
           )
         }
@@ -126,9 +136,11 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun ` azure user found success`() {
       val username = "ce232d07-40c3-47c6-9903-613bb31132af"
+      val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, azuread, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -143,7 +155,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "name" to "Azure User",
               "authSource" to "azuread",
               "userId" to "azure.user@justice.gov.uk",
-              "uuid" to "76ed3c80-2fe6-424f-95a4-556e32d749a7",
+              "uuid" to uuid.toString()
             )
           )
         }
@@ -151,10 +163,12 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun ` delius user found success`() {
+      val uuid = UUID.randomUUID()
       val username = "deliususer"
       externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       deliusApiMockServer.stubGetUser(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, delius, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -169,6 +183,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "name" to "Delius Smith",
               "authSource" to "delius",
               "userId" to "1234567890",
+              "uuid" to uuid.toString()
             )
           )
         }
