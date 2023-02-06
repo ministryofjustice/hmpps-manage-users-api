@@ -239,6 +239,32 @@ class UserRolesController(
     @PathVariable
     userId: UUID,
   ) = userRolesService.getAssignableRoles(userId)
+
+  @GetMapping("/me/searchable-roles")
+  @Operation(
+    summary = "Get list of searchable roles.",
+    description = "Get list of roles that can be search for by the current user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun searchableRoles() =
+    userRolesService.getAllAssignableRoles()
 }
 
 @Schema(description = "User Role Details")

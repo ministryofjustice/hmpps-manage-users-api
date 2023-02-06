@@ -248,4 +248,31 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
         .isEqualTo("Auth Group Manager role")
     }
   }
+
+  @Nested
+  inner class SearchableRoles {
+
+    @Test
+    fun `access unauthorized without valid token`() {
+      webTestClient
+        .get().uri("/externalusers/me/searchable-roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+    @Test
+    fun `Searchable roles for group manager user returns their roles based on the groups they manage`() {
+      externalUsersApiMockServer.stubGetSearchableRoles()
+      webTestClient
+        .get().uri("/externalusers/me/searchable-roles")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER2", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+       [{"roleCode":"PF_POLICE","roleName":"Pathfinder Police"}]
+          """.trimIndent()
+        )
+    }
+  }
 }
