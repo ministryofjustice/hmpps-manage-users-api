@@ -240,6 +240,7 @@ class UserRolesController(
     userId: UUID,
   ) = userRolesService.getAssignableRoles(userId)
 
+
   @GetMapping("/me/searchable-roles")
   @Operation(
     summary = "Get list of searchable roles.",
