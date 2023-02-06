@@ -2044,4 +2044,26 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
+
+  fun stubGetSearchableRoles() {
+    stubFor(
+      get(urlEqualTo("/users/me/searchable-roles"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                [
+                  {
+                    "roleCode": "PF_POLICE",
+                    "roleName": "Pathfinder Police",
+                    "roleDescription": null
+                  }
+                ]
+                  
+              """.trimIndent()
+            )
+        )
+    )
+  }
 }
