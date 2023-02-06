@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 
 @RestController("UserController")
 class UserController(

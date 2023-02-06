@@ -38,9 +38,9 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"]).isEqualTo("Account for username $username not found")
-          assertThat(it["developerMessage"]).isEqualTo("Account for username $username not found")
+          assertThat(it["error"]).isEqualTo("Not Found")
+          assertThat(it["error_description"]).isEqualTo("Account for username $username not found")
+          assertThat(it["field"]).isEqualTo("username")
         }
       hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
     }
@@ -59,9 +59,9 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"]).isEqualTo("Account for username $username not found")
-          assertThat(it["developerMessage"]).isEqualTo("Account for username $username not found")
+          assertThat(it["error"]).isEqualTo("Not Found")
+          assertThat(it["error_description"]).isEqualTo("Account for username $username not found")
+          assertThat(it["field"]).isEqualTo("username")
         }
     }
 
