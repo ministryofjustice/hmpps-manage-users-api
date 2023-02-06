@@ -8,8 +8,8 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
 
 class UserControllerTest {
