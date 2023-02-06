@@ -264,7 +264,7 @@ class UserRolesController(
     ]
   )
   fun searchableRoles() =
-    userRolesService.getAllAssignableRoles()
+    userRolesService.getAllSearchableRoles()
 }
 
 @Schema(description = "User Role Details")
