@@ -7,7 +7,7 @@ data class NomisUserDetails(
   override val firstName: String,
   val staffId: String,
   val lastName: String,
-  val activeCaseLoadId: String?,
+  @JsonProperty("activeCaseloadId") val activeCaseLoadId: String?,
   @JsonProperty("primaryEmail") val email: String?,
   private val enabled: Boolean = false,
 ) : UserDetails {
