@@ -66,11 +66,13 @@ class UserService(
     var usernameForUpdate = user.username
 
     if (externalUsersApiService.hasPassword(userId)) {
-      return verifyEmailService.changeEmailAndRequestVerification(
-        user,
-        emailAddressInput,
+
+      val linkEmailAndUsername = verifyEmailService.requestVerification(
+        user, emailAddressInput,
         url.replace("initial-password", "verify-email-confirm")
-      ).link
+      )
+      externalUsersApiService.updateUserEmailAddressAndUsername(userId, linkEmailAndUsername.username, linkEmailAndUsername.email)
+      return linkEmailAndUsername.link
     }
 
     val newEmail = EmailHelper.format(emailAddressInput)
@@ -138,5 +140,4 @@ data class EmailNotificationDto(
 
   @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
   val admin: String,
-
 )

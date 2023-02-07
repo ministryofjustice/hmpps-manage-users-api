@@ -11,7 +11,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
@@ -23,12 +22,11 @@ class VerifyEmailService(
   private val notificationService: NotificationService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
   private val externalUserSearchApiService: UserSearchApiService,
-  private val externalUsersApiService: UserApiService,
   private val authApiService: AuthApiService,
   @Value("\${application.notify.verify.template}") private val notifyTemplateId: String
 ) {
 
-  fun changeEmailAndRequestVerification(
+  fun requestVerification(
     userDetails: ExternalUserDetailsDto,
     emailInput: String?,
     url: String,
@@ -52,7 +50,6 @@ class VerifyEmailService(
     )
 
     notificationService.send(notifyTemplateId, parameters, "VerifyEmailRequest", NotificationDetails(userDetails.username, email!!))
-    externalUsersApiService.updateUserEmailAddressAndUsername(userDetails.userId, usernameToUpdate, email)
     return LinkEmailAndUsername(verifyLink, email, usernameToUpdate)
   }
 
