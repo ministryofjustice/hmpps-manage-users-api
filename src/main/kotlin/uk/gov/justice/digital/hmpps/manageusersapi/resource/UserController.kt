@@ -70,9 +70,9 @@ class UserController(
         responseCode = "200",
         description = "OK",
         content = [
-          io.swagger.v3.oas.annotations.media.Content(
+          Content(
             mediaType = "application/json",
-            schema = io.swagger.v3.oas.annotations.media.Schema(implementation = UserDetailsDto::class)
+            schema = Schema(implementation = UserDetailsDto::class)
           )
         ]
       ),
