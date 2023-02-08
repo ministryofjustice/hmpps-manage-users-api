@@ -29,12 +29,6 @@ class UserController(
       ApiResponse(
         responseCode = "200",
         description = "OK",
-        content = [
-          io.swagger.v3.oas.annotations.media.Content(
-            mediaType = "application/json",
-            schema = io.swagger.v3.oas.annotations.media.Schema(implementation = UserDetailsDto::class)
-          )
-        ]
       ),
       ApiResponse(
         responseCode = "401",
@@ -74,7 +68,13 @@ class UserController(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(implementation = UserDetailsDto::class)
+          )
+        ]
       ),
       ApiResponse(
         responseCode = "401",
