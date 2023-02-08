@@ -114,6 +114,32 @@ class UserServiceTest {
     }
 
     @Nested
+    inner class MyDetails {
+      @Test
+      fun myDetails() {
+        val userDetails = UserDetailsDto(
+          "username",
+          true,
+          "Any User",
+          auth,
+          userId = UUID.randomUUID().toString(),
+          uuid = UUID.randomUUID()
+        )
+        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
+
+        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
+      }
+
+      @Test
+      fun myDetails_basicUser() {
+        val userDetails = UsernameDto("username")
+        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
+
+        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
+      }
+    }
+
+    @Nested
     inner class MyRoles {
       @Test
       fun myRoles() {

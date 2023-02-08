@@ -191,6 +191,68 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class MyDetails {
+    @Test
+    fun `Users Me endpoint returns user data`() {
+      val username = "AUTH_ADM"
+      val uuid = UUID.randomUUID()
+      externalUsersApiMockServer.stubUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, uuid)
+      webTestClient
+        .get().uri("/users/me")
+        .headers(
+          setAuthorisation()
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to "AUTH_ADM",
+              "active" to true,
+              "name" to "Ext Adm",
+              "authSource" to "auth",
+              "userId" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
+              "uuid" to uuid.toString(),
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Users Me endpoint returns user data if not user`() {
+      val username = "basicuser"
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
+      webTestClient
+        .get().uri("/users/me")
+        .headers(
+          setAuthorisation("basicuser")
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyEntriesOf(
+            mapOf(
+              "username" to "basicuser",
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Users Me endpoint not accessible without valid token`() {
+      webTestClient
+        .get().uri("/users/me")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
   inner class MyRoles {
     @Test
     fun `User Me Roles endpoint returns principal user data`() {

@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 
 @RestController("UserController")
 class UserController(
-  private val userService: UserService,
+  private val userService: UserService
 ) {
 
   @GetMapping("/users/{username}")
@@ -27,7 +28,13 @@ class UserController(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(implementation = UserDetailsDto::class)
+          )
+        ]
       ),
       ApiResponse(
         responseCode = "401",
@@ -57,6 +64,31 @@ class UserController(
     username: String
   ) = userService.findUserByUsername(username)
     ?: throw NotFoundException("Account for username $username not found")
+
+  @GetMapping("/users/me")
+  @Operation(
+    summary = "My User details.",
+    description = "Find my user details."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun myDetails() = userService.myDetails()
 
   @GetMapping("/users/me/roles")
   @Operation(
