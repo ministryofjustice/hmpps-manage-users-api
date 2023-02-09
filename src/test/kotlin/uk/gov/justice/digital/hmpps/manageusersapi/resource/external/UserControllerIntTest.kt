@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 
+import java.util.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -202,7 +203,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `succeeds to alter user email`() {
+    fun `Succeeds to alter user email`() {
       externalUsersApiMockServer.stubUserById("67A789DE-7D29-4863-B9C2-F2CE715DC4BC")
       externalUsersApiMockServer.stubUserHasPassword("67A789DE-7D29-4863-B9C2-F2CE715DC4BC", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
@@ -220,7 +221,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `amends username as well as email address`() {
+    fun `Amends username and email address`() {
       externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bob@testing.co.uk")
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
@@ -228,6 +229,49 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
       externalUsersApiMockServer.stubPutEmailAndUsername(
         "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+      )
+
+      webTestClient
+        .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
+        .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Amends username and email address for user without password`() {
+      externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "EXT_TEST@DIGITAL.JUSTICE.GOV.UK")
+      externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", false)
+      externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+
+      hmppsAuthMockServer.stubResetTokenForUser("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F")
+      hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
+      externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
+      externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubPutEmailAndUsername(
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+      )
+
+      webTestClient
+        .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
+        .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Amends email address for user without password`() {
+      externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F")
+      externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", false)
+      externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+
+      hmppsAuthMockServer.stubResetTokenForUser("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F")
+      hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
+      externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
+      externalUsersApiMockServer.stubPutEmailAndUsername(
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "EXT_TEST"
       )
 
       webTestClient

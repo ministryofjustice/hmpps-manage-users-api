@@ -55,6 +55,19 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubResetTokenForUser(userId: String) {
+    stubFor(
+      post(urlEqualTo("/auth/api/token/reset/${userId.lowercase()}"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "text/plain;charset=UTF-8")))
+            .withBody(
+              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubForTokenByEmailType() {
     stubFor(
       post(urlEqualTo("/auth/api/token/email-type"))
@@ -105,6 +118,28 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer Auth user message for GET failed",
                 "moreInfo": null
                }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubServiceDetailsByServiceCode(serviceCode: String) {
+    stubFor(
+      get("/auth/api/services/$serviceCode")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.OK.value())
+            .withBody(
+              """
+                {
+                    "code": "$serviceCode",
+                    "name": "Digital Prison Service",
+                    "description": "View and Manage Offenders in Prison (Old name was NEW NOMIS)",
+                    "contact": "feedback@digital.justice.gov.uk",
+                    "url": "http://localhost:3000"
+                }
               """.trimIndent()
             )
         )
