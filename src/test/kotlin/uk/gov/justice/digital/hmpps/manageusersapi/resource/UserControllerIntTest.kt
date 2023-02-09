@@ -30,7 +30,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "AUTH_ADM"
       externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
-      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -51,7 +51,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       hmppsAuthMockServer.stubGetFail("/auth/api/azureuser/$username", NOT_FOUND)
-      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -75,7 +75,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNotFound
       nomisApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username")))
       hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
-      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username/details")))
+      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/secure/users/$username/details")))
     }
 
     @Test
@@ -225,7 +225,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "basicuser"
       externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
-      deliusApiMockServer.stubGetFail("/users/$username/details", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
       webTestClient
         .get().uri("/users/me")
         .headers(
