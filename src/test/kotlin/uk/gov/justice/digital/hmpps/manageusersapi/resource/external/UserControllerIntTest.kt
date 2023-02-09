@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 
-import java.util.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -8,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import java.util.UUID
 
 class UserControllerIntTest : IntegrationTestBase() {
   @Nested
