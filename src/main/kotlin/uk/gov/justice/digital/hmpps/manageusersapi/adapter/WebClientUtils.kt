@@ -4,6 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.util.UriBuilder
 import reactor.core.publisher.Mono
 import java.net.URI
@@ -36,6 +37,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri(uri)
       .retrieve()
       .bodyToMono(elementClass)
+      .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
       .block()
 
   fun <T : Any> getWithParams(uri: String, elementClass: Class<T>, queryParams: Map<String, Any?>): T =

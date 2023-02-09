@@ -3,7 +3,9 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.delete
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
@@ -1525,6 +1527,19 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubValidateEmailDomain(domain: String, isValid: Boolean) {
+    stubFor(
+      get(urlEqualTo("/validate/email-domain?emailDomain=$domain"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              "$isValid"
+            )
+        )
+    )
+  }
+
   fun stubInvalidEmailDomain() {
     stubFor(
       get(urlEqualTo("/validate/email-domain?emailDomain=invaliddomain.com"))
@@ -1746,6 +1761,19 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubPutEmailAndUsername(userId: String, expectedEmail: String, expectedUsername: String) {
+    stubFor(
+      put("/users/id/${userId.lowercase()}/email")
+        .withRequestBody(matchingJsonPath("email", equalTo(expectedEmail)))
+        .withRequestBody(matchingJsonPath("username", equalTo(expectedUsername)))
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+        )
+    )
+  }
+
   fun stubUsersByEmail(email: String) {
     stubFor(
       get("/users?email=$email")
@@ -1787,9 +1815,25 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubUserHasPassword(userId: String, hasPassword: Boolean) {
+    stubFor(
+      get("/users/${userId.lowercase()}/password/present")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                  $hasPassword
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubUserById(userId: String) {
     stubFor(
-      get("/users/id/$userId")
+      get("/users/id/${userId.lowercase()}")
         .willReturn(
           aResponse()
             .withStatus(OK.value())
@@ -1799,6 +1843,33 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                {
                   "userId": "$userId",
                   "username": "EXT_TEST",
+                  "email": "ext_test@digital.justice.gov.uk",
+                  "firstName": "Ext",
+                  "lastName": "Adm",
+                  "locked": false,
+                  "enabled": true,
+                  "verified": true,
+                  "lastLoggedIn": "2022-12-01T09:30:07.933161",
+                  "inactiveReason": "Expired"
+                  }
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubUserById(userId: String, username: String) {
+    stubFor(
+      get("/users/id/${userId.lowercase()}")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                  "userId": "$userId",
+                  "username": "$username",
                   "email": "ext_test@digital.justice.gov.uk",
                   "firstName": "Ext",
                   "lastName": "Adm",

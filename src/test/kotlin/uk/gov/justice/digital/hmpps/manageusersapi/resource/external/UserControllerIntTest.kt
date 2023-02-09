@@ -152,4 +152,90 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNoContent
     }
   }
+
+  @Nested
+  inner class AlterUserEmail {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.post().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/email")
+        .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.post().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/email")
+        .headers(setAuthorisation("ITAG_USER_ADM"))
+        .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+            {"status":403,"userMessage":"Access is denied","developerMessage":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Fails to alter user email for user whose username is email address and email already taken`() {
+      externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bob@testing.co.uk")
+      externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+      externalUsersApiMockServer.stubValidateEmailDomain("justice.gov.uk", true)
+      externalUsersApiMockServer.stubUserByUsername("auth_user_email_test@justice.gov.uk".uppercase())
+
+      webTestClient
+        .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
+        .body(BodyInserters.fromValue(mapOf("email" to "auth_user_email_test@justice.gov.uk")))
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+            {"status":400,"developerMessage":"Validate email failed with reason: duplicate"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `succeeds to alter user email`() {
+      externalUsersApiMockServer.stubUserById("67A789DE-7D29-4863-B9C2-F2CE715DC4BC")
+      externalUsersApiMockServer.stubUserHasPassword("67A789DE-7D29-4863-B9C2-F2CE715DC4BC", true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+      externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+      externalUsersApiMockServer.stubPutEmailAndUsername(
+        "67A789DE-7D29-4863-B9C2-F2CE715DC4BC", "bobby.b@digital.justice.gov.uk", "EXT_TEST"
+      )
+
+      webTestClient
+        .post().uri("/externalusers/67A789DE-7D29-4863-B9C2-F2CE715DC4BC/email")
+        .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `amends username as well as email address`() {
+      externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bob@testing.co.uk")
+      externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+      externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+      externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubPutEmailAndUsername(
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+      )
+
+      webTestClient
+        .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
+        .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
 }

@@ -55,6 +55,19 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubForTokenByEmailType() {
+    stubFor(
+      post(urlEqualTo("/auth/api/token/email-type"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "text/plain;charset=UTF-8")))
+            .withBody(
+              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubAzureUserByUsername(username: String) {
     stubFor(
       get("/auth/api/azureuser/$username")

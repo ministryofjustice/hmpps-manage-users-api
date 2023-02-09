@@ -20,6 +20,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.HmppsValidationException
 import javax.validation.ValidationException
 
@@ -84,6 +85,13 @@ class HmppsManageUsersApiExceptionHandler {
       .status(INTERNAL_SERVER_ERROR)
       .contentType(APPLICATION_JSON)
       .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
+  }
+
+  @ExceptionHandler(VerifyEmailService.ValidEmailException::class)
+  fun handleAuthUserLastGroupException(e: VerifyEmailService.ValidEmailException): ResponseEntity<ErrorResponse> {
+    log.info("Email validation exception caught: {}", e.message)
+    return ResponseEntity.badRequest()
+      .body(ErrorResponse(status = BAD_REQUEST.value(), developerMessage = e.message))
   }
 
   @ExceptionHandler(ValidationException::class)
