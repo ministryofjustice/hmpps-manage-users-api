@@ -120,7 +120,7 @@ class UserService(
       return it
     }
 
-    throw RuntimeException("Failed to retrieve contact details for service Code $serviceCode from Auth")
+    throw RuntimeException("Failed to retrieve contact details for service code $serviceCode from Auth")
   }
 
   companion object {

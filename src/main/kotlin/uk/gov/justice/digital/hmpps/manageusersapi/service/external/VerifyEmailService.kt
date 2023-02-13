@@ -104,7 +104,7 @@ class VerifyEmailService(
     }
   }
 
-  class ValidEmailException(val reason: String) : Exception("Validate email failed with reason: $reason")
+  class ValidEmailException(val reason: String) : RuntimeException("Validate email failed with reason: $reason")
 
   data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
 
