@@ -223,7 +223,7 @@ class UserServiceTest {
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
       whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroup("PECS Groups", "PECS Test Group")))
-      whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com","book-a-secure-move-ui"))
+      whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
       userService.amendUserEmailByUserId(userId, newEmailAddress, url)
 
@@ -273,7 +273,7 @@ class UserServiceTest {
           UserGroup("PECS Groups", "PECS Test Group")
         )
       )
-      whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com","book-a-secure-move-ui"))
+      whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
       userService.amendUserEmailByUserId(userId, newEmailAddress, url)
 
