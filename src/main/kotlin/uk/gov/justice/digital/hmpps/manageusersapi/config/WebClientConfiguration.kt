@@ -43,7 +43,7 @@ class WebClientConfiguration(
   @Bean
   fun deliusWebClient(builder: WebClient.Builder): WebClient =
     builder
-      .baseUrl(deliusBaseUri)
+      .baseUrl("$deliusBaseUri/secure")
       .filter(addAuthHeaderFilterFunction())
       .build()
 

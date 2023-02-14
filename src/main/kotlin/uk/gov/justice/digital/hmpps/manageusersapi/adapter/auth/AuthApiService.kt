@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import java.util.UUID
@@ -55,6 +56,15 @@ class AuthApiService(
 
   fun findServiceByServiceCode(serviceCode: String) =
     authWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
+
+  fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUserDetails =
+    authWebClientUtils.getWithParams(
+      "/api/user", AuthUserDetails::class.java,
+      mapOf(
+        "username" to username,
+        "source" to source
+      )
+    )
 }
 
 data class TokenByEmailTypeRequest(
@@ -68,4 +78,8 @@ data class CreateTokenRequest(
   val source: String,
   val firstName: String,
   val lastName: String,
+)
+
+data class AuthUserDetails(
+  val uuid: UUID
 )

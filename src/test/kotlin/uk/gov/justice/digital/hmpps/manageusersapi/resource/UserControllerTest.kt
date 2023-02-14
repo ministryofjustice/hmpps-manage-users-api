@@ -6,10 +6,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.UsernameDto
+import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
 
 class UserControllerTest {
@@ -23,10 +24,10 @@ class UserControllerTest {
     val userDetails = UserDetailsDto(
       username,
       true,
-      "External User",
-      AuthSource.azuread,
-      UUID.randomUUID().toString(),
-      UUID.randomUUID()
+      "Any User",
+      auth,
+      userId = UUID.randomUUID().toString(),
+      uuid = UUID.randomUUID()
     )
     whenever(userService.findUserByUsername(username)).thenReturn(userDetails)
 
@@ -36,11 +37,38 @@ class UserControllerTest {
   }
 
   @Test
-  fun `should throw exception when username not found`() {
+  fun `find user by username should throw exception when username not found`() {
     whenever(userService.findUserByUsername("username")).thenReturn(null)
 
     assertThatThrownBy {
       userController.findUser("username")
     }.isInstanceOf(NotFoundException::class.java)
+  }
+
+  @Test
+  fun `find my details`() {
+    val userDetails = UserDetailsDto(
+      "username",
+      true,
+      "Any User",
+      auth,
+      userId = UUID.randomUUID().toString(),
+      uuid = UUID.randomUUID()
+    )
+    whenever(userService.myDetails()).thenReturn(userDetails)
+
+    val user = userController.myDetails()
+    verify(userService).myDetails()
+    assertThat(user).isEqualTo(userDetails)
+  }
+
+  @Test
+  fun `find my details for basic user`() {
+    val userDetails = UsernameDto("username")
+    whenever(userService.myDetails()).thenReturn(userDetails)
+
+    val user = userController.myDetails()
+    verify(userService).myDetails()
+    assertThat(user).isEqualTo(userDetails)
   }
 }

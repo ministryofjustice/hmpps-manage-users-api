@@ -11,10 +11,14 @@ import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
@@ -42,49 +46,59 @@ class UserServiceTest {
   inner class FindUserByUsername {
     @Test
     fun `find external user`() {
+      val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
+      whenever(authApiService.findUserByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("external_user")
-      assertThat(user?.username).isEqualTo("external_user")
+      val user = userService.findUserByUsername("external_user") as UserDetailsDto
+      assertThat(user.username).isEqualTo("external_user")
+      assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(nomisUserApiService)
       verifyNoInteractions(deliusUserApiService)
-      verifyNoInteractions(authApiService)
     }
 
     @Test
     fun `find nomis user`() {
+      val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
+      whenever(authApiService.findUserByUsernameAndSource("NUSER_GEN", nomis)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("NUSER_GEN")
-      assertThat(user?.username).isEqualTo("NUSER_GEN")
-      assertThat(user?.name).isEqualTo("Nomis Take")
+      val user = userService.findUserByUsername("NUSER_GEN") as UserDetailsDto
+      assertThat(user.username).isEqualTo("NUSER_GEN")
+      assertThat(user.name).isEqualTo("Nomis Take")
+      assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(deliusUserApiService)
-      verifyNoInteractions(authApiService)
     }
 
     @Test
     fun `find azure user`() {
+      val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
+      whenever(authApiService.findUserByUsernameAndSource("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", azuread)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
-      assertThat(user?.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
-      assertThat(user?.name).isEqualTo("Azure User")
+      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A") as UserDetailsDto
+      assertThat(user.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      assertThat(user.name).isEqualTo("Azure User")
+      assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(deliusUserApiService)
     }
 
     @Test
     fun `find delius user`() {
+      val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
+      whenever(authApiService.findUserByUsernameAndSource("DELIUSUSER", delius)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("DELIUSUSER")
-      assertThat(user?.username).isEqualTo("DELIUSUSER")
-      assertThat(user?.name).isEqualTo("Delius Smith")
+      val user = userService.findUserByUsername("DELIUSUSER") as UserDetailsDto
+      assertThat(user.username).isEqualTo("DELIUSUSER")
+      assertThat(user.name).isEqualTo("Delius Smith")
+      assertThat(user.uuid).isEqualTo(uuid)
     }
 
     @Test
@@ -97,6 +111,32 @@ class UserServiceTest {
       val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       verify(authApiService).findAzureUserByUsername(anyString())
       assertThat(user).isNull()
+    }
+
+    @Nested
+    inner class MyDetails {
+      @Test
+      fun myDetails() {
+        val userDetails = UserDetailsDto(
+          "username",
+          true,
+          "Any User",
+          auth,
+          userId = UUID.randomUUID().toString(),
+          uuid = UUID.randomUUID()
+        )
+        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
+
+        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
+      }
+
+      @Test
+      fun myDetails_basicUser() {
+        val userDetails = UsernameDto("username")
+        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
+
+        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
+      }
     }
 
     @Nested
@@ -155,4 +195,6 @@ class UserServiceTest {
       email = "nomis.usergen@digital.justice.gov.uk",
       enabled = true,
     )
+
+  fun createAuthUserDetails(uuid: UUID) = AuthUserDetails(uuid = uuid)
 }

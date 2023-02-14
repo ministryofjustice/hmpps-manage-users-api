@@ -16,8 +16,8 @@ class UserService(
   private val nomisApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
   private val authenticationFacade: AuthenticationFacade
 ) {
-  fun findUserByUsername(username: String): UserDetailsDto? =
-    externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toUserDetails()
+  fun findUserByUsername(username: String): UserDetailsDto? {
+    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toUserDetails()
       ?: run {
         nomisApiService.findUserByUsername(username)?.toUserDetails()
           ?: run {
@@ -27,12 +27,27 @@ class UserService(
               }
           }
       }
-  // Call to auth to save details (if it doesn't already exist) and get auth uuid to save in json returned
+    return userDetails?.apply {
+      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
+      this.uuid = authUserDetails.uuid
+    }
+  }
+
+  fun myDetails() = findUserByUsername(authenticationFacade.currentUsername!!)
+    ?: UsernameDto(authenticationFacade.currentUsername!!)
 
   fun myRoles() =
     authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
       .map { ExternalUserRole(it!!.authority.substring(5)) }
 }
+
+interface User {
+  val username: String
+}
+
+data class UsernameDto(
+  override val username: String
+) : User
 
 @Schema(description = "User Role")
 data class ExternalUserRole(

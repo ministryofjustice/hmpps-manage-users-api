@@ -26,7 +26,7 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetUser(username: String) {
     stubFor(
-      get("/users/$username/details")
+      get("/secure/users/$username/details")
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
