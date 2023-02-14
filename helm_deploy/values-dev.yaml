@@ -13,6 +13,7 @@ generic-service:
     API_BASE_URL_NOMIS: https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
     API_BASE_URL_EXTERNAL: https://external-users-api-dev.hmpps.service.justice.gov.uk
     API_BASE_URL_DELIUS: https://community-api-secure.test.delius.probation.hmpps.dsd.io
+    DELIUS_ENDPOINT_URL: https://community-api-secure.test.delius.probation.hmpps.dsd.io
     BANNER_ROLES:
     BANNER_EMPTY:
     BANNER_DPSMENU:
