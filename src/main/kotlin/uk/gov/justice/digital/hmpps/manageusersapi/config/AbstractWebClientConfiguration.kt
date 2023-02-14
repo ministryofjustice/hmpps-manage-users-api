@@ -38,10 +38,10 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     prefix: String = ""
   ): WebClient {
     val oauth2 = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
-    oauth2.setDefaultClientRegistrationId("hmpps-auth")
+    oauth2.setDefaultClientRegistrationId(clientId)
 
-    val apiTimeout = environment.getRequiredProperty("hmpps-auth.endpoint.timeout", Duration::class.java)
-    val endpointUrl = environment.getRequiredProperty("hmpps-auth.endpoint.url", String::class.java)
+    val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java)
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
 
     return builder
       .baseUrl("${endpointUrl}$prefix")
@@ -49,7 +49,7 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
       .clientConnector(
         getClientConnectorWithTimeouts(
           apiTimeout, apiTimeout,
-          endpointUrl, environment.getRequiredProperty("hmpps-auth.enabled", Boolean::class.java),
+          endpointUrl, environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
         )
       )
       .build()

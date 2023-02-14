@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.Builder
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 
@@ -19,7 +20,6 @@ class WebClientConfiguration(
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
   @Value("\${api.base.url.nomis}") val nomisBaseUri: String,
   @Value("\${api.base.url.external}") val externalUsersBaseUri: String,
-  @Value("\${api.base.url.delius}") val deliusBaseUri: String,
   appContext: ApplicationContext
 ) :
   AbstractWebClientConfiguration(
@@ -27,25 +27,10 @@ class WebClientConfiguration(
   ) {
 
   @Bean
-  fun authWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(authBaseUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
-
-  @Bean("authWebWithClientId")
-  fun authWebWithClientId(
-    builder: WebClient.Builder,
+  fun authWebClient(
+    builder: Builder,
     authorizedClientManager: OAuth2AuthorizedClientManager
   ): WebClient = getWebClient(builder, authorizedClientManager)
-
-  @Bean
-  fun deliusWebClient(builder: WebClient.Builder): WebClient =
-    builder
-      .baseUrl("$deliusBaseUri/secure")
-      .filter(addAuthHeaderFilterFunction())
-      .build()
 
   @Bean
   fun externalUsersWebClient(builder: WebClient.Builder): WebClient {
@@ -67,9 +52,6 @@ class WebClientConfiguration(
   fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(authBaseUri).build()
 
   @Bean
-  fun deliusHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(deliusBaseUri).build()
-
-  @Bean
   fun externalUsersHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(externalUsersBaseUri).build()
 
   @Bean
@@ -78,10 +60,6 @@ class WebClientConfiguration(
   @Bean
   fun authWebClientUtils(authWebClient: WebClient) =
     WebClientUtils(authWebClient)
-
-  @Bean
-  fun deliusWebClientUtils(deliusWebClient: WebClient) =
-    WebClientUtils(deliusWebClient)
 
   @Bean
   fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) =

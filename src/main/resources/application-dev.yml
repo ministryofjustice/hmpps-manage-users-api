@@ -26,3 +26,11 @@ hmpps-auth:
   client:
     client-id: hmpps-manage-users-api
     client-secret: clientsecret
+
+delius:
+  endpoint:
+    url: http://localhost:8099
+    timeout: 1s
+  client:
+    client-id: manage-users-delius-client
+    client-secret: clientsecret

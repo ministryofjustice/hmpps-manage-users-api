@@ -29,6 +29,15 @@ hmpps-auth:
     client-id: hmpps-manage-users-api
     client-secret: clientsecret
 
+delius:
+  enabled: false
+  endpoint:
+    url: http://localhost:8099
+    timeout: 1s
+  client:
+    client-id: manage-users-delius-client
+    client-secret: clientsecret
+
 application:
   # test key which doesn't send emails, but is automatically accepted by notify
   notify:
