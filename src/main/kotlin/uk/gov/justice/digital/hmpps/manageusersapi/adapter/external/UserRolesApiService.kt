@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter.external
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -34,6 +35,15 @@ class UserRolesApiService(
 
   fun getAllSearchableRoles() =
     externalUsersWebClientUtils.get("/users/me/searchable-roles", UserRoleList::class.java)
+
+  fun getUserRoleCodes(userName: String) =
+    externalUsersWebClientUtils.get("/users/username/$userName/roles", UserRoleCodeList::class.java)
 }
 
+@Schema(description = "User Role code")
+data class UserRoleCode(
+  @Schema(description = "Role Code", example = "AUTH_GROUP_MANAGER")
+  val roleCode: String,
+)
 class UserRoleList : MutableList<UserRole> by ArrayList()
+class UserRoleCodeList : MutableList<UserRoleCode> by ArrayList()

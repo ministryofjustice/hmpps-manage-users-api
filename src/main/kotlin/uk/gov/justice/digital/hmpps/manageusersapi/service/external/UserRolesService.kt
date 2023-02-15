@@ -13,4 +13,5 @@ class UserRolesService(
   fun removeRoleByUserId(userId: UUID, role: String) = userRolesApiService.deleteRoleByUserId(userId, role)
   fun getAssignableRoles(userId: UUID) = userRolesApiService.getAssignableRoles(userId)
   fun getAllSearchableRoles() = userRolesApiService.getAllSearchableRoles()
+  fun getUserRoleCodes(userName: String) = userRolesApiService.getUserRoleCodes(userName)
 }
