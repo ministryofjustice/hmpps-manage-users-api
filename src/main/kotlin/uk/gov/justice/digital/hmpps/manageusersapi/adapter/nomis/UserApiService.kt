@@ -11,7 +11,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreate
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
-  @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils
+  @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils,
+  @Qualifier("nomisUserWebClientUtils") val nomisUserWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -19,7 +20,7 @@ class UserApiService(
 
   fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
-    return nomisWebClientUtils.postWithResponse(
+    return nomisUserWebClientUtils.postWithResponse(
       "/users/admin-account",
       mapOf(
         "username" to centralAdminUser.username,
@@ -33,7 +34,7 @@ class UserApiService(
 
   fun createGeneralUser(generalUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS general user - {}", generalUser.username)
-    return nomisWebClientUtils.postWithResponse(
+    return nomisUserWebClientUtils.postWithResponse(
       "/users/general-account",
       mapOf(
         "username" to generalUser.username,
@@ -48,7 +49,7 @@ class UserApiService(
 
   fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
-    return nomisWebClientUtils.postWithResponse(
+    return nomisUserWebClientUtils.postWithResponse(
       "/users/local-admin-account",
       mapOf(
         "username" to localAdminUser.username,

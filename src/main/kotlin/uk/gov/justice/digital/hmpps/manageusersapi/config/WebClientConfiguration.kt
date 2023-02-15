@@ -18,7 +18,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 @Configuration
 class WebClientConfiguration(
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
-  @Value("\${api.base.url.nomis}") val nomisBaseUri: String,
   @Value("\${api.base.url.external}") val externalUsersBaseUri: String,
   appContext: ApplicationContext
 ) :
@@ -33,7 +32,7 @@ class WebClientConfiguration(
   ): WebClient = getWebClient(builder, authorizedClientManager)
 
   @Bean
-  fun externalUsersWebClient(builder: WebClient.Builder): WebClient {
+  fun externalUsersWebClient(builder: Builder): WebClient {
     return builder
       .baseUrl(externalUsersBaseUri)
       .filter(addAuthHeaderFilterFunction())
@@ -41,21 +40,10 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun nomisWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(nomisBaseUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun authHealthWebClient(builder: Builder): WebClient = builder.baseUrl(authBaseUri).build()
 
   @Bean
-  fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(authBaseUri).build()
-
-  @Bean
-  fun externalUsersHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(externalUsersBaseUri).build()
-
-  @Bean
-  fun nomisHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(nomisBaseUri).build()
+  fun externalUsersHealthWebClient(builder: Builder): WebClient = builder.baseUrl(externalUsersBaseUri).build()
 
   @Bean
   fun authWebClientUtils(authWebClient: WebClient) =
@@ -64,10 +52,6 @@ class WebClientConfiguration(
   @Bean
   fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) =
     WebClientUtils(externalUsersWebClient)
-
-  @Bean
-  fun nomisWebClientUtils(nomisWebClient: WebClient) =
-    WebClientUtils(nomisWebClient)
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
