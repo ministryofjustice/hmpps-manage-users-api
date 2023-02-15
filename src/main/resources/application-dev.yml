@@ -34,7 +34,7 @@ nomis:
     url: http://localhost:8082
     timeout: 1s
   client:
-    client-id: manage-users-delius-client
+    client-id: manage-users-nomis-client
     client-secret: clientsecret
 
 external-users:
