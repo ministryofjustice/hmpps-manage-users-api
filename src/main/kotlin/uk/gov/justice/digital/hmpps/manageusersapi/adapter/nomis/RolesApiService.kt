@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
@@ -13,7 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 
 @Service(value = "nomisRolesApiService")
 class RolesApiService(
-  @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils
+  val nomisUserWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -21,7 +20,7 @@ class RolesApiService(
 
   fun createRole(createRole: CreateRole) {
     log.debug("Create dps role for {} with {}", createRole.roleCode, createRole)
-    return nomisWebClientUtils.post(
+    return nomisUserWebClientUtils.post(
       "/roles",
       mapOf(
         "code" to createRole.roleCode,
@@ -33,7 +32,7 @@ class RolesApiService(
 
   fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
-    nomisWebClientUtils.put(
+    nomisUserWebClientUtils.put(
       "/roles/$roleCode",
       mapOf(
         "name" to roleNameAmendment.roleName.nomisRoleName()
@@ -43,7 +42,7 @@ class RolesApiService(
 
   fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
-    nomisWebClientUtils.put(
+    nomisUserWebClientUtils.put(
       "/roles/$roleCode",
       mapOf(
         "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly()
@@ -52,7 +51,7 @@ class RolesApiService(
   }
 
   fun getUserRoles(username: String) =
-    nomisWebClientUtils.get("/users/$username/roles", UserRoleDetail::class.java)
+    nomisUserWebClientUtils.get("/users/$username/roles", UserRoleDetail::class.java)
 
   private fun String.nomisRoleName(): String = take(30)
 
