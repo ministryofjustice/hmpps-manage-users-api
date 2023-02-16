@@ -35,7 +35,7 @@ class AuthApiService(
 
   fun createTokenByEmailType(tokenByEmailTypeRequest: TokenByEmailTypeRequest): String {
     log.debug("Create Token for user ${tokenByEmailTypeRequest.username} with email type ${tokenByEmailTypeRequest.emailType}")
-    return authWebClientUtils.postWithResponse(
+    return serviceWebClientUtils.postWithResponse(
       "/api/token/email-type",
       mapOf("username" to tokenByEmailTypeRequest.username, "emailType" to tokenByEmailTypeRequest.emailType),
       String::class.java
@@ -43,7 +43,7 @@ class AuthApiService(
   }
 
   fun createResetTokenForUser(userId: UUID) =
-    authWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
+    serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
 
   fun findAzureUserByUsername(username: String): UserDetailsDto? =
     try {
@@ -55,7 +55,7 @@ class AuthApiService(
     }
 
   fun findServiceByServiceCode(serviceCode: String) =
-    authWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
+    serviceWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
 
   fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUserDetails =
     serviceWebClientUtils.getWithParams(
