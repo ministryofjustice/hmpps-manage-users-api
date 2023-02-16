@@ -19,7 +19,7 @@ generic-service:
   env:
     JAVA_OPTS: "-Xmx512m"
     SERVER_PORT: "8080"
-    SPRING_PROFILES_ACTIVE: "logstash,delius"
+    SPRING_PROFILES_ACTIVE: "logstash,delius,nomis,external-users"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY);IngestionEndpoint=https://northeurope-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
 
@@ -36,6 +36,10 @@ generic-service:
       HMPPS_AUTH_CLIENT_CLIENT_SECRET: "AUTH_CLIENT_SECRET"
       DELIUS_CLIENT_CLIENT_ID: "DELIUS_CLIENT_ID"
       DELIUS_CLIENT_CLIENT_SECRET: "DELIUS_CLIENT_SECRET"
+      NOMIS_CLIENT_CLIENT_ID: "NOMIS_CLIENT_ID"
+      NOMIS_CLIENT_CLIENT_SECRET: "NOMIS_CLIENT_SECRET"
+      EXTERNAL_USERS_CLIENT_CLIENT_ID: "EXTERNAL_CLIENT_ID"
+      EXTERNAL_USERS_CLIENT_CLIENT_SECRET: "EXTERNAL_CLIENT_SECRET"
       APPLICATION_NOTIFY_KEY: "APPLICATION_NOTIFY_KEY"
 
   allowlist:

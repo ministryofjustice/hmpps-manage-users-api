@@ -22,9 +22,27 @@ application:
     key: testkey-992308b2-1e8f-4667-816b-8bdde781a4ac-9c211cf4-96d1-4c30-848b-8f172bca0b41
 
 hmpps-auth:
+  endpoint:
+    url: http://localhost:9090/auth
   enabled: true
   client:
     client-id: hmpps-manage-users-api
+    client-secret: clientsecret
+
+nomis:
+  endpoint:
+    url: http://localhost:8082
+    timeout: 1s
+  client:
+    client-id: manage-users-nomis-client
+    client-secret: clientsecret
+
+external-users:
+  endpoint:
+    url: http://localhost:8088
+    timeout: 1s
+  client:
+    client-id: manage-users-ext-users-client
     client-secret: clientsecret
 
 delius:
