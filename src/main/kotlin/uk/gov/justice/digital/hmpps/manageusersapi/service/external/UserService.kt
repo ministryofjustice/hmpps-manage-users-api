@@ -57,10 +57,10 @@ class UserService(
 
   fun amendUserEmailByUserId(
     userId: UUID,
-    emailAddressInput: String?,
-    url: String,
+    emailAddressInput: String?
   ): String {
 
+    val url = "$authBaseUri/initial-password?token="
     val user = externalUsersSearchApiService.findByUserId(userId)
     val username = user.username
     var usernameForUpdate = user.username

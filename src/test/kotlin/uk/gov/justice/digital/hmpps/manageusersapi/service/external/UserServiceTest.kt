@@ -108,7 +108,6 @@ class UserServiceTest {
 
     private val userId: UUID = UUID.randomUUID()
     private val newEmailAddress = "new.testy@testing.com"
-    private val url = "initial-password-url.digital.gov.uk"
     private val token = "a25adf13-dbed-4a19-ad07-d1cd95b12500"
 
     private fun createSampleUserWith(username: String, email: String): ExternalUserDetailsDto {
@@ -133,11 +132,11 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       doThrow(VerifyEmailService.ValidEmailException("reason"))
-        .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress), eq("verify-email-confirm-url.digital.gov.uk"))
+        .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, newEmailAddress, url
+          userId, newEmailAddress
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
 
@@ -150,7 +149,7 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, newEmailAddress, url
+          userId, newEmailAddress
         )
       }.isInstanceOf(WebClientResponseException::class.java)
     }
@@ -161,11 +160,11 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("verify-email-confirm-url.digital.gov.uk"))).thenReturn(
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
         VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
       )
 
-      val link = userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      val link = userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       assertThat(link).isEqualTo("link")
     }
@@ -176,11 +175,11 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("verify-email-confirm-url.digital.gov.uk"))).thenReturn(
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
         VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
       )
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(userApiService).updateUserEmailAddressAndUsername(userId, "testing", newEmailAddress)
     }
@@ -195,7 +194,7 @@ class UserServiceTest {
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf())
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("prison-staff-hub", "service-not-pecs@testing.com"))
 
-      userService.amendUserEmailByUserId(userId, "    SARAH.o’connor@gov.uk", url)
+      userService.amendUserEmailByUserId(userId, "    SARAH.o’connor@gov.uk")
 
       verify(userApiService).updateUserEmailAddressAndUsername(userId, "testing", "sarah.o'connor@gov.uk")
     }
@@ -210,7 +209,7 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, "inv@lid@gov.uk", url
+          userId, "inv@lid@gov.uk"
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: format")
     }
@@ -225,7 +224,7 @@ class UserServiceTest {
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroup("PECS Groups", "PECS Test Group")))
       whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).send(
         anyString(),
@@ -247,7 +246,7 @@ class UserServiceTest {
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroup("NOT PECS Groups", "NOT PECS GROUP Test")))
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).send(
         anyString(),
@@ -275,7 +274,7 @@ class UserServiceTest {
       )
       whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).send(
         anyString(),
@@ -297,7 +296,7 @@ class UserServiceTest {
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf())
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).send(
         anyString(),
@@ -319,14 +318,14 @@ class UserServiceTest {
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf())
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).send(
         eq(initialPasswordTemplateId),
         check {
           assertThat(it["firstName"]).isEqualTo("${externalUser.firstName} ${externalUser.lastName}")
           assertThat(it["fullName"]).isEqualTo("${externalUser.firstName} ${externalUser.lastName}")
-          assertThat(it["resetLink"]).isEqualTo(url + token)
+          assertThat(it["resetLink"]).isEqualTo("$authBaseUri/initial-password?token=$token")
           assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
         },
         eq("AuthUserAmend"),
@@ -348,7 +347,7 @@ class UserServiceTest {
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
       whenever(verifyEmailService.confirmUsernameForUpdate(newEmailAddress, "TESTY@TESTING.COM")).thenReturn(newEmailAddress)
 
-      userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(userApiService).updateUserEmailAddressAndUsername(userId, newEmailAddress, newEmailAddress)
     }
@@ -362,7 +361,7 @@ class UserServiceTest {
       doThrow(VerifyEmailService.ValidEmailException("duplicate")).whenever(verifyEmailService).confirmUsernameForUpdate(newEmailAddress, "TESTY@TESTING.COM")
 
       assertThatThrownBy {
-        userService.amendUserEmailByUserId(userId, newEmailAddress, url)
+        userService.amendUserEmailByUserId(userId, newEmailAddress)
       }.hasMessage("Validate email failed with reason: duplicate")
     }
 

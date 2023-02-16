@@ -228,18 +228,11 @@ class UserController(
     @RequestBody amendUser: AmendUser,
     @Parameter(hidden = true) request: HttpServletRequest,
   ): String? {
-    val setPasswordUrl = createInitialPasswordUrl(request)
     val resetLink = userService.amendUserEmailByUserId(
       userId,
-      amendUser.email,
-      setPasswordUrl
+      amendUser.email
     )
     return if (smokeTestEnabled) resetLink else null
-  }
-
-  private fun createInitialPasswordUrl(@Parameter(hidden = true) request: HttpServletRequest): String {
-    val requestURL = request.requestURL
-    return requestURL.toString().replaceFirst("/api/authuser/.*".toRegex(), "/initial-password?token=")
   }
 }
 
