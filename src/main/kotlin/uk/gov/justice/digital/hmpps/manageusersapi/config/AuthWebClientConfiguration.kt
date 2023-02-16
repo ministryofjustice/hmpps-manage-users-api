@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -11,11 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient.Builder
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 
 @Configuration
-class AuthWebClientConfiguration(
-  @Value("\${api.base.url.oauth}") val authBaseUri: String,
-  appContext: ApplicationContext
-) :
-  AbstractWebClientConfiguration(appContext, "hmpps-auth") {
+class AuthWebClientConfiguration(appContext: ApplicationContext) : AbstractWebClientConfiguration(appContext, "hmpps-auth") {
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
@@ -25,7 +20,7 @@ class AuthWebClientConfiguration(
     getWebClient(builder, authorizedClientManager)
 
   @Bean
-  fun authHealthWebClient(builder: Builder): WebClient = builder.baseUrl(authBaseUri).build()
+  fun authHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
 
   @Bean
   fun authWebClientUtils(authWebClient: WebClient) = WebClientUtils(authWebClient)
