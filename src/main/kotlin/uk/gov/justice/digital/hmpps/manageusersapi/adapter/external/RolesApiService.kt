@@ -17,14 +17,14 @@ import kotlin.collections.ArrayList
 
 @Service(value = "externalRolesApiService")
 class RolesApiService(
-  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   fun getRoles(adminTypes: List<AdminType>?): List<Role> =
-    externalUsersWebClientUtils.getWithParams("/roles", RoleList::class.java, mapOf("adminTypes" to adminTypes as Any?))
+    userWebClientUtils.getWithParams("/roles", RoleList::class.java, mapOf("adminTypes" to adminTypes as Any?))
 
   fun getPagedRoles(
     page: Int,
@@ -33,7 +33,7 @@ class RolesApiService(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?
-  ) = externalUsersWebClientUtils.getWithParams(
+  ) = userWebClientUtils.getWithParams(
     "/roles/paged", object : ParameterizedTypeReference<PagedResponse<Role>> () {},
     mapOf(
       "page" to page,
@@ -46,25 +46,25 @@ class RolesApiService(
   )
 
   fun getRoleDetail(roleCode: String): Role =
-    externalUsersWebClientUtils.get("/roles/$roleCode", Role::class.java)
+    userWebClientUtils.get("/roles/$roleCode", Role::class.java)
 
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    externalUsersWebClientUtils.put("/roles/$roleCode", roleAmendment)
+    userWebClientUtils.put("/roles/$roleCode", roleAmendment)
   }
 
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    externalUsersWebClientUtils.put("/roles/$roleCode/description", roleAmendment)
+    userWebClientUtils.put("/roles/$roleCode/description", roleAmendment)
   }
 
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    externalUsersWebClientUtils.put("/roles/$roleCode/admintype", mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
+    userWebClientUtils.put("/roles/$roleCode/admintype", mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
   }
 
   fun createRole(createRole: CreateRole) {
-    externalUsersWebClientUtils.post(
+    userWebClientUtils.post(
       "/roles",
       mapOf(
         "roleCode" to createRole.roleCode,

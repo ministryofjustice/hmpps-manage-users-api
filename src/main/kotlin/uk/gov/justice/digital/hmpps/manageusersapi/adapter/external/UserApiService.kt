@@ -11,7 +11,7 @@ import java.util.UUID
 
 @Service(value = "externalUserApiService")
 class UserApiService(
-  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -19,11 +19,11 @@ class UserApiService(
 
   fun enableUserById(userId: UUID): EmailNotificationDto {
     log.debug("Enabling User for User Id of {} ", userId)
-    return externalUsersWebClientUtils.putWithResponse("/users/$userId/enable", EmailNotificationDto::class.java)
+    return userWebClientUtils.putWithResponse("/users/$userId/enable", EmailNotificationDto::class.java)
   }
 
   fun disableUserById(userId: UUID, deactivateReason: DeactivateReason) {
     log.debug("Disabling User for User Id of {} ", userId)
-    externalUsersWebClientUtils.put("/users/$userId/disable", deactivateReason)
+    userWebClientUtils.put("/users/$userId/disable", deactivateReason)
   }
 }
