@@ -98,3 +98,30 @@ hmpps-auth:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 8s
+
+nomis:
+  enabled: false
+  client:
+    access-token-uri: ${api.base.url.oauth}/oauth/token
+    authentication-scheme: header
+    client-authentication-scheme: header
+  health.timeout: 1s
+  endpoint.timeout: 5s
+
+external-users:
+  enabled: false
+  client:
+    access-token-uri: ${api.base.url.oauth}/oauth/token
+    authentication-scheme: header
+    client-authentication-scheme: header
+  health.timeout: 1s
+  endpoint.timeout: 5s
+
+delius:
+  enabled: false
+  client:
+    access-token-uri: ${api.base.url.oauth}/oauth/token
+    authentication-scheme: header
+    client-authentication-scheme: header
+  health.timeout: 1s
+  endpoint.timeout: 5s

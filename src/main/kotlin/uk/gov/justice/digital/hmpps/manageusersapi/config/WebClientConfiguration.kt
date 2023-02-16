@@ -11,15 +11,14 @@ import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.Builder
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 
 @Configuration
 class WebClientConfiguration(
   @Value("\${api.base.url.oauth}") val authBaseUri: String,
-  @Value("\${api.base.url.nomis}") val nomisBaseUri: String,
   @Value("\${api.base.url.external}") val externalUsersBaseUri: String,
-  @Value("\${api.base.url.delius}") val deliusBaseUri: String,
   appContext: ApplicationContext
 ) :
   AbstractWebClientConfiguration(
@@ -27,28 +26,13 @@ class WebClientConfiguration(
   ) {
 
   @Bean
-  fun authWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(authBaseUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
-
-  @Bean("authWebWithClientId")
-  fun authWebWithClientId(
-    builder: WebClient.Builder,
+  fun authWebClient(
+    builder: Builder,
     authorizedClientManager: OAuth2AuthorizedClientManager
   ): WebClient = getWebClient(builder, authorizedClientManager)
 
   @Bean
-  fun deliusWebClient(builder: WebClient.Builder): WebClient =
-    builder
-      .baseUrl("$deliusBaseUri/secure")
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-
-  @Bean
-  fun externalUsersWebClient(builder: WebClient.Builder): WebClient {
+  fun externalUsersWebClient(builder: Builder): WebClient {
     return builder
       .baseUrl(externalUsersBaseUri)
       .filter(addAuthHeaderFilterFunction())
@@ -56,40 +40,18 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun nomisWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(nomisBaseUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun authHealthWebClient(builder: Builder): WebClient = builder.baseUrl(authBaseUri).build()
 
   @Bean
-  fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(authBaseUri).build()
-
-  @Bean
-  fun deliusHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(deliusBaseUri).build()
-
-  @Bean
-  fun externalUsersHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(externalUsersBaseUri).build()
-
-  @Bean
-  fun nomisHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(nomisBaseUri).build()
+  fun externalUsersHealthWebClient(builder: Builder): WebClient = builder.baseUrl(externalUsersBaseUri).build()
 
   @Bean
   fun authWebClientUtils(authWebClient: WebClient) =
     WebClientUtils(authWebClient)
 
   @Bean
-  fun deliusWebClientUtils(deliusWebClient: WebClient) =
-    WebClientUtils(deliusWebClient)
-
-  @Bean
   fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) =
     WebClientUtils(externalUsersWebClient)
-
-  @Bean
-  fun nomisWebClientUtils(nomisWebClient: WebClient) =
-    WebClientUtils(nomisWebClient)
 
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
