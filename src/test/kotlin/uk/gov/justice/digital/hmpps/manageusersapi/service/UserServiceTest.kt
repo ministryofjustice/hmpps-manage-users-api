@@ -62,9 +62,9 @@ class UserServiceTest {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
-      whenever(authApiService.findUserByUsernameAndSource("NUSER_GEN", nomis)).thenReturn(createAuthUserDetails(uuid))
+      whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("NUSER_GEN") as UserDetailsDto
+      val user = userService.findUserByUsername("nuser_gen") as UserDetailsDto
       assertThat(user.username).isEqualTo("NUSER_GEN")
       assertThat(user.name).isEqualTo("Nomis Take")
       assertThat(user.uuid).isEqualTo(uuid)
@@ -93,9 +93,9 @@ class UserServiceTest {
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
-      whenever(authApiService.findUserByUsernameAndSource("DELIUSUSER", delius)).thenReturn((createAuthUserDetails(uuid)))
+      whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("DELIUSUSER") as UserDetailsDto
+      val user = userService.findUserByUsername("deliususer") as UserDetailsDto
       assertThat(user.username).isEqualTo("DELIUSUSER")
       assertThat(user.name).isEqualTo("Delius Smith")
       assertThat(user.uuid).isEqualTo(uuid)
@@ -169,7 +169,7 @@ class UserServiceTest {
 
   fun createDeliusUser() =
     DeliusUserDetails(
-      username = "DELIUSUSER",
+      username = "deliususer",
       userId = "1234567890",
       firstName = "Delius",
       surname = "Smith",
