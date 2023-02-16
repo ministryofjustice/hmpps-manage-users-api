@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 
 @Service
-class VerifyEmailDomainApiService(
-  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
-) {
-
+class VerifyEmailDomainApiService(@Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils) {
   fun validateEmailDomain(emailDomain: String) =
-    externalUsersWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
+    userWebClientUtils.get("/validate/email-domain?emailDomain=$emailDomain", Boolean::class.java)
 }

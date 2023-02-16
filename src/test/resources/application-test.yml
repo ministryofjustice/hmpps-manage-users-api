@@ -35,7 +35,7 @@ nomis:
     url: http://localhost:8093
     timeout: 1s
   client:
-    client-id: manage-users-nomis-client
+    client-id: manage-users-api-nomis-client
     client-secret: clientsecret
 
 external-users:
@@ -44,7 +44,7 @@ external-users:
     url: http://localhost:8098
     timeout: 1s
   client:
-    client-id: manage-users-ext-users-client
+    client-id: manage-users-api-ext-users-client
     client-secret: clientsecret
 
 delius:
@@ -53,7 +53,7 @@ delius:
     url: http://localhost:8099
     timeout: 1s
   client:
-    client-id: manage-users-delius-client
+    client-id: manage-users-api-delius-client
     client-secret: clientsecret
 
 

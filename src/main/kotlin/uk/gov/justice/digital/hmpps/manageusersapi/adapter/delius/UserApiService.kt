@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
 
 @Service
 class UserApiService(
-  @Qualifier("deliusWebClientUtils") val deliusWebClientUtils: WebClientUtils
+  @Qualifier("deliusWebClientUtils") val serviceWebClientUtils: WebClientUtils
 
 ) {
   companion object {
@@ -20,7 +20,7 @@ class UserApiService(
       log.debug("Delius not called with username as contained @: {}", username)
       return null
     }
-    return deliusWebClientUtils.getIgnoreError(
+    return serviceWebClientUtils.getIgnoreError(
       "/users/$username/details",
       DeliusUserDetails::class.java
     )

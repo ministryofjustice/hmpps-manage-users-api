@@ -10,30 +10,30 @@ import java.util.UUID
 
 @Service
 class UserRolesApiService(
-  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   fun getUserRoles(userId: UUID): List<UserRole> =
-    externalUsersWebClientUtils.get("/users/$userId/roles", UserRoleList::class.java)
+    userWebClientUtils.get("/users/$userId/roles", UserRoleList::class.java)
 
   fun addRolesByUserId(userId: UUID, roleCodes: List<String>) {
     log.debug("Adding roles {} for user {}", roleCodes, userId)
-    externalUsersWebClientUtils.post("/users/$userId/roles", roleCodes)
+    userWebClientUtils.post("/users/$userId/roles", roleCodes)
   }
 
   fun deleteRoleByUserId(userId: UUID, role: String) {
     log.debug("Delete role {} for user {}", role, userId)
-    externalUsersWebClientUtils.delete("/users/$userId/roles/$role")
+    userWebClientUtils.delete("/users/$userId/roles/$role")
   }
 
   fun getAssignableRoles(userId: UUID) =
-    externalUsersWebClientUtils.get("/users/$userId/assignable-roles", UserRoleList::class.java)
+    userWebClientUtils.get("/users/$userId/assignable-roles", UserRoleList::class.java)
 
   fun getAllSearchableRoles() =
-    externalUsersWebClientUtils.get("/users/me/searchable-roles", UserRoleList::class.java)
+    userWebClientUtils.get("/users/me/searchable-roles", UserRoleList::class.java)
 }
 
 class UserRoleList : MutableList<UserRole> by ArrayList()

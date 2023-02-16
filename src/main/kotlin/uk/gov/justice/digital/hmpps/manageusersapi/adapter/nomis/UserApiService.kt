@@ -11,8 +11,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreate
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
-  @Qualifier("nomisWebClientUtils") val nomisWebClientUtils: WebClientUtils,
-  @Qualifier("nomisUserWebClientUtils") val nomisUserWebClientUtils: WebClientUtils
+  @Qualifier("nomisWebClientUtils") val serviceWebClientUtils: WebClientUtils,
+  @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -20,7 +20,7 @@ class UserApiService(
 
   fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
-    return nomisUserWebClientUtils.postWithResponse(
+    return userWebClientUtils.postWithResponse(
       "/users/admin-account",
       mapOf(
         "username" to centralAdminUser.username,
@@ -34,7 +34,7 @@ class UserApiService(
 
   fun createGeneralUser(generalUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS general user - {}", generalUser.username)
-    return nomisUserWebClientUtils.postWithResponse(
+    return userWebClientUtils.postWithResponse(
       "/users/general-account",
       mapOf(
         "username" to generalUser.username,
@@ -49,7 +49,7 @@ class UserApiService(
 
   fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserCreatedDetails {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
-    return nomisUserWebClientUtils.postWithResponse(
+    return userWebClientUtils.postWithResponse(
       "/users/local-admin-account",
       mapOf(
         "username" to localAdminUser.username,
@@ -67,6 +67,6 @@ class UserApiService(
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    return nomisWebClientUtils.getIgnoreError("/users/$username", NomisUserDetails::class.java)
+    return serviceWebClientUtils.getIgnoreError("/users/$username", NomisUserDetails::class.java)
   }
 }

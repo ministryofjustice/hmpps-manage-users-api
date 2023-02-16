@@ -10,17 +10,17 @@ import kotlin.collections.ArrayList
 
 @Service
 class EmailDomainApiService(
-  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
 
-  fun domainList(): List<EmailDomainDto> = externalUsersWebClientUtils.get("/email-domains", EmailDomainList::class.java)
+  fun domainList(): List<EmailDomainDto> = userWebClientUtils.get("/email-domains", EmailDomainList::class.java)
 
-  fun domain(id: UUID) = externalUsersWebClientUtils.get("/email-domains/$id", EmailDomainDto::class.java)
+  fun domain(id: UUID) = userWebClientUtils.get("/email-domains/$id", EmailDomainDto::class.java)
 
   fun addEmailDomain(emailDomain: CreateEmailDomainDto) =
-    externalUsersWebClientUtils.postWithResponse("/email-domains", emailDomain, EmailDomainDto::class.java)
+    userWebClientUtils.postWithResponse("/email-domains", emailDomain, EmailDomainDto::class.java)
 
-  fun deleteEmailDomain(id: UUID) = externalUsersWebClientUtils.delete("/email-domains/$id")
+  fun deleteEmailDomain(id: UUID) = userWebClientUtils.delete("/email-domains/$id")
 }
 
 class EmailDomainList : MutableList<EmailDomainDto> by ArrayList()
