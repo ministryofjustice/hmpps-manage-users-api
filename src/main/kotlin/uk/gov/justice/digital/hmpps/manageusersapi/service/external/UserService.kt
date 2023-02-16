@@ -79,7 +79,7 @@ class UserService(
     verifyEmailService.validateEmailAddress(newEmail, EmailType.PRIMARY)
 
     if (user.email == username.lowercase()) {
-      usernameForUpdate = verifyEmailService.confirmUsernameForUpdate(newEmail!!, username)
+      usernameForUpdate = verifyEmailService.confirmUsernameValidForUpdate(newEmail!!, username)
     }
 
     val setPasswordLink = sendInitialEmail(url, userId, user, newEmail!!, usernameForUpdate, "AuthUserAmend")

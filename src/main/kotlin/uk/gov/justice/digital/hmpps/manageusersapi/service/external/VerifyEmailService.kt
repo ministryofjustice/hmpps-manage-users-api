@@ -40,7 +40,7 @@ class VerifyEmailService(
     validateEmailAddress(email, EmailType.PRIMARY)
 
     if (userDetails.username.contains("@") && email!!.uppercase() != userDetails.username) {
-      usernameToUpdate = confirmUsernameForUpdate(email, userDetails.username)
+      usernameToUpdate = confirmUsernameValidForUpdate(email, userDetails.username)
     }
 
     val parameters: Map<String, Any> = mapOf(
@@ -53,7 +53,7 @@ class VerifyEmailService(
     return LinkEmailAndUsername(verifyLink, email, usernameToUpdate)
   }
 
-  fun confirmUsernameForUpdate(newEmail: String, existingUsername: String): String {
+  fun confirmUsernameValidForUpdate(newEmail: String, existingUsername: String): String {
     externalUserSearchApiService.findUserByUsernameIfPresent(newEmail.uppercase())?.let {
       throw ValidEmailException("duplicate")
     }

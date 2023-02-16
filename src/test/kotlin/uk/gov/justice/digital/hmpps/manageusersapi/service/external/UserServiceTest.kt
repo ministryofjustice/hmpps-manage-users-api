@@ -345,7 +345,7 @@ class UserServiceTest {
       whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf())
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
-      whenever(verifyEmailService.confirmUsernameForUpdate(newEmailAddress, "TESTY@TESTING.COM")).thenReturn(newEmailAddress)
+      whenever(verifyEmailService.confirmUsernameValidForUpdate(newEmailAddress, "TESTY@TESTING.COM")).thenReturn(newEmailAddress)
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
@@ -358,7 +358,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
-      doThrow(VerifyEmailService.ValidEmailException("duplicate")).whenever(verifyEmailService).confirmUsernameForUpdate(newEmailAddress, "TESTY@TESTING.COM")
+      doThrow(VerifyEmailService.ValidEmailException("duplicate")).whenever(verifyEmailService).confirmUsernameValidForUpdate(newEmailAddress, "TESTY@TESTING.COM")
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(userId, newEmailAddress)
