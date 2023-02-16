@@ -14,33 +14,33 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 
 @Service
 class GroupsApiService(
-  @Qualifier("externalUsersWebClientUtils") val externalUsersWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   fun getGroups(): List<UserGroup> =
-    externalUsersWebClientUtils.get("/groups", GroupList::class.java)
+    userWebClientUtils.get("/groups", GroupList::class.java)
 
   fun getGroupDetail(group: String): GroupDetails =
-    externalUsersWebClientUtils.get("/groups/$group", GroupDetails::class.java)
+    userWebClientUtils.get("/groups/$group", GroupDetails::class.java)
 
   fun getChildGroupDetail(group: String): ChildGroupDetails =
-    externalUsersWebClientUtils.get("/groups/child/$group", ChildGroupDetails::class.java)
+    userWebClientUtils.get("/groups/child/$group", ChildGroupDetails::class.java)
 
   fun updateGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)
-    externalUsersWebClientUtils.put("/groups/$group", groupAmendment)
+    userWebClientUtils.put("/groups/$group", groupAmendment)
   }
 
   fun updateChildGroup(group: String, groupAmendment: GroupAmendment) {
     log.debug("Updating child group details for {} with {}", group, groupAmendment)
-    externalUsersWebClientUtils.put("/groups/child/$group", groupAmendment)
+    userWebClientUtils.put("/groups/child/$group", groupAmendment)
   }
 
   fun createGroup(createGroup: CreateGroup) {
-    externalUsersWebClientUtils.post(
+    userWebClientUtils.post(
       "/groups",
       mapOf(
         "groupCode" to createGroup.groupCode,
@@ -50,7 +50,7 @@ class GroupsApiService(
   }
 
   fun createChildGroup(createChildGroup: CreateChildGroup) {
-    externalUsersWebClientUtils.post(
+    userWebClientUtils.post(
       "/groups/child",
       mapOf(
         "groupCode" to createChildGroup.groupCode,
@@ -62,10 +62,10 @@ class GroupsApiService(
 
   fun deleteChildGroup(group: String) {
     log.debug("Deleting child group {}", group)
-    externalUsersWebClientUtils.delete("/groups/child/$group")
+    userWebClientUtils.delete("/groups/child/$group")
   }
 
   fun deleteGroup(group: String) {
-    externalUsersWebClientUtils.delete("/groups/$group")
+    userWebClientUtils.delete("/groups/$group")
   }
 }

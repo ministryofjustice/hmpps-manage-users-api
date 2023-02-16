@@ -11,7 +11,7 @@ import java.util.UUID
 
 @Service
 class AuthApiService(
-  @Qualifier("authWebClientUtils") val authWebClientUtils: WebClientUtils
+  @Qualifier("authWebClientUtils") val serviceWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -19,7 +19,7 @@ class AuthApiService(
 
   fun createNewToken(createTokenRequest: CreateTokenRequest): String {
     log.debug("Create Token for user, {}", createTokenRequest.username)
-    return authWebClientUtils.postWithResponse(
+    return serviceWebClientUtils.postWithResponse(
       "/api/new-token",
       mapOf(
         "username" to createTokenRequest.username,
@@ -35,14 +35,14 @@ class AuthApiService(
   fun findAzureUserByUsername(username: String): UserDetailsDto? =
     try {
       UUID.fromString(username)
-      authWebClientUtils.getIgnoreError("/api/azureuser/$username", UserDetailsDto::class.java)
+      serviceWebClientUtils.getIgnoreError("/api/azureuser/$username", UserDetailsDto::class.java)
     } catch (exception: IllegalArgumentException) {
       log.debug("Auth not called for Azure user as username not valid UUID: {}", username)
       null
     }
 
   fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUserDetails =
-    authWebClientUtils.getWithParams(
+    serviceWebClientUtils.getWithParams(
       "/api/user", AuthUserDetails::class.java,
       mapOf(
         "username" to username,
