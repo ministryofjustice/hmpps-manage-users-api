@@ -209,15 +209,14 @@ class VerifyEmailServiceTest {
       val email: String = "A".repeat(241)
       assertThatThrownBy {
         verifyEmailService.validateEmailAddress(
-          email,
-          EmailType.PRIMARY
+          email
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java)
         .hasMessage("Validate email failed with reason: maxlength")
     }
 
     private fun verifyPrimaryEmailFailure(email: String, reason: String) {
-      assertThatThrownBy { verifyEmailService.validateEmailAddress(email, EmailType.PRIMARY) }.isInstanceOf(
+      assertThatThrownBy { verifyEmailService.validateEmailAddress(email) }.isInstanceOf(
         VerifyEmailService.ValidEmailException::class.java
       ).extracting("reason").isEqualTo(reason)
     }

@@ -190,7 +190,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
-      doThrow(VerifyEmailService.ValidEmailException("format")).whenever(verifyEmailService).validateEmailAddress("inv@lid@gov.uk", EmailType.PRIMARY)
+      doThrow(VerifyEmailService.ValidEmailException("format")).whenever(verifyEmailService).validateEmailAddress("inv@lid@gov.uk")
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(

@@ -37,7 +37,7 @@ class VerifyEmailService(
 
     val email = EmailHelper.format(emailInput)
     var usernameToUpdate = userDetails.username
-    validateEmailAddress(email, EmailType.PRIMARY)
+    validateEmailAddress(email)
 
     if (userDetails.username.contains("@") && email!!.uppercase() != userDetails.username) {
       usernameToUpdate = confirmUsernameValidForUpdate(email, userDetails.username)
@@ -67,17 +67,17 @@ class VerifyEmailService(
     return newEmail
   }
 
-  fun validateEmailAddress(email: String?, emailType: EmailType): Boolean {
+  fun validateEmailAddress(email: String?): Boolean {
     if (email.isNullOrBlank()) {
       throw ValidEmailException("blank")
     }
     if (email.length > MAX_LENGTH_EMAIL) throw ValidEmailException("maxlength")
-    validateEmailAddressExcludingGsi(email, emailType)
+    validateEmailAddressExcludingGsi(email)
     if (email.matches(Regex(".*@.*\\.gsi\\.gov\\.uk"))) throw ValidEmailException("gsi")
     return true
   }
 
-  fun validateEmailAddressExcludingGsi(email: String, emailType: EmailType) {
+  fun validateEmailAddressExcludingGsi(email: String) {
     val atIndex = email.indexOf('@')
     if (atIndex == -1 || !email.matches(Regex(".*@.*\\..*"))) {
       throw ValidEmailException("format")
@@ -99,7 +99,7 @@ class VerifyEmailService(
     if (!email.matches(Regex("[0-9A-Za-z@.'_\\-+]*"))) {
       throw ValidEmailException("characters")
     }
-    if (emailType == EmailType.PRIMARY && !verifyEmailDomainService.isValidEmailDomain(email.substring(atIndex + 1))) {
+    if (!verifyEmailDomainService.isValidEmailDomain(email.substring(atIndex + 1))) {
       throw ValidEmailException("domain")
     }
   }
@@ -116,5 +116,4 @@ class VerifyEmailService(
 
 enum class EmailType(val description: String) {
   PRIMARY("primary"),
-  SECONDARY("secondary");
 }

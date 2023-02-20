@@ -76,7 +76,7 @@ class UserService(
     }
 
     val newEmail = EmailHelper.format(emailAddressInput)
-    verifyEmailService.validateEmailAddress(newEmail, EmailType.PRIMARY)
+    verifyEmailService.validateEmailAddress(newEmail)
 
     if (user.email == username.lowercase()) {
       usernameForUpdate = verifyEmailService.confirmUsernameValidForUpdate(newEmail!!, username)
