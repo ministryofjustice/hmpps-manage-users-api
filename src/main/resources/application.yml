@@ -81,8 +81,11 @@ api:
 
 application:
   notify:
+    verify.template: 4b285841-41ba-47d1-b6b0-104440c4e312
     create-initial-password.template: b479fb86-0fe7-4728-bda5-ca93817a9a04
     enable-user.template: 440b362b-5fd1-4b0e-b962-382da6539402
+
+  smoketest.enabled: false
 
 hmpps-auth:
   endpoint:

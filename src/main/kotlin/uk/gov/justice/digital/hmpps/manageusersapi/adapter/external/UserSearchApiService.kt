@@ -21,6 +21,9 @@ class UserSearchApiService(
   fun findUserByUsername(username: String): ExternalUserDetailsDto =
     userWebClientUtils.get("/users/$username", ExternalUserDetailsDto::class.java)
 
+  fun findUserByUsernameIfPresent(username: String): ExternalUserDetailsDto? =
+    userWebClientUtils.getIfPresent("/users/$username", ExternalUserDetailsDto::class.java)
+
   fun findByUserId(userId: UUID): ExternalUserDetailsDto =
     userWebClientUtils.get("/users/id/$userId", ExternalUserDetailsDto::class.java)
 

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import java.util.UUID
@@ -32,6 +33,18 @@ class AuthApiService(
     )
   }
 
+  fun createTokenByEmailType(tokenByEmailTypeRequest: TokenByEmailTypeRequest): String {
+    log.debug("Create Token for user ${tokenByEmailTypeRequest.username} with email type ${tokenByEmailTypeRequest.emailType}")
+    return serviceWebClientUtils.postWithResponse(
+      "/api/token/email-type",
+      mapOf("username" to tokenByEmailTypeRequest.username, "emailType" to tokenByEmailTypeRequest.emailType),
+      String::class.java
+    )
+  }
+
+  fun createResetTokenForUser(userId: UUID) =
+    serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
+
   fun findAzureUserByUsername(username: String): UserDetailsDto? =
     try {
       UUID.fromString(username)
@@ -40,6 +53,9 @@ class AuthApiService(
       log.debug("Auth not called for Azure user as username not valid UUID: {}", username)
       null
     }
+
+  fun findServiceByServiceCode(serviceCode: String) =
+    serviceWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
 
   fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUserDetails =
     serviceWebClientUtils.getWithParams(
@@ -50,6 +66,11 @@ class AuthApiService(
       )
     )
 }
+
+data class TokenByEmailTypeRequest(
+  val username: String,
+  val emailType: String,
+)
 
 data class CreateTokenRequest(
   val username: String,

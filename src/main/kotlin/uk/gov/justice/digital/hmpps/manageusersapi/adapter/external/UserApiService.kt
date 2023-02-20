@@ -17,6 +17,11 @@ class UserApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
+  fun updateUserEmailAddressAndUsername(userId: UUID, username: String, email: String) =
+    userWebClientUtils.put("/users/id/$userId/email", mapOf("username" to username, "email" to email))
+
+  fun hasPassword(userId: UUID) = userWebClientUtils.get("/users/$userId/password/present", Boolean::class.java)
+
   fun enableUserById(userId: UUID): EmailNotificationDto {
     log.debug("Enabling User for User Id of {} ", userId)
     return userWebClientUtils.putWithResponse("/users/$userId/enable", EmailNotificationDto::class.java)
