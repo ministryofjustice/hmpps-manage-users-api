@@ -67,6 +67,6 @@ class UserApiService(
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError("/users/$username", NomisUserDetails::class.java)
+    return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", NomisUserDetails::class.java)
   }
 }
