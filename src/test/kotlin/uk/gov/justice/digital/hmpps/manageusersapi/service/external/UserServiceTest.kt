@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import java.util.UUID
@@ -108,11 +108,10 @@ class UserServiceTest {
     private val userId: UUID = UUID.randomUUID()
     private val newEmailAddress = "new.testy@testing.com"
     private val token = "a25adf13-dbed-4a19-ad07-d1cd95b12500"
-    private val userFixture = UserFixture()
 
     @Test
     fun `user with password - invalid email`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId, "testing", "testy@testing.com")
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
@@ -141,7 +140,7 @@ class UserServiceTest {
 
     @Test
     fun `user with password - success link returned for`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
@@ -156,7 +155,7 @@ class UserServiceTest {
 
     @Test
     fun `user with password - email and username updated for`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
@@ -171,7 +170,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - format email input`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -186,7 +185,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - invalid email`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -201,7 +200,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - pecs user group support link`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -223,7 +222,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - non pecs user group support link`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -245,7 +244,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - multiple groups one pecs group support link`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -273,7 +272,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - no groups support link`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -295,7 +294,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - sends initial email`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "testing", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -323,7 +322,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - changes email address if same as username`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "TESTY@TESTING.COM", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId, "TESTY@TESTING.COM")
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
@@ -339,7 +338,7 @@ class UserServiceTest {
 
     @Test
     fun `user without password - cannot change email to same as existing user`() {
-      val externalUser = userFixture.createExternalUserDetails(userId, "TESTY@TESTING.COM", "testy@testing.com")
+      val externalUser = createExternalUserDetails(userId, "TESTY@TESTING.COM")
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
