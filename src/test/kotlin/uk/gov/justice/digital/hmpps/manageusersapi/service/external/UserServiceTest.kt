@@ -24,10 +24,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 
 class UserServiceTest {
   private val notificationService: NotificationService = mock()

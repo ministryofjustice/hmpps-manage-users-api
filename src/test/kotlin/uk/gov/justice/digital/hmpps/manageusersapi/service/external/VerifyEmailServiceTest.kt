@@ -17,8 +17,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailType
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
+import java.util.UUID
 
 class VerifyEmailServiceTest {
 
