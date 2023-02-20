@@ -16,7 +16,7 @@ data class DeliusUserDetails(
 
   override fun toUserDetails(): UserDetailsDto =
     UserDetailsDto(
-      username = username,
+      username = username.uppercase(),
       active = enabled,
       authSource = AuthSource.delius,
       name = name,
