@@ -17,9 +17,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailType
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
-import java.time.LocalDateTime
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 
 class VerifyEmailServiceTest {
 
@@ -31,6 +30,7 @@ class VerifyEmailServiceTest {
 
   private val userId: UUID = UUID.randomUUID()
   private val notifyTemplateId = "templateId"
+  private val userFixture = UserFixture()
 
   private val verifyEmailService = VerifyEmailService(
     telemetryClient,
@@ -49,7 +49,7 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldSendVerifyEmailAddressEmail() {
-      val user = createSampleUserWith(username = "someuser", email = "testy@testing.com")
+      val user = userFixture.createExternalUserDetails(userId = userId, username = "someuser", email = "testy@testing.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
 
@@ -69,7 +69,7 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldRespondWithVerifyLinkUsernameAndEmail() {
-      val user = createSampleUserWith(username = "someuser", email = "testy@testing.com")
+      val user = userFixture.createExternalUserDetails(userId = userId, username = "someuser", email = "testy@testing.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
 
@@ -82,7 +82,7 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldExitWithExceptionWhenEmailAddressAlreadyInUse() {
-      val user = createSampleUserWith(username = "someuser@user.com", email = "testy@testing.com")
+      val user = userFixture.createExternalUserDetails(userId = userId, username = "someuser@user.com", email = "testy@testing.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
       whenever(externalUserSearchApiService.findUserByUsernameIfPresent(anyString())).thenReturn(user)
@@ -94,7 +94,7 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldRecordUsernameChange() {
-      val user = createSampleUserWith(username = "someuser@user.com", email = "testy@testing.com")
+      val user = userFixture.createExternalUserDetails(userId = userId, username = "someuser@user.com", email = "testy@testing.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
 
@@ -112,7 +112,7 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldRespondWithUsernameSameAsNewEmailWhenExistingUsernameIsEmailAddress() {
-      val user = createSampleUserWith(username = "someuser@user.com", email = "testy@testing.com")
+      val user = userFixture.createExternalUserDetails(userId = userId, username = "someuser@user.com", email = "testy@testing.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
 
@@ -124,7 +124,7 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldFormatEmailInput() {
-      val user = createSampleUserWith(username = "someuser@user.com", email = "testy@testing.com")
+      val user = userFixture.createExternalUserDetails(userId = userId, username = "someuser@user.com", email = "testy@testing.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("somewhere.com")).thenReturn(true)
 
@@ -221,20 +221,5 @@ class VerifyEmailServiceTest {
         VerifyEmailService.ValidEmailException::class.java
       ).extracting("reason").isEqualTo(reason)
     }
-  }
-
-  private fun createSampleUserWith(username: String, email: String): ExternalUserDetailsDto {
-    return ExternalUserDetailsDto(
-      userId = userId,
-      username = username,
-      email = email,
-      firstName = "first",
-      lastName = "last",
-      locked = false,
-      enabled = true,
-      verified = true,
-      lastLoggedIn = LocalDateTime.now().minusDays(1),
-      inactiveReason = null
-    )
   }
 }
