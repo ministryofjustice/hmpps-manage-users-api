@@ -1817,7 +1817,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubUserHasPassword(userId: String, hasPassword: Boolean) {
     stubFor(
-      get("/users/${userId.lowercase()}/password/present")
+      get("/users/id/${userId.lowercase()}/password/present")
         .willReturn(
           aResponse()
             .withStatus(OK.value())
