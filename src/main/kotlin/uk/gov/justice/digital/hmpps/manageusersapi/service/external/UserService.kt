@@ -25,7 +25,7 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
-  @Value("\${api.base.url.oauth}") private val authBaseUri: String,
+  @Value("\${hmpps-auth.endpoint.url}") private val authBaseUri: String,
   @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
   @Value("\${application.notify.enable-user.template}") private val enableUserTemplateId: String,
 ) {
