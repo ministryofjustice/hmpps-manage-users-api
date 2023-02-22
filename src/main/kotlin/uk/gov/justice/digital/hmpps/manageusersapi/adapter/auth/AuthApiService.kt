@@ -12,8 +12,7 @@ import java.util.UUID
 
 @Service
 class AuthApiService(
-  @Qualifier("authWebClientUtils") val serviceWebClientUtils: WebClientUtils,
-  @Qualifier("authUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("authWebClientUtils") val serviceWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -36,7 +35,7 @@ class AuthApiService(
 
   fun createTokenByEmailType(tokenByEmailTypeRequest: TokenByEmailTypeRequest): String {
     log.debug("Create Token for user ${tokenByEmailTypeRequest.username} with email type ${tokenByEmailTypeRequest.emailType}")
-    return userWebClientUtils.postWithResponse(
+    return serviceWebClientUtils.postWithResponse(
       "/api/token/email-type",
       mapOf("username" to tokenByEmailTypeRequest.username, "emailType" to tokenByEmailTypeRequest.emailType),
       String::class.java
@@ -44,7 +43,7 @@ class AuthApiService(
   }
 
   fun createResetTokenForUser(userId: UUID) =
-    userWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
+    serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
 
   fun findAzureUserByUsername(username: String): UserDetailsDto? =
     try {
