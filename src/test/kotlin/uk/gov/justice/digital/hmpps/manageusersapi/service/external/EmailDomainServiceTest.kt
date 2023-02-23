@@ -7,10 +7,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.EmailDomainApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 
 internal class EmailDomainServiceTest {
   private val emailDomainApiService: EmailDomainApiService = mock()
