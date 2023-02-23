@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import java.util.UUID
 
 @Service
@@ -26,11 +26,11 @@ class UserGroupApiService(
     userWebClientUtils.put("/users/$userId/groups/$group")
   }
 
-  fun getUserGroups(userId: UUID, children: Boolean): List<UserGroupDto> =
+  fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
     userWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
 
-  fun getMyAssignableGroups(): List<UserGroupDto> =
+  fun getMyAssignableGroups(): List<UserGroup> =
     userWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
 }
 
-class GroupList : MutableList<UserGroupDto> by ArrayList()
+class GroupList : MutableList<UserGroup> by ArrayList()

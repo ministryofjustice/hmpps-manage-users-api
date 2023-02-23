@@ -7,6 +7,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
 
 class GroupsControllerTest {
@@ -18,13 +19,13 @@ class GroupsControllerTest {
   inner class Groups {
     @Test
     fun `Get all Groups`() {
-      val groups = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc"))
+      val groups = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
 
       whenever(groupsService.getGroups()).thenReturn(groups)
 
       val response = groupsController.getGroups()
       assertThat(response).isEqualTo(
-        groups
+        groups.map { UserGroupDto.fromDomain(it) }
       )
     }
   }

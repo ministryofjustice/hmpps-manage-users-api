@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -59,7 +60,7 @@ class GroupsController(
     ]
   )
   @GetMapping("/groups")
-  fun getGroups(): List<UserGroupDto> = groupsService.getGroups()
+  fun getGroups(): List<UserGroupDto> = groupsService.getGroups().map { UserGroupDto.fromDomain(it) }
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -447,7 +448,12 @@ data class UserGroupDto(
 
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
-)
+) {
+  companion object {
+    fun fromDomain(userGroup: UserGroup) =
+      UserGroupDto(userGroup.groupCode, userGroup.groupName)
+  }
+}
 
 data class CreateGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")

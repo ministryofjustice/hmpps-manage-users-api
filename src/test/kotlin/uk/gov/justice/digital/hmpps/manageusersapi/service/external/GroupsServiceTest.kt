@@ -7,6 +7,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.GroupsApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendmentDto
@@ -20,7 +21,7 @@ class GroupsServiceTest {
 
   @Test
   fun `Get all groups`() {
-    val groups = listOf(UserGroupDto(groupCode = "FRED", groupName = "desc"))
+    val groups = listOf(UserGroup(groupCode = "FRED", groupName = "desc"))
     whenever(groupsApiService.getGroups()).thenReturn(groups)
 
     val actualGroups = groupsService.getGroups()

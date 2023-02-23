@@ -25,8 +25,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiServi
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import java.util.UUID
 
 class UserServiceTest {
@@ -205,7 +205,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
       whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
-      whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroupDto("PECS Groups", "PECS Test Group")))
+      whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroup("PECS Groups", "PECS Test Group")))
       whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -227,7 +227,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
       whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
-      whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroupDto("NOT PECS Groups", "NOT PECS GROUP Test")))
+      whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf(UserGroup("NOT PECS Groups", "NOT PECS GROUP Test")))
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -251,9 +251,9 @@ class UserServiceTest {
       whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
       whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(
         listOf(
-          UserGroupDto("NOT PECS Group 1", "NOT PECS GROUP 1 Test"),
-          UserGroupDto("NOT PECS Group 2", "NOT PECS GROUP 2 Test"),
-          UserGroupDto("PECS Groups", "PECS Test Group")
+          UserGroup("NOT PECS Group 1", "NOT PECS GROUP 1 Test"),
+          UserGroup("NOT PECS Group 2", "NOT PECS GROUP 2 Test"),
+          UserGroup("PECS Groups", "PECS Test Group")
         )
       )
       whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))

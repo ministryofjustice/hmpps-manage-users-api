@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 
 @Service
 class GroupsApiService(
@@ -20,7 +20,7 @@ class GroupsApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getGroups(): List<UserGroupDto> =
+  fun getGroups(): List<UserGroup> =
     userWebClientUtils.get("/groups", GroupList::class.java)
 
   fun getGroupDetail(group: String): GroupDetailsDto =
