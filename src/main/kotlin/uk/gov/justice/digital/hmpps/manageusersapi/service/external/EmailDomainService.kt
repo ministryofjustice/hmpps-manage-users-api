@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.EmailDomainA
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 
 @Service
 class EmailDomainService(
@@ -14,7 +15,7 @@ class EmailDomainService(
     return emailDomainApiService.domainList()
   }
 
-  fun domain(id: UUID): EmailDomainDto {
+  fun domain(id: UUID): EmailDomain {
     return emailDomainApiService.domain(id)
   }
 

@@ -21,6 +21,7 @@ import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 
 @RestController
 class EmailDomainController(
@@ -95,7 +96,7 @@ class EmailDomainController(
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domain(@PathVariable id: UUID): EmailDomainDto {
-    return emailDomainService.domain(id)
+    return EmailDomainDto.fromDomain(emailDomainService.domain(id))
   }
 
   @Operation(
@@ -178,7 +179,16 @@ data class EmailDomainDto(
   val domain: String,
   @Schema(required = false, description = "Email domain description", example = "CAREUK")
   val description: String
-)
+) {
+  companion object {
+    fun fromDomain(emailDomain: EmailDomain) =
+      EmailDomainDto(
+        emailDomain.id,
+        emailDomain.domain,
+        emailDomain.description
+      )
+  }
+}
 
 data class CreateEmailDomainDto(
   @Schema(required = true, description = "Email domain", example = "careuk.com")

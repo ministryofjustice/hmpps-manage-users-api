@@ -8,6 +8,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailDomainService
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 
 internal class EmailDomainControllerTest {
 
@@ -30,12 +31,14 @@ internal class EmailDomainControllerTest {
   @Test
   fun domain() {
     val id = UUID.randomUUID()
-    whenever(emailDomainService.domain(id)).thenReturn(emailDomain)
+    val emailDomainData = EmailDomain("1234", "testing.com", "testing")
+
+    whenever(emailDomainService.domain(id)).thenReturn(emailDomainData)
 
     val actual = emailDomainController.domain(id)
 
-    assertEquals(emailDomain, actual)
-    verifyNoInteractions(emailDomain)
+    val expected = EmailDomainDto.fromDomain(emailDomainData)
+    assertEquals(expected, actual)
   }
 
   @Test

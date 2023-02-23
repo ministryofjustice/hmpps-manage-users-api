@@ -10,11 +10,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.EmailDomainA
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 
 internal class EmailDomainServiceTest {
   private val emailDomainApiService: EmailDomainApiService = mock()
   private val domainList: List<EmailDomainDto> = mock()
   private val domain: EmailDomainDto = mock()
+  private val emailDomain: EmailDomain = mock()
   private val createEmailDomain: CreateEmailDomainDto = mock()
   private val emailDomainService = EmailDomainService(emailDomainApiService)
 
@@ -31,12 +33,12 @@ internal class EmailDomainServiceTest {
   @Test
   fun domain() {
     val id = UUID.randomUUID()
-    whenever(emailDomainApiService.domain(id)).thenReturn(domain)
+    whenever(emailDomainApiService.domain(id)).thenReturn(emailDomain)
 
     val actual = emailDomainService.domain(id)
 
-    assertEquals(domain, actual)
-    verifyNoInteractions(domain)
+    assertEquals(emailDomain, actual)
+    verifyNoInteractions(emailDomain)
   }
 
   @Test
