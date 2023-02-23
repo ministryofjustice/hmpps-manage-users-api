@@ -172,5 +172,5 @@ class UserGroupController(
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
     @RequestParam(defaultValue = "true")
     children: Boolean = true,
-  ): List<UserGroup> = userGroupsService.getUserGroups(userId, children)
+  ): List<UserGroupDto> = userGroupsService.getUserGroups(userId, children)
 }

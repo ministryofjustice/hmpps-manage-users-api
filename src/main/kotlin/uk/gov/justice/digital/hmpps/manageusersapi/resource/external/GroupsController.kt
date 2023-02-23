@@ -42,7 +42,7 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = UserGroup::class))
+            array = ArraySchema(schema = Schema(implementation = UserGroupDto::class))
           )
         ]
       ),
@@ -59,7 +59,7 @@ class GroupsController(
     ]
   )
   @GetMapping("/groups")
-  fun getGroups(): List<UserGroup> = groupsService.getGroups()
+  fun getGroups(): List<UserGroupDto> = groupsService.getGroups()
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -101,7 +101,7 @@ class GroupsController(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ): GroupDetails = groupsService.getGroupDetail(group)
+  ): GroupDetailsDto = groupsService.getGroupDetail(group)
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -141,7 +141,7 @@ class GroupsController(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
-  ): ChildGroupDetails = groupsService.getChildGroupDetail(group)
+  ): ChildGroupDetailsDto = groupsService.getChildGroupDetail(group)
 
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -150,7 +150,7 @@ class GroupsController(
     description = "AmendGroupName",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendment::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))]
     ),
   )
   @ApiResponses(
@@ -189,7 +189,7 @@ class GroupsController(
       description = "Details of the group to be updated.",
       required = true
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendment
+    groupAmendment: GroupAmendmentDto
   ) = groupsService.updateGroup(group, groupAmendment)
 
   @PutMapping("/groups/child/{group}")
@@ -199,7 +199,7 @@ class GroupsController(
     description = "Amend a Child Group Name",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendment::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))]
     ),
   )
   @ApiResponses(
@@ -238,7 +238,7 @@ class GroupsController(
       description = "Details of the child group to be updated.",
       required = true
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendment
+    groupAmendment: GroupAmendmentDto
   ) = groupsService.updateChildGroup(group, groupAmendment)
 
   @PostMapping("/groups")
@@ -248,7 +248,7 @@ class GroupsController(
     description = "Create a Group",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroup::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroupDto::class))]
     ),
   )
   @ApiResponses(
@@ -282,7 +282,7 @@ class GroupsController(
   fun createGroup(
     @Schema(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
-    createGroup: CreateGroup
+    createGroup: CreateGroupDto
   ) = groupsService.createGroup(createGroup)
 
   @PostMapping("/groups/child")
@@ -292,7 +292,7 @@ class GroupsController(
     description = "Create a Child Group",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroup::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroupDto::class))]
     ),
   )
   @ApiResponses(
@@ -326,7 +326,7 @@ class GroupsController(
   fun createChildGroup(
     @Schema(description = "Details of the child group to be created.", required = true)
     @Valid @RequestBody
-    createChildGroup: CreateChildGroup
+    createChildGroup: CreateChildGroupDto
   ) = groupsService.createChildGroup(createChildGroup)
 
   @DeleteMapping("/groups/child/{group}")
@@ -413,7 +413,7 @@ class GroupsController(
 }
 
 @Schema(description = "Group Details")
-data class ChildGroupDetails(
+data class ChildGroupDetailsDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
@@ -422,7 +422,7 @@ data class ChildGroupDetails(
 )
 
 @Schema(description = "Group Name")
-data class GroupAmendment(
+data class GroupAmendmentDto(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 4, max = 100)
@@ -430,7 +430,7 @@ data class GroupAmendment(
 )
 
 @Schema(description = "User Role")
-data class UserAssignableRole(
+data class UserAssignableRoleDto(
   @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
   val roleCode: String,
 
@@ -441,7 +441,7 @@ data class UserAssignableRole(
   val automatic: Boolean
 )
 @Schema(description = "User Group")
-data class UserGroup(
+data class UserGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
@@ -449,7 +449,7 @@ data class UserGroup(
   val groupName: String,
 )
 
-data class CreateGroup(
+data class CreateGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   @field:NotBlank(message = "group code must be supplied")
   @field:Size(min = 2, max = 30)
@@ -464,7 +464,7 @@ data class CreateGroup(
 )
 
 @Schema(description = "Group Details")
-data class GroupDetails(
+data class GroupDetailsDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
@@ -472,13 +472,13 @@ data class GroupDetails(
   val groupName: String,
 
   @Schema(required = true, description = "Assignable Roles")
-  val assignableRoles: List<UserAssignableRole>,
+  val assignableRoles: List<UserAssignableRoleDto>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<UserGroup>
+  val children: List<UserGroupDto>
 )
 
-data class CreateChildGroup(
+data class CreateChildGroupDto(
   @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 2, max = 30)

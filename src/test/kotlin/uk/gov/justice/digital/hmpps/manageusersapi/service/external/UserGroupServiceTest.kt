@@ -6,7 +6,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import java.util.UUID
 
 class UserGroupServiceTest {
@@ -46,10 +46,10 @@ class UserGroupServiceTest {
     assertThat(userGroupService.getMyAssignableGroups()).isEqualTo(myGroups)
   }
 
-  private fun givenAListOfGroups(): List<UserGroup> {
+  private fun givenAListOfGroups(): List<UserGroupDto> {
     return listOf(
-      UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
-      UserGroup(groupCode = "GROUP_CHILD", groupName = "Child Group")
+      UserGroupDto(groupCode = "GROUP_ONE", groupName = "First Group"),
+      UserGroupDto(groupCode = "GROUP_CHILD", groupName = "Child Group")
     )
   }
 }
