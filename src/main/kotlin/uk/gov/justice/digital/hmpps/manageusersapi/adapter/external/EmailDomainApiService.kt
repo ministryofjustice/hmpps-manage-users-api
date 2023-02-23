@@ -19,7 +19,7 @@ class EmailDomainApiService(
   fun domain(id: UUID) = userWebClientUtils.get("/email-domains/$id", EmailDomain::class.java)
 
   fun addEmailDomain(emailDomain: CreateEmailDomainDto) =
-    userWebClientUtils.postWithResponse("/email-domains", emailDomain, EmailDomainDto::class.java)
+    userWebClientUtils.postWithResponse("/email-domains", emailDomain, EmailDomain::class.java)
 
   fun deleteEmailDomain(id: UUID) = userWebClientUtils.delete("/email-domains/$id")
 }

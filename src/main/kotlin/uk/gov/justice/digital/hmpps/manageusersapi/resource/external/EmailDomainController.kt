@@ -136,7 +136,7 @@ class EmailDomainController(
     @Schema(description = "Details of the email domain to be created.", required = true)
     @RequestBody @Valid emailDomain: CreateEmailDomainDto
   ): EmailDomainDto {
-    return emailDomainService.addEmailDomain(emailDomain)
+    return EmailDomainDto.fromDomain(emailDomainService.addEmailDomain(emailDomain))
   }
 
   @Operation(

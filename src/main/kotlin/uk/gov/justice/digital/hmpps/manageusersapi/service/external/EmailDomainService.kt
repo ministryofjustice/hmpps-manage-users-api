@@ -19,7 +19,7 @@ class EmailDomainService(
     return emailDomainApiService.domain(id)
   }
 
-  fun addEmailDomain(emailDomain: CreateEmailDomainDto): EmailDomainDto {
+  fun addEmailDomain(emailDomain: CreateEmailDomainDto): EmailDomain {
     return emailDomainApiService.addEmailDomain(emailDomain)
   }
 

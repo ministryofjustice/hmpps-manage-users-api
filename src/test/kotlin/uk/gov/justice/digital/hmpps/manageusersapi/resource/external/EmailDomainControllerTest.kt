@@ -14,9 +14,10 @@ internal class EmailDomainControllerTest {
 
   private val emailDomainService: EmailDomainService = mock()
   private val emailDomains: List<EmailDomainDto> = mock()
-  private val emailDomain: EmailDomainDto = mock()
   private val emailDomainController = EmailDomainController(emailDomainService)
   private val createEmailDomain: CreateEmailDomainDto = mock()
+
+  private val emailDomainData = EmailDomain("1234", "testing.com", "testing")
 
   @Test
   fun domainListRetrieved() {
@@ -31,8 +32,6 @@ internal class EmailDomainControllerTest {
   @Test
   fun domain() {
     val id = UUID.randomUUID()
-    val emailDomainData = EmailDomain("1234", "testing.com", "testing")
-
     whenever(emailDomainService.domain(id)).thenReturn(emailDomainData)
 
     val actual = emailDomainController.domain(id)
@@ -43,12 +42,12 @@ internal class EmailDomainControllerTest {
 
   @Test
   fun addEmailDomain() {
-    whenever(emailDomainService.addEmailDomain(createEmailDomain)).thenReturn(emailDomain)
+    whenever(emailDomainService.addEmailDomain(createEmailDomain)).thenReturn(emailDomainData)
 
     val actual = emailDomainController.addEmailDomain(createEmailDomain)
 
-    assertEquals(emailDomain, actual)
-    verifyNoInteractions(emailDomain, createEmailDomain)
+    val expected = EmailDomainDto.fromDomain(emailDomainData)
+    assertEquals(expected, actual)
   }
 
   @Test

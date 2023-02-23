@@ -15,7 +15,6 @@ import java.util.UUID
 internal class EmailDomainServiceTest {
   private val emailDomainApiService: EmailDomainApiService = mock()
   private val domainList: List<EmailDomainDto> = mock()
-  private val domain: EmailDomainDto = mock()
   private val emailDomain: EmailDomain = mock()
   private val createEmailDomain: CreateEmailDomainDto = mock()
   private val emailDomainService = EmailDomainService(emailDomainApiService)
@@ -43,12 +42,12 @@ internal class EmailDomainServiceTest {
 
   @Test
   fun addEmailDomain() {
-    whenever(emailDomainApiService.addEmailDomain(createEmailDomain)).thenReturn(domain)
+    whenever(emailDomainApiService.addEmailDomain(createEmailDomain)).thenReturn(emailDomain)
 
     val actual = emailDomainService.addEmailDomain(createEmailDomain)
 
-    assertEquals(domain, actual)
-    verifyNoInteractions(domain)
+    assertEquals(emailDomain, actual)
+    verifyNoInteractions(emailDomain)
   }
 
   @Test
