@@ -7,13 +7,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.GroupsApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendmentDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserAssignableRoleDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 
 class GroupsServiceTest {
   private val groupsApiService: GroupsApiService = mock()
@@ -31,11 +30,11 @@ class GroupsServiceTest {
 
   @Test
   fun `get group details`() {
-    val groupDetails = GroupDetailsDto(
+    val groupDetails = GroupDetails(
       groupCode = "FRED",
       groupName = "desc",
-      assignableRoles = listOf(UserAssignableRoleDto(roleCode = "RO1", roleName = "Role1", automatic = true)),
-      children = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc"))
+      assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
+      children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
     )
     whenever(groupsApiService.getGroupDetail(anyString())).thenReturn(groupDetails)
     val group = groupsService.getGroupDetail("bob")

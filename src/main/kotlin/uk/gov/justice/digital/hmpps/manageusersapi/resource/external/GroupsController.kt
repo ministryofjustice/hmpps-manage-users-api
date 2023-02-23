@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
 import javax.validation.Valid
@@ -102,7 +104,7 @@ class GroupsController(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ): GroupDetailsDto = groupsService.getGroupDetail(group)
+  ): GroupDetailsDto = GroupDetailsDto.fromDomain(groupsService.getGroupDetail(group))
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -440,7 +442,16 @@ data class UserAssignableRoleDto(
 
   @Schema(required = true, description = "automatic", example = "TRUE")
   val automatic: Boolean
-)
+) {
+  companion object {
+    fun fromDomain(userAssignableRole: UserAssignableRole) =
+      UserAssignableRoleDto(
+        userAssignableRole.roleCode,
+        userAssignableRole.roleName,
+        userAssignableRole.automatic
+      )
+  }
+}
 @Schema(description = "User Group")
 data class UserGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
@@ -482,7 +493,20 @@ data class GroupDetailsDto(
 
   @Schema(required = true, description = "Child Groups")
   val children: List<UserGroupDto>
-)
+) {
+  companion object {
+    fun fromDomain(groupDetails: GroupDetails): GroupDetailsDto {
+      with(groupDetails) {
+        return GroupDetailsDto(
+          groupCode,
+          groupName,
+          assignableRoles.map { UserAssignableRoleDto.fromDomain(it) },
+          children.map { UserGroupDto.fromDomain(it) }
+        )
+      }
+    }
+  }
+}
 
 data class CreateChildGroupDto(
   @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
