@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
@@ -144,7 +145,7 @@ class GroupsController(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
-  ): ChildGroupDetailsDto = groupsService.getChildGroupDetail(group)
+  ): ChildGroupDetailsDto = ChildGroupDetailsDto.fromDomain(groupsService.getChildGroupDetail(group))
 
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -422,7 +423,15 @@ data class ChildGroupDetailsDto(
 
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String
-)
+) {
+  companion object {
+    fun fromDomain(childGroupDetails: ChildGroupDetails) =
+      ChildGroupDetailsDto(
+        childGroupDetails.groupCode,
+        childGroupDetails.groupName
+      )
+  }
+}
 
 @Schema(description = "Group Name")
 data class GroupAmendmentDto(

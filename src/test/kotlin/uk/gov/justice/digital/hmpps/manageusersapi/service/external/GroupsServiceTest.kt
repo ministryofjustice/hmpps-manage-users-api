@@ -7,10 +7,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.GroupsApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendmentDto
 
@@ -45,7 +45,7 @@ class GroupsServiceTest {
 
   @Test
   fun `get child group details`() {
-    val childGroupDetails = ChildGroupDetailsDto(groupCode = "CHILD_1", groupName = "Child - Site 1 - Group 2")
+    val childGroupDetails = ChildGroupDetails(groupCode = "CHILD_1", groupName = "Child - Site 1 - Group 2")
     whenever(groupsApiService.getChildGroupDetail(anyString())).thenReturn(childGroupDetails)
 
     val actualChildGroup = groupsService.getChildGroupDetail(childGroupDetails.groupCode)

@@ -7,6 +7,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
@@ -36,12 +37,12 @@ class GroupsControllerTest {
   inner class GetGroups {
     @Test
     fun `Get Child Group details`() {
-      val childGroupDetails = ChildGroupDetailsDto("CHILD_1", "Child - Site 1 - Group 2")
+      val childGroupDetails = ChildGroupDetails("CHILD_1", "Child - Site 1 - Group 2")
       whenever(groupsService.getChildGroupDetail(childGroupDetails.groupCode)).thenReturn(childGroupDetails)
 
       val actualChildGroupDetail = groupsController.getChildGroupDetail(childGroupDetails.groupCode)
 
-      assertThat(actualChildGroupDetail).isEqualTo(childGroupDetails)
+      assertThat(actualChildGroupDetail).isEqualTo(ChildGroupDetailsDto.fromDomain(childGroupDetails))
       verify(groupsService).getChildGroupDetail(childGroupDetails.groupCode)
     }
 
