@@ -4,14 +4,13 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.EmailDomainApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
 
 @Service
 class EmailDomainService(
   private val emailDomainApiService: EmailDomainApiService
 ) {
-  fun domainList(): List<EmailDomainDto> {
+  fun domainList(): List<EmailDomain> {
     return emailDomainApiService.domainList()
   }
 

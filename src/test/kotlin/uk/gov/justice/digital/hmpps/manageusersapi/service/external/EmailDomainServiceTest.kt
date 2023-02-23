@@ -9,12 +9,11 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.EmailDomainApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
 
 internal class EmailDomainServiceTest {
   private val emailDomainApiService: EmailDomainApiService = mock()
-  private val domainList: List<EmailDomainDto> = mock()
+  private val domainList: List<EmailDomain> = mock()
   private val emailDomain: EmailDomain = mock()
   private val createEmailDomain: CreateEmailDomainDto = mock()
   private val emailDomainService = EmailDomainService(emailDomainApiService)

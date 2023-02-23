@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateEmailDomainDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.EmailDomainDto
 import java.util.UUID
 import kotlin.collections.ArrayList
 
@@ -14,7 +13,7 @@ class EmailDomainApiService(
   @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
 
-  fun domainList(): List<EmailDomainDto> = userWebClientUtils.get("/email-domains", EmailDomainList::class.java)
+  fun domainList(): List<EmailDomain> = userWebClientUtils.get("/email-domains", EmailDomainList::class.java)
 
   fun domain(id: UUID) = userWebClientUtils.get("/email-domains/$id", EmailDomain::class.java)
 
@@ -24,4 +23,4 @@ class EmailDomainApiService(
   fun deleteEmailDomain(id: UUID) = userWebClientUtils.delete("/email-domains/$id")
 }
 
-class EmailDomainList : MutableList<EmailDomainDto> by ArrayList()
+class EmailDomainList : MutableList<EmailDomain> by ArrayList()
