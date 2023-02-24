@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -63,7 +63,7 @@ class RolesController(
   @ResponseStatus(HttpStatus.CREATED)
   fun createRole(
     @Schema(description = "Details of the role to be created.", required = true)
-    @Valid @RequestBody createRole: CreateRole,
+    @Valid @RequestBody createRole: CreateRoleDto,
   ) {
     rolesService.createRole(createRole)
   }
@@ -80,7 +80,7 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = Role::class))
+            array = ArraySchema(schema = Schema(implementation = RoleDto::class))
           )
         ]
       ),
@@ -100,7 +100,7 @@ class RolesController(
   fun getRoleDetail(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
     @PathVariable role: String,
-  ): Role = Role(rolesService.getRoleDetail(role))
+  ): RoleDto = RoleDto(rolesService.getRoleDetail(role))
 
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
@@ -114,7 +114,7 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = Role::class))
+            array = ArraySchema(schema = Schema(implementation = RoleDto::class))
           )
         ]
       ),
@@ -133,7 +133,7 @@ class RolesController(
   @GetMapping("/roles")
   fun getRoles(
     @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
-  ): List<Role> = rolesService.getRoles(adminTypes)
+  ): List<RoleDto> = rolesService.getRoles(adminTypes)
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
@@ -179,7 +179,7 @@ class RolesController(
     description = "Amend the role name, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendment::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendmentDto::class))]
     ),
     responses = [
       ApiResponse(
@@ -207,7 +207,7 @@ class RolesController(
   fun amendRoleName(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
     @PathVariable roleCode: String,
-    @Valid @RequestBody roleAmendment: RoleNameAmendment
+    @Valid @RequestBody roleAmendment: RoleNameAmendmentDto
   ) {
     rolesService.updateRoleName(roleCode, roleAmendment)
   }
@@ -218,7 +218,7 @@ class RolesController(
     description = "Amend the role description, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendment::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendmentDto::class))]
     ),
     responses = [
       ApiResponse(
@@ -246,7 +246,7 @@ class RolesController(
   fun amendRoleDescription(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
     @PathVariable roleCode: String,
-    @Valid @RequestBody roleAmendment: RoleDescriptionAmendment
+    @Valid @RequestBody roleAmendment: RoleDescriptionAmendmentDto
   ) {
     rolesService.updateRoleDescription(roleCode, roleAmendment)
   }
@@ -257,7 +257,7 @@ class RolesController(
     description = "Amend the role admin type, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendment::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendmentDto::class))]
     ),
     responses = [
       ApiResponse(
@@ -285,13 +285,13 @@ class RolesController(
   fun amendRoleAdminType(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
     @PathVariable roleCode: String,
-    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
+    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendmentDto
   ) {
     rolesService.updateRoleAdminType(roleCode, roleAmendment)
   }
 }
 
-data class CreateRole(
+data class CreateRoleDto(
   @Schema(required = true, description = "Role Code", example = "AUTH_GROUP_MANAGER")
   @field:NotBlank(message = "role code must be supplied")
   @field:Size(min = 2, max = 30, message = "Role code must be between 2 and 30 characters")
@@ -339,7 +339,7 @@ data class CreateRole(
 }
 
 @Schema(description = "Role Details")
-data class Role(
+data class RoleDto(
   @Schema(required = true, description = "Role Code", example = "AUTH_GROUP_MANAGER")
   val roleCode: String,
 
@@ -356,7 +356,7 @@ data class Role(
   @Schema(required = true, description = "Administration Type")
   val adminType: List<AdminTypeReturn>,
 ) {
-  constructor(r: Role) : this(
+  constructor(r: RoleDto) : this(
     r.roleCode,
     r.roleName,
     r.roleDescription,
@@ -365,7 +365,7 @@ data class Role(
 }
 
 @Schema(description = "Update Role Name")
-data class RoleNameAmendment(
+data class RoleNameAmendmentDto(
   @Schema(required = true, description = "Role Name", example = "Auth Group Manager")
   @field:NotBlank(message = "Role name must be supplied")
   @field:Size(min = 4, max = 100, message = "Role name must be between 4 and 100 characters")
@@ -377,7 +377,7 @@ data class RoleNameAmendment(
 )
 
 @Schema(description = "Update Role Description")
-data class RoleDescriptionAmendment(
+data class RoleDescriptionAmendmentDto(
   @Schema(
     required = true, description = "Role Description",
     example = "Allow Group Manager to administer the account within their groups"
@@ -391,7 +391,7 @@ data class RoleDescriptionAmendment(
 )
 
 @Schema(description = "Update Role Administration Types")
-data class RoleAdminTypeAmendment(
+data class RoleAdminTypeAmendmentDto(
   @Schema(required = true, description = "Role Admin Type", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>

@@ -12,17 +12,18 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.EXT_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.EXT_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 
 class RolesServiceTest {
   private val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService = mock()
@@ -34,8 +35,8 @@ class RolesServiceTest {
     @Test
     fun `get all roles`() {
       val roles = listOf(
-        Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
-        Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+        RoleDto("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+        RoleDto("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
       )
       whenever(externalRolesApiService.getRoles(isNull())).thenReturn(roles)
 
@@ -72,7 +73,7 @@ class RolesServiceTest {
   inner class GetRoleDetails {
     @Test
     fun `get role details`() {
-      val role = Role(
+      val role = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -91,7 +92,7 @@ class RolesServiceTest {
   inner class CreateARole {
     @Test
     fun `create external role`() {
-      val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM))
+      val role = CreateRoleDto("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM))
 
       rolesService.createRole(role)
       verify(externalRolesApiService).createRole(role)
@@ -100,7 +101,7 @@ class RolesServiceTest {
 
     @Test
     fun `create DPS only role`() {
-      val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
+      val role = CreateRoleDto("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
 
       rolesService.createRole(role)
       verify(externalRolesApiService).createRole(role)
@@ -109,7 +110,7 @@ class RolesServiceTest {
 
     @Test
     fun `create DPS and External role`() {
-      val role = CreateRole("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
+      val role = CreateRoleDto("ROLE_1", "Role Name", "A Role", setOf(DPS_ADM))
 
       rolesService.createRole(role)
       verify(externalRolesApiService).createRole(role)
@@ -121,9 +122,9 @@ class RolesServiceTest {
   inner class AmendRoleName {
     @Test
     fun `update role name when DPS Role`() {
-      val roleAmendment = RoleNameAmendment("UpdatedName")
+      val roleAmendment = RoleNameAmendmentDto("UpdatedName")
 
-      val dbRole = Role(
+      val dbRole = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -138,9 +139,9 @@ class RolesServiceTest {
 
     @Test
     fun `update role name when Not DPS Role`() {
-      val roleAmendment = RoleNameAmendment("UpdatedName")
+      val roleAmendment = RoleNameAmendmentDto("UpdatedName")
 
-      val role = Role(
+      val role = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -158,9 +159,9 @@ class RolesServiceTest {
   inner class AmendRoleDescription {
     @Test
     fun `update role description when DPS Role`() {
-      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
 
-      val dbRole = Role(
+      val dbRole = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -175,9 +176,9 @@ class RolesServiceTest {
 
     @Test
     fun `update role description when Not DPS Role`() {
-      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
 
-      val role = Role(
+      val role = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -195,9 +196,9 @@ class RolesServiceTest {
   inner class AmendRoleAdminType {
     @Test
     fun `update role admin type for External Role to also be DPS Role`() {
-      val roleAmendment = RoleAdminTypeAmendment(setOf(EXT_ADM, DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(setOf(EXT_ADM, DPS_ADM))
 
-      val dbRole = Role(
+      val dbRole = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -207,14 +208,14 @@ class RolesServiceTest {
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(nomisRolesApiService).createRole(CreateRole("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM, DPS_ADM)))
+      verify(nomisRolesApiService).createRole(CreateRoleDto("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM, DPS_ADM)))
     }
 
     @Test
     fun `update role admin type for DPS Role to also be External Role`() {
-      val roleAmendment = RoleAdminTypeAmendment(setOf(EXT_ADM, DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(setOf(EXT_ADM, DPS_ADM))
 
-      val dbRole = Role(
+      val dbRole = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -229,9 +230,9 @@ class RolesServiceTest {
 
     @Test
     fun `update role admin type for DPS LSA Role to just be DPS Admin Role`() {
-      val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM, DPS_LSA))
+      val roleAmendment = RoleAdminTypeAmendmentDto(setOf(DPS_ADM, DPS_LSA))
 
-      val dbRole = Role(
+      val dbRole = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -248,9 +249,9 @@ class RolesServiceTest {
 
     @Test
     fun `update role admin type for DPS Admin Role to just be DPS LSA Role`() {
-      val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(setOf(DPS_ADM))
 
-      val dbRole = Role(
+      val dbRole = RoleDto(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -279,8 +280,8 @@ class RolesServiceTest {
 
   fun createRolePaged() = PagedResponse(
     content = listOf(
-      Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
-      Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+      RoleDto("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+      RoleDto("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
     ),
     pageable = createRolesPageable(),
     last = false,
