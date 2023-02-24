@@ -101,7 +101,7 @@ class RolesController(
   fun getRoleDetail(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
     @PathVariable role: String,
-  ): RoleDto = RoleDto(rolesService.getRoleDetail(role))
+  ): RoleDto = RoleDto.fromDomain(rolesService.getRoleDetail(role))
 
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
@@ -357,13 +357,6 @@ data class RoleDto(
   @Schema(required = true, description = "Administration Type")
   val adminType: List<AdminTypeReturn>,
 ) {
-  constructor(r: RoleDto) : this(
-    r.roleCode,
-    r.roleName,
-    r.roleDescription,
-    r.adminType
-  )
-
   companion object {
     fun fromDomain(role: Role): RoleDto =
       with(role) {

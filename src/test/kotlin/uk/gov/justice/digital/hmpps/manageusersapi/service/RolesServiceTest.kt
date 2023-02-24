@@ -74,7 +74,7 @@ class RolesServiceTest {
   inner class GetRoleDetails {
     @Test
     fun `get role details`() {
-      val role = RoleDto(
+      val role = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -125,7 +125,7 @@ class RolesServiceTest {
     fun `update role name when DPS Role`() {
       val roleAmendment = RoleNameAmendmentDto("UpdatedName")
 
-      val dbRole = RoleDto(
+      val dbRole = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -142,7 +142,7 @@ class RolesServiceTest {
     fun `update role name when Not DPS Role`() {
       val roleAmendment = RoleNameAmendmentDto("UpdatedName")
 
-      val role = RoleDto(
+      val role = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -162,7 +162,7 @@ class RolesServiceTest {
     fun `update role description when DPS Role`() {
       val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
 
-      val dbRole = RoleDto(
+      val dbRole = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -179,7 +179,7 @@ class RolesServiceTest {
     fun `update role description when Not DPS Role`() {
       val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
 
-      val role = RoleDto(
+      val role = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -199,7 +199,7 @@ class RolesServiceTest {
     fun `update role admin type for External Role to also be DPS Role`() {
       val roleAmendment = RoleAdminTypeAmendmentDto(setOf(EXT_ADM, DPS_ADM))
 
-      val dbRole = RoleDto(
+      val dbRole = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -216,7 +216,7 @@ class RolesServiceTest {
     fun `update role admin type for DPS Role to also be External Role`() {
       val roleAmendment = RoleAdminTypeAmendmentDto(setOf(EXT_ADM, DPS_ADM))
 
-      val dbRole = RoleDto(
+      val dbRole = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -233,7 +233,7 @@ class RolesServiceTest {
     fun `update role admin type for DPS LSA Role to just be DPS Admin Role`() {
       val roleAmendment = RoleAdminTypeAmendmentDto(setOf(DPS_ADM, DPS_LSA))
 
-      val dbRole = RoleDto(
+      val dbRole = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
@@ -252,7 +252,7 @@ class RolesServiceTest {
     fun `update role admin type for DPS Admin Role to just be DPS LSA Role`() {
       val roleAmendment = RoleAdminTypeAmendmentDto(setOf(DPS_ADM))
 
-      val dbRole = RoleDto(
+      val dbRole = Role(
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",

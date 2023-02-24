@@ -11,6 +11,7 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 
 class RolesControllerTest {
@@ -78,7 +79,7 @@ class RolesControllerTest {
   inner class RoleDetail {
     @Test
     fun `Get role details`() {
-      val role = RoleDto(
+      val role = Role(
         roleCode = "RO1",
         roleName = "Role1",
         roleDescription = "First Role",

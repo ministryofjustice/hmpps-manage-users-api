@@ -9,7 +9,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendmentDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService as ExternalRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as NomisRolesApiService
@@ -40,7 +39,7 @@ class RolesService(
     adminTypes: List<AdminType>?
   ) = externalRolesApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
-  fun getRoleDetail(roleCode: String): RoleDto = externalRolesApiService.getRoleDetail(roleCode)
+  fun getRoleDetail(roleCode: String): Role = externalRolesApiService.getRoleDetail(roleCode)
 
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     val originalRole = getRoleDetail(roleCode)
@@ -70,10 +69,10 @@ class RolesService(
     externalRolesApiService.updateRoleAdminType(roleCode, roleAmendment)
   }
 
-  private fun RoleDto.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
+  private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
   private fun Collection<AdminType>.hasDPSAdminType(): Boolean = (DPS_ADM in this) or (DPS_LSA in this)
 
-  private fun RoleDto.isDpsRoleAdminTypeChanging(updatedAdminType: Set<AdminType>): Boolean =
+  private fun Role.isDpsRoleAdminTypeChanging(updatedAdminType: Set<AdminType>): Boolean =
     DPS_LSA !in adminType.asAdminTypes() && DPS_ADM in adminType.asAdminTypes() && DPS_LSA in updatedAdminType ||
       DPS_LSA in adminType.asAdminTypes() && DPS_LSA !in updatedAdminType && DPS_ADM in updatedAdminType
 }

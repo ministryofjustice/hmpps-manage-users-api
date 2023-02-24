@@ -46,8 +46,8 @@ class RolesApiService(
     )
   )
 
-  fun getRoleDetail(roleCode: String): RoleDto =
-    userWebClientUtils.get("/roles/$roleCode", RoleDto::class.java)
+  fun getRoleDetail(roleCode: String): Role =
+    userWebClientUtils.get("/roles/$roleCode", Role::class.java)
 
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
