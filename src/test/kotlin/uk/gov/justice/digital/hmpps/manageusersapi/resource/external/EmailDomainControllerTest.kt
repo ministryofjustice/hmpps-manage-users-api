@@ -4,48 +4,48 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailDomainService
 import java.util.UUID
 
 internal class EmailDomainControllerTest {
 
   private val emailDomainService: EmailDomainService = mock()
-  private val emailDomains: List<EmailDomainDto> = mock()
-  private val emailDomain: EmailDomainDto = mock()
   private val emailDomainController = EmailDomainController(emailDomainService)
   private val createEmailDomain: CreateEmailDomainDto = mock()
 
+  private val emailDomainData = EmailDomain("1234", "testing.com", "testing")
+
   @Test
   fun domainListRetrieved() {
-    whenever(emailDomainService.domainList()).thenReturn(emailDomains)
+    whenever(emailDomainService.domainList()).thenReturn(listOf(emailDomainData))
 
     val actual = emailDomainController.domainList()
 
-    assertEquals(emailDomains, actual)
-    verifyNoInteractions(emailDomains)
+    val expected = listOf(EmailDomainDto.fromDomain(emailDomainData))
+    assertEquals(expected, actual)
   }
 
   @Test
   fun domain() {
     val id = UUID.randomUUID()
-    whenever(emailDomainService.domain(id)).thenReturn(emailDomain)
+    whenever(emailDomainService.domain(id)).thenReturn(emailDomainData)
 
     val actual = emailDomainController.domain(id)
 
-    assertEquals(emailDomain, actual)
-    verifyNoInteractions(emailDomain)
+    val expected = EmailDomainDto.fromDomain(emailDomainData)
+    assertEquals(expected, actual)
   }
 
   @Test
   fun addEmailDomain() {
-    whenever(emailDomainService.addEmailDomain(createEmailDomain)).thenReturn(emailDomain)
+    whenever(emailDomainService.addEmailDomain(createEmailDomain)).thenReturn(emailDomainData)
 
     val actual = emailDomainController.addEmailDomain(createEmailDomain)
 
-    assertEquals(emailDomain, actual)
-    verifyNoInteractions(emailDomain, createEmailDomain)
+    val expected = EmailDomainDto.fromDomain(emailDomainData)
+    assertEquals(expected, actual)
   }
 
   @Test

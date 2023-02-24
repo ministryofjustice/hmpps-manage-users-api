@@ -1,13 +1,15 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService as ExternalRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as NomisRolesApiService
 
@@ -17,7 +19,7 @@ class RolesService(
   val externalRolesApiService: ExternalRolesApiService
 ) {
 
-  fun createRole(role: CreateRole) {
+  fun createRole(role: CreateRoleDto) {
     if (role.adminType.hasDPSAdminType()) {
       nomisRolesApiService.createRole(role)
     }
@@ -39,7 +41,7 @@ class RolesService(
 
   fun getRoleDetail(roleCode: String): Role = externalRolesApiService.getRoleDetail(roleCode)
 
-  fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
+  fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     val originalRole = getRoleDetail(roleCode)
     if (originalRole.isDPSRole()) {
       nomisRolesApiService.updateRoleName(roleCode, roleAmendment)
@@ -47,16 +49,16 @@ class RolesService(
     externalRolesApiService.updateRoleName(roleCode, roleAmendment)
   }
 
-  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) =
+  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendmentDto) =
     externalRolesApiService.updateRoleDescription(roleCode, roleAmendment)
 
-  fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
+  fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) {
     val originalRole = externalRolesApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
       nomisRolesApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
       nomisRolesApiService.createRole(
-        CreateRole(
+        CreateRoleDto(
           originalRole.roleCode,
           originalRole.roleName,
           originalRole.roleDescription,

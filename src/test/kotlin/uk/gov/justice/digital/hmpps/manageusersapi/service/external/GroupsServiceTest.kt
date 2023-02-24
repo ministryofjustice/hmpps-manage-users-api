@@ -7,12 +7,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.GroupsApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroup
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserAssignableRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendmentDto
 
 class GroupsServiceTest {
   private val groupsApiService: GroupsApiService = mock()
@@ -56,21 +56,21 @@ class GroupsServiceTest {
 
   @Test
   fun `update child group details`() {
-    val groupAmendment = GroupAmendment("Group Name")
+    val groupAmendment = GroupAmendmentDto("Group Name")
     groupsService.updateChildGroup("code", groupAmendment)
     verify(groupsApiService).updateChildGroup("code", groupAmendment)
   }
 
   @Test
   fun `update group details`() {
-    val groupAmendment = GroupAmendment("Group Name")
+    val groupAmendment = GroupAmendmentDto("Group Name")
     groupsService.updateGroup("code", groupAmendment)
     verify(groupsApiService).updateGroup("code", groupAmendment)
   }
 
   @Test
   fun `Create group details`() {
-    val createGroup = CreateGroup("Group Code", "Group Name")
+    val createGroup = CreateGroupDto("Group Code", "Group Name")
     groupsService.createGroup(createGroup)
     verify(groupsApiService).createGroup(createGroup)
   }

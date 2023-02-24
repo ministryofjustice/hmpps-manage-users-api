@@ -8,9 +8,10 @@ import org.mockito.kotlin.argThat
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType.DPS_ADM
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 
 class RolesControllerTest {
@@ -22,14 +23,14 @@ class RolesControllerTest {
   inner class CreateRole {
     @Test
     fun `create role`() {
-      val role = CreateRole("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
+      val role = CreateRoleDto("RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
       rolesController.createRole(role)
       verify(rolesService).createRole(role)
     }
 
     @Test
     fun `create role remove ROLE_`() {
-      val role = CreateRole("ROLE_RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
+      val role = CreateRoleDto("ROLE_RO1", "Role1", "First Role", setOf(AdminType.EXT_ADM))
       rolesController.createRole(role)
       verify(rolesService).createRole(role)
       verify(rolesService).createRole(
@@ -89,7 +90,7 @@ class RolesControllerTest {
 
       val roleDetails = rolesController.getRoleDetail("RO1")
       assertThat(roleDetails).isEqualTo(
-        Role(
+        RoleDto(
           roleCode = "RO1",
           roleName = "Role1",
           roleDescription = "First Role",
@@ -103,7 +104,7 @@ class RolesControllerTest {
   inner class AmendRoleName {
     @Test
     fun `amend role name`() {
-      val roleAmendment = RoleNameAmendment("role")
+      val roleAmendment = RoleNameAmendmentDto("role")
       rolesController.amendRoleName("role1", roleAmendment)
       verify(rolesService).updateRoleName("role1", roleAmendment)
     }
@@ -113,14 +114,14 @@ class RolesControllerTest {
   inner class AmendRoleDescription {
     @Test
     fun `amend role description`() {
-      val roleAmendment = RoleDescriptionAmendment("roleDesc")
+      val roleAmendment = RoleDescriptionAmendmentDto("roleDesc")
       rolesController.amendRoleDescription("role1", roleAmendment)
       verify(rolesService).updateRoleDescription("role1", roleAmendment)
     }
 
     @Test
     fun `amend role description if no description set`() {
-      val roleAmendment = RoleDescriptionAmendment(null)
+      val roleAmendment = RoleDescriptionAmendmentDto(null)
       rolesController.amendRoleDescription("role1", roleAmendment)
       verify(rolesService).updateRoleDescription("role1", roleAmendment)
     }
@@ -130,7 +131,7 @@ class RolesControllerTest {
   inner class AmendRoleAdminType {
     @Test
     fun `amend role admin type`() {
-      val roleAmendment = RoleAdminTypeAmendment(setOf(DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(setOf(DPS_ADM))
       rolesController.amendRoleAdminType("role1", roleAmendment)
       verify(rolesService).updateRoleAdminType("role1", roleAmendment)
     }

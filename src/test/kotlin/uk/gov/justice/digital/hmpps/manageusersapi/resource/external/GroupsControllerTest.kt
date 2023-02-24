@@ -7,6 +7,10 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
 
 class GroupsControllerTest {
@@ -24,7 +28,7 @@ class GroupsControllerTest {
 
       val response = groupsController.getGroups()
       assertThat(response).isEqualTo(
-        groups
+        groups.map { UserGroupDto.fromDomain(it) }
       )
     }
   }
@@ -38,7 +42,7 @@ class GroupsControllerTest {
 
       val actualChildGroupDetail = groupsController.getChildGroupDetail(childGroupDetails.groupCode)
 
-      assertThat(actualChildGroupDetail).isEqualTo(childGroupDetails)
+      assertThat(actualChildGroupDetail).isEqualTo(ChildGroupDetailsDto.fromDomain(childGroupDetails))
       verify(groupsService).getChildGroupDetail(childGroupDetails.groupCode)
     }
 
@@ -60,7 +64,7 @@ class GroupsControllerTest {
 
       val response = groupsController.getGroupDetail("group")
       assertThat(response).isEqualTo(
-        groupsDetails
+        GroupDetailsDto.fromDomain(groupsDetails)
       )
     }
   }
@@ -69,14 +73,14 @@ class GroupsControllerTest {
   inner class AmendGroupName {
     @Test
     fun `amend child group name`() {
-      val groupAmendment = GroupAmendment("groupie")
+      val groupAmendment = GroupAmendmentDto("groupie")
       groupsController.amendChildGroupName("group1", groupAmendment)
       verify(groupsService).updateChildGroup("group1", groupAmendment)
     }
 
     @Test
     fun `amend group name`() {
-      val groupAmendment = GroupAmendment("groupie")
+      val groupAmendment = GroupAmendmentDto("groupie")
       groupsController.amendGroupName("group1", groupAmendment)
       verify(groupsService).updateGroup("group1", groupAmendment)
     }
@@ -86,14 +90,14 @@ class GroupsControllerTest {
   inner class CreateGroup {
     @Test
     fun createGroup() {
-      val childGroup = CreateGroup("CG", "Group")
+      val childGroup = CreateGroupDto("CG", "Group")
       groupsController.createGroup(childGroup)
       verify(groupsService).createGroup(childGroup)
     }
 
     @Test
     fun createChildGroup() {
-      val childGroup = CreateChildGroup("PG", "CG", "Group")
+      val childGroup = CreateChildGroupDto("PG", "CG", "Group")
       groupsController.createChildGroup(childGroup)
       verify(groupsService).createChildGroup(childGroup)
     }
