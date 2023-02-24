@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
@@ -35,8 +36,8 @@ class RolesServiceTest {
     @Test
     fun `get all roles`() {
       val roles = listOf(
-        RoleDto("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
-        RoleDto("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+        Role("ROLE_1", "Role 1", " description 1", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
+        Role("ROLE_2", "Role 2", " description 2", listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))),
       )
       whenever(externalRolesApiService.getRoles(isNull())).thenReturn(roles)
 

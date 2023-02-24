@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -133,7 +134,7 @@ class RolesController(
   @GetMapping("/roles")
   fun getRoles(
     @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
-  ): List<RoleDto> = rolesService.getRoles(adminTypes)
+  ): List<RoleDto> = rolesService.getRoles(adminTypes).map { RoleDto.fromDomain(it) }
 
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
@@ -362,6 +363,13 @@ data class RoleDto(
     r.roleDescription,
     r.adminType
   )
+
+  companion object {
+    fun fromDomain(role: Role): RoleDto =
+      with(role) {
+        return RoleDto(roleCode, roleName, roleDescription, adminType)
+      }
+  }
 }
 
 @Schema(description = "Update Role Name")

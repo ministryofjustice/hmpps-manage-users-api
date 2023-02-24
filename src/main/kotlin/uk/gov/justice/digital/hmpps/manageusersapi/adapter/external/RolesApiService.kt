@@ -7,6 +7,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
@@ -23,7 +24,7 @@ class RolesApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getRoles(adminTypes: List<AdminType>?): List<RoleDto> =
+  fun getRoles(adminTypes: List<AdminType>?): List<Role> =
     userWebClientUtils.getWithParams("/roles", RoleList::class.java, mapOf("adminTypes" to adminTypes as Any?))
 
   fun getPagedRoles(
@@ -79,4 +80,4 @@ class RolesApiService(
 private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
   (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
-class RoleList : MutableList<RoleDto> by ArrayList()
+class RoleList : MutableList<Role> by ArrayList()

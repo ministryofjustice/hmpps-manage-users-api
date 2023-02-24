@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendmentDto
@@ -28,7 +29,7 @@ class RolesService(
 
   fun getRoles(
     adminTypes: List<AdminType>?
-  ): List<RoleDto> = externalRolesApiService.getRoles(adminTypes)
+  ): List<Role> = externalRolesApiService.getRoles(adminTypes)
 
   fun getPagedRoles(
     page: Int,
