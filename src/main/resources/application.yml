@@ -14,12 +14,12 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${api.base.url.oauth}/.well-known/jwks.json
+          jwk-set-uri: ${hmpps-auth.endpoint.url}/.well-known/jwks.json
 
       client:
         provider:
           hmpps-auth:
-            token-uri: ${api.base.url.oauth}/oauth/token
+            token-uri: ${hmpps-auth.endpoint.url}/oauth/token
         registration:
           audit-api:
             provider: hmpps-auth
@@ -89,11 +89,11 @@ application:
 
 hmpps-auth:
   endpoint:
-    url: ${api.base.url.oauth}
+    url: ${hmpps-auth.endpoint.url}
     timeout: 1s
   enabled: false
   client:
-    access-token-uri: ${api.base.url.oauth}/oauth/token
+    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
@@ -102,7 +102,7 @@ hmpps-auth:
 nomis:
   enabled: false
   client:
-    access-token-uri: ${api.base.url.oauth}/oauth/token
+    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
@@ -111,7 +111,7 @@ nomis:
 external-users:
   enabled: false
   client:
-    access-token-uri: ${api.base.url.oauth}/oauth/token
+    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
@@ -120,7 +120,7 @@ external-users:
 delius:
   enabled: false
   client:
-    access-token-uri: ${api.base.url.oauth}/oauth/token
+    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s

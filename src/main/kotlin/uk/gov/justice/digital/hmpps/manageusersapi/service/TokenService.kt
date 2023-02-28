@@ -15,7 +15,7 @@ class TokenService(
   private val notificationClient: NotificationClientApi,
   private val telemetryClient: TelemetryClient,
   private val authService: AuthApiService,
-  @Value("\${api.base.url.oauth}") val authBaseUri: String,
+  @Value("\${hmpps-auth.endpoint.url}") val authBaseUri: String,
   @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
 ) {
 
