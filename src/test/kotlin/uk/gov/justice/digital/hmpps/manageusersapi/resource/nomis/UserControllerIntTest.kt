@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType
@@ -434,6 +435,59 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isBadRequest
+    }
+  }
+
+  @Nested
+  inner class FindUsersByFirstAndLastName {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/prisonusers?firstName=First&lastName=Last")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun ` prison user found success`() {
+      nomisApiMockServer.stubFindUsersByFirstAndLastName("First", "Last")
+      hmppsAuthMockServer.stubUserEmails()
+      webTestClient.get().uri("/prisonusers?firstName=First&lastName=Last")
+        .headers(setAuthorisation(roles = listOf("ROLE_USE_OF_FORCE")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("[*].username").value<List<String>> {
+          assertThat(it).containsExactlyElementsOf(listOf("NUSER_GEN", "NUSER_ADM"))
+        }
+        .jsonPath("$.[0]").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "username" to "NUSER_GEN",
+              "staffId" to 123456,
+              "email" to "First.Last@digital.justice.gov.uk",
+              "verified" to true,
+              "firstName" to "First",
+              "lastName" to "Last",
+              "name" to "First Last",
+              "activeCaseLoadId" to "MDI",
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Prison user not found`() {
+      nomisApiMockServer.stubGetWithEmptyReturn("/users/staff?firstName=not&lastName=found", HttpStatus.OK)
+
+      webTestClient
+        .get().uri("/prisonusers?firstName=not&lastName=found")
+        .headers(setAuthorisation(roles = listOf("ROLE_STAFF_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
     }
   }
 }

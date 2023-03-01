@@ -352,6 +352,68 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubFindUsersByFirstAndLastName(firstName: String, lastName: String) {
+    stubFor(
+      get("/users/staff?firstName=$firstName&lastName=$lastName")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """ 
+                [
+                  {
+                    "username": "NUSER_GEN",
+                    "staffId": 123456,
+                    "firstName": "$firstName",
+                    "lastName": "$lastName",
+                    "active": true,
+                    "status": "OPEN",
+                    "locked": false,
+                    "expired": false,
+                    "activeCaseload": {
+                        "id": "MDI",
+                        "name": "Moorland (HMP & YOI)"
+                    },
+                    "dpsRoleCount": 4,
+                    "email": "$firstName.$lastName@digital.justice.gov.uk",
+                    "staffStatus": "ACTIVE"
+                },
+                {
+                    "username": "NUSER_ADM",
+                    "staffId": 456789,
+                    "firstName": "$firstName",
+                    "lastName": "$lastName",
+                    "active": true,
+                    "status": "OPEN",
+                    "locked": false,
+                    "expired": false,
+                    "activeCaseload": {
+                        "id": "CADM_I",
+                        "name": "Central Administration Caseload For Hmps"
+                    },
+                    "dpsRoleCount": 11,
+                    "email": "$firstName.$lastName@digital.justice2.gov.uk",
+                    "staffStatus": "ACTIVE"
+                }
+            ]
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
+  fun stubGetWithEmptyReturn(url: String, status: HttpStatus) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody("[]")
+        )
+    )
+  }
+
   fun stubGetFail(url: String, status: HttpStatus) {
     stubFor(
       get(url)

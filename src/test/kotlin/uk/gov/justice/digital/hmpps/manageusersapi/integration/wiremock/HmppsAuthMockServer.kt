@@ -150,6 +150,26 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubUserEmails() {
+    stubFor(
+      post("/auth/api/prisonuser/email")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.OK.value())
+            .withBody(
+              """
+                [ {
+                  "email": "First.Last@digital.justice.gov.uk",
+                  "username": "NUSER_GEN",
+                  "verified": true
+                }]
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubServiceDetailsByServiceCode(serviceCode: String) {
     stubFor(
       get("/auth/api/services/$serviceCode")

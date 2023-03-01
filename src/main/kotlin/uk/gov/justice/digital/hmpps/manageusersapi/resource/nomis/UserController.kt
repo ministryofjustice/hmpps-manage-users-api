@@ -2,16 +2,21 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.apache.commons.text.WordUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
@@ -20,6 +25,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotEmpty
 
 @RestController("NomisUserController")
 @Validated
@@ -82,6 +88,55 @@ class UserController(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest
   ) = nomisUserService.createUser(createUserRequest)
+
+  @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
+  @Operation(
+    summary = "Find prison users by first and last name.",
+    description = "Find prison users by first and last name."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun findUsersByFirstAndLastName(
+    @Parameter(
+      description = "The first name to match. Case insensitive.",
+      required = true
+    ) @RequestParam @NotEmpty
+    firstName: String,
+    @Parameter(
+      description = "The last name to match. Case insensitive",
+      required = true
+    ) @RequestParam @NotEmpty
+    lastName: String
+  ): List<PrisonUser> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
+    .map {
+      PrisonUser(
+        username = it.username,
+        staffId = it.userId.toLongOrNull(),
+        email = it.email,
+        verified = it.verified,
+        firstName = WordUtils.capitalizeFully(it.firstName),
+        lastName = WordUtils.capitalizeFully(it.lastName),
+        name = WordUtils.capitalizeFully("${it.firstName} ${it.lastName}"),
+        activeCaseLoadId = it.activeCaseLoadId
+      )
+    }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -117,3 +172,22 @@ enum class UserType {
   DPS_GEN,
   DPS_LSA,
 }
+
+data class PrisonUser(
+  @Schema(required = true, example = "RO_USER_TEST")
+  val username: String,
+  @Schema(required = true, example = "1234564789")
+  val staffId: Long?,
+  @Schema(required = false, example = "ryanorton@justice.gov.uk")
+  val email: String?,
+  @Schema(required = true, example = "true")
+  val verified: Boolean,
+  @Schema(required = true, example = "Ryan")
+  val firstName: String,
+  @Schema(required = true, example = "Orton")
+  val lastName: String,
+  @Schema(required = true, example = "Ryan Orton")
+  val name: String,
+  @Schema(required = false, example = "MDI")
+  val activeCaseLoadId: String?
+)

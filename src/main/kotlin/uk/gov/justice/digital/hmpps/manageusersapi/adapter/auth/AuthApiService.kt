@@ -12,7 +12,8 @@ import java.util.UUID
 
 @Service
 class AuthApiService(
-  @Qualifier("authWebClientUtils") val serviceWebClientUtils: WebClientUtils
+  @Qualifier("authWebClientUtils") val serviceWebClientUtils: WebClientUtils,
+  @Qualifier("authUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -65,7 +66,13 @@ class AuthApiService(
         "source" to source
       )
     )
+
+  fun findUserEmails(usernames: List<String>): List<EmailAddress> = userWebClientUtils.postWithResponse(
+    "/api/prisonuser/email", usernames, EmailList::class.java
+  )
 }
+
+class EmailList : MutableList<EmailAddress> by ArrayList()
 
 data class TokenByEmailTypeRequest(
   val username: String,
@@ -82,4 +89,10 @@ data class CreateTokenRequest(
 
 data class AuthUserDetails(
   val uuid: UUID
+)
+
+data class EmailAddress(
+  val username: String,
+  val email: String?,
+  val verified: Boolean,
 )

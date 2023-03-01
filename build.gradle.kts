@@ -17,6 +17,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.14")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+  implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.10.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
