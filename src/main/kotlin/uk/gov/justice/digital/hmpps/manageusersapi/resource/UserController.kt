@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.service.User
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 
@@ -90,7 +92,10 @@ class UserController(
       )
     ]
   )
-  fun myDetails() = userService.myDetails()
+  fun myDetails(): User {
+    val user = userService.myDetails()
+    return if (user is GenericUser) UserDetailsDto.fromDomain(user) else user
+  }
 
   @GetMapping("/users/me/roles")
   @Operation(
