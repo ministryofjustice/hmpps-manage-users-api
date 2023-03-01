@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 
 @Service
 class UserSearchApiService(
@@ -27,8 +28,8 @@ class UserSearchApiService(
   fun findByUserId(userId: UUID): ExternalUserDetailsDto =
     userWebClientUtils.get("/users/id/$userId", ExternalUserDetailsDto::class.java)
 
-  fun findUserByUsernameOrNull(username: String): ExternalUserDetailsDto? =
-    serviceWebClientUtils.getIgnoreError("/users/$username", ExternalUserDetailsDto::class.java)
+  fun findUserByUsernameOrNull(username: String): ExternalUser? =
+    serviceWebClientUtils.getIgnoreError("/users/$username", ExternalUser::class.java)
 
   fun findUsers(
     name: String?,

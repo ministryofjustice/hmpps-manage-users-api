@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model.AuthServic
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
 
 @Service
 class AuthApiService(
@@ -45,10 +46,10 @@ class AuthApiService(
   fun createResetTokenForUser(userId: UUID) =
     serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
 
-  fun findAzureUserByUsername(username: String): UserDetailsDto? =
+  fun findAzureUserByUsername(username: String): AzureUserDetails? =
     try {
       UUID.fromString(username)
-      serviceWebClientUtils.getIgnoreError("/api/azureuser/$username", UserDetailsDto::class.java)
+      serviceWebClientUtils.getIgnoreError("/api/azureuser/$username", AzureUserDetails::class.java)
     } catch (exception: IllegalArgumentException) {
       log.debug("Auth not called for Azure user as username not valid UUID: {}", username)
       null

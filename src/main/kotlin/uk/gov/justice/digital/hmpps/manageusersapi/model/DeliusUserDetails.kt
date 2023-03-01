@@ -23,4 +23,14 @@ data class DeliusUserDetails(
       userId = userId,
       uuid = null
     )
+
+  fun toGenericUser(): GenericUser =
+    GenericUser(
+      username = username.uppercase(),
+      active = enabled,
+      authSource = AuthSource.delius,
+      name = name,
+      userId = userId,
+      uuid = null,
+    )
 }

@@ -30,4 +30,16 @@ data class NomisUserDetails(
       staffId = userId.toLong(),
       activeCaseLoadId = activeCaseLoadId
     )
+
+  fun toGenericUser(): GenericUser =
+    GenericUser(
+      username = username,
+      active = enabled,
+      authSource = AuthSource.nomis,
+      userId = userId,
+      name = name,
+      uuid = null,
+      staffId = userId.toLong(),
+      activeCaseLoadId = activeCaseLoadId
+    )
 }

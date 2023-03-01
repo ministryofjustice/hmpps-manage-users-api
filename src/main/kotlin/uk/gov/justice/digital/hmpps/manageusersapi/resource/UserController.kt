@@ -54,10 +54,11 @@ class UserController(
   )
   fun findUser(
     @Parameter(description = "The username of the user.", required = true)
-    @PathVariable
-    username: String
-  ) = userService.findUserByUsername(username)
-    ?: throw NotFoundException("Account for username $username not found")
+    @PathVariable username: String): UserDetailsDto {
+    val user = userService.findUserByUsername(username)
+    return if(user != null) UserDetailsDto.fromDomain(user)
+    else throw NotFoundException("Account for username $username not found")
+  }
 
   @GetMapping("/users/me")
   @Operation(
