@@ -10,7 +10,7 @@ data class NomisUserDetails(
   @JsonProperty("activeCaseloadId") val activeCaseLoadId: String?,
   @JsonProperty("primaryEmail") val email: String?,
   private val enabled: Boolean = false,
-) : UserDetails {
+) : UserDetails, SourceUser {
   override val userId = staffId
 
   override val name: String
@@ -31,7 +31,7 @@ data class NomisUserDetails(
       activeCaseLoadId = activeCaseLoadId
     )
 
-  fun toGenericUser(): GenericUser =
+  override fun toGenericUser(): GenericUser =
     GenericUser(
       username = username,
       active = enabled,

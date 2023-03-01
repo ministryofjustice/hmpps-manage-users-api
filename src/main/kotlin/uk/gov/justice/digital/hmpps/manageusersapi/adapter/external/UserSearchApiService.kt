@@ -5,11 +5,11 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 
 @Service
 class UserSearchApiService(

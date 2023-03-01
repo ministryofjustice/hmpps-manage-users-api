@@ -6,7 +6,7 @@ data class DeliusUserDetails(
   override val firstName: String,
   val surname: String,
   private val enabled: Boolean = false,
-) : UserDetails {
+) : UserDetails, SourceUser {
 
   override val name: String
     get() = "$firstName $surname"
@@ -24,7 +24,7 @@ data class DeliusUserDetails(
       uuid = null
     )
 
-  fun toGenericUser(): GenericUser =
+  override fun toGenericUser(): GenericUser =
     GenericUser(
       username = username.uppercase(),
       active = enabled,

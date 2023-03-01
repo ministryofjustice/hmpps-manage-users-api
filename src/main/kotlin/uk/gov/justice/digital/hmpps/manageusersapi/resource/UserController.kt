@@ -54,9 +54,10 @@ class UserController(
   )
   fun findUser(
     @Parameter(description = "The username of the user.", required = true)
-    @PathVariable username: String): UserDetailsDto {
+    @PathVariable username: String
+  ): UserDetailsDto {
     val user = userService.findUserByUsername(username)
-    return if(user != null) UserDetailsDto.fromDomain(user)
+    return if (user != null) UserDetailsDto.fromDomain(user)
     else throw NotFoundException("Account for username $username not found")
   }
 

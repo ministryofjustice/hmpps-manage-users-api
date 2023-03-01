@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 
 @Service
 class UserService(
@@ -18,17 +17,18 @@ class UserService(
   private val authenticationFacade: AuthenticationFacade
 ) {
   fun findUserByUsername(username: String): GenericUser? {
-    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toGenericUser()
+    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
-        nomisApiService.findUserByUsername(username)?.toGenericUser()
+        nomisApiService.findUserByUsername(username)
           ?: run {
-            authApiService.findAzureUserByUsername(username)?.toGenericUser()
+            authApiService.findAzureUserByUsername(username)
               ?: run {
-                deliusApiService.findUserByUsername(username)?.toGenericUser()
+                deliusApiService.findUserByUsername(username)
               }
           }
       }
-    return userDetails?.apply {
+
+    return userDetails?.toGenericUser()?.apply {
       val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
       this.uuid = authUserDetails.uuid
     }
