@@ -22,8 +22,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
 class UserServiceTest {
@@ -50,8 +51,8 @@ class UserServiceTest {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
       whenever(authApiService.findUserByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("external_user") as UserDetailsDto
-      assertThat(user.username).isEqualTo("external_user")
+      val user = userService.findUserByUsername("external_user")
+      assertThat(user!!.username).isEqualTo("external_user")
       assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(nomisUserApiService)
       verifyNoInteractions(deliusUserApiService)
@@ -64,8 +65,8 @@ class UserServiceTest {
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
       whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("nuser_gen") as UserDetailsDto
-      assertThat(user.username).isEqualTo("NUSER_GEN")
+      val user = userService.findUserByUsername("nuser_gen")
+      assertThat(user!!.username).isEqualTo("NUSER_GEN")
       assertThat(user.name).isEqualTo("Nomis Take")
       assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(deliusUserApiService)
@@ -79,8 +80,8 @@ class UserServiceTest {
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
       whenever(authApiService.findUserByUsernameAndSource("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", azuread)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A") as UserDetailsDto
-      assertThat(user.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      assertThat(user!!.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       assertThat(user.name).isEqualTo("Azure User")
       assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(deliusUserApiService)
@@ -95,8 +96,8 @@ class UserServiceTest {
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
       whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("deliususer") as UserDetailsDto
-      assertThat(user.username).isEqualTo("DELIUSUSER")
+      val user = userService.findUserByUsername("deliususer")
+      assertThat(user!!.username).isEqualTo("DELIUSUSER")
       assertThat(user.name).isEqualTo("Delius Smith")
       assertThat(user.uuid).isEqualTo(uuid)
     }
@@ -158,13 +159,13 @@ class UserServiceTest {
   }
 
   fun createAzureUser() =
-    UserDetailsDto(
-      username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
-      active = true,
+    AzureUserDetails(
+      username =  "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
+      active =  true,
       name = "Azure User",
-      authSource = azuread,
-      userId = "azureuser@justice.gov.uk",
-      uuid = UUID.randomUUID()
+      authSource =  azuread,
+      userId =  "azureuser@justice.gov.uk",
+      uuid =  UUID.randomUUID()
     )
 
   fun createDeliusUser() =
@@ -176,14 +177,15 @@ class UserServiceTest {
       enabled = true
     )
 
-  fun createExternalUser() =
-    ExternalUserDetailsDto(
-      userId = UUID.randomUUID(),
+  fun createExternalUser(): ExternalUser {
+    return ExternalUser(
+      userId =  UUID.randomUUID(),
       username = "external_user",
-      email = "someemail@hello.com",
+      email =  "someemail@hello.com",
       firstName = "fred",
-      lastName = "Smith"
+      lastName =  "Smith",
     )
+  }
 
   fun createNomisUser() =
     NomisUserDetails(

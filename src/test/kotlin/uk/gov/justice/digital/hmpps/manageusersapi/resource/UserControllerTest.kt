@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UsernameDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 
 class UserControllerTest {
 
@@ -21,7 +22,7 @@ class UserControllerTest {
   @Test
   fun `find user by username`() {
     val username = "AUTH_ADM"
-    val userDetails = UserDetailsDto(
+    val userDetails = GenericUser(
       username,
       true,
       "Any User",
@@ -33,7 +34,7 @@ class UserControllerTest {
 
     val user = userController.findUser(username)
     verify(userService).findUserByUsername(username)
-    assertThat(user).isEqualTo(userDetails)
+    assertThat(user).isEqualTo(UserDetailsDto.fromDomain(userDetails))
   }
 
   @Test
