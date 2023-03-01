@@ -20,7 +20,7 @@ class AuthWebClientConfiguration(appContext: ApplicationContext) : AbstractWebCl
     getWebClient(builder, authorizedClientManager)
 
   @Bean
-  fun authUserWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) =
+  fun authUserWebClient(builder: Builder) =
     getWebClientWithCurrentUserToken(builder)
 
   @Bean
