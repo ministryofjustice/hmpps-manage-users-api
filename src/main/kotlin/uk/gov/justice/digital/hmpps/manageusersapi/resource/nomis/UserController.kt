@@ -110,6 +110,11 @@ class UserController(
             schema = Schema(implementation = ErrorResponse::class)
           )
         ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an authorisation with role ROLE_USE_OF_FORCE or ROLE_STAFF_SEARCH",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
       )
     ]
   )
@@ -133,7 +138,7 @@ class UserController(
         verified = it.verified,
         firstName = WordUtils.capitalizeFully(it.firstName),
         lastName = WordUtils.capitalizeFully(it.lastName),
-        name = WordUtils.capitalizeFully("${it.firstName} ${it.lastName}"),
+        name = "$firstName $lastName",
         activeCaseLoadId = it.activeCaseLoadId
       )
     }

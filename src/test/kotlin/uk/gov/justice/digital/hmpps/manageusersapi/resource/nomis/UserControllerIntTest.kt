@@ -449,6 +449,14 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/prisonusers?firstName=First&lastName=Last")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     fun ` prison user found success`() {
       nomisApiMockServer.stubFindUsersByFirstAndLastName("First", "Last")
       hmppsAuthMockServer.stubUserEmails()
