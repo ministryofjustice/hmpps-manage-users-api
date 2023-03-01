@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminType
 
 @Service(value = "nomisRolesApiService")
 class RolesApiService(
@@ -19,7 +19,7 @@ class RolesApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun createRole(createRole: CreateRole) {
+  fun createRole(createRole: CreateRoleDto) {
     log.debug("Create dps role for {} with {}", createRole.roleCode, createRole)
     return userWebClientUtils.post(
       "/roles",
@@ -31,7 +31,7 @@ class RolesApiService(
     )
   }
 
-  fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendment) {
+  fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendmentDto) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
     userWebClientUtils.put(
       "/roles/$roleCode",
@@ -41,7 +41,7 @@ class RolesApiService(
     )
   }
 
-  fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendment) {
+  fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendmentDto) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
     userWebClientUtils.put(
       "/roles/$roleCode",

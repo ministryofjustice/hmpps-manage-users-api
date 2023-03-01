@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service
+package uk.gov.justice.digital.hmpps.manageusersapi.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 

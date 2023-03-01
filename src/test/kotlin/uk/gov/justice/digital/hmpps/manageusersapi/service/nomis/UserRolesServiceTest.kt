@@ -7,12 +7,12 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
-import uk.gov.justice.digital.hmpps.manageusersapi.service.AdminTypeReturn
 
 class UserRolesServiceTest {
   private val externalRolesApiService: RolesApiService = mock()

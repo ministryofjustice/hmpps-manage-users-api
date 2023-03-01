@@ -25,8 +25,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiServi
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroup
 import java.util.UUID
 
 class UserServiceTest {
