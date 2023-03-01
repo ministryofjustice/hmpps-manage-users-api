@@ -69,4 +69,30 @@ class UserApiService(
     }
     return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", NomisUserDetails::class.java)
   }
+
+  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<NomisUserSummaryDto> {
+    return userWebClientUtils.getWithParams(
+      "/users/staff", NomisUserList::class.java,
+      mapOf(
+        "firstName" to firstName,
+        "lastName" to lastName
+      )
+    )
+  }
 }
+
+class NomisUserList : MutableList<NomisUserSummaryDto> by ArrayList()
+
+data class NomisUserSummaryDto(
+  val username: String,
+  val staffId: String,
+  val firstName: String,
+  val lastName: String,
+  val active: Boolean,
+  val activeCaseload: PrisonCaseload?,
+  val email: String?,
+)
+data class PrisonCaseload(
+  val id: String,
+  val name: String,
+)

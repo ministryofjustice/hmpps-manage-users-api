@@ -1,9 +1,13 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.PrisonUserDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 
 class UserControllerTest {
@@ -18,6 +22,71 @@ class UserControllerTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
       userController.createUser(user)
       verify(userService).createUser(user)
+    }
+  }
+
+  @Nested
+  inner class FindUsersByFirstAndLastName {
+    @Test
+    fun `no matches`() {
+      whenever(userService.findUsersByFirstAndLastName(anyString(), anyString())).thenReturn(listOf())
+      assertThat(userController.findUsersByFirstAndLastName("first", "last")).isEmpty()
+    }
+
+    @Test
+    fun `User mapped to PrisonUser`() {
+      val user = PrisonUserDto(
+        verified = true,
+        username = "username",
+        email = "user@justice.gov.uk",
+        firstName = "first",
+        lastName = "last",
+        userId = "123456789",
+        activeCaseLoadId = "MDI"
+      )
+      whenever(userService.findUsersByFirstAndLastName(anyString(), anyString())).thenReturn(listOf(user))
+
+      assertThat(userController.findUsersByFirstAndLastName("first", "last"))
+        .containsExactly(
+          PrisonUser(
+            username = "username",
+            staffId = 123456789,
+            verified = true,
+            email = "user@justice.gov.uk",
+            firstName = "First",
+            lastName = "Last",
+            name = "First Last",
+            activeCaseLoadId = "MDI"
+          )
+        )
+    }
+
+    @Test
+    fun `User mapped to PrisonUser handling missing values`() {
+      val user = PrisonUserDto(
+        verified = false,
+        username = "username",
+        firstName = "first",
+        lastName = "last",
+        userId = "123456789",
+        email = null,
+        activeCaseLoadId = null
+      )
+      whenever(userService.findUsersByFirstAndLastName(anyString(), anyString())).thenReturn(listOf(user))
+
+      assertThat(userController.findUsersByFirstAndLastName("first", "last"))
+        .containsExactly(
+          PrisonUser(
+            username = "username",
+            staffId = 123456789,
+            verified = false,
+            firstName = "First",
+            lastName = "Last",
+            name = "First Last",
+            email = null,
+            activeCaseLoadId = null
+          )
+        )
     }
   }
 }
