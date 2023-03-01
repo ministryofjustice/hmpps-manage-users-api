@@ -7,12 +7,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UsernameDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 
 class UserControllerTest {
 

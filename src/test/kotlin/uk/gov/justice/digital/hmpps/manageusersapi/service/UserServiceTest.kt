@@ -19,12 +19,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
 class UserServiceTest {
@@ -160,12 +160,12 @@ class UserServiceTest {
 
   fun createAzureUser() =
     AzureUserDetails(
-      username =  "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
-      active =  true,
+      username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
+      active = true,
       name = "Azure User",
-      authSource =  azuread,
-      userId =  "azureuser@justice.gov.uk",
-      uuid =  UUID.randomUUID()
+      authSource = azuread,
+      userId = "azureuser@justice.gov.uk",
+      uuid = UUID.randomUUID()
     )
 
   fun createDeliusUser() =
@@ -179,11 +179,11 @@ class UserServiceTest {
 
   fun createExternalUser(): ExternalUser {
     return ExternalUser(
-      userId =  UUID.randomUUID(),
+      userId = UUID.randomUUID(),
       username = "external_user",
-      email =  "someemail@hello.com",
+      email = "someemail@hello.com",
       firstName = "fred",
-      lastName =  "Smith",
+      lastName = "Smith",
     )
   }
 
