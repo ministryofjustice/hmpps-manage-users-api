@@ -138,7 +138,7 @@ class UserController(
         verified = it.verified,
         firstName = WordUtils.capitalizeFully(it.firstName),
         lastName = WordUtils.capitalizeFully(it.lastName),
-        name = "$firstName $lastName",
+        name = WordUtils.capitalizeFully("${it.firstName} ${it.lastName}"),
         activeCaseLoadId = it.activeCaseLoadId
       )
     }
