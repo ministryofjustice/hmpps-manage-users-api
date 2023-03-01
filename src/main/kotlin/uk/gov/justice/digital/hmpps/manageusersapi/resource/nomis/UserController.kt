@@ -110,6 +110,11 @@ class UserController(
             schema = Schema(implementation = ErrorResponse::class)
           )
         ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an authorisation with role ROLE_USE_OF_FORCE or ROLE_STAFF_SEARCH",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
       )
     ]
   )

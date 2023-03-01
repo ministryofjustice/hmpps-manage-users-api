@@ -20,8 +20,7 @@ class ExternalUsersWebClientConfiguration(appContext: ApplicationContext) : Abst
     getWebClient(builder, authorizedClientManager)
 
   @Bean
-  fun externalUsersUserWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) =
-    getWebClientWithCurrentUserToken(builder)
+  fun externalUsersUserWebClient(builder: Builder) = getWebClientWithCurrentUserToken(builder)
 
   @Bean
   fun externalUsersHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
