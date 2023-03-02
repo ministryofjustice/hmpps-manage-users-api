@@ -19,10 +19,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUser
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
@@ -132,7 +132,7 @@ class UserServiceTest {
   }
 
   fun createAzureUser() =
-    AzureUserDetails(
+    AzureUser(
       username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
       active = true,
       name = "Azure User",
@@ -142,7 +142,7 @@ class UserServiceTest {
     )
 
   fun createDeliusUser() =
-    DeliusUserDetails(
+    DeliusUser(
       username = "deliususer",
       userId = "1234567890",
       firstName = "Delius",
@@ -161,7 +161,7 @@ class UserServiceTest {
   }
 
   fun createNomisUser() =
-    NomisUserDetails(
+    NomisUser(
       username = "NUSER_GEN",
       staffId = "123456",
       firstName = "Nomis",

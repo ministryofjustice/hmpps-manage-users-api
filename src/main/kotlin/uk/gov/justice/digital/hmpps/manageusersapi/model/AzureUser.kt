@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.model
 
 import java.util.UUID
 
-data class AzureUserDetails(
+data class AzureUser(
   val username: String,
   var active: Boolean,
   var name: String,

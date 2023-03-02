@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
-data class GroupDetails(
+data class Group(
   val groupCode: String,
   val groupName: String,
   val assignableRoles: List<UserAssignableRole>,

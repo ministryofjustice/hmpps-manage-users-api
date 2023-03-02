@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class NomisUserDetails(
+data class NomisUser(
   private val username: String,
   override val firstName: String,
   val staffId: String,

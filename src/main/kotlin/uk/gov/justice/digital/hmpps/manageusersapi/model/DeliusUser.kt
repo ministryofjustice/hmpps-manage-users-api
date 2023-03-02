@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
-data class DeliusUserDetails(
+data class DeliusUser(
   private val username: String,
   override val userId: String,
   override val firstName: String,

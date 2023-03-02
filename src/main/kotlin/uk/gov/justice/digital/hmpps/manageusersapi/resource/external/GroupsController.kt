@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Group
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
@@ -425,7 +425,7 @@ data class ChildGroupDetailsDto(
   val groupName: String
 ) {
   companion object {
-    fun fromDomain(childGroupDetails: ChildGroupDetails) =
+    fun fromDomain(childGroupDetails: ChildGroup) =
       ChildGroupDetailsDto(
         childGroupDetails.groupCode,
         childGroupDetails.groupName
@@ -504,7 +504,7 @@ data class GroupDetailsDto(
   val children: List<UserGroupDto>
 ) {
   companion object {
-    fun fromDomain(groupDetails: GroupDetails): GroupDetailsDto {
+    fun fromDomain(groupDetails: Group): GroupDetailsDto {
       with(groupDetails) {
         return GroupDetailsDto(
           groupCode,

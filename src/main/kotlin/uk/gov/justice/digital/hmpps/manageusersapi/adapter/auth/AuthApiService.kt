@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import java.util.UUID
 
 @Service
@@ -46,10 +46,10 @@ class AuthApiService(
   fun createResetTokenForUser(userId: UUID) =
     serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
 
-  fun findAzureUserByUsername(username: String): AzureUserDetails? =
+  fun findAzureUserByUsername(username: String): AzureUser? =
     try {
       UUID.fromString(username)
-      serviceWebClientUtils.getIgnoreError("/api/azureuser/$username", AzureUserDetails::class.java)
+      serviceWebClientUtils.getIgnoreError("/api/azureuser/$username", AzureUser::class.java)
     } catch (exception: IllegalArgumentException) {
       log.debug("Auth not called for Azure user as username not valid UUID: {}", username)
       null
