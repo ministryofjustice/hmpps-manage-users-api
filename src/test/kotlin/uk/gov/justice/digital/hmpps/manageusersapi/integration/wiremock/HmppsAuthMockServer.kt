@@ -93,11 +93,10 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "username": "CE232D07-40C3-47C6-9903-613BB31132AF",
-                "active": true,
-                "name": "Azure User",
-                "authSource": "azuread",
-                "userId": "azure.user@justice.gov.uk",
-                "uuid": "76ed3c80-2fe6-424f-95a4-556e32d749a7"
+                "enabled": true,
+                "firstName": "Azure",
+                "lastName": "User",
+                "email": "azure.user@justice.gov.uk"
               }
               """.trimIndent()
             )

@@ -6,6 +6,7 @@ data class DeliusUser(
   val firstName: String,
   val surname: String,
   private val enabled: Boolean = false,
+  val email: String,
 ) : SourceUser {
 
   val name: String

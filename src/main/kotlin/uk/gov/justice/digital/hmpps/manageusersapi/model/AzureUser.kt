@@ -1,22 +1,22 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import java.util.UUID
 
 data class AzureUser(
-  val username: String,
-  var active: Boolean,
-  var name: String,
-  var authSource: AuthSource,
-  var userId: String,
-  var uuid: UUID? = null
+  val username: UUID,
+  var enabled: Boolean,
+  var firstName: String,
+  var lastName: String,
+  var email: String,
 ) : SourceUser {
   override fun toGenericUser(): GenericUser =
     GenericUser(
-      username = username,
-      active = active,
-      authSource = authSource,
-      name = name,
-      userId = userId,
-      uuid = uuid,
+      username = username.toString().uppercase(),
+      active = enabled,
+      authSource = azuread,
+      name = "$firstName $lastName",
+      userId = email,
+      uuid = null,
     )
 }
