@@ -23,7 +23,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
@@ -112,32 +111,6 @@ class UserServiceTest {
       val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       verify(authApiService).findAzureUserByUsername(anyString())
       assertThat(user).isNull()
-    }
-
-    @Nested
-    inner class MyDetails {
-      @Test
-      fun myDetails() {
-        val userDetails = UserDetailsDto(
-          "username",
-          true,
-          "Any User",
-          auth,
-          userId = UUID.randomUUID().toString(),
-          uuid = UUID.randomUUID()
-        )
-        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
-
-        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
-      }
-
-      @Test
-      fun myDetails_basicUser() {
-        val userDetails = UsernameDto("username")
-        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
-
-        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
-      }
     }
 
     @Nested

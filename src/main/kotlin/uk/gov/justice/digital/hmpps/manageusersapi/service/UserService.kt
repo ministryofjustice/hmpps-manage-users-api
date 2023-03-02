@@ -34,21 +34,10 @@ class UserService(
     }
   }
 
-  fun myDetails() = findUserByUsername(authenticationFacade.currentUsername!!)
-    ?: UsernameDto(authenticationFacade.currentUsername!!)
-
   fun myRoles() =
     authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
       .map { ExternalUserRole(it!!.authority.substring(5)) }
 }
-
-interface User {
-  val username: String
-}
-
-data class UsernameDto(
-  override val username: String
-) : User
 
 @Schema(description = "User Role")
 data class ExternalUserRole(

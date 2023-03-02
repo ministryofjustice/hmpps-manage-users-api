@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.model
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.manageusersapi.service.User
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.User
 import java.util.UUID
 
 @JsonInclude(NON_NULL)

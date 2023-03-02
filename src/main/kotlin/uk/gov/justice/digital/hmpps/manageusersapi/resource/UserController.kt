@@ -9,16 +9,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.service.User
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 
 @RestController("UserController")
 class UserController(
-  private val userService: UserService
+  private val userService: UserService,
+  private val authenticationFacade: AuthenticationFacade
 ) {
 
   @GetMapping("/users/{username}")
@@ -93,8 +93,10 @@ class UserController(
     ]
   )
   fun myDetails(): User {
-    val user = userService.myDetails()
-    return if (user is GenericUser) UserDetailsDto.fromDomain(user) else user
+    val user = userService.findUserByUsername(authenticationFacade.currentUsername!!)
+    return user?.let {
+      UserDetailsDto.fromDomain(user)
+    } ?: UsernameDto(authenticationFacade.currentUsername!!)
   }
 
   @GetMapping("/users/me/roles")
@@ -122,3 +124,11 @@ class UserController(
   )
   fun myRoles() = userService.myRoles()
 }
+
+interface User {
+  val username: String
+}
+
+data class UsernameDto(
+  override val username: String
+) : User
