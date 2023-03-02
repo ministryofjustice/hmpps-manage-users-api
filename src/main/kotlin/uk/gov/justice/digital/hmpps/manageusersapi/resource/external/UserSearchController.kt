@@ -123,7 +123,7 @@ class UserSearchController(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
     email: String?
   ): ResponseEntity<Any> {
-    val users = userSearchService.findExternalUsersByEmail(email)
+    val users = userSearchService.findExternalUsersByEmail(email)?.map { ExternalUserDetailsDto.fromDomain(it) }
     return if (users == null) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 

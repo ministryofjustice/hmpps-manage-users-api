@@ -16,7 +16,7 @@ class UserSearchApiService(
   @Qualifier("externalUsersWebClientUtils") val serviceWebClientUtils: WebClientUtils,
   @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
 ) {
-  fun findUsersByEmail(email: String): List<ExternalUserDetailsDto>? =
+  fun findUsersByEmail(email: String): List<ExternalUser>? =
     userWebClientUtils.getIfPresent("/users?email=$email", UserList::class.java)
 
   fun findUserByUsername(username: String): ExternalUser =
@@ -51,4 +51,4 @@ class UserSearchApiService(
     )
 }
 
-class UserList : MutableList<ExternalUserDetailsDto> by ArrayList()
+class UserList : MutableList<ExternalUser> by ArrayList()
