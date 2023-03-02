@@ -18,7 +18,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDet
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetailsDto
 import java.util.UUID
 
 class VerifyEmailServiceTest {
@@ -82,11 +81,10 @@ class VerifyEmailServiceTest {
 
     @Test
     fun shouldExitWithExceptionWhenEmailAddressAlreadyInUse() {
-      val userDto = createExternalUserDetailsDto(userId = userId, username = "someuser@user.com")
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
-      whenever(externalUserSearchApiService.findUserByUsernameIfPresent(anyString())).thenReturn(userDto)
+      whenever(externalUserSearchApiService.findUserByUsernameIfPresent(anyString())).thenReturn(user)
 
       assertThatThrownBy { verifyEmailService.requestVerification(user, newEmailAddress, url) }.isInstanceOf(
         VerifyEmailService.ValidEmailException::class.java
