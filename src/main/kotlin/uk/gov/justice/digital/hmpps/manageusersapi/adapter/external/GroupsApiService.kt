@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Group
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateChildGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
@@ -23,11 +23,11 @@ class GroupsApiService(
   fun getGroups(): List<UserGroup> =
     userWebClientUtils.get("/groups", GroupList::class.java)
 
-  fun getGroupDetail(group: String): GroupDetails =
-    userWebClientUtils.get("/groups/$group", GroupDetails::class.java)
+  fun getGroupDetail(group: String): Group =
+    userWebClientUtils.get("/groups/$group", Group::class.java)
 
-  fun getChildGroupDetail(group: String): ChildGroupDetails =
-    userWebClientUtils.get("/groups/child/$group", ChildGroupDetails::class.java)
+  fun getChildGroupDetail(group: String): ChildGroup =
+    userWebClientUtils.get("/groups/child/$group", ChildGroup::class.java)
 
   fun updateGroup(group: String, groupAmendment: GroupAmendmentDto) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)

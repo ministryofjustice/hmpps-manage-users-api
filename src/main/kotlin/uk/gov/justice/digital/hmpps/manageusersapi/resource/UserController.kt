@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
@@ -16,7 +17,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundExceptio
 
 @RestController("UserController")
 class UserController(
-  private val userService: UserService
+  private val userService: UserService,
+  private val authenticationFacade: AuthenticationFacade
 ) {
 
   @GetMapping("/users/{username}")
@@ -54,10 +56,12 @@ class UserController(
   )
   fun findUser(
     @Parameter(description = "The username of the user.", required = true)
-    @PathVariable
-    username: String
-  ) = userService.findUserByUsername(username)
-    ?: throw NotFoundException("Account for username $username not found")
+    @PathVariable username: String
+  ): UserDetailsDto {
+    val user = userService.findUserByUsername(username)
+    return if (user != null) UserDetailsDto.fromDomain(user)
+    else throw NotFoundException("Account for username $username not found")
+  }
 
   @GetMapping("/users/me")
   @Operation(
@@ -88,7 +92,12 @@ class UserController(
       )
     ]
   )
-  fun myDetails() = userService.myDetails()
+  fun myDetails(): User {
+    val user = userService.findUserByUsername(authenticationFacade.currentUsername!!)
+    return user?.let {
+      UserDetailsDto.fromDomain(user)
+    } ?: UsernameDto(authenticationFacade.currentUsername!!)
+  }
 
   @GetMapping("/users/me/roles")
   @Operation(
@@ -115,3 +124,11 @@ class UserController(
   )
   fun myRoles() = userService.myRoles()
 }
+
+interface User {
+  val username: String
+}
+
+data class UsernameDto(
+  override val username: String
+) : User

@@ -7,8 +7,8 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.GroupsApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Group
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.CreateGroupDto
@@ -30,7 +30,7 @@ class GroupsServiceTest {
 
   @Test
   fun `get group details`() {
-    val groupDetails = GroupDetails(
+    val groupDetails = Group(
       groupCode = "FRED",
       groupName = "desc",
       assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
@@ -45,7 +45,7 @@ class GroupsServiceTest {
 
   @Test
   fun `get child group details`() {
-    val childGroupDetails = ChildGroupDetails(groupCode = "CHILD_1", groupName = "Child - Site 1 - Group 2")
+    val childGroupDetails = ChildGroup(groupCode = "CHILD_1", groupName = "Child - Site 1 - Group 2")
     whenever(groupsApiService.getChildGroupDetail(anyString())).thenReturn(childGroupDetails)
 
     val actualChildGroup = groupsService.getChildGroupDetail(childGroupDetails.groupCode)

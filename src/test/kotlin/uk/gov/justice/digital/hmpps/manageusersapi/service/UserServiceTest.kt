@@ -19,10 +19,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
-import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUser
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
@@ -50,8 +50,8 @@ class UserServiceTest {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
       whenever(authApiService.findUserByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("external_user") as UserDetailsDto
-      assertThat(user.username).isEqualTo("external_user")
+      val user = userService.findUserByUsername("external_user")
+      assertThat(user!!.username).isEqualTo("external_user")
       assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(nomisUserApiService)
       verifyNoInteractions(deliusUserApiService)
@@ -64,8 +64,8 @@ class UserServiceTest {
       whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
       whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserDetails(uuid))
 
-      val user = userService.findUserByUsername("nuser_gen") as UserDetailsDto
-      assertThat(user.username).isEqualTo("NUSER_GEN")
+      val user = userService.findUserByUsername("nuser_gen")
+      assertThat(user!!.username).isEqualTo("NUSER_GEN")
       assertThat(user.name).isEqualTo("Nomis Take")
       assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(deliusUserApiService)
@@ -79,8 +79,8 @@ class UserServiceTest {
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
       whenever(authApiService.findUserByUsernameAndSource("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", azuread)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A") as UserDetailsDto
-      assertThat(user.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      assertThat(user!!.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       assertThat(user.name).isEqualTo("Azure User")
       assertThat(user.uuid).isEqualTo(uuid)
       verifyNoInteractions(deliusUserApiService)
@@ -95,8 +95,8 @@ class UserServiceTest {
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
       whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
 
-      val user = userService.findUserByUsername("deliususer") as UserDetailsDto
-      assertThat(user.username).isEqualTo("DELIUSUSER")
+      val user = userService.findUserByUsername("deliususer")
+      assertThat(user!!.username).isEqualTo("DELIUSUSER")
       assertThat(user.name).isEqualTo("Delius Smith")
       assertThat(user.uuid).isEqualTo(uuid)
     }
@@ -111,32 +111,6 @@ class UserServiceTest {
       val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       verify(authApiService).findAzureUserByUsername(anyString())
       assertThat(user).isNull()
-    }
-
-    @Nested
-    inner class MyDetails {
-      @Test
-      fun myDetails() {
-        val userDetails = UserDetailsDto(
-          "username",
-          true,
-          "Any User",
-          auth,
-          userId = UUID.randomUUID().toString(),
-          uuid = UUID.randomUUID()
-        )
-        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
-
-        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
-      }
-
-      @Test
-      fun myDetails_basicUser() {
-        val userDetails = UsernameDto("username")
-        whenever(authenticationFacade.currentUsername).thenReturn("Test User")
-
-        assertThat(userService.myDetails()).isNotEqualTo(userDetails)
-      }
     }
 
     @Nested
@@ -158,7 +132,7 @@ class UserServiceTest {
   }
 
   fun createAzureUser() =
-    UserDetailsDto(
+    AzureUser(
       username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
       active = true,
       name = "Azure User",
@@ -168,7 +142,7 @@ class UserServiceTest {
     )
 
   fun createDeliusUser() =
-    DeliusUserDetails(
+    DeliusUser(
       username = "deliususer",
       userId = "1234567890",
       firstName = "Delius",
@@ -176,17 +150,18 @@ class UserServiceTest {
       enabled = true
     )
 
-  fun createExternalUser() =
-    ExternalUserDetailsDto(
+  fun createExternalUser(): ExternalUser {
+    return ExternalUser(
       userId = UUID.randomUUID(),
       username = "external_user",
       email = "someemail@hello.com",
       firstName = "fred",
-      lastName = "Smith"
+      lastName = "Smith",
     )
+  }
 
   fun createNomisUser() =
-    NomisUserDetails(
+    NomisUser(
       username = "NUSER_GEN",
       staffId = "123456",
       firstName = "Nomis",

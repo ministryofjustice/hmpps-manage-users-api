@@ -6,7 +6,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 
 @Service
 class UserService(
@@ -16,38 +16,28 @@ class UserService(
   private val nomisApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
   private val authenticationFacade: AuthenticationFacade
 ) {
-  fun findUserByUsername(username: String): UserDetailsDto? {
-    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toUserDetails()
+  fun findUserByUsername(username: String): GenericUser? {
+    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
-        nomisApiService.findUserByUsername(username)?.toUserDetails()
+        nomisApiService.findUserByUsername(username)
           ?: run {
             authApiService.findAzureUserByUsername(username)
               ?: run {
-                deliusApiService.findUserByUsername(username)?.toUserDetails()
+                deliusApiService.findUserByUsername(username)
               }
           }
       }
-    return userDetails?.apply {
+
+    return userDetails?.toGenericUser()?.apply {
       val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
       this.uuid = authUserDetails.uuid
     }
   }
 
-  fun myDetails() = findUserByUsername(authenticationFacade.currentUsername!!)
-    ?: UsernameDto(authenticationFacade.currentUsername!!)
-
   fun myRoles() =
     authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
       .map { ExternalUserRole(it!!.authority.substring(5)) }
 }
-
-interface User {
-  val username: String
-}
-
-data class UsernameDto(
-  override val username: String
-) : User
 
 @Schema(description = "User Role")
 data class ExternalUserRole(

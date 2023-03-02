@@ -7,8 +7,8 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroupDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.GroupDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.model.Group
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
@@ -37,7 +37,7 @@ class GroupsControllerTest {
   inner class GetGroups {
     @Test
     fun `Get Child Group details`() {
-      val childGroupDetails = ChildGroupDetails("CHILD_1", "Child - Site 1 - Group 2")
+      val childGroupDetails = ChildGroup("CHILD_1", "Child - Site 1 - Group 2")
       whenever(groupsService.getChildGroupDetail(childGroupDetails.groupCode)).thenReturn(childGroupDetails)
 
       val actualChildGroupDetail = groupsController.getChildGroupDetail(childGroupDetails.groupCode)
@@ -49,7 +49,7 @@ class GroupsControllerTest {
     @Test
     fun `Get Group details`() {
       val groupsDetails =
-        GroupDetails(
+        Group(
           groupCode = "FRED",
           groupName = "desc",
           assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),

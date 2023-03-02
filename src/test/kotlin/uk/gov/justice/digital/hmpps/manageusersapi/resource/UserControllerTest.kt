@@ -6,22 +6,24 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
-import uk.gov.justice.digital.hmpps.manageusersapi.service.UsernameDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
 
 class UserControllerTest {
 
   private val userService: UserService = mock()
-  private val userController = UserController(userService)
+  private val authenticationFacade: AuthenticationFacade = mock()
+  private val userController = UserController(userService, authenticationFacade)
 
   @Test
   fun `find user by username`() {
     val username = "AUTH_ADM"
-    val userDetails = UserDetailsDto(
+    val userDetails = GenericUser(
       username,
       true,
       "Any User",
@@ -33,7 +35,7 @@ class UserControllerTest {
 
     val user = userController.findUser(username)
     verify(userService).findUserByUsername(username)
-    assertThat(user).isEqualTo(userDetails)
+    assertThat(user).isEqualTo(UserDetailsDto.fromDomain(userDetails))
   }
 
   @Test
@@ -47,7 +49,7 @@ class UserControllerTest {
 
   @Test
   fun `find my details`() {
-    val userDetails = UserDetailsDto(
+    val userDetails = GenericUser(
       "username",
       true,
       "Any User",
@@ -55,20 +57,23 @@ class UserControllerTest {
       userId = UUID.randomUUID().toString(),
       uuid = UUID.randomUUID()
     )
-    whenever(userService.myDetails()).thenReturn(userDetails)
+    whenever(authenticationFacade.currentUsername).thenReturn("me")
+    whenever(userService.findUserByUsername("me")).thenReturn(userDetails)
 
     val user = userController.myDetails()
-    verify(userService).myDetails()
-    assertThat(user).isEqualTo(userDetails)
+    verify(userService).findUserByUsername("me")
+    assertThat(user).isEqualTo(UserDetailsDto.fromDomain(userDetails))
   }
 
   @Test
   fun `find my details for basic user`() {
-    val userDetails = UsernameDto("username")
-    whenever(userService.myDetails()).thenReturn(userDetails)
+    whenever(authenticationFacade.currentUsername).thenReturn("me")
+    val userDetails = UsernameDto("me")
+    whenever(userService.findUserByUsername("me")).thenReturn(null)
 
     val user = userController.myDetails()
-    verify(userService).myDetails()
+
+    verify(userService).findUserByUsername("me")
     assertThat(user).isEqualTo(userDetails)
   }
 }

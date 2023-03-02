@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.model
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.manageusersapi.service.User
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.User
 import java.util.UUID
 
 @JsonInclude(NON_NULL)
@@ -35,4 +35,22 @@ data class UserDetailsDto(
   @Schema(title = "Unique Id", description = "Universally unique identifier for user, generated and stored in auth database for all users", example = "5105a589-75b3-4ca0-9433-b96228c1c8f3")
   var uuid: UUID? = null
 
-) : User
+) : User {
+
+  companion object {
+    fun fromDomain(user: GenericUser): UserDetailsDto {
+      with(user) {
+        return UserDetailsDto(
+          username,
+          active,
+          name,
+          authSource,
+          staffId,
+          activeCaseLoadId,
+          userId,
+          uuid
+        )
+      }
+    }
+  }
+}
