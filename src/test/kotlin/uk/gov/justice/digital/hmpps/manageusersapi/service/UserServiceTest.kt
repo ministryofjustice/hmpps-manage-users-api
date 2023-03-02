@@ -133,12 +133,11 @@ class UserServiceTest {
 
   fun createAzureUser() =
     AzureUser(
-      username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
-      active = true,
-      name = "Azure User",
-      authSource = azuread,
-      userId = "azureuser@justice.gov.uk",
-      uuid = UUID.randomUUID()
+      username = UUID.fromString("2E285CED-DCFD-4497-9E22-89E8E10A2A6A"),
+      email = "azureuser@justice.gov.uk",
+      enabled = true,
+      firstName = "Azure",
+      lastName = "User",
     )
 
   fun createDeliusUser() =
@@ -147,7 +146,8 @@ class UserServiceTest {
       userId = "1234567890",
       firstName = "Delius",
       surname = "Smith",
-      enabled = true
+      enabled = true,
+      email = "delius.smith@digital.justice.gov.uk"
     )
 
   fun createExternalUser(): ExternalUser {
