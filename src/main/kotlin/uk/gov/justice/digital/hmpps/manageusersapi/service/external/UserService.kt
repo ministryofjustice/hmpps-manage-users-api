@@ -11,8 +11,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 import java.util.UUID
 
@@ -90,7 +90,7 @@ class UserService(
   private fun sendInitialEmail(
     url: String,
     userId: UUID,
-    user: ExternalUserDetailsDto,
+    user: ExternalUser,
     newEmail: String,
     newUserName: String,
     eventPrefix: String,

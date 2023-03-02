@@ -25,8 +25,8 @@ class UserSearchApiService(
   fun findUserByUsernameIfPresent(username: String): ExternalUserDetailsDto? =
     userWebClientUtils.getIfPresent("/users/$username", ExternalUserDetailsDto::class.java)
 
-  fun findByUserId(userId: UUID): ExternalUserDetailsDto =
-    userWebClientUtils.get("/users/id/$userId", ExternalUserDetailsDto::class.java)
+  fun findByUserId(userId: UUID): ExternalUser =
+    userWebClientUtils.get("/users/id/$userId", ExternalUser::class.java)
 
   fun findUserByUsernameOrNull(username: String): ExternalUser? =
     serviceWebClientUtils.getIgnoreError("/users/$username", ExternalUser::class.java)

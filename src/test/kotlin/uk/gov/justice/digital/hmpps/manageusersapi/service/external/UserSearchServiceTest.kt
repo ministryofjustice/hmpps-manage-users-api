@@ -12,7 +12,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status.ACTIVE
 import java.util.UUID
 
@@ -64,7 +64,7 @@ class UserSearchServiceTest {
     @Test
     fun shouldCallExternalUsersApi() {
       val userId = UUID.randomUUID()
-      val expectedUser = ExternalUserDetailsDto(userId = userId, username = "testy", email = "testy@testing.com", firstName = "Testy", lastName = "McTesting")
+      val expectedUser = ExternalUser(userId = userId, username = "testy", email = "testy@testing.com", firstName = "Testy", lastName = "McTesting")
       whenever(userSearchApiService.findByUserId(userId)).thenReturn(expectedUser)
 
       val actualUser = userSearchService.findExternalUserById(userId)
