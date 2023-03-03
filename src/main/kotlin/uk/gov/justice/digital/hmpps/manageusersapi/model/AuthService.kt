@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model
+package uk.gov.justice.digital.hmpps.manageusersapi.model
 
 data class AuthService(
   val code: String,

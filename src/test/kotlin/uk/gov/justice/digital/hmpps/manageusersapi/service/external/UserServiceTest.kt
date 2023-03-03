@@ -18,7 +18,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model.AuthService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
