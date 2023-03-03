@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import com.microsoft.applicationinsights.TelemetryClient
-import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -31,10 +30,10 @@ class UserService(
 ) {
 
   fun enableUserByUserId(userId: UUID) {
-    val emailNotificationDto = externalUsersApiService.enableUserById(userId)
+    val emailNotification = externalUsersApiService.enableUserById(userId)
 
-    emailNotificationDto.email?.let {
-      with(emailNotificationDto) {
+    emailNotification.email?.let {
+      with(emailNotification) {
         val parameters = mapOf(
           "firstName" to firstName,
           "username" to username,
@@ -44,11 +43,11 @@ class UserService(
         notificationService.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", NotificationDetails(username, email!!))
       }
     } ?: run {
-      log.warn("Notification email not sent for user {}", emailNotificationDto)
+      log.warn("Notification email not sent for user {}", emailNotification)
     }
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
-      mapOf("username" to emailNotificationDto.username, "admin" to emailNotificationDto.admin),
+      mapOf("username" to emailNotification.username, "admin" to emailNotification.admin),
       null
     )
   }
@@ -127,17 +126,3 @@ class UserService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
-
-data class EmailNotificationDto(
-  @Schema(description = "Username", example = "TEST_USER")
-  val username: String,
-
-  @Schema(description = "First name of the user", example = "John")
-  val firstName: String,
-
-  @Schema(description = "email of the user", example = "Smith@gov.uk")
-  val email: String?,
-
-  @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
-  val admin: String,
-)
