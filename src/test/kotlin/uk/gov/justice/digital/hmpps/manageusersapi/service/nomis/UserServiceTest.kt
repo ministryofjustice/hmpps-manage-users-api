@@ -11,10 +11,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService

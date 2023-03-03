@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import java.util.UUID
 
 @Service
@@ -58,9 +60,9 @@ class AuthApiService(
   fun findServiceByServiceCode(serviceCode: String) =
     serviceWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
 
-  fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUserDetails =
+  fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUser =
     serviceWebClientUtils.getWithParams(
-      "/api/user", AuthUserDetails::class.java,
+      "/api/user", AuthUser::class.java,
       mapOf(
         "username" to username,
         "source" to source
@@ -85,14 +87,4 @@ data class CreateTokenRequest(
   val source: String,
   val firstName: String,
   val lastName: String,
-)
-
-data class AuthUserDetails(
-  val uuid: UUID
-)
-
-data class EmailAddress(
-  val username: String,
-  val email: String?,
-  val verified: Boolean,
 )
