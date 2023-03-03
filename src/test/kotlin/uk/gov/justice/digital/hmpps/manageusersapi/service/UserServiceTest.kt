@@ -133,7 +133,7 @@ class UserServiceTest {
 
   fun createAzureUser() =
     AzureUser(
-      username = UUID.fromString("2E285CED-DCFD-4497-9E22-89E8E10A2A6A"),
+      username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
       email = "azureuser@justice.gov.uk",
       enabled = true,
       firstName = "Azure",
