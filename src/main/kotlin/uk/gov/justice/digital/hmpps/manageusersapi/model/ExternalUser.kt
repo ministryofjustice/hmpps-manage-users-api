@@ -15,15 +15,6 @@ data class ExternalUser(
   val lastLoggedIn: LocalDateTime? = null,
   val inactiveReason: String? = null
 ) : SourceUser {
-  fun toUserDetails(): UserDetailsDto =
-    UserDetailsDto(
-      username = username,
-      active = enabled,
-      authSource = AuthSource.auth,
-      name = "$firstName $lastName",
-      userId = userId.toString(),
-      uuid = userId,
-    )
 
   override fun toGenericUser(): GenericUser =
     GenericUser(
