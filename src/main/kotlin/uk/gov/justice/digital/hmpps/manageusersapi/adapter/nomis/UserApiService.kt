@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
 
@@ -70,7 +71,7 @@ class UserApiService(
     return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", NomisUser::class.java)
   }
 
-  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<NomisUserSummaryDto> {
+  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<NomisUserSummary> {
     return userWebClientUtils.getWithParams(
       "/users/staff", NomisUserList::class.java,
       mapOf(
@@ -81,18 +82,4 @@ class UserApiService(
   }
 }
 
-class NomisUserList : MutableList<NomisUserSummaryDto> by ArrayList()
-
-data class NomisUserSummaryDto(
-  val username: String,
-  val staffId: String,
-  val firstName: String,
-  val lastName: String,
-  val active: Boolean,
-  val activeCaseload: PrisonCaseload?,
-  val email: String?,
-)
-data class PrisonCaseload(
-  val id: String,
-  val name: String,
-)
+class NomisUserList : MutableList<NomisUserSummary> by ArrayList()

@@ -129,9 +129,9 @@ class UserController(
       required = true
     ) @RequestParam @NotEmpty
     lastName: String
-  ): List<PrisonUser> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
+  ): List<PrisonUserDto> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
     .map {
-      PrisonUser(
+      PrisonUserDto(
         username = it.username,
         staffId = it.userId.toLongOrNull(),
         email = it.email,
@@ -178,7 +178,7 @@ enum class UserType {
   DPS_LSA,
 }
 
-data class PrisonUser(
+data class PrisonUserDto(
   @Schema(required = true, example = "RO_USER_TEST")
   val username: String,
   @Schema(required = true, example = "1234564789")

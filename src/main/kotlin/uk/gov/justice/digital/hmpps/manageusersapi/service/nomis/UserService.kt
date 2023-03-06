@@ -3,8 +3,9 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_GEN
@@ -34,8 +35,8 @@ class UserService(
     return nomisUserDetails
   }
 
-  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserDto> {
-    val nomisUsers: List<NomisUserSummaryDto> = nomisUserApiService.findUsersByFirstAndLastName(firstName, lastName)
+  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUser> {
+    val nomisUsers: List<NomisUserSummary> = nomisUserApiService.findUsersByFirstAndLastName(firstName, lastName)
     // The users may have an unverified email, so we need to go to auth to determine if they are different
     if (nomisUsers.isNotEmpty()) {
       val authUsersByUsername = authApiService
@@ -44,7 +45,7 @@ class UserService(
         .associateBy { it.username }
 
       return nomisUsers.map {
-        PrisonUserDto(
+        PrisonUser(
           username = it.username,
           userId = it.staffId,
           email = authUsersByUsername[it.username]?.email ?: it.email,
@@ -76,13 +77,3 @@ data class NomisUserCreatedDetails(
 
 class HmppsValidationException(emailDomain: String, errorCode: String) :
   Exception("Invalid Email domain: $emailDomain with reason: $errorCode")
-
-data class PrisonUserDto(
-  val username: String,
-  val userId: String,
-  val email: String?,
-  val verified: Boolean,
-  val firstName: String,
-  val lastName: String,
-  val activeCaseLoadId: String?
-)

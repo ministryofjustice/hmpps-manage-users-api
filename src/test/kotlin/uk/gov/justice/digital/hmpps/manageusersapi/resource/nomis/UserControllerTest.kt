@@ -7,7 +7,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.PrisonUserDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 
 class UserControllerTest {
@@ -35,7 +35,7 @@ class UserControllerTest {
 
     @Test
     fun `User mapped to PrisonUser`() {
-      val user = PrisonUserDto(
+      val user = PrisonUser(
         verified = true,
         username = "username",
         email = "user@justice.gov.uk",
@@ -48,7 +48,7 @@ class UserControllerTest {
 
       assertThat(userController.findUsersByFirstAndLastName("first", "last"))
         .containsExactly(
-          PrisonUser(
+          PrisonUserDto(
             username = "username",
             staffId = 123456789,
             verified = true,
@@ -63,7 +63,7 @@ class UserControllerTest {
 
     @Test
     fun `User mapped to PrisonUser handling missing values`() {
-      val user = PrisonUserDto(
+      val user = PrisonUser(
         verified = false,
         username = "username",
         firstName = "first",
@@ -76,7 +76,7 @@ class UserControllerTest {
 
       assertThat(userController.findUsersByFirstAndLastName("first", "last"))
         .containsExactly(
-          PrisonUser(
+          PrisonUserDto(
             username = "username",
             staffId = 123456789,
             verified = false,
