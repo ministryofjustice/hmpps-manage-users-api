@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -17,8 +17,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 

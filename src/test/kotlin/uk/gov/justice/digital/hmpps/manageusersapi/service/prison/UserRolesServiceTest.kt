@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

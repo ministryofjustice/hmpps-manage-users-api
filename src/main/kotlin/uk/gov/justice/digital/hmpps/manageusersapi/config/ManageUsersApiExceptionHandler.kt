@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.HmppsValidationException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
 import javax.validation.ValidationException
 
 @RestControllerAdvice

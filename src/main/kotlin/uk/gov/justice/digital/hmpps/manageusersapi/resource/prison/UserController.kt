@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank

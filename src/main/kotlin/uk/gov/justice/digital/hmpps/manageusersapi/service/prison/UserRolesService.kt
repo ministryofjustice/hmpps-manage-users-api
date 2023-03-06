@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService

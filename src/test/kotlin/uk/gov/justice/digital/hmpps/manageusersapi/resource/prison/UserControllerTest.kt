@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -8,7 +8,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 
 class UserControllerTest {
 

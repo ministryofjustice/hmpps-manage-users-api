@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor

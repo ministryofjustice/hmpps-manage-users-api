@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
@@ -19,7 +19,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserRolesService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
 import javax.validation.constraints.Size
 
 @RestController("NomisUserRolesController")
