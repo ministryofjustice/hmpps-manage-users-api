@@ -178,10 +178,7 @@ data class CaseloadRoleDetail(
   @Schema(description = "NOMIS Roles assigned to this user", required = false) val roles: List<RoleDetail> = listOf(),
 ) {
   companion object {
-    fun fromDomain(prisonCaseloadRole: PrisonCaseloadRole): CaseloadRoleDetail {
-      with(prisonCaseloadRole) {
-        return CaseloadRoleDetail(PrisonCaseload.fromDomain(caseload), roles.map { RoleDetail.fromDomain(it) })
-      }
-    }
+    fun fromDomain(pcr: PrisonCaseloadRole) =
+      CaseloadRoleDetail(PrisonCaseload.fromDomain(pcr.caseload), pcr.roles.map { RoleDetail.fromDomain(it) })
   }
 }
