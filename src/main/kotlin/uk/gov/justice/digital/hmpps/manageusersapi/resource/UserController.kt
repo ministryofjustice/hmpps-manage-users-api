@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import java.util.*
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
@@ -17,6 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
+import java.util.UUID
 
 @RestController("UserController")
 class UserController(
