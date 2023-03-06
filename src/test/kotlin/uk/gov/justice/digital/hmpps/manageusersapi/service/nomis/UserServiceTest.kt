@@ -14,9 +14,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
@@ -120,9 +120,9 @@ class UserServiceTest {
     fun `prison users only`() {
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          NomisUserSummary("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
-          NomisUserSummary("U2", "2", "F2", "l2", false, null, null),
-          NomisUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
+          PrisonUserSummary("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
+          PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
       whenever(authApiService.findUserEmails(listOf())).thenReturn(listOf())
@@ -163,9 +163,9 @@ class UserServiceTest {
     fun `Prison users matched in auth`() {
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          NomisUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
-          NomisUserSummary("U2", "2", "F2", "l2", false, null, null),
-          NomisUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
+          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
 
@@ -216,10 +216,10 @@ class UserServiceTest {
 
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          NomisUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
-          NomisUserSummary("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
-          NomisUserSummary("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
-          NomisUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null)
+          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
+          PrisonUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
 

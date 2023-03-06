@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType.DPS_GEN
@@ -36,7 +36,7 @@ class UserService(
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUser> {
-    val nomisUsers: List<NomisUserSummary> = nomisUserApiService.findUsersByFirstAndLastName(firstName, lastName)
+    val nomisUsers: List<PrisonUserSummary> = nomisUserApiService.findUsersByFirstAndLastName(firstName, lastName)
     // The users may have an unverified email, so we need to go to auth to determine if they are different
     if (nomisUsers.isNotEmpty()) {
       val authUsersByUsername = authApiService

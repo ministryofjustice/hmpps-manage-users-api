@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
-data class NomisUserSummary(
+data class PrisonUserSummary(
   val username: String,
   val staffId: String,
   val firstName: String,
