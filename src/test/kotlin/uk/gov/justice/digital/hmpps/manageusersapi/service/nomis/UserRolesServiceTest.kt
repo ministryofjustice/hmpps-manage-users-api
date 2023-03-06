@@ -8,11 +8,11 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRoleType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.PrisonCaseload
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleType
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 
 class UserRolesServiceTest {
   private val externalRolesApiService: RolesApiService = mock()
@@ -98,23 +98,23 @@ class UserRolesServiceTest {
   }
 
   private fun createUserRoleDetails() =
-    UserRoleDetail(
+    PrisonUserRole(
       username = "bob",
       active = true,
       activeCaseload = PrisonCaseload(id = "CADM_I", name = "Central Administration Caseload For Hmps"),
       dpsRoles = listOf(
-        RoleDetail(
+        PrisonRole(
           code = "OMIC_ADMIN",
           name = "Key-worker allocator",
           sequence = 1,
-          type = RoleType.APP,
+          type = PrisonRoleType.APP,
           adminRoleOnly = false
         ),
-        RoleDetail(
+        PrisonRole(
           code = "MAINTAIN_ACCESS_ROLES",
           name = "Maintain DPS user roles",
           sequence = 1,
-          type = RoleType.APP,
+          type = PrisonRoleType.APP,
           adminRoleOnly = false
         )
       ),

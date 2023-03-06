@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserRolesService
 import javax.validation.constraints.Size
 
@@ -74,7 +77,7 @@ class UserRolesController(
     @Schema(description = "Username", example = "TEST_USER1", required = true)
     @PathVariable @Size(max = 30, min = 1, message = "username must be between 1 and 30") username: String,
   ): UserRoleDetail {
-    return userRolesService.getUserRoles(username)
+    return UserRoleDetail.fromDomain(userRolesService.getUserRoles(username))
   }
 }
 
@@ -98,7 +101,22 @@ data class UserRoleDetail(
     description = "NOMIS Roles assigned to this user per caseload",
     required = false
   ) val nomisRoles: List<CaseloadRoleDetail>?
-)
+) {
+  companion object {
+    fun fromDomain(prisonUserRole: PrisonUserRole): UserRoleDetail {
+      with(prisonUserRole) {
+        return UserRoleDetail(
+          username,
+          active,
+          UsageType.valueOf(accountType.name),
+          activeCaseload?.let { PrisonCaseload.fromDomain(activeCaseload) },
+          dpsRoles.map { RoleDetail.fromDomain(it) },
+          nomisRoles?.map { CaseloadRoleDetail.fromDomain(it) }
+        )
+      }
+    }
+  }
+}
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Role Information")
@@ -121,7 +139,16 @@ data class RoleDetail(
 
   @Schema(description = "Parent Role Code", example = "GLOBAL_SEARCH", required = false)
   val parentRole: RoleDetail? = null,
-)
+) {
+  companion object {
+    fun fromDomain(prisonRole: PrisonRole): RoleDetail {
+      with(prisonRole) {
+        val roleType = type?.let { RoleType.valueOf(type.name) } ?: RoleType.APP
+        return RoleDetail(code, name, sequence, roleType)
+      }
+    }
+  }
+}
 
 enum class RoleType {
   APP, INST, COMM
@@ -136,11 +163,27 @@ data class PrisonCaseload(
   val id: String,
   @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)")
   val name: String
-)
+) {
+  companion object {
+    fun fromDomain(prisonCaseload: uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload): PrisonCaseload {
+      with(prisonCaseload) {
+        return PrisonCaseload(id, name)
+      }
+    }
+  }
+}
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Roles in caseload information")
 data class CaseloadRoleDetail(
   @Schema(description = "Caseload for the listed roles", required = true) val caseload: PrisonCaseload,
   @Schema(description = "NOMIS Roles assigned to this user", required = false) val roles: List<RoleDetail> = listOf(),
-)
+) {
+  companion object {
+    fun fromDomain(prisonCaseloadRole: PrisonCaseloadRole): CaseloadRoleDetail {
+      with(prisonCaseloadRole) {
+        return CaseloadRoleDetail(PrisonCaseload.fromDomain(caseload), roles.map { RoleDetail.fromDomain(it) })
+      }
+    }
+  }
+}
