@@ -7,7 +7,6 @@ import java.util.UUID
 class UserFixture {
 
   companion object {
-
     fun createExternalUserDetails(
       userId: UUID,
       username: String = "testing",
@@ -19,8 +18,7 @@ class UserFixture {
       verified: Boolean = true,
       lastLoggedIn: LocalDateTime = LocalDateTime.now().minusDays(1),
       inactiveReason: String? = null
-    ): ExternalUser {
-      return ExternalUser(
+    ) = ExternalUser(
         userId = userId,
         username = username,
         email = email,
@@ -32,6 +30,5 @@ class UserFixture {
         lastLoggedIn = lastLoggedIn,
         inactiveReason = inactiveReason
       )
-    }
   }
 }
