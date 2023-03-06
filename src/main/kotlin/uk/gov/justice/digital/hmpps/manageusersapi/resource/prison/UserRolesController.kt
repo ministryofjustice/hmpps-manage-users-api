@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as PrisonCaseloadDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
@@ -165,11 +166,8 @@ data class PrisonCaseload(
   val name: String
 ) {
   companion object {
-    fun fromDomain(prisonCaseload: uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload): PrisonCaseload {
-      with(prisonCaseload) {
-        return PrisonCaseload(id, name)
-      }
-    }
+    fun fromDomain(pcd: PrisonCaseloadDomain) =
+        PrisonCaseload(pcd.id, pcd.name)
   }
 }
 
