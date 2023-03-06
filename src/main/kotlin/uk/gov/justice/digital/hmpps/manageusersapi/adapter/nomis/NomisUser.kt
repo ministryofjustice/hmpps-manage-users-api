@@ -1,6 +1,9 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.model
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.SourceUser
 
 data class NomisUser(
   private val username: String,

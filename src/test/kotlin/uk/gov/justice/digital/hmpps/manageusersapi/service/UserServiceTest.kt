@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
@@ -22,7 +23,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUser
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as NomisUserApiService
 
