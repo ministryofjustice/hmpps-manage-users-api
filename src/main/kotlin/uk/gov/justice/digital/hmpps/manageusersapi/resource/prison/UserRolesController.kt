@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as PrisonCaseloadDomain
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
 import javax.validation.constraints.Size
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as PrisonCaseloadDomain
 
 @RestController("NomisUserRolesController")
 @Validated
@@ -167,7 +167,7 @@ data class PrisonCaseload(
 ) {
   companion object {
     fun fromDomain(pcd: PrisonCaseloadDomain) =
-        PrisonCaseload(pcd.id, pcd.name)
+      PrisonCaseload(pcd.id, pcd.name)
   }
 }
 

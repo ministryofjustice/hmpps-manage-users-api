@@ -19,16 +19,16 @@ class UserFixture {
       lastLoggedIn: LocalDateTime = LocalDateTime.now().minusDays(1),
       inactiveReason: String? = null
     ) = ExternalUser(
-        userId = userId,
-        username = username,
-        email = email,
-        firstName = firstName,
-        lastName = lastName,
-        locked = locked,
-        enabled = enabled,
-        verified = verified,
-        lastLoggedIn = lastLoggedIn,
-        inactiveReason = inactiveReason
-      )
+      userId = userId,
+      username = username,
+      email = email,
+      firstName = firstName,
+      lastName = lastName,
+      locked = locked,
+      enabled = enabled,
+      verified = verified,
+      lastLoggedIn = lastLoggedIn,
+      inactiveReason = inactiveReason
+    )
   }
 }
