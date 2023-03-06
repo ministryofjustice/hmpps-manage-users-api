@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -47,7 +47,7 @@ class UserController(
           io.swagger.v3.oas.annotations.media.Content(
             mediaType = "application/json",
             schema = io.swagger.v3.oas.annotations.media.Schema(
-              implementation = NomisUserCreatedDetails::class
+              implementation = NewPrisonUserDto::class
             )
           )
         ]
@@ -196,3 +196,26 @@ data class PrisonUserDto(
   @Schema(required = false, example = "MDI")
   val activeCaseLoadId: String?
 )
+
+@Schema(description = "Nomis User Created Details")
+data class NewPrisonUserDto(
+  @Schema(description = "Username", example = "TEST_USER")
+  val username: String,
+
+  @Schema(description = "Email Address", example = "test@justice.gov.uk")
+  val primaryEmail: String,
+
+  @Schema(description = "First name of the user", example = "John")
+  val firstName: String,
+
+  @Schema(description = "Last name of the user", example = "Smith")
+  val lastName: String,
+) {
+  companion object {
+    fun fromDomain(newPrisonUser: NewPrisonUser): NewPrisonUserDto {
+      with(newPrisonUser) {
+        return NewPrisonUserDto(username, primaryEmail, firstName, lastName)
+      }
+    }
+  }
+}

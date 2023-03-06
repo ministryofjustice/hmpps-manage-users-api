@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
 
-import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
@@ -21,7 +21,7 @@ class UserService(
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
   @Throws(HmppsValidationException::class)
-  fun createUser(user: CreateUserRequest): NomisUserCreatedDetails {
+  fun createUser(user: CreateUserRequest): NewPrisonUser {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
     }
@@ -59,21 +59,6 @@ class UserService(
     return listOf()
   }
 }
-
-@Schema(description = "Nomis User Created Details")
-data class NomisUserCreatedDetails(
-  @Schema(description = "Username", example = "TEST_USER")
-  val username: String,
-
-  @Schema(description = "Email Address", example = "test@justice.gov.uk")
-  val primaryEmail: String,
-
-  @Schema(description = "First name of the user", example = "John")
-  val firstName: String,
-
-  @Schema(description = "Last name of the user", example = "Smith")
-  val lastName: String,
-)
 
 class HmppsValidationException(emailDomain: String, errorCode: String) :
   Exception("Invalid Email domain: $emailDomain with reason: $errorCode")

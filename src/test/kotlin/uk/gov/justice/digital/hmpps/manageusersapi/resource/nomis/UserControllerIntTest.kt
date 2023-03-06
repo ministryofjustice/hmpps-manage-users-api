@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -104,7 +103,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
-        .expectBody(NomisUserCreatedDetails::class.java)
+        .expectBody(NewPrisonUserDto::class.java)
         .returnResult().responseBody!!
 
       assertThat(nomisUserDetails.username).isEqualTo("TEST1")
@@ -145,7 +144,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
-        .expectBody(NomisUserCreatedDetails::class.java)
+        .expectBody(NewPrisonUserDto::class.java)
         .returnResult().responseBody!!
 
       assertThat(nomisUserDetails.username).isEqualTo("TEST1")
@@ -186,7 +185,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
-        .expectBody(NomisUserCreatedDetails::class.java)
+        .expectBody(NewPrisonUserDto::class.java)
         .returnResult().responseBody!!
 
       assertThat(nomisUserDetails.username).isEqualTo("TEST1")

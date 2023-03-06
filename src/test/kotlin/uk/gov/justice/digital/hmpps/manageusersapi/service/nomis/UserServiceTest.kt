@@ -13,6 +13,7 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -41,7 +42,7 @@ class UserServiceTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
 
       whenever(nomisUserApiService.createCentralAdminUser(user)).thenReturn(
-        NomisUserCreatedDetails(
+        NewPrisonUser(
           user.username,
           user.email,
           user.firstName,
@@ -58,7 +59,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
       whenever(nomisUserApiService.createGeneralUser(user)).thenReturn(
-        NomisUserCreatedDetails(
+        NewPrisonUser(
           user.username,
           user.email,
           user.firstName,
@@ -75,7 +76,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
       whenever(nomisUserApiService.createLocalAdminUser(user)).thenReturn(
-        NomisUserCreatedDetails(
+        NewPrisonUser(
           user.username,
           user.email,
           user.firstName,
