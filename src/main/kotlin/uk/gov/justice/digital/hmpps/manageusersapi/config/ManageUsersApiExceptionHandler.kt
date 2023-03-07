@@ -2,12 +2,13 @@ package uk.gov.justice.digital.hmpps.manageusersapi.config
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.slf4j.LoggerFactory
+import org.springframework.core.Ordered.LOWEST_PRECEDENCE
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
-import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -19,27 +20,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
+@Order(LOWEST_PRECEDENCE)
 class HmppsManageUsersApiExceptionHandler {
-
-  @ExceptionHandler(NotFoundException::class)
-  fun handleNotFoundException(e: NotFoundException): ResponseEntity<ErrorResponse> {
-    log.debug("Not found exception caught: {}", e.message)
-    return ResponseEntity
-      .status(NOT_FOUND)
-      .body(
-        ErrorResponse(
-          status = NOT_FOUND,
-          userMessage = e.message,
-          developerMessage = e.message
-        )
-      )
-  }
 
   @ExceptionHandler(AccessDeniedException::class)
   fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
