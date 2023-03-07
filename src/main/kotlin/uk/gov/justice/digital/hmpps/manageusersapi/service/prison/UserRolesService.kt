@@ -1,11 +1,11 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.RoleDetail
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserRoleDetail
 
 @Service("NomisUserRolesService")
 class UserRolesService(
@@ -13,15 +13,14 @@ class UserRolesService(
   val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService,
 ) {
 
-  fun getUserRoles(username: String): UserRoleDetail {
+  fun getUserRoles(username: String): PrisonUserRole {
     val userRoleDetail = nomisRolesApiService.getUserRoles(username)
     val externalUserRoles = externalRolesApiService.getRoles(listOf(AdminType.DPS_ADM))
 
     return userRoleDetail.copy(dpsRoles = userExternalUsersRoleNames(userRoleDetail.dpsRoles, externalUserRoles))
   }
 
-  private fun userExternalUsersRoleNames(roleDetails: List<RoleDetail>, authRoles: List<Role>): List<RoleDetail> {
-
+  private fun userExternalUsersRoleNames(roleDetails: List<PrisonRole>, authRoles: List<Role>): List<PrisonRole> {
     val authRoleMap = authRoles.associate { it.roleCode to it.roleName }
     return roleDetails.map { it.copy(name = authRoleMap[it.code] ?: it.name) }.sortedBy { it.name }
   }

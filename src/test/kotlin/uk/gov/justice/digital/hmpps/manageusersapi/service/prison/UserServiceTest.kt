@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -11,12 +11,14 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.EmailAddress
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUserSummaryDto
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.UserType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
@@ -40,7 +42,7 @@ class UserServiceTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
 
       whenever(nomisUserApiService.createCentralAdminUser(user)).thenReturn(
-        NomisUserCreatedDetails(
+        NewPrisonUser(
           user.username,
           user.email,
           user.firstName,
@@ -57,7 +59,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
       whenever(nomisUserApiService.createGeneralUser(user)).thenReturn(
-        NomisUserCreatedDetails(
+        NewPrisonUser(
           user.username,
           user.email,
           user.firstName,
@@ -74,7 +76,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
       whenever(nomisUserApiService.createLocalAdminUser(user)).thenReturn(
-        NomisUserCreatedDetails(
+        NewPrisonUser(
           user.username,
           user.email,
           user.firstName,
@@ -118,16 +120,16 @@ class UserServiceTest {
     fun `prison users only`() {
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          NomisUserSummaryDto("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
-          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null, null),
-          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
+          PrisonUserSummary("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
+          PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
       whenever(authApiService.findUserEmails(listOf())).thenReturn(listOf())
 
       assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
-          PrisonUserDto(
+          PrisonUser(
             username = "U1",
             email = "u1@justice.gov.uk",
             verified = true,
@@ -136,7 +138,7 @@ class UserServiceTest {
             lastName = "l1",
             activeCaseLoadId = null
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U2",
             email = null,
             verified = false,
@@ -145,7 +147,7 @@ class UserServiceTest {
             lastName = "l2",
             activeCaseLoadId = null
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U3",
             email = null,
             verified = false,
@@ -161,9 +163,9 @@ class UserServiceTest {
     fun `Prison users matched in auth`() {
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
-          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null, null),
-          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
+          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
 
@@ -178,7 +180,7 @@ class UserServiceTest {
       assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last").size).isEqualTo(3)
       assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
-          PrisonUserDto(
+          PrisonUser(
             username = "U1",
             email = "u1@b.com",
             verified = true,
@@ -187,7 +189,7 @@ class UserServiceTest {
             lastName = "l1",
             activeCaseLoadId = "MDI"
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U2",
             email = "u2@b.com",
             verified = true,
@@ -197,7 +199,7 @@ class UserServiceTest {
             activeCaseLoadId = null
 
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U3",
             email = "u3@b.com",
             verified = false,
@@ -214,10 +216,10 @@ class UserServiceTest {
 
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
-          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
-          NomisUserSummaryDto("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
-          NomisUserSummaryDto("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null)
+          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
+          PrisonUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
 
@@ -231,7 +233,7 @@ class UserServiceTest {
 
       assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
-          PrisonUserDto(
+          PrisonUser(
             username = "U1",
             email = "u1@b.com",
             verified = true,
@@ -240,7 +242,7 @@ class UserServiceTest {
             lastName = "l1",
             activeCaseLoadId = "MDI"
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U2",
             email = "u2@justice.gov.uk",
             verified = true,
@@ -249,7 +251,7 @@ class UserServiceTest {
             lastName = "l2",
             activeCaseLoadId = null
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U3",
             email = "u3@justice.gov.uk",
             verified = true,
@@ -258,7 +260,7 @@ class UserServiceTest {
             lastName = "l3",
             activeCaseLoadId = null
           ),
-          PrisonUserDto(
+          PrisonUser(
             username = "U4",
             email = null,
             verified = false,

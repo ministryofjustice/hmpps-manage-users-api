@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.UserService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -47,7 +47,7 @@ class UserController(
           io.swagger.v3.oas.annotations.media.Content(
             mediaType = "application/json",
             schema = io.swagger.v3.oas.annotations.media.Schema(
-              implementation = NomisUserCreatedDetails::class
+              implementation = NewPrisonUserDto::class
             )
           )
         ]
@@ -129,9 +129,9 @@ class UserController(
       required = true
     ) @RequestParam @NotEmpty
     lastName: String
-  ): List<PrisonUser> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
+  ): List<PrisonUserDto> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
     .map {
-      PrisonUser(
+      PrisonUserDto(
         username = it.username,
         staffId = it.userId.toLongOrNull(),
         email = it.email,
@@ -178,7 +178,7 @@ enum class UserType {
   DPS_LSA,
 }
 
-data class PrisonUser(
+data class PrisonUserDto(
   @Schema(required = true, example = "RO_USER_TEST")
   val username: String,
   @Schema(required = true, example = "1234564789")
@@ -196,3 +196,26 @@ data class PrisonUser(
   @Schema(required = false, example = "MDI")
   val activeCaseLoadId: String?
 )
+
+@Schema(description = "Nomis User Created Details")
+data class NewPrisonUserDto(
+  @Schema(description = "Username", example = "TEST_USER")
+  val username: String,
+
+  @Schema(description = "Email Address", example = "test@justice.gov.uk")
+  val primaryEmail: String,
+
+  @Schema(description = "First name of the user", example = "John")
+  val firstName: String,
+
+  @Schema(description = "Last name of the user", example = "Smith")
+  val lastName: String,
+) {
+  companion object {
+    fun fromDomain(newPrisonUser: NewPrisonUser): NewPrisonUserDto {
+      with(newPrisonUser) {
+        return NewPrisonUserDto(username, primaryEmail, firstName, lastName)
+      }
+    }
+  }
+}

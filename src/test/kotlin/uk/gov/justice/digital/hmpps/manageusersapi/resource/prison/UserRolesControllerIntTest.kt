@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase

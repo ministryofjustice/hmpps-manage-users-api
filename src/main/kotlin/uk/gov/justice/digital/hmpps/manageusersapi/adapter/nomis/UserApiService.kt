@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NomisUser
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.nomis.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.service.nomis.NomisUserCreatedDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
@@ -18,7 +18,7 @@ class UserApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUserCreatedDetails {
+  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NewPrisonUser {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/admin-account",
@@ -28,11 +28,11 @@ class UserApiService(
         "firstName" to centralAdminUser.firstName,
         "lastName" to centralAdminUser.lastName
       ),
-      NomisUserCreatedDetails::class.java
+      NewPrisonUser::class.java
     )
   }
 
-  fun createGeneralUser(generalUser: CreateUserRequest): NomisUserCreatedDetails {
+  fun createGeneralUser(generalUser: CreateUserRequest): NewPrisonUser {
     log.debug("Create DPS general user - {}", generalUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/general-account",
@@ -43,11 +43,11 @@ class UserApiService(
         "lastName" to generalUser.lastName,
         "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
-      NomisUserCreatedDetails::class.java
+      NewPrisonUser::class.java
     )
   }
 
-  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUserCreatedDetails {
+  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NewPrisonUser {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/local-admin-account",
@@ -58,7 +58,7 @@ class UserApiService(
         "lastName" to localAdminUser.lastName,
         "localAdminGroup" to localAdminUser.defaultCaseloadId,
       ),
-      NomisUserCreatedDetails::class.java
+      NewPrisonUser::class.java
     )
   }
 
@@ -70,7 +70,7 @@ class UserApiService(
     return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", NomisUser::class.java)
   }
 
-  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<NomisUserSummaryDto> {
+  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {
     return userWebClientUtils.getWithParams(
       "/users/staff", NomisUserList::class.java,
       mapOf(
@@ -81,18 +81,4 @@ class UserApiService(
   }
 }
 
-class NomisUserList : MutableList<NomisUserSummaryDto> by ArrayList()
-
-data class NomisUserSummaryDto(
-  val username: String,
-  val staffId: String,
-  val firstName: String,
-  val lastName: String,
-  val active: Boolean,
-  val activeCaseload: PrisonCaseload?,
-  val email: String?,
-)
-data class PrisonCaseload(
-  val id: String,
-  val name: String,
-)
+class NomisUserList : MutableList<PrisonUserSummary> by ArrayList()

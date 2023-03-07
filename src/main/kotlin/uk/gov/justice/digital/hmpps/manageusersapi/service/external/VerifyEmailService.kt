@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailType
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 
 @Service
@@ -27,7 +27,7 @@ class VerifyEmailService(
 ) {
 
   fun requestVerification(
-    userDetails: ExternalUserDetailsDto,
+    userDetails: ExternalUser,
     emailInput: String?,
     url: String,
   ): LinkEmailAndUsername {

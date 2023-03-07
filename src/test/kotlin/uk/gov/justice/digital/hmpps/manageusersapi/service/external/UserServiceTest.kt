@@ -18,13 +18,14 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailNotification
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import java.util.UUID
@@ -61,10 +62,10 @@ class UserServiceTest {
 
     @Test
     fun `enable user by userId sends email`() {
-      val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      val emailNotification = EmailNotification("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
+      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotification)
 
-      with(emailNotificationDto) {
+      with(emailNotification) {
         val expectedParameters = mapOf(
           "firstName" to firstName,
           "username" to username,
@@ -84,8 +85,8 @@ class UserServiceTest {
 
     @Test
     fun `enable user by userId doesn't sends notification email`() {
-      val emailNotificationDto = EmailNotificationDto("CEN_ADM", "firstName", null, "admin")
-      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotificationDto)
+      val emailNotification = EmailNotification("CEN_ADM", "firstName", null, "admin")
+      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotification)
       userService.enableUserByUserId(userUUID)
       verifyNoInteractions(notificationService)
     }

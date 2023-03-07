@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserSearchService
 import java.time.LocalDateTime
@@ -124,7 +123,7 @@ class UserSearchController(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
     email: String?
   ): ResponseEntity<Any> {
-    val users = userSearchService.findExternalUsersByEmail(email)
+    val users = userSearchService.findExternalUsersByEmail(email)?.map { ExternalUserDetailsDto.fromDomain(it) }
     return if (users == null) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
@@ -176,7 +175,9 @@ class UserSearchController(
   fun userById(
     @Parameter(description = "The id of the user.", required = true) @PathVariable
     userId: UUID
-  ) = userSearchService.findExternalUserById(userId)
+  ): ExternalUserDetailsDto {
+    return ExternalUserDetailsDto.fromDomain(userSearchService.findExternalUserById(userId))
+  }
 
   @GetMapping("/{username}")
   @ResponseStatus(HttpStatus.OK)
@@ -249,13 +250,11 @@ data class ExternalUserDetailsDto(
   @Schema(required = true, description = "Inactive reason", example = "Left department")
   val inactiveReason: String? = null
 ) {
-  fun toUserDetails(): UserDetailsDto =
-    UserDetailsDto(
-      username = username,
-      active = enabled,
-      authSource = AuthSource.auth,
-      name = "$firstName $lastName",
-      userId = userId.toString(),
-      uuid = userId,
-    )
+  companion object {
+    fun fromDomain(user: ExternalUser): ExternalUserDetailsDto {
+      with(user) {
+        return ExternalUserDetailsDto(userId, username, email, firstName, lastName, locked, enabled, verified, lastLoggedIn, inactiveReason)
+      }
+    }
+  }
 }

@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.fixtures
 
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -18,19 +18,17 @@ class UserFixture {
       verified: Boolean = true,
       lastLoggedIn: LocalDateTime = LocalDateTime.now().minusDays(1),
       inactiveReason: String? = null
-    ): ExternalUserDetailsDto {
-      return ExternalUserDetailsDto(
-        userId = userId,
-        username = username,
-        email = email,
-        firstName = firstName,
-        lastName = lastName,
-        locked = locked,
-        enabled = enabled,
-        verified = verified,
-        lastLoggedIn = lastLoggedIn,
-        inactiveReason = inactiveReason
-      )
-    }
+    ) = ExternalUser(
+      userId = userId,
+      username = username,
+      email = email,
+      firstName = firstName,
+      lastName = lastName,
+      locked = locked,
+      enabled = enabled,
+      verified = verified,
+      lastLoggedIn = lastLoggedIn,
+      inactiveReason = inactiveReason
+    )
   }
 }
