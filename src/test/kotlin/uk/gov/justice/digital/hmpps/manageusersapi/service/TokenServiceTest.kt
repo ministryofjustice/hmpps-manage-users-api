@@ -33,7 +33,7 @@ class TokenServiceTest {
       )
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
-      tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
+      tokenService.sendInitialPasswordEmail(user, "DPSUserCreate")
 
       verify(telemetryClient).trackEvent("DPSUserCreateSuccess", mapOf("username" to user.username), null)
       verify(notificationClient).sendEmail("template-id", user.email, parameters, null)
@@ -55,7 +55,7 @@ class TokenServiceTest {
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
       assertThatExceptionOfType(NotificationClientException::class.java)
-        .isThrownBy { tokenService.saveAndSendInitialEmail(user, "DPSUserCreate") }
+        .isThrownBy { tokenService.sendInitialPasswordEmail(user, "DPSUserCreate") }
       verify(telemetryClient).trackEvent(
         "DPSUserCreateFailure",
         mapOf("username" to user.username, "reason" to "NotificationClientException"),

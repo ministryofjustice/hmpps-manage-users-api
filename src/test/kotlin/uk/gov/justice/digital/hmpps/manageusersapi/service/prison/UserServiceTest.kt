@@ -51,7 +51,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createCentralAdminUser(user)
-      verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
+      verify(tokenService).sendInitialPasswordEmail(user, "DPSUserCreate")
     }
 
     @Test
@@ -68,7 +68,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createGeneralUser(user)
-      verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
+      verify(tokenService).sendInitialPasswordEmail(user, "DPSUserCreate")
     }
 
     @Test
@@ -85,7 +85,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createLocalAdminUser(user)
-      verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
+      verify(tokenService).sendInitialPasswordEmail(user, "DPSUserCreate")
     }
 
     @Test

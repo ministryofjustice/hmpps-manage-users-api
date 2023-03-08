@@ -31,7 +31,7 @@ class UserService(
       DPS_GEN -> nomisUserApiService.createGeneralUser(user)
       DPS_LSA -> nomisUserApiService.createLocalAdminUser(user)
     }
-    tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
+    tokenService.sendInitialPasswordEmail(user, "DPSUserCreate")
     return nomisUserDetails
   }
 

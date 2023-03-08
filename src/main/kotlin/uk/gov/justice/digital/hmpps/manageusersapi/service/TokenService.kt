@@ -20,7 +20,7 @@ class TokenService(
 ) {
 
   @Throws(NotificationClientException::class)
-  fun saveAndSendInitialEmail(
+  fun sendInitialPasswordEmail(
     user: CreateUserRequest,
     eventPrefix: String,
   ) {
