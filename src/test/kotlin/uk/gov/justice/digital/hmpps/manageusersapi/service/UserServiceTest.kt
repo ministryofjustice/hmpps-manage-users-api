@@ -163,7 +163,6 @@ class UserServiceTest {
         whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
 
         val userRoleList = userService.findRolesByUsername("nuser_gen")
-        println(userRoleList)
         assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "ROLE1"), UserRole(roleCode = "ROLE2"), UserRole(roleCode = "ROLE3")))
         verifyNoInteractions(deliusUserApiService)
       }

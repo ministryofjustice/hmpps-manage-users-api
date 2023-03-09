@@ -1691,26 +1691,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             )
         )
     )
-  } fun stubPutDisableInvalidUser(userId: String) {
-    stubFor(
-      put("/users/$userId/disable")
-        .willReturn(
-          aResponse()
-            .withStatus(NOT_FOUND.value())
-            .withBody(
-              """{
-                "status": ${NOT_FOUND.value()},
-                "errorCode": null,
-                "userMessage": "User not found: User $userId not found",
-                "developerMessage": "User $userId not found",
-                "moreInfo": null
-               }
-              """.trimIndent()
-            )
-        )
-    )
   }
-
   fun stubPutEnableFailUserNotInGroup() {
     stubFor(
       put("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
@@ -1730,27 +1711,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
-  fun stubPutDisableFailUserNotInGroup() {
-    stubFor(
-      put("/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/disable")
-        .willReturn(
-          aResponse()
-            .withStatus(FORBIDDEN.value())
-            .withBody(
-              """{
-                "status": ${FORBIDDEN.value()},
-                "errorCode": null,
-                "userMessage": "User group relationship exception: Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups",
-                "developerMessage": "Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups",
-                "moreInfo": null
-               }
-              """.trimIndent()
-            )
-        )
-    )
-  }
-
-  fun stubNoUsersFound(email: String) {
+  fun stubNoContent(email: String) {
     stubFor(
       get("/users?email=$email")
         .willReturn(
@@ -1934,31 +1895,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubNoUsersFoundForUsername(username: String) {
+  fun stubNoUsersFound(url: String, username: String) {
     stubFor(
-      get("/users/$username")
-        .willReturn(
-          aResponse()
-            .withStatus(NOT_FOUND.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(
-              """
-                {
-                  "status": 404,
-                  "errorCode": null,
-                  "userMessage": "User not found: Account for username $username not found",
-                  "developerMessage": "Account for username $username not found",
-                  "moreInfo": null
-                } 
-              """.trimIndent()
-            )
-        )
-    )
-  }
-
-  fun stubNoUsersFoundForRolesUsername(username: String) {
-    stubFor(
-      get("/users/username/$username/roles")
+      get(url)
         .willReturn(
           aResponse()
             .withStatus(NOT_FOUND.value())

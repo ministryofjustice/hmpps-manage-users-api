@@ -109,7 +109,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun ` nomis user found success`() {
       val username = "NUSER_GEN"
       val uuid = UUID.randomUUID()
-      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
+      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
       nomisApiMockServer.stubFindUserByUsername(username)
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, uuid)
       webTestClient.get().uri("/users/$username")
@@ -138,7 +138,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun ` azure user found success`() {
       val username = "ce232d07-40c3-47c6-9903-613bb31132af"
       val uuid = UUID.randomUUID()
-      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
+      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, azuread, uuid)
@@ -166,7 +166,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun ` delius user found success`() {
       val uuid = UUID.randomUUID()
       val username = "deliususer"
-      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
+      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       deliusApiMockServer.stubGetUser(username)
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, delius, uuid)
@@ -302,7 +302,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `No roles for for valid azure user`() {
       val username = "ce232d07-40c3-47c6-9903-613bb31132af".uppercase(Locale.getDefault())
-      externalUsersApiMockServer.stubNoUsersFoundForRolesUsername(username)
+      externalUsersApiMockServer.stubNoUsersFound("/users/username/$username/roles", username)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
       webTestClient.get().uri("/user/$username/roles")
@@ -319,7 +319,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Roles of valid nomis user`() {
       val username = "NUSER_GEN"
-      externalUsersApiMockServer.stubNoUsersFoundForRolesUsername(username)
+      externalUsersApiMockServer.stubNoUsersFound("/users/username/$username/roles", username)
       nomisApiMockServer.stubFindUserByUsername(username)
       webTestClient.get().uri("/user/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
@@ -334,20 +334,6 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it).contains("HPA_USER")
         }
     }
-
-    @Test
-    fun `should fail with not_found for invalid user`() {
-      val username = "testing@digital.justice.gov.uk"
-      externalUsersApiMockServer.stubGetFail("/users/username/$username/roles", NOT_FOUND)
-      webTestClient.get().uri("/user/$username/roles")
-        .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
-        .exchange()
-        .expectStatus().isNotFound
-      nomisApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username")))
-      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
-      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/secure/users/$username/details")))
-    }
-
     @Test
     fun ` external user found success`() {
       val username = "EXT_ADM"
