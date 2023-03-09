@@ -14,7 +14,7 @@ import java.util.UUID
 @Service
 class UserSearchApiService(
   @Qualifier("externalUsersWebClientUtils") val serviceWebClientUtils: WebClientUtils,
-  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   fun findUsersByEmail(email: String): List<ExternalUser>? =
     userWebClientUtils.getIfPresent("/users?email=$email", UserList::class.java)
@@ -36,18 +36,19 @@ class UserSearchApiService(
     roles: List<String>?,
     groups: List<String>?,
     pageable: Pageable,
-    status: Status
+    status: Status,
   ) =
     userWebClientUtils.getWithParams(
-      "/users/search", object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>>() {},
+      "/users/search",
+      object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>>() {},
       mapOf(
         "name" to name,
         "roles" to roles?.joinToString(","),
         "groups" to groups?.joinToString(","),
         "status" to status,
         "page" to pageable.pageNumber,
-        "size" to pageable.pageSize
-      )
+        "size" to pageable.pageSize,
+      ),
     )
 }
 

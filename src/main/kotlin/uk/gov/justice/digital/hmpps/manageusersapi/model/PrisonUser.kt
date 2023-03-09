@@ -7,5 +7,5 @@ data class PrisonUser(
   val verified: Boolean,
   val firstName: String,
   val lastName: String,
-  val activeCaseLoadId: String?
+  val activeCaseLoadId: String?,
 )

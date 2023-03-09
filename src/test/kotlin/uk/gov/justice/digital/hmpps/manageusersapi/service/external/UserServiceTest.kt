@@ -53,7 +53,7 @@ class UserServiceTest {
     telemetryClient,
     authBaseUri,
     initialPasswordTemplateId,
-    enableUserTemplateId
+    enableUserTemplateId,
   )
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
 
@@ -75,10 +75,12 @@ class UserServiceTest {
         userService.enableUserByUserId(userUUID)
 
         verify(notificationService).send(
-          eq(enableUserTemplateId), eq(expectedParameters), eq("ExternalUserEnabledEmail"),
+          eq(enableUserTemplateId),
+          eq(expectedParameters),
+          eq("ExternalUserEnabledEmail"),
           eq(
-            NotificationDetails(username, email!!)
-          )
+            NotificationDetails(username, email!!),
+          ),
         )
       }
     }
@@ -121,7 +123,8 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, newEmailAddress
+          userId,
+          newEmailAddress,
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
 
@@ -134,7 +137,8 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, newEmailAddress
+          userId,
+          newEmailAddress,
         )
       }.isInstanceOf(WebClientResponseException::class.java)
     }
@@ -146,7 +150,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
+        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
       val link = userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -161,7 +165,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
+        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -194,7 +198,8 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, "inv@lid@gov.uk"
+          userId,
+          "inv@lid@gov.uk",
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: format")
     }
@@ -217,7 +222,7 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-pecs@testing.com")
         },
         anyString(),
-        any()
+        any(),
       )
     }
 
@@ -239,7 +244,7 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
         },
         anyString(),
-        any()
+        any(),
       )
     }
 
@@ -254,8 +259,8 @@ class UserServiceTest {
         listOf(
           UserGroup("NOT PECS Group 1", "NOT PECS GROUP 1 Test"),
           UserGroup("NOT PECS Group 2", "NOT PECS GROUP 2 Test"),
-          UserGroup("PECS Groups", "PECS Test Group")
-        )
+          UserGroup("PECS Groups", "PECS Test Group"),
+        ),
       )
       whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
@@ -267,7 +272,7 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-pecs@testing.com")
         },
         anyString(),
-        any()
+        any(),
       )
     }
 
@@ -289,7 +294,7 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
         },
         anyString(),
-        any()
+        any(),
       )
     }
 
@@ -317,7 +322,7 @@ class UserServiceTest {
         check {
           assertThat(it.email).isEqualTo(newEmailAddress)
           assertThat(it.username).isEqualTo("testing")
-        }
+        },
       )
     }
 

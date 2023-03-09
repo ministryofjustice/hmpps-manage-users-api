@@ -7,7 +7,6 @@ class NotificationBannerControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get notification message - unauthorized when no authority`() {
-
     webTestClient.get().uri("/notification/banner/test")
       .exchange()
       .expectStatus().isUnauthorized
@@ -15,7 +14,6 @@ class NotificationBannerControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get notification message`() {
-
     webTestClient.get().uri("/notification/banner/ROLES")
       .headers(setAuthorisation(roles = listOf()))
       .exchange()

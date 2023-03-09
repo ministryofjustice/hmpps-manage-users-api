@@ -42,7 +42,7 @@ class UserControllerTest {
         firstName = "first",
         lastName = "last",
         userId = "123456789",
-        activeCaseLoadId = "MDI"
+        activeCaseLoadId = "MDI",
       )
       whenever(userService.findUsersByFirstAndLastName(anyString(), anyString())).thenReturn(listOf(user))
 
@@ -56,8 +56,8 @@ class UserControllerTest {
             firstName = "First",
             lastName = "Last",
             name = "First Last",
-            activeCaseLoadId = "MDI"
-          )
+            activeCaseLoadId = "MDI",
+          ),
         )
     }
 
@@ -70,7 +70,7 @@ class UserControllerTest {
         lastName = "last",
         userId = "123456789",
         email = null,
-        activeCaseLoadId = null
+        activeCaseLoadId = null,
       )
       whenever(userService.findUsersByFirstAndLastName(anyString(), anyString())).thenReturn(listOf(user))
 
@@ -84,8 +84,8 @@ class UserControllerTest {
             lastName = "Last",
             name = "First Last",
             email = null,
-            activeCaseLoadId = null
-          )
+            activeCaseLoadId = null,
+          ),
         )
     }
   }

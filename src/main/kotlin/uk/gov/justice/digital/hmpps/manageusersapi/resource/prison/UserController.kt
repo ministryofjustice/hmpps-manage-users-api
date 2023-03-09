@@ -30,7 +30,7 @@ import javax.validation.constraints.NotEmpty
 @RestController("NomisUserController")
 @Validated
 class UserController(
-  private val nomisUserService: UserService
+  private val nomisUserService: UserService,
 ) {
   @PostMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
@@ -47,10 +47,10 @@ class UserController(
           io.swagger.v3.oas.annotations.media.Content(
             mediaType = "application/json",
             schema = io.swagger.v3.oas.annotations.media.Schema(
-              implementation = NewPrisonUserDto::class
-            )
-          )
-        ]
+              implementation = NewPrisonUserDto::class,
+            ),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "400",
@@ -58,9 +58,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -68,9 +68,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -78,28 +78,28 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun createUser(
     @RequestBody @Valid
-    createUserRequest: CreateUserRequest
+    createUserRequest: CreateUserRequest,
   ) = nomisUserService.createUser(createUserRequest)
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
   @Operation(
     summary = "Find prison users by first and last name.",
-    description = "Find prison users by first and last name."
+    description = "Find prison users by first and last name.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -107,28 +107,28 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_USE_OF_FORCE or ROLE_STAFF_SEARCH",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   fun findUsersByFirstAndLastName(
     @Parameter(
       description = "The first name to match. Case insensitive.",
-      required = true
+      required = true,
     ) @RequestParam @NotEmpty
     firstName: String,
     @Parameter(
       description = "The last name to match. Case insensitive",
-      required = true
+      required = true,
     ) @RequestParam @NotEmpty
-    lastName: String
+    lastName: String,
   ): List<PrisonUserDto> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
     .map {
       PrisonUserDto(
@@ -139,7 +139,7 @@ class UserController(
         firstName = WordUtils.capitalizeFully(it.firstName),
         lastName = WordUtils.capitalizeFully(it.lastName),
         name = WordUtils.capitalizeFully("${it.firstName} ${it.lastName}"),
-        activeCaseLoadId = it.activeCaseLoadId
+        activeCaseLoadId = it.activeCaseLoadId,
       )
     }
 }
@@ -169,7 +169,7 @@ data class CreateUserRequest(
   val userType: UserType,
 
   @Schema(description = "Default caseload (a.k.a Prison ID)", example = "BXI", required = false)
-  val defaultCaseloadId: String? = null
+  val defaultCaseloadId: String? = null,
 )
 
 enum class UserType {
@@ -194,7 +194,7 @@ data class PrisonUserDto(
   @Schema(required = true, example = "Ryan Orton")
   val name: String,
   @Schema(required = false, example = "MDI")
-  val activeCaseLoadId: String?
+  val activeCaseLoadId: String?,
 )
 
 @Schema(description = "Nomis User Created Details")

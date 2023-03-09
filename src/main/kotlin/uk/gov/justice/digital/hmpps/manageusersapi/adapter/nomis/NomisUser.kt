@@ -32,6 +32,6 @@ data class NomisUser(
       name = name,
       uuid = null,
       staffId = userId.toLong(),
-      activeCaseLoadId = activeCaseLoadId
+      activeCaseLoadId = activeCaseLoadId,
     )
 }

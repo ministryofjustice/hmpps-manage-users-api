@@ -100,7 +100,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "authSource" to "auth",
               "userId" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
               "uuid" to uuid.toString(),
-            )
+            ),
           )
         }
     }
@@ -129,7 +129,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "staffId" to 123456,
               "activeCaseLoadId" to "MDI",
               "uuid" to uuid.toString(),
-            )
+            ),
           )
         }
     }
@@ -156,8 +156,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "name" to "Azure User",
               "authSource" to "azuread",
               "userId" to "azure.user@justice.gov.uk",
-              "uuid" to uuid.toString()
-            )
+              "uuid" to uuid.toString(),
+            ),
           )
         }
     }
@@ -184,8 +184,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "name" to "Delius Smith",
               "authSource" to "delius",
               "userId" to "1234567890",
-              "uuid" to uuid.toString()
-            )
+              "uuid" to uuid.toString(),
+            ),
           )
         }
     }
@@ -202,7 +202,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       webTestClient
         .get().uri("/users/me")
         .headers(
-          setAuthorisation()
+          setAuthorisation(),
         )
         .exchange()
         .expectStatus().isOk
@@ -216,7 +216,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "authSource" to "auth",
               "userId" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
               "uuid" to uuid.toString(),
-            )
+            ),
           )
         }
     }
@@ -230,7 +230,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       webTestClient
         .get().uri("/users/me")
         .headers(
-          setAuthorisation("basicuser")
+          setAuthorisation("basicuser"),
         )
         .exchange()
         .expectStatus().isOk
@@ -239,7 +239,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyEntriesOf(
             mapOf(
               "username" to "basicuser",
-            )
+            ),
           )
         }
     }
@@ -257,14 +257,13 @@ class UserControllerIntTest : IntegrationTestBase() {
   inner class MyRoles {
     @Test
     fun `User Me Roles endpoint returns principal user data`() {
-
       webTestClient
         .get().uri("/users/me/roles")
         .headers(
           setAuthorisation(
             "ITAG_USER",
-            listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MAINTAIN_OAUTH_USERS", "ROLE_OAUTH_ADMIN")
-          )
+            listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MAINTAIN_OAUTH_USERS", "ROLE_OAUTH_ADMIN"),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -277,7 +276,6 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `User Me Roles endpoint returns principal user data for auth user`() {
-
       webTestClient
         .get().uri("/users/me/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_GLOBAL_SEARCH")))
@@ -297,6 +295,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isUnauthorized
     }
   }
+
   @Nested
   inner class UserRoles {
     @Test
@@ -334,6 +333,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it).contains("HPA_USER")
         }
     }
+
     @Test
     fun ` external user found success`() {
       val username = "EXT_ADM"
@@ -357,6 +357,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isUnauthorized
     }
+
     @Test
     fun `should fail with not_found for invalid username`() {
       val username = "AUTH_ADM"

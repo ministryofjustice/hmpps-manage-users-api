@@ -38,8 +38,8 @@ class HmppsManageUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = e.message,
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -91,8 +91,8 @@ class HmppsManageUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -146,8 +146,8 @@ class HmppsManageUsersApiExceptionHandler {
           status = CONFLICT,
           errorCode = 602,
           userMessage = "${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -162,7 +162,7 @@ data class ErrorResponse(
   val errorCode: Int? = null,
   val userMessage: String? = null,
   val developerMessage: String? = null,
-  val errors: List<String>? = null
+  val errors: List<String>? = null,
 ) {
   constructor(
     status: HttpStatus,

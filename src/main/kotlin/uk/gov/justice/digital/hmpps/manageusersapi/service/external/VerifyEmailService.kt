@@ -23,7 +23,7 @@ class VerifyEmailService(
   private val verifyEmailDomainService: VerifyEmailDomainService,
   private val externalUserSearchApiService: UserSearchApiService,
   private val authApiService: AuthApiService,
-  @Value("\${application.notify.verify.template}") private val notifyTemplateId: String
+  @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
 ) {
 
   fun requestVerification(
@@ -31,7 +31,6 @@ class VerifyEmailService(
     emailInput: String?,
     url: String,
   ): LinkEmailAndUsername {
-
     val verifyLink =
       url + authApiService.createTokenByEmailType(TokenByEmailTypeRequest(userDetails.username, EmailType.PRIMARY.name))
 
@@ -46,7 +45,7 @@ class VerifyEmailService(
     val parameters: Map<String, Any> = mapOf(
       "firstName" to userDetails.firstName,
       "fullName" to "${userDetails.firstName} ${userDetails.lastName}",
-      "verifyLink" to verifyLink
+      "verifyLink" to verifyLink,
     )
 
     notificationService.send(notifyTemplateId, parameters, "VerifyEmailRequest", NotificationDetails(userDetails.username, email!!))
@@ -61,7 +60,7 @@ class VerifyEmailService(
     telemetryClient.trackEvent(
       "ExternalUserChangeUsername",
       mapOf("username" to newEmail, "previous" to existingUsername),
-      null
+      null,
     )
 
     return newEmail

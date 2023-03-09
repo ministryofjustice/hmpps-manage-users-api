@@ -36,9 +36,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "email" to "test@gov.uk",
               "firstName" to "Test",
               "lastName" to "User",
-              "userType" to "DPS_ADM"
-            )
-          )
+              "userType" to "DPS_ADM",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -55,9 +55,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "email" to "test@gov.uk",
               "firstName" to "Test",
               "lastName" to "User",
-              "userType" to "DPS_ADM"
-            )
-          )
+              "userType" to "DPS_ADM",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -74,9 +74,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "email" to "test@gov.uk",
               "firstName" to "Test",
               "lastName" to "User",
-              "userType" to "DPS_ADM"
-            )
-          )
+              "userType" to "DPS_ADM",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -97,9 +97,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "email" to "test@gov.uk",
               "firstName" to "Test",
               "lastName" to "User",
-              "userType" to "DPS_ADM"
-            )
-          )
+              "userType" to "DPS_ADM",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -117,9 +117,9 @@ class UserControllerIntTest : IntegrationTestBase() {
             containing(
               """
               {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User"}
-              """.trimIndent()
-            )
-          )
+              """.trimIndent(),
+            ),
+          ),
       )
     }
 
@@ -138,9 +138,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "Test",
               "lastName" to "User",
               "userType" to "DPS_GEN",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -158,9 +158,9 @@ class UserControllerIntTest : IntegrationTestBase() {
             containing(
               """
               {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","defaultCaseloadId":"MDI"}
-              """.trimIndent()
-            )
-          )
+              """.trimIndent(),
+            ),
+          ),
       )
     }
 
@@ -179,9 +179,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "Test",
               "lastName" to "User",
               "userType" to "DPS_LSA",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -199,9 +199,9 @@ class UserControllerIntTest : IntegrationTestBase() {
             containing(
               """
               {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","localAdminGroup":"MDI"}
-              """.trimIndent()
-            )
-          )
+              """.trimIndent(),
+            ),
+          ),
       )
     }
   }
@@ -223,9 +223,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "email" to "test@gov.uk",
               "firstName" to "Test",
               "lastName" to "User",
-              "userType" to "DPS_ADM"
-            )
-          )
+              "userType" to "DPS_ADM",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -252,9 +252,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "email" to "test@gov.uk",
               "firstName" to "DUD_FIRST_NAME",
               "lastName" to "User",
-              "userType" to "DPS_ADM"
-            )
-          )
+              "userType" to "DPS_ADM",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(BAD_REQUEST)
@@ -281,9 +281,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "Test",
               "lastName" to "User",
               "userType" to "DPS_GEN",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -311,9 +311,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "DUD_FIRST_NAME",
               "lastName" to "User",
               "userType" to "DPS_GEN",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(BAD_REQUEST)
@@ -340,9 +340,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "Test",
               "lastName" to "User",
               "userType" to "DPS_LSA",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -370,9 +370,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "DUD_FIRST_NAME",
               "lastName" to "User",
               "userType" to "DPS_LSA",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(BAD_REQUEST)
@@ -399,9 +399,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "Test",
               "lastName" to "User",
               "userType" to "DPS_LSA",
-              "defaultCaseloadId" to "MDI"
-            )
-          )
+              "defaultCaseloadId" to "MDI",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -428,9 +428,9 @@ class UserControllerIntTest : IntegrationTestBase() {
               "username" to "TEST1",
               "email" to "test@gov.uk",
               "firstName" to "Test",
-              "lastName" to "User"
-            )
-          )
+              "lastName" to "User",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -479,7 +479,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "lastName" to "Last",
               "name" to "First Last",
               "activeCaseLoadId" to "MDI",
-            )
+            ),
           )
         }
     }

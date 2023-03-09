@@ -19,8 +19,8 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
   }
 
@@ -50,9 +50,9 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 ],
                 "username": "DELIUSUSER"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -68,9 +68,9 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "status": ${status.value()},
                 "developerMessage": "Failed message from delius"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 }

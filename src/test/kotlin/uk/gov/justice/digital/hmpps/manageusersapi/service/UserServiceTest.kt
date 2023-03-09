@@ -147,7 +147,6 @@ class UserServiceTest {
 
       @Test
       fun `find roles of azure user`() {
-
         whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
         whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
         whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
@@ -169,7 +168,6 @@ class UserServiceTest {
 
       @Test
       fun `find roles of external user`() {
-
         whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(createRolesList())
 
         val userRoleList = userService.findRolesByUsername("external_user")
@@ -178,6 +176,7 @@ class UserServiceTest {
         verifyNoInteractions(deliusUserApiService)
       }
     }
+
     @Nested
     inner class MyRoles {
       @Test
@@ -213,7 +212,7 @@ class UserServiceTest {
       surname = "Smith",
       enabled = true,
       email = "delius.smith@digital.justice.gov.uk",
-      roles = listOf(uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole(name = "TEST_ROLE"))
+      roles = listOf(uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole(name = "TEST_ROLE")),
     )
 
   fun createExternalUser(): ExternalUser {
@@ -230,13 +229,13 @@ class UserServiceTest {
     return listOf(
       UserRoleResponse(
         roleCode = "AUDIT_VIEWER",
-        roleName = "viewer"
+        roleName = "viewer",
       ),
       UserRoleResponse(
         roleCode = "AUTH_GROUP_MANAGER",
         roleName = "Auth Group Manager that has more than 30 characters in the role name",
-        roleDescription = "Gives group manager ability to administer user in there groups"
-      )
+        roleDescription = "Gives group manager ability to administer user in there groups",
+      ),
     )
   }
 
@@ -249,7 +248,7 @@ class UserServiceTest {
       activeCaseLoadId = "MDI",
       email = "nomis.usergen@digital.justice.gov.uk",
       enabled = true,
-      roles = listOf("ROLE1", "ROLE2", "ROLE3")
+      roles = listOf("ROLE1", "ROLE2", "ROLE3"),
     )
 
   fun createAuthUserDetails(uuid: UUID) = AuthUser(uuid = uuid)

@@ -31,7 +31,7 @@ import javax.validation.constraints.Size
 @Validated
 @RestController
 class GroupsController(
-  private val groupsService: GroupsService
+  private val groupsService: GroupsService,
 ) {
 
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -46,21 +46,21 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = UserGroupDto::class))
-          )
-        ]
+            array = ArraySchema(schema = Schema(implementation = UserGroupDto::class)),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @GetMapping("/groups")
   fun getGroups(): List<UserGroupDto> = groupsService.getGroups().map { UserGroupDto.fromDomain(it) }
@@ -70,13 +70,13 @@ class GroupsController(
   @Operation(
     summary = "Group detail.",
     description = "return Group Details",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")]
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -84,9 +84,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -94,30 +94,29 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
-
   fun getGroupDetail(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
-    group: String
+    group: String,
   ): GroupDetailsDto = GroupDetailsDto.fromDomain(groupsService.getGroupDetail(group))
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Child Group detail.",
-    description = "get Child Group Details"
+    description = "get Child Group Details",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -125,9 +124,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -135,11 +134,11 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun getChildGroupDetail(
     @Parameter(description = "The group code of the child group.", required = true)
@@ -154,14 +153,14 @@ class GroupsController(
     description = "AmendGroupName",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))],
     ),
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -169,9 +168,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -179,11 +178,11 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun amendGroupName(
     @Parameter(description = "The group code of the group.", required = true)
@@ -191,9 +190,9 @@ class GroupsController(
     group: String,
     @Parameter(
       description = "Details of the group to be updated.",
-      required = true
+      required = true,
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendmentDto
+    groupAmendment: GroupAmendmentDto,
   ) = groupsService.updateGroup(group, groupAmendment)
 
   @PutMapping("/groups/child/{group}")
@@ -203,14 +202,14 @@ class GroupsController(
     description = "Amend a Child Group Name",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))],
     ),
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -218,9 +217,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -228,11 +227,11 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
@@ -240,9 +239,9 @@ class GroupsController(
     group: String,
     @Parameter(
       description = "Details of the child group to be updated.",
-      required = true
+      required = true,
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendmentDto
+    groupAmendment: GroupAmendmentDto,
   ) = groupsService.updateChildGroup(group, groupAmendment)
 
   @PostMapping("/groups")
@@ -252,14 +251,14 @@ class GroupsController(
     description = "Create a Group",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroupDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroupDto::class))],
     ),
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -267,9 +266,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -277,16 +276,17 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun createGroup(
     @Schema(description = "Details of the group to be created.", required = true)
-    @Valid @RequestBody
-    createGroup: CreateGroupDto
+    @Valid
+    @RequestBody
+    createGroup: CreateGroupDto,
   ) = groupsService.createGroup(createGroup)
 
   @PostMapping("/groups/child")
@@ -296,14 +296,14 @@ class GroupsController(
     description = "Create a Child Group",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroupDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroupDto::class))],
     ),
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -311,9 +311,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -321,16 +321,17 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun createChildGroup(
     @Schema(description = "Details of the child group to be created.", required = true)
-    @Valid @RequestBody
-    createChildGroup: CreateChildGroupDto
+    @Valid
+    @RequestBody
+    createChildGroup: CreateChildGroupDto,
   ) = groupsService.createChildGroup(createChildGroup)
 
   @DeleteMapping("/groups/child/{group}")
@@ -344,7 +345,7 @@ class GroupsController(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -352,9 +353,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -362,11 +363,11 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun deleteChildGroup(
     @Parameter(description = "The group code of the child group.", required = true)
@@ -379,13 +380,13 @@ class GroupsController(
   @Operation(
     summary = "Delete group.",
     description = "Delete a Group",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")]
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -393,9 +394,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -403,16 +404,16 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun deleteGroup(
     @Schema(description = "The group code of the group.", required = true)
     @PathVariable
-    group: String
+    group: String,
   ) = groupsService.deleteGroup(group)
 }
 
@@ -422,13 +423,13 @@ data class ChildGroupDetailsDto(
   val groupCode: String,
 
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-  val groupName: String
+  val groupName: String,
 ) {
   companion object {
     fun fromDomain(childGroupDetails: ChildGroup) =
       ChildGroupDetailsDto(
         childGroupDetails.groupCode,
-        childGroupDetails.groupName
+        childGroupDetails.groupName,
       )
   }
 }
@@ -438,7 +439,7 @@ data class GroupAmendmentDto(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 4, max = 100)
-  val groupName: String
+  val groupName: String,
 )
 
 @Schema(description = "User Role")
@@ -450,17 +451,18 @@ data class UserAssignableRoleDto(
   val roleName: String,
 
   @Schema(required = true, description = "automatic", example = "TRUE")
-  val automatic: Boolean
+  val automatic: Boolean,
 ) {
   companion object {
     fun fromDomain(userAssignableRole: UserAssignableRole) =
       UserAssignableRoleDto(
         userAssignableRole.roleCode,
         userAssignableRole.roleName,
-        userAssignableRole.automatic
+        userAssignableRole.automatic,
       )
   }
 }
+
 @Schema(description = "User Group")
 data class UserGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
@@ -486,7 +488,7 @@ data class CreateGroupDto(
   @field:NotBlank(message = "group name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val groupName: String
+  val groupName: String,
 )
 
 @Schema(description = "Group Details")
@@ -501,7 +503,7 @@ data class GroupDetailsDto(
   val assignableRoles: List<UserAssignableRoleDto>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<UserGroupDto>
+  val children: List<UserGroupDto>,
 ) {
   companion object {
     fun fromDomain(groupDetails: Group): GroupDetailsDto {
@@ -510,7 +512,7 @@ data class GroupDetailsDto(
           groupCode,
           groupName,
           assignableRoles.map { UserAssignableRoleDto.fromDomain(it) },
-          children.map { UserGroupDto.fromDomain(it) }
+          children.map { UserGroupDto.fromDomain(it) },
         )
       }
     }
@@ -534,5 +536,5 @@ data class CreateChildGroupDto(
   @field:NotBlank(message = "group name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val groupName: String
+  val groupName: String,
 )

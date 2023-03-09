@@ -35,7 +35,7 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
   fun getWebClient(
     builder: WebClient.Builder,
     authorizedClientManager: OAuth2AuthorizedClientManager,
-    prefix: String = ""
+    prefix: String = "",
   ): WebClient {
     val oauth2 = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2.setDefaultClientRegistrationId(clientId)
@@ -48,16 +48,18 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
       .apply(oauth2.oauth2Configuration())
       .clientConnector(
         getClientConnectorWithTimeouts(
-          apiTimeout, apiTimeout,
-          endpointUrl, environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
-        )
+          apiTimeout,
+          apiTimeout,
+          endpointUrl,
+          environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
+        ),
       )
       .build()
   }
 
   fun getWebClientWithCurrentUserToken(
     builder: WebClient.Builder,
-    prefix: String = ""
+    prefix: String = "",
   ): WebClient {
     val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java)
     val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
@@ -67,9 +69,11 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
       .filter(addAuthHeaderFilterFunction())
       .clientConnector(
         getClientConnectorWithTimeouts(
-          apiTimeout, apiTimeout,
-          endpointUrl, environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
-        )
+          apiTimeout,
+          apiTimeout,
+          endpointUrl,
+          environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
+        ),
       )
       .build()
   }
@@ -82,9 +86,11 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
       .baseUrl(endpointUrl)
       .clientConnector(
         getClientConnectorWithTimeouts(
-          healthTimeout, healthTimeout, endpointUrl,
+          healthTimeout,
+          healthTimeout,
+          endpointUrl,
           environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
-        )
+        ),
       )
       .build()
   }
@@ -111,7 +117,7 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
         .doOnConnected { connection: Connection ->
           connection
             .addHandlerLast(ReadTimeoutHandler(readTimeout.toSeconds().toInt()))
-        }
+        },
     )
   }
 

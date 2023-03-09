@@ -27,14 +27,14 @@ class UserRolesServiceTest {
         roleCode = "OMIC_ADMIN",
         roleName = "Key-worker allocator",
         roleDescription = null,
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       ),
       Role(
         roleCode = "MAINTAIN_ACCESS_ROLES",
         roleName = "Maintain DPS user roles",
         roleDescription = null,
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
-      )
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
+      ),
     )
 
     whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
@@ -52,14 +52,14 @@ class UserRolesServiceTest {
         roleCode = "OMIC_ADMIN",
         roleName = "Key-worker allocator",
         roleDescription = null,
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       ),
       Role(
         roleCode = "MAINTAIN_ACCESS_ROLES",
         roleName = "Maintain access roles that has more than 30 characters in the role name",
         roleDescription = null,
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
-      )
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
+      ),
     )
 
     whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
@@ -78,14 +78,14 @@ class UserRolesServiceTest {
         roleCode = "MAINTAIN_ACCESS_ROLES",
         roleName = "Maintain access roles that has more than 30 characters in the role name",
         roleDescription = null,
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       ),
       Role(
         roleCode = "OMIC_ADMIN",
         roleName = "Key-worker allocator",
         roleDescription = null,
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
-      )
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
+      ),
     )
 
     whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
@@ -108,16 +108,16 @@ class UserRolesServiceTest {
           name = "Key-worker allocator",
           sequence = 1,
           type = PrisonRoleType.APP,
-          adminRoleOnly = false
+          adminRoleOnly = false,
         ),
         PrisonRole(
           code = "MAINTAIN_ACCESS_ROLES",
           name = "Maintain DPS user roles",
           sequence = 1,
           type = PrisonRoleType.APP,
-          adminRoleOnly = false
-        )
+          adminRoleOnly = false,
+        ),
       ),
-      nomisRoles = listOf()
+      nomisRoles = listOf(),
     )
 }

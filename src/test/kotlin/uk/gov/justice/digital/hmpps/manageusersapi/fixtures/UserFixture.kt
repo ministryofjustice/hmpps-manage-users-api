@@ -17,7 +17,7 @@ class UserFixture {
       enabled: Boolean = true,
       verified: Boolean = true,
       lastLoggedIn: LocalDateTime = LocalDateTime.now().minusDays(1),
-      inactiveReason: String? = null
+      inactiveReason: String? = null,
     ) = ExternalUser(
       userId = userId,
       username = username,
@@ -28,7 +28,7 @@ class UserFixture {
       enabled = enabled,
       verified = verified,
       lastLoggedIn = lastLoggedIn,
-      inactiveReason = inactiveReason
+      inactiveReason = inactiveReason,
     )
   }
 }

@@ -28,8 +28,11 @@ class TokenService(
     val token = authService.createNewToken(
       CreateTokenRequest(
         username = user.username,
-        email = user.email, "nomis", firstName = user.firstName, lastName = user.lastName
-      )
+        email = user.email,
+        "nomis",
+        firstName = user.firstName,
+        lastName = user.lastName,
+      ),
     )
     val passwordLink = getPasswordResetLink(token)
 
@@ -38,7 +41,7 @@ class TokenService(
     val parameters = mapOf(
       "firstName" to user.firstName,
       "fullName" to user.firstName,
-      "resetLink" to passwordLink
+      "resetLink" to passwordLink,
     )
 
     // send the email
@@ -52,7 +55,7 @@ class TokenService(
       telemetryClient.trackEvent(
         "${eventPrefix}Failure",
         mapOf("username" to username, "reason" to reason),
-        null
+        null,
       )
       if (e.httpResult >= 500) { // second time lucky
         notificationClient.sendEmail(initialPasswordTemplateId, email, parameters, null, null)

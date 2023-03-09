@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
 
 @Service
 class UserApiService(
-  @Qualifier("deliusWebClientUtils") val serviceWebClientUtils: WebClientUtils
+  @Qualifier("deliusWebClientUtils") val serviceWebClientUtils: WebClientUtils,
 
 ) {
   companion object {
@@ -22,7 +22,7 @@ class UserApiService(
     }
     return serviceWebClientUtils.getIgnoreError(
       "/users/$username/details",
-      DeliusUser::class.java
+      DeliusUser::class.java,
     )
   }
 }

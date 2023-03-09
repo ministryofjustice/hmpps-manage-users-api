@@ -17,18 +17,18 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailD
 @Validated
 @Tag(name = "/validate", description = "Validation Controller")
 class ValidationController(
-  private val verifyEmailDomainService: VerifyEmailDomainService
+  private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
   @GetMapping("/validate/email-domain")
   @Operation(
     summary = "Validates Email domain",
-    description = "Validates Email domain."
+    description = "Validates Email domain.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -36,11 +36,11 @@ class ValidationController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun isValidEmailDomain(@RequestParam(value = "emailDomain", required = true) emailDomain: String): Boolean =
     verifyEmailDomainService.isValidEmailDomain(emailDomain)

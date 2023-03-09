@@ -16,7 +16,6 @@ class NotificationService(
 
   fun send(templateId: String, personalisation: Map<String, Any>, eventPrefix: String, notificationDetails: NotificationDetails) {
     with(notificationDetails) {
-
       try {
         log.info("Sending $eventPrefix to notify for user {}", username)
         notificationClient.sendEmail(templateId, email, personalisation, null)
@@ -26,7 +25,7 @@ class NotificationService(
         telemetryClient.trackEvent(
           "${eventPrefix}Failure",
           mapOf("username" to username, "reason" to reason, "admin" to authenticationFacade.currentUsername),
-          null
+          null,
         )
         throw e
       }

@@ -30,8 +30,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
   }
 
@@ -42,9 +42,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBody()
-            )
-        )
+              apiResponseBody(),
+            ),
+        ),
     )
   }
 
@@ -55,9 +55,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBody()
-            )
-        )
+              apiResponseBody(),
+            ),
+        ),
     )
   }
 
@@ -67,8 +67,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -87,9 +87,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -108,9 +108,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -129,9 +129,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -148,9 +148,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "domain": "advancecharity.org.uk",
                         "description": "ADVANCE"
                     }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -168,9 +168,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "description": "ADVANCE"
                     }
                   
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -180,8 +180,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -216,9 +216,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                           }
                       ]
                   
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -343,9 +343,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                           }
                       ]
                   
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -429,9 +429,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                       "first": false,
                       "empty": false
                   }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -442,9 +442,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBodyPaged()
-            )
-        )
+              apiResponseBodyPaged(),
+            ),
+        ),
     )
   }
 
@@ -455,9 +455,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBodyPaged()
-            )
-        )
+              apiResponseBodyPaged(),
+            ),
+        ),
     )
   }
 
@@ -468,9 +468,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBodyPaged()
-            )
-        )
+              apiResponseBodyPaged(),
+            ),
+        ),
     )
   }
 
@@ -481,9 +481,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBodyPaged()
-            )
-        )
+              apiResponseBodyPaged(),
+            ),
+        ),
     )
   }
 
@@ -494,9 +494,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              apiResponseBodyPaged()
-            )
-        )
+              apiResponseBodyPaged(),
+            ),
+        ),
     )
   }
 
@@ -667,9 +667,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                       "first": true,
                       "empty": false
                   }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -740,9 +740,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
                 ]
                   
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -752,8 +752,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
-            .withHeader("Content-Type", "application/json")
-        )
+            .withHeader("Content-Type", "application/json"),
+        ),
     )
   }
 
@@ -772,9 +772,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer error message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -784,8 +784,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -804,9 +804,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer error message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -831,9 +831,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
                 ]
                   
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -869,9 +869,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     ]
                   }
                 ]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -894,9 +894,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     }
                   ]
                 }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -922,9 +922,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         }
                     ]
                   }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -943,9 +943,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message for get role details failed",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -955,8 +955,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -975,9 +975,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message for PUT Role Name failed",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -987,8 +987,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1007,9 +1007,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message for PUT Role Description failed",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1019,8 +1019,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1039,9 +1039,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message for PUT Role Admin Type failed",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1064,9 +1064,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "groupName": "Site 2 - Group 2"
                   }
                 ]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1098,9 +1098,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                       }
                     ]
                   }  
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1116,9 +1116,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "groupCode": "CHILD_1",
                     "groupName": "Child - Site 1 - Group 2"
                   }  
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1137,9 +1137,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1158,9 +1158,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1170,8 +1170,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1190,9 +1190,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to maintain group: Not_A_Group with reason: notfound",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1211,9 +1211,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to get group: $group with reason: notfound",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1232,9 +1232,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1253,9 +1253,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to get group: $group with reason: notfound",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1265,8 +1265,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1276,8 +1276,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1287,8 +1287,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1298,8 +1298,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1318,9 +1318,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer error message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1339,9 +1339,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer error message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1360,9 +1360,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer error message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1381,9 +1381,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer error message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1393,8 +1393,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -1413,9 +1413,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1434,9 +1434,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1446,8 +1446,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -1466,9 +1466,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1487,9 +1487,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1508,9 +1508,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to create group: PG with reason: ParentGroupNotFound",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1521,9 +1521,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              "true"
-            )
-        )
+              "true",
+            ),
+        ),
     )
   }
 
@@ -1534,9 +1534,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              "$isValid"
-            )
-        )
+              "$isValid",
+            ),
+        ),
     )
   }
 
@@ -1547,9 +1547,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              "false".trimIndent()
-            )
-        )
+              "false".trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1559,8 +1559,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -1579,9 +1579,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1600,9 +1600,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to delete group: $group with reason: notfound",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1625,9 +1625,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "groupName": "Site 2 - Group 2"
                   }
                 ]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1645,10 +1645,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "admin": "user.name",
                     "email": "email@ul.com"
                 }
-              """.trimIndent()
+              """.trimIndent(),
             )
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1666,10 +1666,10 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "admin": "user.name",
                     "email": "email@ul.com"
                 }
-              """.trimIndent()
+              """.trimIndent(),
             )
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1687,9 +1687,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "User $userId not found",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
   fun stubPutEnableFailUserNotInGroup() {
@@ -1706,9 +1706,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
   fun stubNoContent(email: String) {
@@ -1717,8 +1717,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(NO_CONTENT.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1730,8 +1730,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -1770,9 +1770,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "inactiveReason": "Expired"
                     }
                 ]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1786,9 +1786,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """
                   $hasPassword
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1813,9 +1813,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "lastLoggedIn": "2022-12-01T09:30:07.933161",
                   "inactiveReason": "Expired"
                   }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1840,9 +1840,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "lastLoggedIn": "2022-12-01T09:30:07.933161",
                   "inactiveReason": "Expired"
                   }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1867,9 +1867,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "lastLoggedIn": "2022-12-01T09:30:07.933161",
                   "inactiveReason": "Expired"
                   }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1889,9 +1889,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "developerMessage": "Account for username $userId not found",
                   "moreInfo": null
                 } 
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1911,9 +1911,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "developerMessage": "Account for username $username not found",
                   "moreInfo": null
                 } 
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1936,9 +1936,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                        "groupName": "Site 1 - Group 2"
                    }
                ]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -1979,9 +1979,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "numberOfElements": 0,
                   "empty": true
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -2050,9 +2050,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                    "numberOfElements": 2,
                    "empty": false
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -2071,9 +2071,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer External user message for GET failed",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -2093,9 +2093,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
                 ]
                   
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 }
