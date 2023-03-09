@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class DeliusUser(
   private val username: String,
   val userId: String,
@@ -7,6 +10,7 @@ data class DeliusUser(
   val surname: String,
   private val enabled: Boolean = false,
   val email: String,
+  val roles: List<UserRole>? = emptyList(),
 ) : SourceUser {
 
   val name: String
@@ -23,5 +27,8 @@ data class DeliusUser(
       name = name,
       userId = userId,
       uuid = null,
+      roles = roles,
     )
 }
+
+data class UserRole @JsonCreator constructor(@JsonProperty("name") val name: String)

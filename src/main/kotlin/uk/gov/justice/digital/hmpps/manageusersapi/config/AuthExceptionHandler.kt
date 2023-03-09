@@ -2,8 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.config
 
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
-import org.springframework.core.Ordered.HIGHEST_PRECEDENCE
-import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -12,8 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundExceptio
 
 // Exception Handler to mirror the exceptions thrown by Auth.  Needed to ensure all endpoints moved from auth into this
 // service return the same exception detail.
-@RestControllerAdvice
-@Order(HIGHEST_PRECEDENCE)
+@RestControllerAdvice()
 class AuthExceptionHandler {
 
   @ExceptionHandler(NotFoundException::class)

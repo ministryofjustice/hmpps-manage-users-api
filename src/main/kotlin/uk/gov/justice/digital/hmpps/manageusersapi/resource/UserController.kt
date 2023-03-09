@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
@@ -126,7 +127,55 @@ class UserController(
     ]
   )
   fun myRoles() = userService.myRoles()
+
+  @GetMapping("/user/{username}/roles")
+  @Operation(
+    summary = "List of roles for user.",
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PF_USER_ADMIN or ROLE_PCMS_USER_ADMIN."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN','ROLE_PF_USER_ADMIN')")
+  fun userRoles(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
+  ): List<UserRole> {
+    return userService.findRolesByUsername(username)
+      ?: throw NotFoundException("Account for username $username not found")
+  }
 }
+
+@Schema(description = "User Role")
+data class UserRole(
+  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
+  val roleCode: String,
+)
 
 interface User {
   val username: String

@@ -1956,6 +1956,28 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubNoUsersFoundForRolesUsername(username: String) {
+    stubFor(
+      get("/users/username/$username/roles")
+        .willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                  "status": 404,
+                  "errorCode": null,
+                  "userMessage": "User not found: Account for username $username not found",
+                  "developerMessage": "Account for username $username not found",
+                  "moreInfo": null
+                } 
+              """.trimIndent()
+            )
+        )
+    )
+  }
+
   fun stubMyAssignableGroups() {
     stubFor(
       get("/users/me/assignable-groups")
@@ -2116,9 +2138,9 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubGetSearchableRoles() {
+  fun stubGetSearchableRoles(url: String) {
     stubFor(
-      get(urlEqualTo("/users/me/searchable-roles"))
+      get(urlEqualTo(url))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))

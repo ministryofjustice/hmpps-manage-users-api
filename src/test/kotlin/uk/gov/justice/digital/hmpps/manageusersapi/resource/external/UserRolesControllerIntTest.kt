@@ -261,7 +261,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
     }
     @Test
     fun `Searchable roles for group manager user returns their roles based on the groups they manage`() {
-      externalUsersApiMockServer.stubGetSearchableRoles()
+      externalUsersApiMockServer.stubGetSearchableRoles("/users/me/searchable-roles")
       webTestClient
         .get().uri("/externalusers/me/searchable-roles")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER2", listOf("ROLE_AUTH_GROUP_MANAGER")))
