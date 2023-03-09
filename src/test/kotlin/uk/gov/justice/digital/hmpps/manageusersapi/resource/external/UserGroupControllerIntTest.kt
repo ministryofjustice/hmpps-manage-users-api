@@ -60,7 +60,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
                 "groupName": "Site 2 - Group 2"
               }
             ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -85,7 +85,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
                 "groupName": "Site 2 - Group 2"
               }
             ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
   }

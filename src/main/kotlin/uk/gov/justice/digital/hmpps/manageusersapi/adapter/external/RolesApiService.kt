@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
 
 @Service(value = "externalRolesApiService")
 class RolesApiService(
-  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -33,17 +33,18 @@ class RolesApiService(
     sort: String,
     roleName: String?,
     roleCode: String?,
-    adminTypes: List<AdminType>?
+    adminTypes: List<AdminType>?,
   ) = userWebClientUtils.getWithParams(
-    "/roles/paged", object : ParameterizedTypeReference<PagedResponse<RoleDto>> () {},
+    "/roles/paged",
+    object : ParameterizedTypeReference<PagedResponse<RoleDto>> () {},
     mapOf(
       "page" to page,
       "size" to size,
       "sort" to sort,
       "roleName" to roleName,
       "roleCode" to roleCode,
-      "adminTypes" to adminTypes
-    )
+      "adminTypes" to adminTypes,
+    ),
   )
 
   fun getRoleDetail(roleCode: String): Role =
@@ -71,8 +72,8 @@ class RolesApiService(
         "roleCode" to createRole.roleCode,
         "roleName" to createRole.roleName,
         "roleDescription" to createRole.roleDescription,
-        "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList()
-      )
+        "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList(),
+      ),
     )
   }
 }

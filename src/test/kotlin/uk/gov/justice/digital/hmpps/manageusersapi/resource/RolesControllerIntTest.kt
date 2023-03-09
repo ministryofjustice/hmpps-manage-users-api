@@ -39,7 +39,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no role`() {
-
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf()))
         .body(
@@ -48,9 +47,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -58,7 +57,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .body(
@@ -67,9 +65,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -87,9 +85,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -108,16 +106,16 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "12345".repeat(6),
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM", "DPS_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM", "DPS_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/roles"))
-          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6)))),
       )
     }
 
@@ -134,9 +132,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("DPS_ADM")
-            )
-          )
+              "adminType" to listOf("DPS_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -164,16 +162,16 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "12345".repeat(6) + "y",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM", "DPS_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM", "DPS_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/roles"))
-          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6)))),
       )
     }
 
@@ -189,9 +187,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE_RC2",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -199,8 +197,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.verify(
         postRequestedFor(urlEqualTo("/roles"))
           .withRequestBody(
-            containing("{\"roleCode\":\"RC2\",\"roleName\":\"new role name\",\"roleDescription\":\"Description\",\"adminType\":[\"EXT_ADM\"]}")
-          )
+            containing("{\"roleCode\":\"RC2\",\"roleName\":\"new role name\",\"roleDescription\":\"Description\",\"adminType\":[\"EXT_ADM\"]}"),
+          ),
       )
     }
 
@@ -216,9 +214,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -241,15 +239,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "R",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role code must be between 2 and 30 characters")
+          hasItems("Role code must be between 2 and 30 characters"),
         )
     }
 
@@ -263,15 +261,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "R".repeat(30) + "y",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role code must be between 2 and 30 characters")
+          hasItems("Role code must be between 2 and 30 characters"),
         )
     }
 
@@ -285,15 +283,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "R0L$%",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role code must only contain 0-9, A-Z, a-z and _  characters")
+          hasItems("Role code must only contain 0-9, A-Z, a-z and _  characters"),
         )
     }
 
@@ -307,15 +305,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE1",
               "roleName" to "R",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters")
+          hasItems("Role name must be between 4 and 100 characters"),
         )
     }
 
@@ -329,15 +327,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE1",
               "roleName" to "R".repeat(128) + "y",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters")
+          hasItems("Role name must be between 4 and 100 characters"),
         )
     }
 
@@ -351,15 +349,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "R0LE1",
               "roleName" to "new role name$#",
               "roleDescription" to "Description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters")
+          hasItems("Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters"),
         )
     }
 
@@ -373,15 +371,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE1",
               "roleName" to "Role name",
               "roleDescription" to "D".repeat(1024) + "y",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role description must be no more than 1024 characters")
+          hasItems("Role description must be no more than 1024 characters"),
         )
     }
 
@@ -395,15 +393,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE1",
               "roleName" to "Role name",
               "roleDescription" to "Description <>%",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters")
+          hasItems("Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters"),
         )
     }
 
@@ -417,15 +415,15 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "R0LE1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf<String>()
-            )
-          )
+              "adminType" to listOf<String>(),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Admin type cannot be empty")
+          hasItems("Admin type cannot be empty"),
         )
     }
 
@@ -439,9 +437,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "roleCode" to "R0LE1",
               "roleName" to "new role name",
               "roleDescription" to "Description",
-              "adminType" to listOf("DOES_NOT_EXIST")
-            )
-          )
+              "adminType" to listOf("DOES_NOT_EXIST"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -538,7 +536,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
   inner class GetAllPagedRoles {
     @Test
     fun `access forbidden when no authority`() {
-
       webTestClient.get().uri("/roles/paged")
         .exchange()
         .expectStatus().isUnauthorized
@@ -546,7 +543,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no role`() {
-
       webTestClient.get().uri("/roles/paged")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -555,7 +551,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-
       webTestClient.get().uri("/roles/paged")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .exchange()
@@ -670,7 +665,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no authority`() {
-
       webTestClient.get().uri("/roles/role-code")
         .exchange()
         .expectStatus().isUnauthorized
@@ -678,7 +672,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no role`() {
-
       webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -687,7 +680,6 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when wrong role`() {
-
       webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .exchange()
@@ -712,7 +704,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
             "adminTypeCode":"EXT_ADM",
             "adminTypeName":"External Administrator"}]
           }
-          """
+          """,
         )
     }
 
@@ -760,8 +752,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsAllEntriesOf(
             mapOf(
-              "status" to FORBIDDEN.value()
-            )
+              "status" to FORBIDDEN.value(),
+            ),
           )
         }
     }
@@ -775,7 +767,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters")
+          hasItems("Role name must be between 4 and 100 characters"),
         )
     }
 
@@ -788,7 +780,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters")
+          hasItems("Role name must be between 4 and 100 characters"),
         )
     }
 
@@ -802,7 +794,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("errors").value(
-          hasItems("Role name must only contain 0-9, a-z and ( ) & , - . '  characters")
+          hasItems("Role name must only contain 0-9, a-z and ( ) & , - . '  characters"),
         )
     }
 
@@ -824,7 +816,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "userMessage" to "User message for PUT Role Name failed",
               "developerMessage" to "Developer message for PUT Role Name failed",
-            )
+            ),
           )
         }
     }
@@ -842,11 +834,11 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(matchingJsonPath("name", equalTo("new role name")))
+          .withRequestBody(matchingJsonPath("name", equalTo("new role name"))),
       )
       externalUsersApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(matchingJsonPath("roleName", equalTo("new role name")))
+          .withRequestBody(matchingJsonPath("roleName", equalTo("new role name"))),
       )
     }
 
@@ -863,13 +855,13 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6)))),
       )
       externalUsersApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
           .withRequestBody(
-            matchingJsonPath("roleName", equalTo("12345".repeat(6)))
-          )
+            matchingJsonPath("roleName", equalTo("12345".repeat(6))),
+          ),
       )
     }
 
@@ -886,11 +878,11 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6))))
+          .withRequestBody(matchingJsonPath("name", equalTo("12345".repeat(6)))),
       )
       externalUsersApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(matchingJsonPath("roleName", equalTo("12345".repeat(6) + "y")))
+          .withRequestBody(matchingJsonPath("roleName", equalTo("12345".repeat(6) + "y"))),
       )
     }
 
@@ -920,7 +912,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
       externalUsersApiMockServer.verify(
         putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN"))
-          .withRequestBody(matchingJsonPath("roleName", equalTo("new role name")))
+          .withRequestBody(matchingJsonPath("roleName", equalTo("new role name"))),
       )
       nomisApiMockServer.verify(0, putRequestedFor(urlEqualTo("/roles/OAUTH_ADMIN")))
     }
@@ -960,7 +952,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsAllEntriesOf(
-            mapOf("status" to FORBIDDEN.value())
+            mapOf("status" to FORBIDDEN.value()),
           )
         }
     }
@@ -982,7 +974,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "userMessage" to "User message for PUT Role Description failed",
               "developerMessage" to "Developer message for PUT Role Description failed",
-            )
+            ),
           )
         }
     }
@@ -997,7 +989,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody().jsonPath("errors").value(
-          hasItems("Role description must be no more than 1024 characters")
+          hasItems("Role description must be no more than 1024 characters"),
         )
     }
 
@@ -1012,7 +1004,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("errors").value(
-          hasItems("Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters")
+          hasItems("Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters"),
         )
     }
 
@@ -1083,7 +1075,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsAllEntriesOf(
-            mapOf("status" to FORBIDDEN.value())
+            mapOf("status" to FORBIDDEN.value()),
           )
         }
     }
@@ -1106,7 +1098,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "userMessage" to "User message for PUT Role Admin Type failed",
               "developerMessage" to "Developer message for PUT Role Admin Type failed",
-            )
+            ),
           )
         }
     }
@@ -1121,7 +1113,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("errors").value(
-          hasItems("Admin type cannot be empty")
+          hasItems("Admin type cannot be empty"),
         )
     }
 

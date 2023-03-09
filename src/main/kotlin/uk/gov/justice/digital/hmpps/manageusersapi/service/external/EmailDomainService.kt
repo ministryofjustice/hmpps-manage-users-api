@@ -8,7 +8,7 @@ import java.util.UUID
 
 @Service
 class EmailDomainService(
-  private val emailDomainApiService: EmailDomainApiService
+  private val emailDomainApiService: EmailDomainApiService,
 ) {
   fun domainList(): List<EmailDomain> {
     return emailDomainApiService.domainList()

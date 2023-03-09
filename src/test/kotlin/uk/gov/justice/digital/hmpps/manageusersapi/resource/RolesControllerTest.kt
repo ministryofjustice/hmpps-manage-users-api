@@ -38,7 +38,7 @@ class RolesControllerTest {
           assertThat(r).isNotNull
           assertThat(r.roleCode).isEqualTo("RO1")
           true
-        }
+        },
       )
     }
   }
@@ -62,14 +62,12 @@ class RolesControllerTest {
   inner class GetAllPagedRoles {
     @Test
     fun `Get all roles`() {
-
       rolesController.getPagedRoles(0, 10, "roleName,asc", null, null, null)
       verify(rolesService).getPagedRoles(0, 10, "roleName,asc", null, null, null)
     }
 
     @Test
     fun `Get all roles with filters`() {
-
       rolesController.getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(DPS_ADM))
       verify(rolesService).getPagedRoles(0, 10, "roleName,asc", "HWPV", "HW", listOf(DPS_ADM))
     }
@@ -83,7 +81,7 @@ class RolesControllerTest {
         roleCode = "RO1",
         roleName = "Role1",
         roleDescription = "First Role",
-        adminType = listOf(AdminTypeReturn("Code", "Name"))
+        adminType = listOf(AdminTypeReturn("Code", "Name")),
       )
 
       whenever(rolesService.getRoleDetail(any())).thenReturn(role)
@@ -94,8 +92,8 @@ class RolesControllerTest {
           roleCode = "RO1",
           roleName = "Role1",
           roleDescription = "First Role",
-          adminType = listOf(AdminTypeReturn("Code", "Name"))
-        )
+          adminType = listOf(AdminTypeReturn("Code", "Name")),
+        ),
       )
     }
   }

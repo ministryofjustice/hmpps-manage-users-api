@@ -10,5 +10,5 @@ import java.time.Duration
 @Component
 class ExternalUsersApiHealthCheck @Autowired constructor(
   @Qualifier("externalUsersHealthWebClient") externalUsersHealthWebClient: WebClient,
-  @Value("\${api.health-timeout-ms}") timeout: Duration
+  @Value("\${api.health-timeout-ms}") timeout: Duration,
 ) : HealthCheck(externalUsersHealthWebClient, timeout)

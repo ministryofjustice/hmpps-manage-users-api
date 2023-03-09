@@ -63,7 +63,7 @@ class UserRolesControllerTest {
         1,
         PrisonRoleType.APP,
         false,
-        null
+        null,
       ),
       PrisonRole(
         "test-code-2",
@@ -71,15 +71,15 @@ class UserRolesControllerTest {
         1,
         PrisonRoleType.APP,
         false,
-        null
-      )
+        null,
+      ),
     )
 
     val nomisRoles = listOf(
       PrisonCaseloadRole(
         activePrisonCaseload,
-        prisonRoles
-      )
+        prisonRoles,
+      ),
     )
 
     return PrisonUserRole(
@@ -88,7 +88,7 @@ class UserRolesControllerTest {
       PrisonUsageType.GENERAL,
       activePrisonCaseload,
       prisonRoles,
-      nomisRoles
+      nomisRoles,
     )
   }
 }

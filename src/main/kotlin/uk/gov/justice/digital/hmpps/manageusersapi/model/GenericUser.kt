@@ -11,5 +11,5 @@ data class GenericUser(
   var activeCaseLoadId: String? = null,
   var userId: String,
   var uuid: UUID? = null,
-  var roles: List<UserRole>? = emptyList()
+  var roles: List<UserRole>? = emptyList(),
 )

@@ -130,9 +130,9 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "name" to "advancecharity.org.uk",
-              "description" to "ADVANCE"
-            )
-          )
+              "description" to "ADVANCE",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -146,9 +146,9 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "name" to "advancecharity.org.uk",
-              "description" to "ADVANCE"
-            )
-          )
+              "description" to "ADVANCE",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -163,9 +163,9 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "name" to "advancecharity.org.uk",
-              "description" to "ADVANCE"
-            )
-          )
+              "description" to "ADVANCE",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.CONFLICT)
@@ -184,9 +184,9 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "name" to "advancecharity.org.uk",
-              "description" to "ADVANCE"
-            )
-          )
+              "description" to "ADVANCE",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated

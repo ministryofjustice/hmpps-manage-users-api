@@ -14,7 +14,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get user roles forbidden when no role`() {
-
     webTestClient.get().uri("/prisonusers/bob/roles")
       .headers(setAuthorisation(roles = listOf()))
       .exchange()
@@ -23,7 +22,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `get user roles forbidden when wrong role`() {
-
     webTestClient.get().uri("/prisonusers/bob/roles")
       .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
       .exchange()

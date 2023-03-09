@@ -28,7 +28,7 @@ class GroupsControllerTest {
 
       val response = groupsController.getGroups()
       assertThat(response).isEqualTo(
-        groups.map { UserGroupDto.fromDomain(it) }
+        groups.map { UserGroupDto.fromDomain(it) },
       )
     }
   }
@@ -53,18 +53,18 @@ class GroupsControllerTest {
           groupCode = "FRED",
           groupName = "desc",
           assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
-          children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
+          children = listOf(UserGroup(groupCode = "BOB", groupName = "desc")),
         )
 
       whenever(
         groupsService.getGroupDetail(
-          group = anyString()
-        )
+          group = anyString(),
+        ),
       ).thenReturn(groupsDetails)
 
       val response = groupsController.getGroupDetail("group")
       assertThat(response).isEqualTo(
-        GroupDetailsDto.fromDomain(groupsDetails)
+        GroupDetailsDto.fromDomain(groupsDetails),
       )
     }
   }

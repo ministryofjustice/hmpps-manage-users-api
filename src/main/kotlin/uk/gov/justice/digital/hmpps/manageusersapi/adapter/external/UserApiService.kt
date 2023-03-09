@@ -11,7 +11,7 @@ import java.util.UUID
 
 @Service(value = "externalUserApiService")
 class UserApiService(
-  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)

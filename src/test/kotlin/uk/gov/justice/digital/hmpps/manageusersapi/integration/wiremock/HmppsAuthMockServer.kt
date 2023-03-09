@@ -27,9 +27,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "token_type": "bearer",
                     "access_token": "ABCDE"
                 }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -39,8 +39,8 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
   }
 
@@ -51,9 +51,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "text/plain;charset=UTF-8")))
             .withBody(
-              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent()
-            )
-        )
+              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -64,9 +64,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "text/plain;charset=UTF-8")))
             .withBody(
-              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent()
-            )
-        )
+              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -77,9 +77,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "text/plain;charset=UTF-8")))
             .withBody(
-              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent()
-            )
-        )
+              "a25adf13-dbed-4a19-ad07-d1cd95b12500".trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -98,9 +98,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 "lastName": "User",
                 "email": "azure.user@justice.gov.uk"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -122,9 +122,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userId": "1234",
                 "uuid": "$uuid"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -143,9 +143,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 "developerMessage": "Developer Auth user message for GET failed",
                 "moreInfo": null
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -163,9 +163,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                   "username": "NUSER_GEN",
                   "verified": true
                 }]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -185,9 +185,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "contact": "feedback@digital.justice.gov.uk",
                     "url": "http://localhost:3000"
                 }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 }

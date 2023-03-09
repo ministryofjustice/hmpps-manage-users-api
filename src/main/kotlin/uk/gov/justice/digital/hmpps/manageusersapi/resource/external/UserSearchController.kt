@@ -26,18 +26,18 @@ import java.util.UUID
 @RestController
 @RequestMapping("/externalusers")
 class UserSearchController(
-  private val userSearchService: UserSearchService
+  private val userSearchService: UserSearchService,
 ) {
 
   @GetMapping("/search")
   @Operation(
-    summary = "Search for an external user."
+    summary = "Search for an external user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -45,45 +45,49 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @PreAuthorize(
-    "hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')"
+    "hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')",
   )
   suspend fun searchForUser(
     @Parameter(
       description = "The username, email or name of the user.",
-      example = "j smith"
-    ) @RequestParam(required = false)
+      example = "j smith",
+    )
+    @RequestParam(required = false)
     name: String?,
-    @Parameter(description = "The role codes of the user.") @RequestParam(required = false)
+    @Parameter(description = "The role codes of the user.")
+    @RequestParam(required = false)
     roles: List<String>?,
-    @Parameter(description = "The group codes of the user.") @RequestParam(required = false)
+    @Parameter(description = "The group codes of the user.")
+    @RequestParam(required = false)
     groups: List<String>?,
-    @Parameter(description = "Limit to active / inactive / show all users.") @RequestParam(
+    @Parameter(description = "Limit to active / inactive / show all users.")
+    @RequestParam(
       required = false,
-      defaultValue = "ALL"
+      defaultValue = "ALL",
     )
     status: Status,
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
-    @RequestParam(value = "size", defaultValue = "10", required = false) size: Int
+    @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
   ) =
     userSearchService.findUsers(
       name,
       roles,
       groups,
       PageRequest.of(page, size),
-      status
+      status,
     )
 
   @GetMapping
   @Operation(
     summary = "Search for a user.",
-    description = "Search for a user."
+    description = "Search for a user.",
   )
   @ApiResponses(
     value = [
@@ -93,9 +97,9 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ExternalUserDetailsDto::class)
-          )
-        ]
+            schema = Schema(implementation = ExternalUserDetailsDto::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -103,9 +107,9 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "204",
@@ -113,15 +117,15 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun searchForUser(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
-    email: String?
+    email: String?,
   ): ResponseEntity<Any> {
     val users = userSearchService.findExternalUsersByEmail(email)?.map { ExternalUserDetailsDto.fromDomain(it) }
     return if (users == null) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
@@ -132,13 +136,13 @@ class UserSearchController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Retrieve user details by user id.",
-    description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user"
+    description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -146,9 +150,9 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -156,9 +160,9 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -166,15 +170,15 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun userById(
     @Parameter(description = "The id of the user.", required = true) @PathVariable
-    userId: UUID
+    userId: UUID,
   ): ExternalUserDetailsDto {
     return ExternalUserDetailsDto.fromDomain(userSearchService.findExternalUserById(userId))
   }
@@ -183,13 +187,13 @@ class UserSearchController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "User detail.",
-    description = "User detail."
+    description = "User detail.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -197,9 +201,9 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -207,15 +211,15 @@ class UserSearchController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun user(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
-    username: String
+    username: String,
   ) = userSearchService.findExternalUserByUsername(username)
 }
 
@@ -248,7 +252,7 @@ data class ExternalUserDetailsDto(
   val lastLoggedIn: LocalDateTime? = null,
 
   @Schema(required = true, description = "Inactive reason", example = "Left department")
-  val inactiveReason: String? = null
+  val inactiveReason: String? = null,
 ) {
   companion object {
     fun fromDomain(user: ExternalUser): ExternalUserDetailsDto {

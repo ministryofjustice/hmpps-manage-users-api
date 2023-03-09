@@ -176,7 +176,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .json(
           """
             {"status":403,"userMessage":"Access is denied","developerMessage":"Access is denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -198,7 +198,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .json(
           """
             {"status":400,"developerMessage":"Validate email failed with reason: duplicate"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -209,7 +209,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "67A789DE-7D29-4863-B9C2-F2CE715DC4BC", "bobby.b@digital.justice.gov.uk", "EXT_TEST"
+        "67A789DE-7D29-4863-B9C2-F2CE715DC4BC",
+        "bobby.b@digital.justice.gov.uk",
+        "EXT_TEST",
       )
 
       webTestClient
@@ -229,7 +231,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
       externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
+        "bobby.b@digital.justice.gov.uk",
+        "bobby.b@digital.justice.gov.uk",
       )
 
       webTestClient
@@ -252,7 +256,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
       externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
+        "bobby.b@digital.justice.gov.uk",
+        "bobby.b@digital.justice.gov.uk",
       )
 
       webTestClient
@@ -273,7 +279,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
       externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "EXT_TEST"
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
+        "bobby.b@digital.justice.gov.uk",
+        "EXT_TEST",
       )
 
       webTestClient

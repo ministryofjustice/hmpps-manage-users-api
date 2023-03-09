@@ -11,17 +11,17 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendm
 
 @Service
 class GroupsService(
-  val groupsApiService: GroupsApiService
+  val groupsApiService: GroupsApiService,
 ) {
 
   fun getGroups(): List<UserGroup> = groupsApiService.getGroups()
 
   fun getGroupDetail(
-    group: String
+    group: String,
   ): Group = groupsApiService.getGroupDetail(group)
 
   fun getChildGroupDetail(
-    group: String
+    group: String,
   ): ChildGroup = groupsApiService.getChildGroupDetail(group)
 
   fun updateGroup(groupCode: String, groupAmendment: GroupAmendmentDto) = groupsApiService.updateGroup(groupCode, groupAmendment)

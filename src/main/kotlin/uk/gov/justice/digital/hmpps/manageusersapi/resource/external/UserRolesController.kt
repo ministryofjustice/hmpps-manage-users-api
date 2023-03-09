@@ -29,7 +29,7 @@ import javax.validation.constraints.NotEmpty
 @Validated
 @RequestMapping("/externalusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserRolesController(
-  private val userRolesService: UserRolesService
+  private val userRolesService: UserRolesService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -45,7 +45,7 @@ class UserRolesController(
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "User role list"
+        description = "User role list",
       ),
       ApiResponse(
         responseCode = "400",
@@ -53,9 +53,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -63,9 +63,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -73,11 +73,11 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun getUserRoles(
     @Parameter(description = "The userId of the user.", required = true)
@@ -90,13 +90,13 @@ class UserRolesController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Remove role from user.",
-    description = "Remove role from user."
+    description = "Remove role from user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "Deleted"
+        description = "Deleted",
       ),
       ApiResponse(
         responseCode = "401",
@@ -104,9 +104,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -114,11 +114,11 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun removeRoleByUserId(
     @Parameter(description = "The userId of the user.", required = true)
@@ -126,7 +126,7 @@ class UserRolesController(
     userId: UUID,
     @Parameter(description = "The role code of the role to be deleted from the user.", required = true)
     @PathVariable
-    role: String
+    role: String,
   ) {
     userRolesService.removeRoleByUserId(userId, role)
     log.info("Remove role succeeded for userId {} and role code {}", userId, role)
@@ -137,13 +137,13 @@ class UserRolesController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add roles to user.",
-    description = "Add role to user, post version taking multiple roles"
+    description = "Add role to user, post version taking multiple roles",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "Added"
+        description = "Added",
       ),
       ApiResponse(
         responseCode = "401",
@@ -151,9 +151,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -161,9 +161,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -171,11 +171,11 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun addRolesByUserId(
     @Parameter(description = "The user Id of the user.", required = true)
@@ -183,11 +183,11 @@ class UserRolesController(
     userId: UUID,
     @Parameter(
       description = "List of roles to be assigned.",
-      required = true
+      required = true,
     )
     @RequestBody
     @NotEmpty
-    roles: List<String>
+    roles: List<String>,
   ) = userRolesService.addRolesByUserId(userId, roles)
 
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -200,7 +200,7 @@ class UserRolesController(
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "User role list"
+        description = "User role list",
       ),
       ApiResponse(
         responseCode = "400",
@@ -208,9 +208,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -218,9 +218,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -228,11 +228,11 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun getAssignableRoles(
     @Parameter(description = "The userId of the user.", required = true)
@@ -243,13 +243,13 @@ class UserRolesController(
   @GetMapping("/me/searchable-roles")
   @Operation(
     summary = "Get list of searchable roles.",
-    description = "Get list of roles that can be search for by the current user."
+    description = "Get list of roles that can be search for by the current user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -257,11 +257,11 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun searchableRoles() =
     userRolesService.getAllSearchableRoles()

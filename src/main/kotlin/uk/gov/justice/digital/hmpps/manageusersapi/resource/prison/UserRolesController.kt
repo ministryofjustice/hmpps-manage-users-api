@@ -27,7 +27,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as Priso
 @Validated
 @RequestMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserRolesController(
-  private val userRolesService: UserRolesService
+  private val userRolesService: UserRolesService,
 ) {
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
@@ -40,7 +40,7 @@ class UserRolesController(
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "User role list"
+        description = "User role list",
       ),
       ApiResponse(
         responseCode = "400",
@@ -48,9 +48,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -58,9 +58,9 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -68,15 +68,17 @@ class UserRolesController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun getUserRoles(
     @Schema(description = "Username", example = "TEST_USER1", required = true)
-    @PathVariable @Size(max = 30, min = 1, message = "username must be between 1 and 30") username: String,
+    @PathVariable
+    @Size(max = 30, min = 1, message = "username must be between 1 and 30")
+    username: String,
   ): UserRoleDetail {
     return UserRoleDetail.fromDomain(userRolesService.getUserRoles(username))
   }
@@ -90,18 +92,18 @@ data class UserRoleDetail(
   @Schema(
     description = "Type of user account",
     example = "GENERAL",
-    required = true
+    required = true,
   ) val accountType: UsageType = UsageType.GENERAL,
   @Schema(
     description = "Active Caseload of the user",
     example = "BXI",
-    required = false
+    required = false,
   ) val activeCaseload: PrisonCaseload?,
   @Schema(description = "DPS Roles assigned to this user", required = false) val dpsRoles: List<RoleDetail> = listOf(),
   @Schema(
     description = "NOMIS Roles assigned to this user per caseload",
-    required = false
-  ) val nomisRoles: List<CaseloadRoleDetail>?
+    required = false,
+  ) val nomisRoles: List<CaseloadRoleDetail>?,
 ) {
   companion object {
     fun fromDomain(prisonUserRole: PrisonUserRole): UserRoleDetail {
@@ -112,7 +114,7 @@ data class UserRoleDetail(
           UsageType.valueOf(accountType.name),
           activeCaseload?.let { PrisonCaseload.fromDomain(activeCaseload) },
           dpsRoles.map { RoleDetail.fromDomain(it) },
-          nomisRoles?.map { CaseloadRoleDetail.fromDomain(it) }
+          nomisRoles?.map { CaseloadRoleDetail.fromDomain(it) },
         )
       }
     }
@@ -163,7 +165,7 @@ data class PrisonCaseload(
   @Schema(description = "identify for caseload", example = "WWI")
   val id: String,
   @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)")
-  val name: String
+  val name: String,
 ) {
   companion object {
     fun fromDomain(pcd: PrisonCaseloadDomain) =

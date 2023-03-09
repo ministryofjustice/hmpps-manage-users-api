@@ -14,7 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.GroupAmendm
 
 @Service
 class GroupsApiService(
-  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -44,8 +44,8 @@ class GroupsApiService(
       "/groups",
       mapOf(
         "groupCode" to createGroup.groupCode,
-        "groupName" to createGroup.groupName
-      )
+        "groupName" to createGroup.groupName,
+      ),
     )
   }
 
@@ -55,8 +55,8 @@ class GroupsApiService(
       mapOf(
         "groupCode" to createChildGroup.groupCode,
         "groupName" to createChildGroup.groupName,
-        "parentGroupCode" to createChildGroup.parentGroupCode
-      )
+        "parentGroupCode" to createChildGroup.parentGroupCode,
+      ),
     )
   }
 

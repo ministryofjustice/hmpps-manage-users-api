@@ -21,8 +21,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
   }
 
@@ -43,9 +43,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "activeCaseloadId" : "CADM_I",
                 "accountType": "ADMIN"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -66,9 +66,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "activeCaseloadId": "MDI",
                 "accountType": "GENERAL"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -89,9 +89,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "activeCaseloadId": "MDI",
                 "accountType": "ADMIN"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -109,9 +109,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "User already exists",
                 "developerMessage": "User TEST21 already exists"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -129,9 +129,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
                 "developerMessage": "A bigger message"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -149,9 +149,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "User already exists",
                 "developerMessage": "User TEST21 already exists"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -169,9 +169,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
                 "developerMessage": "A bigger message"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -189,9 +189,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "User already exists",
                 "developerMessage": "User TEST21 already exists"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -209,9 +209,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
                 "developerMessage": "A bigger message"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -221,8 +221,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -240,9 +240,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "Role already exists: Role with code $roleCode already exists",
                 "developerMessage": "Role with code $roleCode already exists"
                }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -252,8 +252,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
-        )
+            .withStatus(status.value()),
+        ),
     )
   }
 
@@ -263,8 +263,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withStatus(HttpStatus.OK.value())
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-        )
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+        ),
     )
   }
 
@@ -274,8 +274,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
-        )
+            .withStatus(status.value()),
+        ),
     )
   }
 
@@ -311,9 +311,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     }
                   ]
                 }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -346,9 +346,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "active": true,
                 "staffStatus": "ACTIVE"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -396,9 +396,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "staffStatus": "ACTIVE"
                 }
             ]
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 
@@ -409,8 +409,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(status.value())
-            .withBody("[]")
-        )
+            .withBody("[]"),
+        ),
     )
   }
 
@@ -428,9 +428,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "userMessage": "Nomis User message for GET failed",
                 "developerMessage": "Developer Nomis user message for GET failed"
               }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 }

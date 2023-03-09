@@ -6,7 +6,7 @@ import java.util.UUID
 
 @Service("ExternalUserRolesService")
 class UserRolesService(
-  val userRolesApiService: UserRolesApiService
+  val userRolesApiService: UserRolesApiService,
 ) {
   fun getUserRoles(userId: UUID) = userRolesApiService.getUserRoles(userId)
   fun addRolesByUserId(userId: UUID, roleCodes: List<String>) = userRolesApiService.addRolesByUserId(userId, roleCodes)

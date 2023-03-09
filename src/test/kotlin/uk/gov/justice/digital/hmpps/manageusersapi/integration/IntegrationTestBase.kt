@@ -62,7 +62,7 @@ abstract class IntegrationTestBase {
   internal fun setAuthorisation(
     user: String = "AUTH_ADM",
     roles: List<String> = listOf(),
-    scopes: List<String> = listOf()
+    scopes: List<String> = listOf(),
   ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisation(user, roles, scopes)
 
   fun readFile(file: String): String = this.javaClass.getResource(file).readText()

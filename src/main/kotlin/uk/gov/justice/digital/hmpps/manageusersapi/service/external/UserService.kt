@@ -48,7 +48,7 @@ class UserService(
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
       mapOf("username" to emailNotification.username, "admin" to emailNotification.admin),
-      null
+      null,
     )
   }
   fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
@@ -56,19 +56,18 @@ class UserService(
 
   fun amendUserEmailByUserId(
     userId: UUID,
-    emailAddressInput: String?
+    emailAddressInput: String?,
   ): String {
-
     val url = "$authBaseUri/initial-password?token="
     val user = externalUsersSearchApiService.findByUserId(userId)
     val username = user.username
     var usernameForUpdate = user.username
 
     if (externalUsersApiService.hasPassword(userId)) {
-
       val linkEmailAndUsername = verifyEmailService.requestVerification(
-        user, emailAddressInput,
-        url.replace("initial-password", "verify-email-confirm")
+        user,
+        emailAddressInput,
+        url.replace("initial-password", "verify-email-confirm"),
       )
       externalUsersApiService.updateUserEmailAddressAndUsername(userId, linkEmailAndUsername.username, linkEmailAndUsername.email)
       return linkEmailAndUsername.link
@@ -94,7 +93,6 @@ class UserService(
     newUserName: String,
     eventPrefix: String,
   ): String {
-
     val userToken = authApiService.createResetTokenForUser(userId)
     val supportLink = getInitialEmailSupportLink(userId)
     val setPasswordLink = url + userToken
@@ -105,7 +103,7 @@ class UserService(
       "firstName" to name,
       "fullName" to name,
       "resetLink" to setPasswordLink,
-      "supportLink" to supportLink
+      "supportLink" to supportLink,
     )
 
     notificationService.send(initialPasswordTemplateId, parameters, eventPrefix, NotificationDetails(newUserName, newEmail))

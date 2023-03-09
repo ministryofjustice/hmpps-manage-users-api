@@ -30,7 +30,7 @@ class UserControllerTest {
       "Any User",
       auth,
       userId = UUID.randomUUID().toString(),
-      uuid = UUID.randomUUID()
+      uuid = UUID.randomUUID(),
     )
     whenever(userService.findUserByUsername(username)).thenReturn(userDetails)
 
@@ -56,7 +56,7 @@ class UserControllerTest {
       "Any User",
       auth,
       userId = UUID.randomUUID().toString(),
-      uuid = UUID.randomUUID()
+      uuid = UUID.randomUUID(),
     )
     whenever(authenticationFacade.currentUsername).thenReturn("me")
     whenever(userService.findUserByUsername("me")).thenReturn(userDetails)
@@ -85,12 +85,13 @@ class UserControllerTest {
       whenever(userService.findRolesByUsername(ArgumentMatchers.anyString())).thenReturn(
         listOf(
           UserRole(
-            roleCode = "TEST_ROLE"
-          )
-        )
+            roleCode = "TEST_ROLE",
+          ),
+        ),
       )
       assertThat(userController.userRoles("JOE")).contains(UserRole(roleCode = "TEST_ROLE"))
     }
+
     @Test
     fun userRoles_notFound() {
       whenever(userService.findRolesByUsername(ArgumentMatchers.anyString())).thenReturn(null)

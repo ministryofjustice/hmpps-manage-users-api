@@ -28,19 +28,19 @@ import javax.validation.constraints.Size
 class UserController(
   private val userService: UserService,
   private val userGroupService: UserGroupService,
-  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean
+  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
 
   @GetMapping("/externalusers/me/assignable-groups")
   @Operation(
     summary = "Get list of assignable groups.",
-    description = "Get list of groups that can be assigned by the current user."
+    description = "Get list of groups that can be assigned by the current user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -48,11 +48,11 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun assignableGroups() = userGroupService.getMyAssignableGroups()
 
@@ -61,13 +61,13 @@ class UserController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Enable a user.",
-    description = "Enable a user."
+    description = "Enable a user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "OK."
+        description = "OK.",
       ),
       ApiResponse(
         responseCode = "401",
@@ -75,9 +75,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -85,9 +85,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -95,17 +95,17 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun enableUserByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
-    userId: UUID
+    userId: UUID,
   ) = userService.enableUserByUserId(
-    userId
+    userId,
   )
 
   @PutMapping("/externalusers/{userId}/disable")
@@ -113,13 +113,13 @@ class UserController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Disable a user.",
-    description = "Disable a user."
+    description = "Disable a user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "OK."
+        description = "OK.",
       ),
       ApiResponse(
         responseCode = "401",
@@ -127,9 +127,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -137,9 +137,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -147,11 +147,11 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun disableUserByUserId(
     @Parameter(description = "The userId of the user.", required = true)
@@ -159,25 +159,25 @@ class UserController(
     userId: UUID,
     @Parameter(
       description = "The reason user made inactive.",
-      required = true
+      required = true,
     ) @RequestBody
-    deactivateReason: DeactivateReason
+    deactivateReason: DeactivateReason,
   ) = userService.disableUserByUserId(
     userId,
-    deactivateReason
+    deactivateReason,
   )
 
   @PostMapping("/externalusers/{userId}/email")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Amend a user email address.",
-    description = "Amend a user email address."
+    description = "Amend a user email address.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "OK."
+        description = "OK.",
       ),
       ApiResponse(
         responseCode = "400",
@@ -185,9 +185,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -195,9 +195,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -205,9 +205,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -215,13 +215,12 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
-
   fun alterUserEmail(
     @Parameter(description = "The ID of the user.", required = true) @PathVariable
     userId: UUID,
@@ -230,7 +229,7 @@ class UserController(
   ): String? {
     val resetLink = userService.amendUserEmailByUserId(
       userId,
-      amendUser.email
+      amendUser.email,
     )
     return if (smokeTestEnabled) resetLink else null
   }
@@ -238,12 +237,13 @@ class UserController(
 
 data class AmendUser(
   @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
-  val email: String?
+  val email: String?,
 )
 
 @Schema(description = "Deactivate Reason")
 data class DeactivateReason(
   @Schema(required = true, description = "Deactivate Reason", example = "User has left")
-  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank
-  val reason: String
+  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters")
+  @NotBlank
+  val reason: String,
 )

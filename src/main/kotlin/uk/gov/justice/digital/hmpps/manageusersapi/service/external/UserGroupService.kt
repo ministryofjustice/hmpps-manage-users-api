@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Service
 class UserGroupService(
-  val userGroupApiService: UserGroupApiService
+  val userGroupApiService: UserGroupApiService,
 ) {
   fun removeGroupByUserId(userId: UUID, group: String) = userGroupApiService.deleteGroupByUserId(userId, group)
   fun addGroupByUserId(userId: UUID, group: String) = userGroupApiService.addGroupByUserId(userId, group)

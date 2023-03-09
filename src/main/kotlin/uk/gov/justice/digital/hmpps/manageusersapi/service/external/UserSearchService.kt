@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Service
 class UserSearchService(
-  val userSearchApiService: UserSearchApiService
+  val userSearchApiService: UserSearchApiService,
 ) {
 
   fun findExternalUsersByEmail(email: String?) =
@@ -23,7 +23,7 @@ class UserSearchService(
     roles: List<String>?,
     groups: List<String>?,
     pageable: Pageable,
-    status: Status
+    status: Status,
   ) = userSearchApiService.findUsers(name, roles, groups, pageable, status)
 }
 

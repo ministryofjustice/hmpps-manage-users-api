@@ -4,5 +4,5 @@ data class Group(
   val groupCode: String,
   val groupName: String,
   val assignableRoles: List<UserAssignableRole>,
-  val children: List<UserGroup>
+  val children: List<UserGroup>,
 )

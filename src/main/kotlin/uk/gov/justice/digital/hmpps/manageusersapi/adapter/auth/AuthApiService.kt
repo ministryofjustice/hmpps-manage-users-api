@@ -15,7 +15,7 @@ import java.util.UUID
 @Service
 class AuthApiService(
   @Qualifier("authWebClientUtils") val serviceWebClientUtils: WebClientUtils,
-  @Qualifier("authUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("authUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -30,9 +30,9 @@ class AuthApiService(
         "email" to createTokenRequest.email,
         "source" to createTokenRequest.source,
         "firstName" to createTokenRequest.firstName,
-        "lastName" to createTokenRequest.lastName
+        "lastName" to createTokenRequest.lastName,
       ),
-      String::class.java
+      String::class.java,
     )
   }
 
@@ -41,7 +41,7 @@ class AuthApiService(
     return serviceWebClientUtils.postWithResponse(
       "/api/token/email-type",
       mapOf("username" to tokenByEmailTypeRequest.username, "emailType" to tokenByEmailTypeRequest.emailType),
-      String::class.java
+      String::class.java,
     )
   }
 
@@ -62,15 +62,18 @@ class AuthApiService(
 
   fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUser =
     serviceWebClientUtils.getWithParams(
-      "/api/user", AuthUser::class.java,
+      "/api/user",
+      AuthUser::class.java,
       mapOf(
         "username" to username,
-        "source" to source
-      )
+        "source" to source,
+      ),
     )
 
   fun findUserEmails(usernames: List<String>): List<EmailAddress> = userWebClientUtils.postWithResponse(
-    "/api/prisonuser/email", usernames, EmailList::class.java
+    "/api/prisonuser/email",
+    usernames,
+    EmailList::class.java,
   )
 }
 

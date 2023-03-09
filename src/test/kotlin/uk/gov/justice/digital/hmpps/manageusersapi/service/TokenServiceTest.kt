@@ -29,7 +29,7 @@ class TokenServiceTest {
       val parameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to user.firstName,
-        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token"
+        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token",
       )
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
@@ -45,12 +45,12 @@ class TokenServiceTest {
       val parameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to user.firstName,
-        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token"
+        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token",
       )
       whenever(notificationClient.sendEmail("template-id", user.email, parameters, null)).thenThrow(
         NotificationClientException(
           "USER_DUP",
-        )
+        ),
       )
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
@@ -59,7 +59,7 @@ class TokenServiceTest {
       verify(telemetryClient).trackEvent(
         "DPSUserCreateFailure",
         mapOf("username" to user.username, "reason" to "NotificationClientException"),
-        null
+        null,
       )
     }
   }
