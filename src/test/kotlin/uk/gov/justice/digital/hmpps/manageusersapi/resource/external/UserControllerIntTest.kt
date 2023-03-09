@@ -222,11 +222,12 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Amends username and email address`() {
+      val userName = "bobby.b@digital.justice.gov.uk".uppercase()
       externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bob@testing.co.uk")
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
-      externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
       externalUsersApiMockServer.stubPutEmailAndUsername(
         "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
       )
@@ -241,6 +242,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Amends username and email address for user without password`() {
+      val userName = "bobby.b@digital.justice.gov.uk".uppercase()
       externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "EXT_TEST@DIGITAL.JUSTICE.GOV.UK")
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", false)
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
@@ -248,7 +250,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubResetTokenForUser("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F")
       hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
       externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
-      externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
       externalUsersApiMockServer.stubPutEmailAndUsername(
         "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
       )

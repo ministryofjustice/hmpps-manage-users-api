@@ -2,7 +2,9 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -74,5 +76,27 @@ class UserControllerTest {
 
     verify(userService).findUserByUsername("me")
     assertThat(user).isEqualTo(userDetails)
+  }
+
+  @Nested
+  inner class UserRoles {
+    @Test
+    fun userRoles_extUser() {
+      whenever(userService.findRolesByUsername(ArgumentMatchers.anyString())).thenReturn(
+        listOf(
+          UserRole(
+            roleCode = "TEST_ROLE"
+          )
+        )
+      )
+      assertThat(userController.userRoles("JOE")).contains(UserRole(roleCode = "TEST_ROLE"))
+    }
+    @Test
+    fun userRoles_notFound() {
+      whenever(userService.findRolesByUsername(ArgumentMatchers.anyString())).thenReturn(null)
+      assertThatThrownBy { userController.userRoles("JOE") }
+        .isInstanceOf(NotFoundException::class.java)
+        .hasMessage("Account for username JOE not found")
+    }
   }
 }

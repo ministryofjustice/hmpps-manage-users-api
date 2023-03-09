@@ -34,6 +34,9 @@ class UserRolesApiService(
 
   fun getAllSearchableRoles() =
     userWebClientUtils.get("/users/me/searchable-roles", UserRoleList::class.java)
+
+  fun findRolesByUsernameOrNull(userName: String): List<UserRole>? =
+    userWebClientUtils.getIgnoreError("/users/username/$userName/roles", UserRoleList::class.java)
 }
 
 class UserRoleList : MutableList<UserRole> by ArrayList()
