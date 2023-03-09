@@ -18,8 +18,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
@@ -31,7 +30,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateR
 import java.util.UUID
 
 class UserServiceTest {
-  private val notificationService: NotificationService = mock()
+  private val notificationService: EmailNotificationService = mock()
   private val userApiService: UserApiService = mock()
   private val externalUsersSearchApiService: UserSearchApiService = mock()
   private val authApiService: AuthApiService = mock()
@@ -76,9 +75,7 @@ class UserServiceTest {
 
         verify(notificationService).send(
           eq(enableUserTemplateId), eq(expectedParameters), eq("ExternalUserEnabledEmail"),
-          eq(
-            NotificationDetails(username, email!!)
-          )
+          eq(username), eq(email!!)
         )
       }
     }
@@ -217,7 +214,8 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-pecs@testing.com")
         },
         anyString(),
-        any()
+        anyString(),
+        anyString()
       )
     }
 
@@ -239,7 +237,8 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
         },
         anyString(),
-        any()
+        anyString(),
+        anyString()
       )
     }
 
@@ -267,7 +266,8 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-pecs@testing.com")
         },
         anyString(),
-        any()
+        anyString(),
+        anyString()
       )
     }
 
@@ -289,7 +289,8 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
         },
         anyString(),
-        any()
+        anyString(),
+        anyString()
       )
     }
 
@@ -314,10 +315,8 @@ class UserServiceTest {
           assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
         },
         eq("AuthUserAmend"),
-        check {
-          assertThat(it.email).isEqualTo(newEmailAddress)
-          assertThat(it.username).isEqualTo("testing")
-        }
+        eq("testing"),
+        eq(newEmailAddress)
       )
     }
 

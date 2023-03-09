@@ -1,28 +1,27 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
-import uk.gov.service.notify.NotificationClientApi
 import uk.gov.service.notify.NotificationClientException
 
-class TokenServiceTest {
-  private val notificationClient: NotificationClientApi = mock()
-  private val telemetryClient: TelemetryClient = mock()
+class NotificationServiceTest {
+  private val emailNotificationService: EmailNotificationService = mock()
   private val authService: AuthApiService = mock()
-  private val tokenService =
-    TokenService(notificationClient, telemetryClient, authService, "http://localhost:9090/auth", "template-id")
+  private val notificationService =
+    NotificationService(emailNotificationService, authService, "http://localhost:9090/auth", "template-id")
 
   @Nested
-  inner class CreateToken {
+  inner class NewPrisonUserNotification {
     @Test
     fun `Create token and send email notification`() {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
@@ -33,34 +32,28 @@ class TokenServiceTest {
       )
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
-      tokenService.sendInitialPasswordEmail(user, "DPSUserCreate")
+      notificationService.newPrisonUserNotification(user, "DPSUserCreate")
 
-      verify(telemetryClient).trackEvent("DPSUserCreateSuccess", mapOf("username" to user.username), null)
-      verify(notificationClient).sendEmail("template-id", user.email, parameters, null)
+      verify(emailNotificationService).send("template-id", parameters, "DPSUserCreate", user.username, user.email)
     }
 
     @Test
-    fun `Send Failure Telemetry Event`() {
+    fun `Throws exception thrown by email adapter`() {
       val user = CreateUserRequest("USER_DUP", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
       val parameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to user.firstName,
         "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token"
       )
-      whenever(notificationClient.sendEmail("template-id", user.email, parameters, null)).thenThrow(
-        NotificationClientException(
-          "USER_DUP",
-        )
-      )
+
+      doAnswer {
+        throw NotificationClientException("USER_DUP")
+      }.whenever(emailNotificationService).send("template-id", parameters, "DPSUserCreate", user.username, user.email)
+
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
       assertThatExceptionOfType(NotificationClientException::class.java)
-        .isThrownBy { tokenService.sendInitialPasswordEmail(user, "DPSUserCreate") }
-      verify(telemetryClient).trackEvent(
-        "DPSUserCreateFailure",
-        mapOf("username" to user.username, "reason" to "NotificationClientException"),
-        null
-      )
+        .isThrownBy { notificationService.newPrisonUserNotification(user, "DPSUserCreate") }
     }
   }
 }

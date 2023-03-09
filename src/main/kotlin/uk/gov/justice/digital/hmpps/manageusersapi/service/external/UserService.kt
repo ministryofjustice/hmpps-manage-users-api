@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
@@ -17,7 +16,7 @@ import java.util.UUID
 
 @Service("ExternalUserService")
 class UserService(
-  private val notificationService: NotificationService,
+  private val notificationService: EmailNotificationService,
   private val externalUsersApiService: UserApiService,
   private val externalUsersSearchApiService: UserSearchApiService,
   private val authApiService: AuthApiService,
@@ -40,7 +39,7 @@ class UserService(
           "signinUrl" to authBaseUri,
         )
 
-        notificationService.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", NotificationDetails(username, email!!))
+        notificationService.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", username, email!!)
       }
     } ?: run {
       log.warn("Notification email not sent for user {}", emailNotification)
@@ -108,7 +107,7 @@ class UserService(
       "supportLink" to supportLink
     )
 
-    notificationService.send(initialPasswordTemplateId, parameters, eventPrefix, NotificationDetails(newUserName, newEmail))
+    notificationService.send(initialPasswordTemplateId, parameters, eventPrefix, newUserName, newEmail)
     return setPasswordLink
   }
 

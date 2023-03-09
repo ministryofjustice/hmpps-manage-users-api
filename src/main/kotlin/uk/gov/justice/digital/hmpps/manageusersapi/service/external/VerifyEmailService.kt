@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
@@ -19,7 +18,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 @Transactional(readOnly = true)
 class VerifyEmailService(
   private val telemetryClient: TelemetryClient,
-  private val notificationService: NotificationService,
+  private val notificationService: EmailNotificationService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
   private val externalUserSearchApiService: UserSearchApiService,
   private val authApiService: AuthApiService,
@@ -49,7 +48,7 @@ class VerifyEmailService(
       "verifyLink" to verifyLink
     )
 
-    notificationService.send(notifyTemplateId, parameters, "VerifyEmailRequest", NotificationDetails(userDetails.username, email!!))
+    notificationService.send(notifyTemplateId, parameters, "VerifyEmailRequest", userDetails.username, email!!)
     return LinkEmailAndUsername(verifyLink, email, usernameToUpdate)
   }
 

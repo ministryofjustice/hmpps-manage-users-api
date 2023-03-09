@@ -19,13 +19,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
 class UserServiceTest {
   private val nomisUserApiService: UserApiService = mock()
   private val authApiService: AuthApiService = mock()
-  private val tokenService: TokenService = mock()
+  private val tokenService: NotificationService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
   private val nomisUserService = UserService(
     nomisUserApiService,
@@ -51,7 +51,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createCentralAdminUser(user)
-      verify(tokenService).sendInitialPasswordEmail(user, "DPSUserCreate")
+      verify(tokenService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test
@@ -68,7 +68,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createGeneralUser(user)
-      verify(tokenService).sendInitialPasswordEmail(user, "DPSUserCreate")
+      verify(tokenService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test
@@ -85,7 +85,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createLocalAdminUser(user)
-      verify(tokenService).sendInitialPasswordEmail(user, "DPSUserCreate")
+      verify(tokenService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test

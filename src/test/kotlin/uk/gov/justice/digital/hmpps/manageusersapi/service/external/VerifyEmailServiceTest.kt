@@ -14,8 +14,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
 import java.util.UUID
@@ -23,7 +22,7 @@ import java.util.UUID
 class VerifyEmailServiceTest {
 
   private val telemetryClient: TelemetryClient = mock()
-  private val notificationService: NotificationService = mock()
+  private val notificationService: EmailNotificationService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
   private val externalUserSearchApiService: UserSearchApiService = mock()
   private val authApiService: AuthApiService = mock()
@@ -62,7 +61,7 @@ class VerifyEmailServiceTest {
           assertThat(it["verifyLink"]).isEqualTo(url + token)
         },
         eq("VerifyEmailRequest"),
-        eq(NotificationDetails("someuser", newEmailAddress))
+        eq("someuser"), eq(newEmailAddress)
       )
     }
 
