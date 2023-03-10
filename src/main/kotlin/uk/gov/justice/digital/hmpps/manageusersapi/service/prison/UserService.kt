@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -10,7 +11,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserReq
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
 @Service("NomisUserService")

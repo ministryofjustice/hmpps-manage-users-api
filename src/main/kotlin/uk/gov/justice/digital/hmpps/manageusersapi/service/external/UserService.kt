@@ -3,12 +3,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 import java.util.UUID
 
 @Service("ExternalUserService")

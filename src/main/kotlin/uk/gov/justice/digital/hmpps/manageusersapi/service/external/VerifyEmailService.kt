@@ -6,10 +6,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 
 @Service
 @Transactional(readOnly = true)

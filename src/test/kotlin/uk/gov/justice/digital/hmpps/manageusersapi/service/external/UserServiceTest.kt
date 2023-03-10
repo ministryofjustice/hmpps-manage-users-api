@@ -16,6 +16,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
@@ -24,7 +25,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 import java.util.UUID
 
 class UserServiceTest {

@@ -8,7 +8,7 @@ import uk.gov.service.notify.NotificationClientApi
 import uk.gov.service.notify.NotificationClientException
 
 @Service
-class EmailNotificationService(
+class EmailAdapter(
   private val notificationClient: NotificationClientApi,
   private val telemetryClient: TelemetryClient,
   private val authenticationFacade: AuthenticationFacade,

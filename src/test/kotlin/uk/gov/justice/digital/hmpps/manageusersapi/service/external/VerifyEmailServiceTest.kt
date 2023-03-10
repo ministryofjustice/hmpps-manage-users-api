@@ -14,9 +14,9 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 import java.util.UUID
 
 class VerifyEmailServiceTest {

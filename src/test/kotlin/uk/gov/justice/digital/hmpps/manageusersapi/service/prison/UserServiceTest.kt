@@ -11,6 +11,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
@@ -19,7 +20,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
 class UserServiceTest {

@@ -1,6 +1,6 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.email
 
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -11,7 +11,6 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
@@ -21,7 +20,7 @@ import uk.gov.service.notify.NotificationClientException
 import java.util.UUID
 
 class NotificationServiceTest {
-  private val emailNotificationService: EmailNotificationService = mock()
+  private val emailAdapter: EmailAdapter = mock()
   private val authService: AuthApiService = mock()
 
   private val initialPasswordTemplateId = "initial-password-template-id"
@@ -30,7 +29,14 @@ class NotificationServiceTest {
   private val authBaseUri = "http://localhost:9090/auth"
 
   private val notificationService =
-    NotificationService(emailNotificationService, authService, authBaseUri, initialPasswordTemplateId, enableUserTemplateId, notifyTemplateId)
+    NotificationService(
+      emailAdapter,
+      authService,
+      authBaseUri,
+      initialPasswordTemplateId,
+      enableUserTemplateId,
+      notifyTemplateId
+    )
 
   @Nested
   inner class NewPrisonUserNotification {
@@ -46,7 +52,7 @@ class NotificationServiceTest {
 
       notificationService.newPrisonUserNotification(user, "DPSUserCreate")
 
-      verify(emailNotificationService).send(initialPasswordTemplateId, parameters, "DPSUserCreate", user.username, user.email)
+      verify(emailAdapter).send(initialPasswordTemplateId, parameters, "DPSUserCreate", user.username, user.email)
     }
 
     @Test
@@ -60,11 +66,11 @@ class NotificationServiceTest {
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailNotificationService).send(initialPasswordTemplateId, parameters, "DPSUserCreate", user.username, user.email)
+      }.whenever(emailAdapter).send(initialPasswordTemplateId, parameters, "DPSUserCreate", user.username, user.email)
 
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
-      assertThatExceptionOfType(NotificationClientException::class.java)
+      Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
         .isThrownBy { notificationService.newPrisonUserNotification(user, "DPSUserCreate") }
     }
   }
@@ -77,12 +83,13 @@ class NotificationServiceTest {
 
       notificationService.externalUserEnabledNotification(user)
 
-      verifyNoInteractions(emailNotificationService)
+      verifyNoInteractions(emailAdapter)
     }
 
     @Test
     fun `Sends email when email address present`() {
-      val user = EnabledExternalUser(username = "testy", firstName = "testing", email = "testy@testing.com", admin = "admin")
+      val user =
+        EnabledExternalUser(username = "testy", firstName = "testing", email = "testy@testing.com", admin = "admin")
 
       notificationService.externalUserEnabledNotification(user)
 
@@ -92,12 +99,13 @@ class NotificationServiceTest {
         "signinUrl" to authBaseUri,
       )
 
-      verify(emailNotificationService).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", user.username, user.email!!)
+      verify(emailAdapter).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", user.username, user.email!!)
     }
 
     @Test
     fun `Throws exception thrown by email adapter`() {
-      val user = EnabledExternalUser(username = "testy", firstName = "testing", email = "testy@testing.com", admin = "admin")
+      val user =
+        EnabledExternalUser(username = "testy", firstName = "testing", email = "testy@testing.com", admin = "admin")
 
       val expectedParameters = mapOf(
         "firstName" to "testing",
@@ -107,9 +115,9 @@ class NotificationServiceTest {
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailNotificationService).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", user.username, user.email!!)
+      }.whenever(emailAdapter).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", user.username, user.email!!)
 
-      assertThatExceptionOfType(NotificationClientException::class.java)
+      Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
         .isThrownBy { notificationService.externalUserEnabledNotification(user) }
     }
   }
@@ -134,7 +142,7 @@ class NotificationServiceTest {
         "supportLink" to "support-link"
       )
 
-      verify(emailNotificationService).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
+      verify(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
     }
 
     @Test
@@ -152,9 +160,9 @@ class NotificationServiceTest {
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailNotificationService).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
+      }.whenever(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
 
-      assertThatExceptionOfType(NotificationClientException::class.java)
+      Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
         .isThrownBy { notificationService.externalUserEmailAmendInitialNotification(userId, user, "new.testy@testing.com", "newtesty", "support-link") }
     }
   }
@@ -175,7 +183,7 @@ class NotificationServiceTest {
         "fullName" to "${user.firstName} ${user.lastName}",
         "verifyLink" to "$authBaseUri/verify-email-confirm?token=token-by-email"
       )
-      verify(emailNotificationService).send(notifyTemplateId, expectedParameters, "VerifyEmailRequest", user.username, "testy@testing.com")
+      verify(emailAdapter).send(notifyTemplateId, expectedParameters, "VerifyEmailRequest", user.username, "testy@testing.com")
     }
 
     @Test
@@ -191,9 +199,9 @@ class NotificationServiceTest {
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailNotificationService).send(notifyTemplateId, expectedParameters, "VerifyEmailRequest", user.username, "testy@testing.com")
+      }.whenever(emailAdapter).send(notifyTemplateId, expectedParameters, "VerifyEmailRequest", user.username, "testy@testing.com")
 
-      assertThatExceptionOfType(NotificationClientException::class.java)
+      Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
         .isThrownBy { notificationService.externalUserVerifyEmailNotification(user, "testy@testing.com") }
     }
   }

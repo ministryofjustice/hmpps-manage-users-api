@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.service
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.email
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
@@ -15,7 +14,7 @@ import java.util.UUID
 
 @Service
 class NotificationService(
-  private val notificationService: EmailNotificationService,
+  private val emailAdapter: EmailAdapter,
   private val authService: AuthApiService,
   @Value("\${hmpps-auth.endpoint.url}") val authBaseUri: String,
   @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
@@ -43,7 +42,7 @@ class NotificationService(
       "resetLink" to passwordLink
     )
 
-    notificationService.send(initialPasswordTemplateId, parameters, eventPrefix, username, email)
+    emailAdapter.send(initialPasswordTemplateId, parameters, eventPrefix, username, email)
   }
 
   fun externalUserEnabledNotification(enabledUser: EnabledExternalUser) {
@@ -55,7 +54,7 @@ class NotificationService(
           "signinUrl" to authBaseUri,
         )
 
-        notificationService.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", username, email!!)
+        emailAdapter.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", username, email!!)
       }
     } ?: run {
       log.warn("Notification email not sent for user {}", enabledUser)
@@ -81,7 +80,7 @@ class NotificationService(
       "supportLink" to supportLink
     )
 
-    notificationService.send(initialPasswordTemplateId, parameters, "AuthUserAmend", newUserName, newEmail)
+    emailAdapter.send(initialPasswordTemplateId, parameters, "AuthUserAmend", newUserName, newEmail)
     return setPasswordLink
   }
 
@@ -97,7 +96,7 @@ class NotificationService(
       "verifyLink" to verifyLink
     )
 
-    notificationService.send(notifyTemplateId, parameters, "VerifyEmailRequest", userDetails.username, email)
+    emailAdapter.send(notifyTemplateId, parameters, "VerifyEmailRequest", userDetails.username, email)
     return verifyLink
   }
 
