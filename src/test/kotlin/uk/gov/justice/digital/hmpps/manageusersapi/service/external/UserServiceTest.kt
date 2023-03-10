@@ -36,8 +36,6 @@ class UserServiceTest {
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
 
-  private val authBaseUri: String = "test-auth-base-uri"
-
   private val userService = UserService(
     notificationService,
     userApiService,
@@ -45,8 +43,7 @@ class UserServiceTest {
     authApiService,
     userGroupApiService,
     verifyEmailService,
-    telemetryClient,
-    authBaseUri
+    telemetryClient
   )
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
 
@@ -89,7 +86,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       doThrow(VerifyEmailService.ValidEmailException("reason"))
-        .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))
+        .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress))
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
@@ -117,7 +114,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
         VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
       )
 
@@ -132,7 +129,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
         VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
       )
 
@@ -184,7 +181,6 @@ class UserServiceTest {
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).externalUserEmailAmendInitialNotification(
-        anyString(),
         any(),
         any(),
         anyString(),
@@ -206,7 +202,6 @@ class UserServiceTest {
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).externalUserEmailAmendInitialNotification(
-        anyString(),
         any(),
         any(),
         anyString(),
@@ -234,7 +229,6 @@ class UserServiceTest {
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).externalUserEmailAmendInitialNotification(
-        anyString(),
         any(),
         any(),
         anyString(),
@@ -256,7 +250,6 @@ class UserServiceTest {
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(notificationService).externalUserEmailAmendInitialNotification(
-        anyString(),
         any(),
         any(),
         anyString(),
@@ -277,7 +270,7 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification("$authBaseUri/initial-password?token=", userId, externalUser, newEmailAddress, externalUser.username, "service-not-pecs@testing.com")
+      verify(notificationService).externalUserEmailAmendInitialNotification(userId, externalUser, newEmailAddress, externalUser.username, "service-not-pecs@testing.com")
     }
 
     @Test

@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
@@ -21,7 +20,6 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
-  @Value("\${hmpps-auth.endpoint.url}") private val authBaseUri: String,
 ) {
 
   fun enableUserByUserId(userId: UUID) {
@@ -41,17 +39,13 @@ class UserService(
     emailAddressInput: String?
   ): String {
 
-    val url = "$authBaseUri/initial-password?token="
     val user = externalUsersSearchApiService.findByUserId(userId)
     val username = user.username
     var usernameForUpdate = user.username
 
     if (externalUsersApiService.hasPassword(userId)) {
 
-      val linkEmailAndUsername = verifyEmailService.requestVerification(
-        user, emailAddressInput,
-        url.replace("initial-password", "verify-email-confirm")
-      )
+      val linkEmailAndUsername = verifyEmailService.requestVerification(user, emailAddressInput)
       externalUsersApiService.updateUserEmailAddressAndUsername(userId, linkEmailAndUsername.username, linkEmailAndUsername.email)
       return linkEmailAndUsername.link
     }
@@ -65,7 +59,7 @@ class UserService(
 
     val supportLink = initialNotificationSupportLink(userId)
     val setPasswordLink = notificationService.externalUserEmailAmendInitialNotification(
-      url, userId, user, newEmail!!, usernameForUpdate, supportLink
+      userId, user, newEmail!!, usernameForUpdate, supportLink
     )
     externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail)
     return setPasswordLink

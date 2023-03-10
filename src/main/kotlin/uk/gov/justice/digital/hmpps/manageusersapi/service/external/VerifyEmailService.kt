@@ -22,8 +22,7 @@ class VerifyEmailService(
 
   fun requestVerification(
     userDetails: ExternalUser,
-    emailInput: String?,
-    url: String,
+    emailInput: String?
   ): LinkEmailAndUsername {
 
     val email = EmailHelper.format(emailInput)
@@ -34,7 +33,7 @@ class VerifyEmailService(
       usernameToUpdate = confirmUsernameValidForUpdate(email, userDetails.username)
     }
 
-    val verifyLink = notificationService.externalUserVerifyEmailNotification(userDetails, email!!, url)
+    val verifyLink = notificationService.externalUserVerifyEmailNotification(userDetails, email!!)
     return LinkEmailAndUsername(verifyLink, email, usernameToUpdate)
   }
 

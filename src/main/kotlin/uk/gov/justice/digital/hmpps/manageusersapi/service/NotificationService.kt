@@ -33,7 +33,7 @@ class NotificationService(
         email = user.email, "nomis", firstName = user.firstName, lastName = user.lastName
       )
     )
-    val passwordLink = getPasswordResetLink(token)
+    val passwordLink = buildInitialPasswordLink(token)
 
     val username = user.username
     val email = user.email
@@ -63,7 +63,6 @@ class NotificationService(
   }
 
   fun externalUserEmailAmendInitialNotification(
-    url: String,
     userId: UUID,
     user: ExternalUser,
     newEmail: String,
@@ -71,8 +70,7 @@ class NotificationService(
     supportLink: String
   ): String {
 
-    val userToken = authService.createResetTokenForUser(userId)
-    val setPasswordLink = url + userToken
+    val setPasswordLink = buildInitialPasswordLink(authService.createResetTokenForUser(userId))
 
     val name = "${user.firstName} ${user.lastName}"
 
@@ -87,9 +85,11 @@ class NotificationService(
     return setPasswordLink
   }
 
-  fun externalUserVerifyEmailNotification(userDetails: ExternalUser, email: String, url: String): String {
-    val verifyLink =
-      url + authService.createTokenByEmailType(TokenByEmailTypeRequest(userDetails.username, EmailType.PRIMARY.name))
+  fun externalUserVerifyEmailNotification(userDetails: ExternalUser, email: String): String {
+    val verifyLink = buildLink(
+      authService.createTokenByEmailType(TokenByEmailTypeRequest(userDetails.username, EmailType.PRIMARY.name)),
+      "verify-email-confirm"
+    )
 
     val parameters: Map<String, Any> = mapOf(
       "firstName" to userDetails.firstName,
@@ -101,8 +101,12 @@ class NotificationService(
     return verifyLink
   }
 
-  private fun getPasswordResetLink(token: String): String {
-    return "$authBaseUri/initial-password?token=$token"
+  private fun buildInitialPasswordLink(token: String): String {
+    return buildLink(token, "initial-password")
+  }
+
+  private fun buildLink(token: String, purpose: String): String {
+    return "$authBaseUri/$purpose?token=$token"
   }
 
   companion object {
