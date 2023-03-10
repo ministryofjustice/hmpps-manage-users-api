@@ -17,8 +17,13 @@ import uk.gov.service.notify.NotificationClientException
 class NotificationServiceTest {
   private val emailNotificationService: EmailNotificationService = mock()
   private val authService: AuthApiService = mock()
+
+  private val initialPasswordTemplateId = "initial-password-template-id"
+  private val enableUserTemplateId = "enable-user-template-id"
+  private val notifyTemplateId = "notify-template-id"
+
   private val notificationService =
-    NotificationService(emailNotificationService, authService, "http://localhost:9090/auth", "template-id")
+    NotificationService(emailNotificationService, authService, "http://localhost:9090/auth", initialPasswordTemplateId, enableUserTemplateId, notifyTemplateId)
 
   @Nested
   inner class NewPrisonUserNotification {
@@ -34,7 +39,7 @@ class NotificationServiceTest {
 
       notificationService.newPrisonUserNotification(user, "DPSUserCreate")
 
-      verify(emailNotificationService).send("template-id", parameters, "DPSUserCreate", user.username, user.email)
+      verify(emailNotificationService).send(initialPasswordTemplateId, parameters, "DPSUserCreate", user.username, user.email)
     }
 
     @Test
@@ -48,12 +53,27 @@ class NotificationServiceTest {
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailNotificationService).send("template-id", parameters, "DPSUserCreate", user.username, user.email)
+      }.whenever(emailNotificationService).send(initialPasswordTemplateId, parameters, "DPSUserCreate", user.username, user.email)
 
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
       assertThatExceptionOfType(NotificationClientException::class.java)
         .isThrownBy { notificationService.newPrisonUserNotification(user, "DPSUserCreate") }
     }
+  }
+
+  @Nested
+  inner class ExternalUserEnabledNotification {
+    // TODO
+  }
+
+  @Nested
+  inner class ExternalUserEmailAmendInitialNotification {
+    // TODO
+  }
+
+  @Nested
+  inner class ExternalUserVerifyEmailNotification {
+    // TODO
   }
 }

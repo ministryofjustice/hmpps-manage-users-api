@@ -4,25 +4,20 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.EmailNotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
+import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationService
 
 @Service
 @Transactional(readOnly = true)
 class VerifyEmailService(
   private val telemetryClient: TelemetryClient,
-  private val notificationService: EmailNotificationService,
+  private val notificationService: NotificationService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
   private val externalUserSearchApiService: UserSearchApiService,
-  private val authApiService: AuthApiService,
-  @Value("\${application.notify.verify.template}") private val notifyTemplateId: String
 ) {
 
   fun requestVerification(
@@ -30,9 +25,6 @@ class VerifyEmailService(
     emailInput: String?,
     url: String,
   ): LinkEmailAndUsername {
-
-    val verifyLink =
-      url + authApiService.createTokenByEmailType(TokenByEmailTypeRequest(userDetails.username, EmailType.PRIMARY.name))
 
     val email = EmailHelper.format(emailInput)
     var usernameToUpdate = userDetails.username
@@ -42,13 +34,7 @@ class VerifyEmailService(
       usernameToUpdate = confirmUsernameValidForUpdate(email, userDetails.username)
     }
 
-    val parameters: Map<String, Any> = mapOf(
-      "firstName" to userDetails.firstName,
-      "fullName" to "${userDetails.firstName} ${userDetails.lastName}",
-      "verifyLink" to verifyLink
-    )
-
-    notificationService.send(notifyTemplateId, parameters, "VerifyEmailRequest", userDetails.username, email!!)
+    val verifyLink = notificationService.externalUserVerifyEmailNotification(userDetails, email!!, url)
     return LinkEmailAndUsername(verifyLink, email, usernameToUpdate)
   }
 

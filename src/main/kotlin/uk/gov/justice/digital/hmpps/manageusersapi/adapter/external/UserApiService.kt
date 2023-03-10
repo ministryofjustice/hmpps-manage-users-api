@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailNotification
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import java.util.UUID
 
@@ -22,9 +22,9 @@ class UserApiService(
 
   fun hasPassword(userId: UUID) = userWebClientUtils.get("/users/id/$userId/password/present", Boolean::class.java)
 
-  fun enableUserById(userId: UUID): EmailNotification {
+  fun enableUserById(userId: UUID): EnabledExternalUser {
     log.debug("Enabling User for User Id of {} ", userId)
-    return userWebClientUtils.putWithResponse("/users/$userId/enable", EmailNotification::class.java)
+    return userWebClientUtils.putWithResponse("/users/$userId/enable", EnabledExternalUser::class.java)
   }
 
   fun disableUserById(userId: UUID, deactivateReason: DeactivateReason) {
