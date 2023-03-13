@@ -24,7 +24,7 @@ class EmailAdapter(
       telemetryClient.trackEvent(
         "${eventPrefix}Failure",
         mapOf("username" to username, "reason" to reason, "admin" to authenticationFacade.currentUsername),
-        null
+        null,
       )
       throw e
     }

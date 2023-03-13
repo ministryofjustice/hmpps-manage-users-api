@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailD
 class UserService(
   private val nomisUserApiService: UserApiService,
   private val authApiService: AuthApiService,
-  private val tokenService: NotificationService,
+  private val notificationService: NotificationService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
   @Throws(HmppsValidationException::class)
@@ -31,7 +31,7 @@ class UserService(
       DPS_GEN -> nomisUserApiService.createGeneralUser(user)
       DPS_LSA -> nomisUserApiService.createLocalAdminUser(user)
     }
-    tokenService.newPrisonUserNotification(user, "DPSUserCreate")
+    notificationService.newPrisonUserNotification(user, "DPSUserCreate")
     return nomisUserDetails
   }
 

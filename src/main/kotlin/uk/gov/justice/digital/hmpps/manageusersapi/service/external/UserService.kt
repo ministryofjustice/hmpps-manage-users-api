@@ -28,7 +28,7 @@ class UserService(
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
       mapOf("username" to enabledUser.username, "admin" to enabledUser.admin),
-      null
+      null,
     )
   }
   fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
@@ -36,15 +36,13 @@ class UserService(
 
   fun amendUserEmailByUserId(
     userId: UUID,
-    emailAddressInput: String?
+    emailAddressInput: String?,
   ): String {
-
     val user = externalUsersSearchApiService.findByUserId(userId)
     val username = user.username
     var usernameForUpdate = user.username
 
     if (externalUsersApiService.hasPassword(userId)) {
-
       val linkEmailAndUsername = verifyEmailService.requestVerification(user, emailAddressInput)
       externalUsersApiService.updateUserEmailAddressAndUsername(userId, linkEmailAndUsername.username, linkEmailAndUsername.email)
       return linkEmailAndUsername.link
@@ -59,7 +57,11 @@ class UserService(
 
     val supportLink = initialNotificationSupportLink(userId)
     val setPasswordLink = notificationService.externalUserEmailAmendInitialNotification(
-      userId, user, newEmail!!, usernameForUpdate, supportLink
+      userId,
+      user,
+      newEmail!!,
+      usernameForUpdate,
+      supportLink,
     )
     externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail)
     return setPasswordLink

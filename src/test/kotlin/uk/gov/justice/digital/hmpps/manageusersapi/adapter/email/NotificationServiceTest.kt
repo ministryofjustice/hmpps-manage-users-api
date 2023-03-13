@@ -35,7 +35,7 @@ class NotificationServiceTest {
       authBaseUri,
       initialPasswordTemplateId,
       enableUserTemplateId,
-      notifyTemplateId
+      notifyTemplateId,
     )
 
   @Nested
@@ -46,7 +46,7 @@ class NotificationServiceTest {
       val parameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to user.firstName,
-        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token"
+        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token",
       )
       whenever(authService.createNewToken(any())).thenReturn("new-token")
 
@@ -61,7 +61,7 @@ class NotificationServiceTest {
       val parameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to user.firstName,
-        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token"
+        "resetLink" to "http://localhost:9090/auth/initial-password?token=new-token",
       )
 
       doAnswer {
@@ -139,7 +139,7 @@ class NotificationServiceTest {
         "firstName" to expectedName,
         "fullName" to expectedName,
         "resetLink" to "$authBaseUri/initial-password?token=reset-token",
-        "supportLink" to "support-link"
+        "supportLink" to "support-link",
       )
 
       verify(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
@@ -155,7 +155,7 @@ class NotificationServiceTest {
         "firstName" to expectedName,
         "fullName" to expectedName,
         "resetLink" to "$authBaseUri/initial-password?token=reset-token",
-        "supportLink" to "support-link"
+        "supportLink" to "support-link",
       )
 
       doAnswer {
@@ -181,7 +181,7 @@ class NotificationServiceTest {
       val expectedParameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to "${user.firstName} ${user.lastName}",
-        "verifyLink" to "$authBaseUri/verify-email-confirm?token=token-by-email"
+        "verifyLink" to "$authBaseUri/verify-email-confirm?token=token-by-email",
       )
       verify(emailAdapter).send(notifyTemplateId, expectedParameters, "VerifyEmailRequest", user.username, "testy@testing.com")
     }
@@ -194,7 +194,7 @@ class NotificationServiceTest {
       val expectedParameters = mapOf(
         "firstName" to user.firstName,
         "fullName" to "${user.firstName} ${user.lastName}",
-        "verifyLink" to "$authBaseUri/verify-email-confirm?token=token-by-email"
+        "verifyLink" to "$authBaseUri/verify-email-confirm?token=token-by-email",
       )
 
       doAnswer {

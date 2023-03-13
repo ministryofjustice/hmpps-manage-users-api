@@ -19,7 +19,7 @@ class NotificationService(
   @Value("\${hmpps-auth.endpoint.url}") val authBaseUri: String,
   @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
   @Value("\${application.notify.enable-user.template}") private val enableUserTemplateId: String,
-  @Value("\${application.notify.verify.template}") private val notifyTemplateId: String
+  @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
 ) {
 
   fun newPrisonUserNotification(
@@ -29,8 +29,11 @@ class NotificationService(
     val token = authService.createNewToken(
       CreateTokenRequest(
         username = user.username,
-        email = user.email, "nomis", firstName = user.firstName, lastName = user.lastName
-      )
+        email = user.email,
+        "nomis",
+        firstName = user.firstName,
+        lastName = user.lastName,
+      ),
     )
     val passwordLink = buildInitialPasswordLink(token)
 
@@ -39,7 +42,7 @@ class NotificationService(
     val parameters = mapOf(
       "firstName" to user.firstName,
       "fullName" to user.firstName,
-      "resetLink" to passwordLink
+      "resetLink" to passwordLink,
     )
 
     emailAdapter.send(initialPasswordTemplateId, parameters, eventPrefix, username, email)
@@ -66,9 +69,8 @@ class NotificationService(
     user: ExternalUser,
     newEmail: String,
     newUserName: String,
-    supportLink: String
+    supportLink: String,
   ): String {
-
     val setPasswordLink = buildInitialPasswordLink(authService.createResetTokenForUser(userId))
 
     val name = "${user.firstName} ${user.lastName}"
@@ -77,7 +79,7 @@ class NotificationService(
       "firstName" to name,
       "fullName" to name,
       "resetLink" to setPasswordLink,
-      "supportLink" to supportLink
+      "supportLink" to supportLink,
     )
 
     emailAdapter.send(initialPasswordTemplateId, parameters, "AuthUserAmend", newUserName, newEmail)
@@ -87,13 +89,13 @@ class NotificationService(
   fun externalUserVerifyEmailNotification(userDetails: ExternalUser, email: String): String {
     val verifyLink = buildLink(
       authService.createTokenByEmailType(TokenByEmailTypeRequest(userDetails.username, EmailType.PRIMARY.name)),
-      "verify-email-confirm"
+      "verify-email-confirm",
     )
 
     val parameters: Map<String, Any> = mapOf(
       "firstName" to userDetails.firstName,
       "fullName" to "${userDetails.firstName} ${userDetails.lastName}",
-      "verifyLink" to verifyLink
+      "verifyLink" to verifyLink,
     )
 
     emailAdapter.send(notifyTemplateId, parameters, "VerifyEmailRequest", userDetails.username, email)

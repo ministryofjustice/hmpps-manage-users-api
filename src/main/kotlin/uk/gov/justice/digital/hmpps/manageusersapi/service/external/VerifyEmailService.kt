@@ -22,9 +22,8 @@ class VerifyEmailService(
 
   fun requestVerification(
     userDetails: ExternalUser,
-    emailInput: String?
+    emailInput: String?,
   ): LinkEmailAndUsername {
-
     val email = EmailHelper.format(emailInput)
     var usernameToUpdate = userDetails.username
     validateEmailAddress(email)
@@ -45,7 +44,7 @@ class VerifyEmailService(
     telemetryClient.trackEvent(
       "ExternalUserChangeUsername",
       mapOf("username" to newEmail, "previous" to existingUsername),
-      null
+      null,
     )
 
     return newEmail

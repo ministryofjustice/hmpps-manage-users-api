@@ -43,7 +43,7 @@ class UserServiceTest {
     authApiService,
     userGroupApiService,
     verifyEmailService,
-    telemetryClient
+    telemetryClient,
   )
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
 
@@ -90,7 +90,8 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, newEmailAddress
+          userId,
+          newEmailAddress,
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
 
@@ -103,7 +104,8 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, newEmailAddress
+          userId,
+          newEmailAddress,
         )
       }.isInstanceOf(WebClientResponseException::class.java)
     }
@@ -115,7 +117,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
+        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
       val link = userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -130,7 +132,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing")
+        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -163,7 +165,8 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
-          userId, "inv@lid@gov.uk"
+          userId,
+          "inv@lid@gov.uk",
         )
       }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: format")
     }
@@ -185,7 +188,7 @@ class UserServiceTest {
         any(),
         anyString(),
         anyString(),
-        eq("service-pecs@testing.com")
+        eq("service-pecs@testing.com"),
       )
     }
 
@@ -206,7 +209,7 @@ class UserServiceTest {
         any(),
         anyString(),
         anyString(),
-        eq("service-not-pecs@testing.com")
+        eq("service-not-pecs@testing.com"),
       )
     }
 
@@ -221,8 +224,8 @@ class UserServiceTest {
         listOf(
           UserGroup("NOT PECS Group 1", "NOT PECS GROUP 1 Test"),
           UserGroup("NOT PECS Group 2", "NOT PECS GROUP 2 Test"),
-          UserGroup("PECS Groups", "PECS Test Group")
-        )
+          UserGroup("PECS Groups", "PECS Test Group"),
+        ),
       )
       whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(createAuthServiceWith("service-pecs@testing.com", "book-a-secure-move-ui"))
 
@@ -233,7 +236,7 @@ class UserServiceTest {
         any(),
         anyString(),
         anyString(),
-        eq("service-pecs@testing.com")
+        eq("service-pecs@testing.com"),
       )
     }
 
@@ -254,7 +257,7 @@ class UserServiceTest {
         any(),
         anyString(),
         anyString(),
-        eq("service-not-pecs@testing.com")
+        eq("service-not-pecs@testing.com"),
       )
     }
 
