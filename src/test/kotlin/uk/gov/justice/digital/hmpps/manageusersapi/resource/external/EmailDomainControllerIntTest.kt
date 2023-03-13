@@ -2,7 +2,8 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
@@ -87,15 +88,17 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `domain not found`() {
-      externalUsersApiMockServer.stubCreateEmailDomainNotFound(id)
+      val userMessage = "User test message"
+      val developerMessage = "Developer test message"
+      externalUsersApiMockServer.stubGet(NOT_FOUND, "/email-domains/$id", userMessage, developerMessage)
       webTestClient.get().uri("/email-domains/$id")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
         .exchange()
-        .expectStatus().isEqualTo(HttpStatus.NOT_FOUND)
+        .expectStatus().isEqualTo(NOT_FOUND)
         .expectBody()
-        .jsonPath("$.status").isEqualTo(HttpStatus.NOT_FOUND.value())
-        .jsonPath("$.userMessage").isEqualTo("User test message")
-        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
+        .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
+        .jsonPath("$.userMessage").isEqualTo(userMessage)
+        .jsonPath("$.developerMessage").isEqualTo(developerMessage)
     }
 
     @Test
@@ -168,9 +171,9 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
           ),
         )
         .exchange()
-        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectStatus().isEqualTo(CONFLICT)
         .expectBody()
-        .jsonPath("$.status").isEqualTo(HttpStatus.CONFLICT.value())
+        .jsonPath("$.status").isEqualTo(CONFLICT.value())
         .jsonPath("$.userMessage").isEqualTo("User test message")
         .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }

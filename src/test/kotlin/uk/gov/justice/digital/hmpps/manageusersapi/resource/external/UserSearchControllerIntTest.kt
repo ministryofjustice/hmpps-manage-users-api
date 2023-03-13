@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.NO_CONTENT
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
 class UserSearchControllerIntTest : IntegrationTestBase() {
@@ -29,7 +30,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with no content when external users api responds with no content`() {
       val email = "testy@testing.co.uk"
-      externalUsersApiMockServer.stubNoContent(email)
+      externalUsersApiMockServer.stubGet(NO_CONTENT, "/users?email=$email", "", "")
 
       webTestClient.get().uri("/externalusers?email=$email")
         .headers(setAuthorisation())
@@ -81,7 +82,10 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with not found when external users api responds with not found`() {
       val userId = "608955ae-52ed-44cc-884c-011597a77949"
-      externalUsersApiMockServer.stubUserNotFoundForUserId(userId)
+
+      val userMessage = "User not found: Account for user id $userId not found"
+      val developerMessage = "Account for username $userId not found"
+      externalUsersApiMockServer.stubGet(NOT_FOUND, "/users/id/$userId", userMessage, developerMessage)
       webTestClient.get().uri("/externalusers/id/608955ae-52ed-44cc-884c-011597a77949")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
@@ -89,8 +93,8 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"]).isEqualTo("User not found: Account for user id $userId not found")
-          assertThat(it["developerMessage"]).isEqualTo("Account for username $userId not found")
+          assertThat(it["userMessage"]).isEqualTo(userMessage)
+          assertThat(it["developerMessage"]).isEqualTo(developerMessage)
         }
     }
 
@@ -152,7 +156,10 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with NOT_FOUND from external users api`() {
       val username = "AUTH_ADM"
-      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
+
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGet(NOT_FOUND, "/users/$username", userMessage, developerMessage)
 
       webTestClient.get().uri("/externalusers/$username")
         .headers(setAuthorisation())
@@ -161,7 +168,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"]).isEqualTo("User not found: Account for username AUTH_ADM not found")
+          assertThat(it["userMessage"]).isEqualTo(userMessage)
         }
     }
   }
