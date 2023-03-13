@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.4-beta-1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.4-beta-2"
   kotlin("plugin.spring") version "1.8.10"
 }
 
@@ -22,7 +22,7 @@ dependencies {
   implementation("com.google.code.gson:gson:2.10.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
-  implementation("uk.gov.service.notify:notifications-java-client:3.19.0-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:3.19.1-RELEASE")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")

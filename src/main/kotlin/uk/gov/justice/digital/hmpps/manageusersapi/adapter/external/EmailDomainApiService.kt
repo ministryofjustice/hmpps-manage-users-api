@@ -10,7 +10,7 @@ import kotlin.collections.ArrayList
 
 @Service
 class EmailDomainApiService(
-  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
 
   fun domainList(): List<EmailDomain> = userWebClientUtils.get("/email-domains", EmailDomainList::class.java)

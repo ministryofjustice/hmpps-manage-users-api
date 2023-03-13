@@ -9,18 +9,18 @@ data class PrisonUserRole(
   val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
   val activeCaseload: PrisonCaseload?,
   val dpsRoles: List<PrisonRole> = listOf(),
-  val nomisRoles: List<PrisonCaseloadRole>?
+  val nomisRoles: List<PrisonCaseloadRole>?,
 )
 
 data class PrisonCaseload(
   val id: String,
-  val name: String
+  val name: String,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PrisonCaseloadRole(
   val caseload: PrisonCaseload,
-  val roles: List<PrisonRole> = listOf()
+  val roles: List<PrisonRole> = listOf(),
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,7 +30,7 @@ data class PrisonRole(
   val sequence: Int = 1,
   val type: PrisonRoleType? = PrisonRoleType.APP,
   val adminRoleOnly: Boolean = false,
-  val parentRole: PrisonRole? = null
+  val parentRole: PrisonRole? = null,
 )
 
 enum class PrisonRoleType {

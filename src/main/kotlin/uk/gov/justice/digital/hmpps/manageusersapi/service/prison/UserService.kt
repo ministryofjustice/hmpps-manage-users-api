@@ -52,7 +52,7 @@ class UserService(
           verified = authUsersByUsername[it.username]?.verified ?: (it.email != null),
           firstName = it.firstName,
           lastName = it.lastName,
-          activeCaseLoadId = it.activeCaseload?.id
+          activeCaseLoadId = it.activeCaseload?.id,
         )
       }
     }

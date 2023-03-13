@@ -19,13 +19,13 @@ class UserRolesServiceTest {
     val rolesFromExternalUsers = listOf(
       UserRole(
         roleCode = "AUDIT_VIEWER",
-        roleName = "viewer"
+        roleName = "viewer",
       ),
       UserRole(
         roleCode = "AUTH_GROUP_MANAGER",
         roleName = "Auth Group Manager that has more than 30 characters in the role name",
-        roleDescription = "Gives group manager ability to administer user in there groups"
-      )
+        roleDescription = "Gives group manager ability to administer user in there groups",
+      ),
     )
     whenever(userRolesApiService.getUserRoles(any())).thenReturn(rolesFromExternalUsers)
 

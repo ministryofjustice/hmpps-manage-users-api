@@ -60,8 +60,8 @@ class RolesServiceTest {
           anyString(),
           isNull(),
           isNull(),
-          isNull()
-        )
+          isNull(),
+        ),
       ).thenReturn(roles)
 
       val allRoles = externalRolesApiService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
@@ -78,7 +78,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       )
 
       whenever(externalRolesApiService.getRoleDetail(anyString())).thenReturn(role)
@@ -129,7 +129,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
@@ -146,7 +146,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
+        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator")),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(role)
 
@@ -166,7 +166,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
@@ -183,7 +183,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
+        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator")),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(role)
 
@@ -203,7 +203,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator"))
+        adminType = listOf(AdminTypeReturn("EXT_ADM", "External Administrator")),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
@@ -220,7 +220,7 @@ class RolesServiceTest {
         roleCode = "ROLE_1",
         roleName = "Role Name",
         roleDescription = "A Role",
-        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator"))
+        adminType = listOf(AdminTypeReturn("DPS_ADM", "DPS Central Administrator")),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
@@ -238,8 +238,8 @@ class RolesServiceTest {
         roleName = "Role Name",
         roleDescription = "A Role",
         adminType = listOf(
-          AdminTypeReturn("DPS_ADM", "DPS Central Administrator")
-        )
+          AdminTypeReturn("DPS_ADM", "DPS Central Administrator"),
+        ),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
@@ -258,8 +258,8 @@ class RolesServiceTest {
         roleDescription = "A Role",
         adminType = listOf(
           AdminTypeReturn("DPS_ADM", "DPS Central Administrator"),
-          AdminTypeReturn("DPS_LSA", "DPS Local System Administrator")
-        )
+          AdminTypeReturn("DPS_LSA", "DPS Local System Administrator"),
+        ),
       )
       whenever(externalRolesApiService.getRoleDetail("ROLE_1")).thenReturn(dbRole)
 
@@ -276,7 +276,7 @@ class RolesServiceTest {
     pageNumber = 3,
     pageSize = 4,
     paged = true,
-    unpaged = false
+    unpaged = false,
   )
 
   fun createRolePaged() = PagedResponse(
@@ -293,6 +293,6 @@ class RolesServiceTest {
     sort = createRoleSort(),
     numberOfElements = 37,
     first = false,
-    empty = false
+    empty = false,
   )
 }

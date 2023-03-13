@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 
 @Service(value = "nomisRolesApiService")
 class RolesApiService(
-  @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -27,7 +27,7 @@ class RolesApiService(
         "code" to createRole.roleCode,
         "name" to createRole.roleName.nomisRoleName(),
         "adminRoleOnly" to createRole.adminType.adminRoleOnly(),
-      )
+      ),
     )
   }
 
@@ -36,8 +36,8 @@ class RolesApiService(
     userWebClientUtils.put(
       "/roles/$roleCode",
       mapOf(
-        "name" to roleNameAmendment.roleName.nomisRoleName()
-      )
+        "name" to roleNameAmendment.roleName.nomisRoleName(),
+      ),
     )
   }
 
@@ -46,8 +46,8 @@ class RolesApiService(
     userWebClientUtils.put(
       "/roles/$roleCode",
       mapOf(
-        "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly()
-      )
+        "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly(),
+      ),
     )
   }
 

@@ -20,7 +20,7 @@ data class PageDetails(
   val pageNumber: Int,
   val pageSize: Int,
   val paged: Boolean,
-  val unpaged: Boolean
+  val unpaged: Boolean,
 )
 
 data class PageSort(

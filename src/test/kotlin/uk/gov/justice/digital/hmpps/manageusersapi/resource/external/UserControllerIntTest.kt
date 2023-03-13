@@ -176,7 +176,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .json(
           """
             {"status":403,"userMessage":"Access is denied","developerMessage":"Access is denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -198,7 +198,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .json(
           """
             {"status":400,"developerMessage":"Validate email failed with reason: duplicate"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -209,7 +209,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "67A789DE-7D29-4863-B9C2-F2CE715DC4BC", "bobby.b@digital.justice.gov.uk", "EXT_TEST"
+        "67A789DE-7D29-4863-B9C2-F2CE715DC4BC",
+        "bobby.b@digital.justice.gov.uk",
+        "EXT_TEST",
       )
 
       webTestClient
@@ -222,13 +224,16 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Amends username and email address`() {
+      val userName = "bobby.b@digital.justice.gov.uk".uppercase()
       externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bob@testing.co.uk")
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
-      externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
+        "bobby.b@digital.justice.gov.uk",
+        "bobby.b@digital.justice.gov.uk",
       )
 
       webTestClient
@@ -241,6 +246,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Amends username and email address for user without password`() {
+      val userName = "bobby.b@digital.justice.gov.uk".uppercase()
       externalUsersApiMockServer.stubUserById("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "EXT_TEST@DIGITAL.JUSTICE.GOV.UK")
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", false)
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
@@ -248,9 +254,11 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubResetTokenForUser("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F")
       hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
       externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
-      externalUsersApiMockServer.stubNoUsersFoundForUsername("bobby.b@digital.justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk"
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
+        "bobby.b@digital.justice.gov.uk",
+        "bobby.b@digital.justice.gov.uk",
       )
 
       webTestClient
@@ -271,7 +279,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
       externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
       externalUsersApiMockServer.stubPutEmailAndUsername(
-        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", "bobby.b@digital.justice.gov.uk", "EXT_TEST"
+        "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
+        "bobby.b@digital.justice.gov.uk",
+        "EXT_TEST",
       )
 
       webTestClient

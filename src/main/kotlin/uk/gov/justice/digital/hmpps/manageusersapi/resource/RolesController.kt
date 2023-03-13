@@ -31,7 +31,7 @@ import javax.validation.constraints.Size
 @Validated
 @RestController
 class RolesController(
-  private val rolesService: RolesService
+  private val rolesService: RolesService,
 ) {
 
   @PostMapping("/roles")
@@ -41,30 +41,32 @@ class RolesController(
     description = "Create a new role, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json")]
+      content = [Content(mediaType = "application/json")],
     ),
     responses = [
       ApiResponse(
         responseCode = "201",
         description = "Role Created",
-        content = [Content(mediaType = "application/json")]
+        content = [Content(mediaType = "application/json")],
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @ResponseStatus(HttpStatus.CREATED)
   fun createRole(
     @Schema(description = "Details of the role to be created.", required = true)
-    @Valid @RequestBody createRole: CreateRoleDto,
+    @Valid
+    @RequestBody
+    createRole: CreateRoleDto,
   ) {
     rolesService.createRole(createRole)
   }
@@ -81,26 +83,27 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = RoleDto::class))
-          )
-        ]
+            array = ArraySchema(schema = Schema(implementation = RoleDto::class)),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @GetMapping("/roles/{role}")
   fun getRoleDetail(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
-    @PathVariable role: String,
+    @PathVariable
+    role: String,
   ): RoleDto = RoleDto.fromDomain(rolesService.getRoleDetail(role))
 
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
@@ -115,21 +118,21 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = RoleDto::class))
-          )
-        ]
+            array = ArraySchema(schema = Schema(implementation = RoleDto::class)),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @GetMapping("/roles")
   fun getRoles(
@@ -148,21 +151,21 @@ class RolesController(
         content = [
           Content(
             mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = PagedResponse::class))
-          )
-        ]
+            array = ArraySchema(schema = Schema(implementation = PagedResponse::class)),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @GetMapping("/roles/paged")
   fun getPagedRoles(
@@ -180,35 +183,37 @@ class RolesController(
     description = "Amend the role name, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendmentDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendmentDto::class))],
     ),
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Role name updated"
+        description = "Role name updated",
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "404",
         description = "The role trying to update does not exist",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @PutMapping("/roles/{roleCode}")
   fun amendRoleName(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
-    @PathVariable roleCode: String,
-    @Valid @RequestBody roleAmendment: RoleNameAmendmentDto
+    @PathVariable
+    roleCode: String,
+    @Valid @RequestBody
+    roleAmendment: RoleNameAmendmentDto,
   ) {
     rolesService.updateRoleName(roleCode, roleAmendment)
   }
@@ -219,35 +224,37 @@ class RolesController(
     description = "Amend the role description, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendmentDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendmentDto::class))],
     ),
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Role description updated"
+        description = "Role description updated",
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "404",
         description = "The role trying to update does not exist",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @PutMapping("/roles/{roleCode}/description")
   fun amendRoleDescription(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
-    @PathVariable roleCode: String,
-    @Valid @RequestBody roleAmendment: RoleDescriptionAmendmentDto
+    @PathVariable
+    roleCode: String,
+    @Valid @RequestBody
+    roleAmendment: RoleDescriptionAmendmentDto,
   ) {
     rolesService.updateRoleDescription(roleCode, roleAmendment)
   }
@@ -258,35 +265,37 @@ class RolesController(
     description = "Amend the role admin type, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendmentDto::class))]
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendmentDto::class))],
     ),
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Role admin type updated"
+        description = "Role admin type updated",
       ),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "403",
         description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "404",
         description = "The role trying to update does not exist",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]
-      )
-    ]
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
   )
   @PutMapping("/roles/{roleCode}/admintype")
   fun amendRoleAdminType(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
-    @PathVariable roleCode: String,
-    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendmentDto
+    @PathVariable
+    roleCode: String,
+    @Valid @RequestBody
+    roleAmendment: RoleAdminTypeAmendmentDto,
   ) {
     rolesService.updateRoleAdminType(roleCode, roleAmendment)
   }
@@ -304,7 +313,7 @@ data class CreateRoleDto(
   @field:Size(min = 4, max = 128, message = "Role name must be between 4 and 100 characters")
   @field:Pattern(
     regexp = "^[0-9A-Za-z- ,.()'&]*\$",
-    message = "Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters"
+    message = "Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters",
   )
   val roleName: String,
 
@@ -316,7 +325,7 @@ data class CreateRoleDto(
   @field:Size(max = 1024, message = "Role description must be no more than 1024 characters")
   @field:Pattern(
     regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$",
-    message = "Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters"
+    message = "Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters",
   )
   val roleDescription: String? = null,
 
@@ -350,7 +359,7 @@ data class RoleDto(
   @Schema(
     required = true,
     description = "Role Description",
-    example = "Allow Group Manager to administer the account within their groups"
+    example = "Allow Group Manager to administer the account within their groups",
   )
   val roleDescription: String?,
 
@@ -372,28 +381,29 @@ data class RoleNameAmendmentDto(
   @field:Size(min = 4, max = 100, message = "Role name must be between 4 and 100 characters")
   @field:Pattern(
     regexp = "^[0-9A-Za-z- ,.()'&]*\$",
-    message = "Role name must only contain 0-9, a-z and ( ) & , - . '  characters"
+    message = "Role name must only contain 0-9, a-z and ( ) & , - . '  characters",
   )
-  val roleName: String
+  val roleName: String,
 )
 
 @Schema(description = "Update Role Description")
 data class RoleDescriptionAmendmentDto(
   @Schema(
-    required = true, description = "Role Description",
-    example = "Allow Group Manager to administer the account within their groups"
+    required = true,
+    description = "Role Description",
+    example = "Allow Group Manager to administer the account within their groups",
   )
   @field:Size(max = 1024, message = "Role description must be no more than 1024 characters")
   @field:Pattern(
     regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$",
-    message = "Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters"
+    message = "Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters",
   )
-  val roleDescription: String?
+  val roleDescription: String?,
 )
 
 @Schema(description = "Update Role Administration Types")
 data class RoleAdminTypeAmendmentDto(
   @Schema(required = true, description = "Role Admin Type", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
-  val adminType: Set<AdminType>
+  val adminType: Set<AdminType>,
 )

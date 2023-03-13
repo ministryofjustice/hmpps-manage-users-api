@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserReq
 @Service(value = "nomisUserApiService")
 class UserApiService(
   @Qualifier("nomisWebClientUtils") val serviceWebClientUtils: WebClientUtils,
-  @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils
+  @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -26,9 +26,9 @@ class UserApiService(
         "username" to centralAdminUser.username,
         "email" to centralAdminUser.email,
         "firstName" to centralAdminUser.firstName,
-        "lastName" to centralAdminUser.lastName
+        "lastName" to centralAdminUser.lastName,
       ),
-      NewPrisonUser::class.java
+      NewPrisonUser::class.java,
     )
   }
 
@@ -43,7 +43,7 @@ class UserApiService(
         "lastName" to generalUser.lastName,
         "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
-      NewPrisonUser::class.java
+      NewPrisonUser::class.java,
     )
   }
 
@@ -58,7 +58,7 @@ class UserApiService(
         "lastName" to localAdminUser.lastName,
         "localAdminGroup" to localAdminUser.defaultCaseloadId,
       ),
-      NewPrisonUser::class.java
+      NewPrisonUser::class.java,
     )
   }
 
@@ -72,11 +72,12 @@ class UserApiService(
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {
     return userWebClientUtils.getWithParams(
-      "/users/staff", NomisUserList::class.java,
+      "/users/staff",
+      NomisUserList::class.java,
       mapOf(
         "firstName" to firstName,
-        "lastName" to lastName
-      )
+        "lastName" to lastName,
+      ),
     )
   }
 }

@@ -29,7 +29,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with no content when external users api responds with no content`() {
       val email = "testy@testing.co.uk"
-      externalUsersApiMockServer.stubNoUsersFound(email)
+      externalUsersApiMockServer.stubNoContent(email)
 
       webTestClient.get().uri("/externalusers?email=$email")
         .headers(setAuthorisation())
@@ -152,7 +152,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with NOT_FOUND from external users api`() {
       val username = "AUTH_ADM"
-      externalUsersApiMockServer.stubNoUsersFoundForUsername(username)
+      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
 
       webTestClient.get().uri("/externalusers/$username")
         .headers(setAuthorisation())

@@ -13,7 +13,7 @@ data class ExternalUser(
   val enabled: Boolean = false,
   val verified: Boolean = false,
   val lastLoggedIn: LocalDateTime? = null,
-  val inactiveReason: String? = null
+  val inactiveReason: String? = null,
 ) : SourceUser {
 
   override fun toGenericUser(): GenericUser =

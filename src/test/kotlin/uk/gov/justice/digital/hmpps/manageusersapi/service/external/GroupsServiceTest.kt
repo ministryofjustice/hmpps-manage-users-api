@@ -34,7 +34,7 @@ class GroupsServiceTest {
       groupCode = "FRED",
       groupName = "desc",
       assignableRoles = listOf(UserAssignableRole(roleCode = "RO1", roleName = "Role1", automatic = true)),
-      children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
+      children = listOf(UserGroup(groupCode = "BOB", groupName = "desc")),
     )
     whenever(groupsApiService.getGroupDetail(anyString())).thenReturn(groupDetails)
     val group = groupsService.getGroupDetail("bob")
@@ -80,6 +80,7 @@ class GroupsServiceTest {
     groupsService.deleteChildGroup("CHILD_1")
     verify(groupsApiService).deleteChildGroup("CHILD_1")
   }
+
   @Test
   fun `Delete group`() {
     groupsService.deleteGroup("group")

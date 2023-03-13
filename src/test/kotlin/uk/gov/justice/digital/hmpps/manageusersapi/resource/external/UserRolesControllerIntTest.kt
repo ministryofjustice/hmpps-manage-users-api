@@ -25,7 +25,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get user roles forbidden when no role`() {
-
       webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/roles")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -34,7 +33,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get user roles forbidden when wrong role`() {
-
       webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .exchange()
@@ -106,7 +104,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
       externalUsersApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/$userId/roles"))
-          .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]"))
+          .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]")),
       )
     }
 
@@ -121,7 +119,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
       externalUsersApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/$userId/roles"))
-          .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]"))
+          .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]")),
       )
     }
   }
@@ -217,7 +215,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get assignable user roles forbidden when no role`() {
-
       webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/assignable-roles")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -226,7 +223,6 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get assignable user roles forbidden when wrong role`() {
-
       webTestClient.get().uri("/externalusers/12345678-1234-5678-90ab-1234567890ab/assignable-roles")
         .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
         .exchange()
@@ -259,9 +255,10 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isUnauthorized
     }
+
     @Test
     fun `Searchable roles for group manager user returns their roles based on the groups they manage`() {
-      externalUsersApiMockServer.stubGetSearchableRoles()
+      externalUsersApiMockServer.stubGetSearchableRoles("/users/me/searchable-roles")
       webTestClient
         .get().uri("/externalusers/me/searchable-roles")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER2", listOf("ROLE_AUTH_GROUP_MANAGER")))
@@ -271,7 +268,7 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
         .json(
           """
        [{"roleCode":"PF_POLICE","roleName":"Pathfinder Police"}]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
   }

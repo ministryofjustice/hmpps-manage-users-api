@@ -54,7 +54,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
                 "groupName": "Site 2 - Group 2"
               }
             ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
   }
@@ -115,7 +115,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
                 }
               ]
             }
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -151,7 +151,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
                       }
                     ]
                   }  
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -172,8 +172,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Developer message",
               "userMessage" to "User message",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -195,8 +195,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to get group: SITE_1_GROUP_2 with reason: notfound",
               "userMessage" to "Group Not found: Unable to get group: SITE_1_GROUP_2 with reason: notfound",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -241,7 +241,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
                     "groupCode": "CHILD_1",
                     "groupName": "Child - Site 1 - Group 2"
                   }  
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -261,7 +261,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "status" to FORBIDDEN.value(),
               "developerMessage" to "Access is denied",
               "userMessage" to "Access is denied",
-            )
+            ),
           )
         }
     }
@@ -283,8 +283,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Developer message",
               "userMessage" to "User message",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -357,8 +357,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to get group: CHILD_9 with reason: notfound",
               "userMessage" to "Child Group Not found: Unable to get group: CHILD_9 with reason: notfound",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -457,9 +457,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "groupCode" to "CG",
-              "groupName" to " groupie"
-            )
-          )
+              "groupName" to " groupie",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -467,7 +467,6 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Create group error`() {
-
       externalUsersApiMockServer.stubCreateGroupFail(BAD_REQUEST)
       webTestClient
         .post().uri("/groups")
@@ -475,9 +474,10 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(
           fromValue(
             mapOf(
-              "groupCode" to "x", "groupName" to "123",
-            )
-          )
+              "groupCode" to "x",
+              "groupName" to "123",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -497,9 +497,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "groupCode" to "CG3",
-              "groupName" to " groupie 3"
-            )
-          )
+              "groupName" to " groupie 3",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -507,13 +507,12 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .json(
           """
       {"userMessage":"Access is denied","developerMessage":"Access is denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
     @Test
     fun `Create group - group already exists`() {
-
       externalUsersApiMockServer.stubCreateGroupsConflict()
 
       webTestClient
@@ -523,9 +522,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "groupCode" to "CG1",
-              "groupName" to " groupie 1"
-            )
-          )
+              "groupName" to " groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -538,8 +537,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "errorCode" to null,
               "moreInfo" to null,
               "userMessage" to "User test message",
-              "developerMessage" to "Developer test message"
-            )
+              "developerMessage" to "Developer test message",
+            ),
           )
         }
     }
@@ -556,7 +555,6 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class CreateChildGroup {
     @Test
     fun `Create child group`() {
-
       externalUsersApiMockServer.stubCreateChildGroup()
       webTestClient
         .post().uri("/groups/child")
@@ -566,9 +564,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG",
-              "groupName" to "Child groupie"
-            )
-          )
+              "groupName" to "Child groupie",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -584,9 +582,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "",
               "groupCode" to "",
-              "groupName" to ""
-            )
-          )
+              "groupName" to "",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -602,9 +600,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG3",
-              "groupName" to "Child groupie 3"
-            )
-          )
+              "groupName" to "Child groupie 3",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -612,13 +610,12 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .json(
           """
      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
     @Test
     fun `Create Child group length too short`() {
-
       externalUsersApiMockServer.stubCreateChildrenGroupFail(BAD_REQUEST)
       webTestClient
         .post().uri("/groups/child")
@@ -628,9 +625,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "",
               "groupCode" to "",
-              "groupName" to ""
-            )
-          )
+              "groupName" to "",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -653,9 +650,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG1",
-              "groupName" to "Child groupie 1"
-            )
-          )
+              "groupName" to "Child groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(CONFLICT)
@@ -668,8 +665,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "userMessage" to "User test message",
               "errorCode" to null,
               "moreInfo" to null,
-              "status" to CONFLICT.value()
-            )
+              "status" to CONFLICT.value(),
+            ),
           )
         }
     }
@@ -685,9 +682,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "pg",
               "groupCode" to "CG1",
-              "groupName" to "Child groupie 1"
-            )
-          )
+              "groupName" to "Child groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isNotFound
@@ -700,8 +697,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "userMessage" to "Group Not found: Unable to create group: PG with reason: ParentGroupNotFound",
               "errorCode" to null,
               "moreInfo" to null,
-              "status" to NOT_FOUND.value()
-            )
+              "status" to NOT_FOUND.value(),
+            ),
           )
         }
     }
@@ -771,7 +768,6 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class DeleteGroup {
     @Test
     fun `Delete Group - no child groups and no members`() {
-
       externalUsersApiMockServer.stubDeleteGroup()
       webTestClient.delete().uri("/groups/GC_DEL_1")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -795,8 +791,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "errorCode" to null,
               "moreInfo" to null,
               "userMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exist",
-              "developerMessage" to "Developer test message"
-            )
+              "developerMessage" to "Developer test message",
+            ),
           )
         }
     }
@@ -811,7 +807,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .json(
           """
       {"userMessage":"Access is denied","developerMessage":"Access is denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -839,8 +835,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to delete group: SITE_1_GROUP_2 with reason: notfound",
               "userMessage" to "Group Not found: Unable to delete group: SITE_1_GROUP_2 with reason: notfound",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }

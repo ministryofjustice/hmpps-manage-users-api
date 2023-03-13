@@ -8,6 +8,7 @@ data class AzureUser(
   var firstName: String,
   var lastName: String,
   var email: String,
+  var roles: List<UserRole> = emptyList(),
 ) : SourceUser {
   override fun toGenericUser(): GenericUser =
     GenericUser(

@@ -24,7 +24,7 @@ import java.util.UUID
 @Validated
 @RestController
 class UserGroupController(
-  private val userGroupsService: UserGroupService
+  private val userGroupsService: UserGroupService,
 ) {
 
   companion object {
@@ -36,13 +36,13 @@ class UserGroupController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Remove group from user.",
-    description = "Remove group from user."
+    description = "Remove group from user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "Deleted"
+        description = "Deleted",
       ),
       ApiResponse(
         responseCode = "401",
@@ -50,9 +50,9 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -60,17 +60,17 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun removeGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
     @Parameter(description = "The group code of the group to be deleted from the user.", required = true) @PathVariable
-    group: String
+    group: String,
   ) {
     userGroupsService.removeGroupByUserId(userId, group)
     log.info("Remove group succeeded for userId {} and group code {}", userId, group)
@@ -81,13 +81,13 @@ class UserGroupController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add group to user.",
-    description = "Add group to user."
+    description = "Add group to user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "Added"
+        description = "Added",
       ),
       ApiResponse(
         responseCode = "401",
@@ -95,9 +95,9 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -105,9 +105,9 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -115,17 +115,17 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun addGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
     @Parameter(description = "The group code of the group to be added to the user.", required = true) @PathVariable
-    group: String
+    group: String,
   ) {
     userGroupsService.addGroupByUserId(userId, group)
     log.info("Add group succeeded for userId {} and group {}", userId, group)
@@ -135,13 +135,13 @@ class UserGroupController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Get groups for userId.",
-    description = "Get groups for userId."
+    description = "Get groups for userId.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -149,9 +149,9 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -159,11 +159,11 @@ class UserGroupController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   fun getGroups(
     @Parameter(description = "The userId of the user.", required = true)

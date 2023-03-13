@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService
 @Service
 class RolesService(
   val nomisRolesApiService: NomisRolesApiService,
-  val externalRolesApiService: ExternalRolesApiService
+  val externalRolesApiService: ExternalRolesApiService,
 ) {
 
   fun createRole(role: CreateRoleDto) {
@@ -27,7 +27,7 @@ class RolesService(
   }
 
   fun getRoles(
-    adminTypes: List<AdminType>?
+    adminTypes: List<AdminType>?,
   ): List<Role> = externalRolesApiService.getRoles(adminTypes)
 
   fun getPagedRoles(
@@ -36,7 +36,7 @@ class RolesService(
     sort: String,
     roleName: String?,
     roleCode: String?,
-    adminTypes: List<AdminType>?
+    adminTypes: List<AdminType>?,
   ) = externalRolesApiService.getPagedRoles(page, size, sort, roleName, roleCode, adminTypes)
 
   fun getRoleDetail(roleCode: String): Role = externalRolesApiService.getRoleDetail(roleCode)
@@ -62,8 +62,8 @@ class RolesService(
           originalRole.roleCode,
           originalRole.roleName,
           originalRole.roleDescription,
-          roleAmendment.adminType
-        )
+          roleAmendment.adminType,
+        ),
       )
     }
     externalRolesApiService.updateRoleAdminType(roleCode, roleAmendment)

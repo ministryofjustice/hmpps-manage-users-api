@@ -47,7 +47,7 @@ class UserServiceTest {
           user.email,
           user.firstName,
           user.lastName,
-        )
+        ),
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createCentralAdminUser(user)
@@ -64,7 +64,7 @@ class UserServiceTest {
           user.email,
           user.firstName,
           user.lastName,
-        )
+        ),
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createGeneralUser(user)
@@ -81,7 +81,7 @@ class UserServiceTest {
           user.email,
           user.firstName,
           user.lastName,
-        )
+        ),
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createLocalAdminUser(user)
@@ -97,7 +97,7 @@ class UserServiceTest {
         "First",
         "Last",
         UserType.DPS_LSA,
-        "MDI"
+        "MDI",
       )
 
       assertThatThrownBy { nomisUserService.createUser(userWithInvalidEmailDomain) }
@@ -122,8 +122,8 @@ class UserServiceTest {
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
-          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
-        )
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null),
+        ),
       )
       whenever(authApiService.findUserEmails(listOf())).thenReturn(listOf())
 
@@ -136,7 +136,7 @@ class UserServiceTest {
             userId = "1",
             firstName = "F1",
             lastName = "l1",
-            activeCaseLoadId = null
+            activeCaseLoadId = null,
           ),
           PrisonUser(
             username = "U2",
@@ -145,7 +145,7 @@ class UserServiceTest {
             userId = "2",
             firstName = "F2",
             lastName = "l2",
-            activeCaseLoadId = null
+            activeCaseLoadId = null,
           ),
           PrisonUser(
             username = "U3",
@@ -154,7 +154,7 @@ class UserServiceTest {
             userId = "3",
             firstName = "F3",
             lastName = "l3",
-            activeCaseLoadId = "MDI"
+            activeCaseLoadId = "MDI",
           ),
         )
     }
@@ -165,16 +165,16 @@ class UserServiceTest {
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
-          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
-        )
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null),
+        ),
       )
 
       whenever(authApiService.findUserEmails(ArgumentMatchers.anyList())).thenReturn(
         listOf(
           EmailAddress(username = "U1", email = "u1@b.com", verified = true),
           EmailAddress(username = "U2", email = "u2@b.com", verified = true),
-          EmailAddress(username = "U3", email = "u3@b.com", verified = false)
-        )
+          EmailAddress(username = "U3", email = "u3@b.com", verified = false),
+        ),
       )
 
       assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last").size).isEqualTo(3)
@@ -187,7 +187,7 @@ class UserServiceTest {
             userId = "1",
             firstName = "F1",
             lastName = "l1",
-            activeCaseLoadId = "MDI"
+            activeCaseLoadId = "MDI",
           ),
           PrisonUser(
             username = "U2",
@@ -196,7 +196,7 @@ class UserServiceTest {
             userId = "2",
             firstName = "F2",
             lastName = "l2",
-            activeCaseLoadId = null
+            activeCaseLoadId = null,
 
           ),
           PrisonUser(
@@ -206,29 +206,28 @@ class UserServiceTest {
             userId = "3",
             firstName = "F3",
             lastName = "l3",
-            activeCaseLoadId = "MDI"
+            activeCaseLoadId = "MDI",
           ),
         )
     }
 
     @Test
     fun `Prison users partially matched in auth`() {
-
       whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
           PrisonUserSummary("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
-          PrisonUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null)
-        )
+          PrisonUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null),
+        ),
       )
 
       whenever(authApiService.findUserEmails(ArgumentMatchers.anyList())).thenReturn(
         listOf(
           EmailAddress(username = "U1", email = "u1@b.com", verified = true),
           // User U2 in auth, but no email - so search NOMIS for e-mail for this user
-          EmailAddress(username = "U2", email = null, verified = true)
-        )
+          EmailAddress(username = "U2", email = null, verified = true),
+        ),
       )
 
       assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
@@ -240,7 +239,7 @@ class UserServiceTest {
             userId = "1",
             firstName = "F1",
             lastName = "l1",
-            activeCaseLoadId = "MDI"
+            activeCaseLoadId = "MDI",
           ),
           PrisonUser(
             username = "U2",
@@ -249,7 +248,7 @@ class UserServiceTest {
             userId = "2",
             firstName = "F2",
             lastName = "l2",
-            activeCaseLoadId = null
+            activeCaseLoadId = null,
           ),
           PrisonUser(
             username = "U3",
@@ -258,7 +257,7 @@ class UserServiceTest {
             userId = "3",
             firstName = "F3",
             lastName = "l3",
-            activeCaseLoadId = null
+            activeCaseLoadId = null,
           ),
           PrisonUser(
             username = "U4",
@@ -267,7 +266,7 @@ class UserServiceTest {
             userId = "4",
             firstName = "F4",
             lastName = "l4",
-            activeCaseLoadId = "MDI"
+            activeCaseLoadId = "MDI",
           ),
         )
     }

@@ -15,7 +15,8 @@ class NotificationBannerController(
   @GetMapping("/notification/banner/{page}", produces = [MediaType.APPLICATION_JSON_VALUE])
   fun getNotificationBannerMessage(
     @Schema(description = "The notification page", example = "roles", required = true)
-    @PathVariable page: NotificationPage,
+    @PathVariable
+    page: NotificationPage,
   ): NotificationMessage = notificationBannerService.getNotificationMessage(page)
 }
 

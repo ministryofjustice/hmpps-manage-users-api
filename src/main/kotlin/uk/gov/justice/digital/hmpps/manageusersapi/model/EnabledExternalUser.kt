@@ -4,5 +4,5 @@ data class EnabledExternalUser(
   val username: String,
   val firstName: String,
   val email: String?,
-  val admin: String
+  val admin: String,
 )

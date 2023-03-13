@@ -13,6 +13,7 @@ data class NomisUser(
   @JsonProperty("activeCaseloadId") val activeCaseLoadId: String?,
   @JsonProperty("primaryEmail") val email: String?,
   private val enabled: Boolean = false,
+  @JsonProperty("dpsRoleCodes") val roles: List<String> = emptyList(),
 ) : SourceUser {
   val userId = staffId
 
@@ -31,6 +32,6 @@ data class NomisUser(
       name = name,
       uuid = null,
       staffId = userId.toLong(),
-      activeCaseLoadId = activeCaseLoadId
+      activeCaseLoadId = activeCaseLoadId,
     )
 }
