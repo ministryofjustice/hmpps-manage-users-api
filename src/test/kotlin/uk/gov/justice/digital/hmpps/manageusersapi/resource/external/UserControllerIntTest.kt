@@ -131,7 +131,6 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should fail with forbidden  for user not in group`() {
-      // externalUsersApiMockServer.stubPutEnableFailUserNotInGroup()
       val userMessage = "User group relationship exception: Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups"
       val developerMessage = "Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups"
       externalUsersApiMockServer.stubPut(HttpStatus.FORBIDDEN, "/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable", userMessage, developerMessage)
