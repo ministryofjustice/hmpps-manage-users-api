@@ -1,16 +1,12 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 import java.util.UUID
@@ -24,30 +20,14 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
-  @Value("\${hmpps-auth.endpoint.url}") private val authBaseUri: String,
-  @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
-  @Value("\${application.notify.enable-user.template}") private val enableUserTemplateId: String,
 ) {
 
   fun enableUserByUserId(userId: UUID) {
-    val emailNotification = externalUsersApiService.enableUserById(userId)
-
-    emailNotification.email?.let {
-      with(emailNotification) {
-        val parameters = mapOf(
-          "firstName" to firstName,
-          "username" to username,
-          "signinUrl" to authBaseUri,
-        )
-
-        notificationService.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", NotificationDetails(username, email!!))
-      }
-    } ?: run {
-      log.warn("Notification email not sent for user {}", emailNotification)
-    }
+    val enabledUser = externalUsersApiService.enableUserById(userId)
+    notificationService.externalUserEnabledNotification(enabledUser)
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
-      mapOf("username" to emailNotification.username, "admin" to emailNotification.admin),
+      mapOf("username" to enabledUser.username, "admin" to enabledUser.admin),
       null,
     )
   }
@@ -58,17 +38,12 @@ class UserService(
     userId: UUID,
     emailAddressInput: String?,
   ): String {
-    val url = "$authBaseUri/initial-password?token="
     val user = externalUsersSearchApiService.findByUserId(userId)
     val username = user.username
     var usernameForUpdate = user.username
 
     if (externalUsersApiService.hasPassword(userId)) {
-      val linkEmailAndUsername = verifyEmailService.requestVerification(
-        user,
-        emailAddressInput,
-        url.replace("initial-password", "verify-email-confirm"),
-      )
+      val linkEmailAndUsername = verifyEmailService.requestVerification(user, emailAddressInput)
       externalUsersApiService.updateUserEmailAddressAndUsername(userId, linkEmailAndUsername.username, linkEmailAndUsername.email)
       return linkEmailAndUsername.link
     }
@@ -80,37 +55,19 @@ class UserService(
       usernameForUpdate = verifyEmailService.confirmUsernameValidForUpdate(newEmail!!, username)
     }
 
-    val setPasswordLink = sendInitialEmail(url, userId, user, newEmail!!, usernameForUpdate, "AuthUserAmend")
+    val supportLink = initialNotificationSupportLink(userId)
+    val setPasswordLink = notificationService.externalUserEmailAmendInitialNotification(
+      userId,
+      user,
+      newEmail!!,
+      usernameForUpdate,
+      supportLink,
+    )
     externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail)
     return setPasswordLink
   }
 
-  private fun sendInitialEmail(
-    url: String,
-    userId: UUID,
-    user: ExternalUser,
-    newEmail: String,
-    newUserName: String,
-    eventPrefix: String,
-  ): String {
-    val userToken = authApiService.createResetTokenForUser(userId)
-    val supportLink = getInitialEmailSupportLink(userId)
-    val setPasswordLink = url + userToken
-
-    val name = "${user.firstName} ${user.lastName}"
-
-    val parameters = mapOf(
-      "firstName" to name,
-      "fullName" to name,
-      "resetLink" to setPasswordLink,
-      "supportLink" to supportLink,
-    )
-
-    notificationService.send(initialPasswordTemplateId, parameters, eventPrefix, NotificationDetails(newUserName, newEmail))
-    return setPasswordLink
-  }
-
-  private fun getInitialEmailSupportLink(userId: UUID): String {
+  private fun initialNotificationSupportLink(userId: UUID): String {
     val userGroups = userGroupApiService.getUserGroups(userId, false)
     val serviceCode = userGroups.firstOrNull { it.groupCode.startsWith("PECS") }?.let { "book-a-secure-move-ui" } ?: "prison-staff-hub"
     authApiService.findServiceByServiceCode(serviceCode).contact?.let {
@@ -118,9 +75,5 @@ class UserService(
     }
 
     throw RuntimeException("Failed to retrieve contact details for service code $serviceCode from Auth")
-  }
-
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

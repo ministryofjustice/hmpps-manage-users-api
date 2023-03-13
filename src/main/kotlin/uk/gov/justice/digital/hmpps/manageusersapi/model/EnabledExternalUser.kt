@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
-data class EmailNotification(
+data class EnabledExternalUser(
   val username: String,
   val firstName: String,
   val email: String?,

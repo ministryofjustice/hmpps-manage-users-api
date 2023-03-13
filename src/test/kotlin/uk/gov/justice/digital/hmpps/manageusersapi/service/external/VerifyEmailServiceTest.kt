@@ -14,7 +14,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
@@ -29,21 +28,17 @@ class VerifyEmailServiceTest {
   private val authApiService: AuthApiService = mock()
 
   private val userId: UUID = UUID.randomUUID()
-  private val notifyTemplateId = "templateId"
 
   private val verifyEmailService = VerifyEmailService(
     telemetryClient,
     notificationService,
     verifyEmailDomainService,
     externalUserSearchApiService,
-    authApiService,
-    notifyTemplateId,
   )
 
   @Nested
   inner class RequestVerification {
     private val newEmailAddress = "new.testy@testing.com"
-    private val url = "initial-password-url.digital.gov.uk"
     private val token = "a25adf13-dbed-4a19-ad07-d1cd95b12500"
 
     @Test
@@ -51,19 +46,11 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
+      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
-      verifyEmailService.requestVerification(user, newEmailAddress, url)
+      verifyEmailService.requestVerification(user, newEmailAddress)
 
-      verify(notificationService).send(
-        eq(notifyTemplateId),
-        check {
-          assertThat(it["firstName"]).isEqualTo("first")
-          assertThat(it["fullName"]).isEqualTo("first last")
-          assertThat(it["verifyLink"]).isEqualTo(url + token)
-        },
-        eq("VerifyEmailRequest"),
-        eq(NotificationDetails("someuser", newEmailAddress)),
-      )
+      verify(notificationService).externalUserVerifyEmailNotification(eq(user), eq(newEmailAddress))
     }
 
     @Test
@@ -71,10 +58,11 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
+      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
-      val linkEmailAndUsername = verifyEmailService.requestVerification(user, newEmailAddress, url)
+      val linkEmailAndUsername = verifyEmailService.requestVerification(user, newEmailAddress)
 
-      assertThat(linkEmailAndUsername.link).isEqualTo(url + token)
+      assertThat(linkEmailAndUsername.link).isEqualTo("link")
       assertThat(linkEmailAndUsername.email).isEqualTo(newEmailAddress)
       assertThat(linkEmailAndUsername.username).isEqualTo("someuser")
     }
@@ -86,7 +74,7 @@ class VerifyEmailServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
       whenever(externalUserSearchApiService.findUserByUsernameIfPresent(anyString())).thenReturn(user)
 
-      assertThatThrownBy { verifyEmailService.requestVerification(user, newEmailAddress, url) }.isInstanceOf(
+      assertThatThrownBy { verifyEmailService.requestVerification(user, newEmailAddress) }.isInstanceOf(
         VerifyEmailService.ValidEmailException::class.java,
       ).extracting("reason").isEqualTo("duplicate")
     }
@@ -96,8 +84,9 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
+      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
-      verifyEmailService.requestVerification(user, newEmailAddress, url)
+      verifyEmailService.requestVerification(user, newEmailAddress)
 
       verify(telemetryClient).trackEvent(
         eq("ExternalUserChangeUsername"),
@@ -114,11 +103,13 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
+      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
-      val linkEmailAndUsername = verifyEmailService.requestVerification(user, newEmailAddress, url)
+      val linkEmailAndUsername = verifyEmailService.requestVerification(user, newEmailAddress)
 
       assertThat(linkEmailAndUsername.email).isEqualTo(newEmailAddress)
       assertThat(linkEmailAndUsername.username).isEqualTo(newEmailAddress)
+      assertThat(linkEmailAndUsername.link).isEqualTo("link")
     }
 
     @Test
@@ -126,8 +117,9 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("somewhere.com")).thenReturn(true)
+      whenever(notificationService.externalUserVerifyEmailNotification(user, "some.u'ser@somewhere.com")).thenReturn("link")
 
-      val linkEmailAndUsername = verifyEmailService.requestVerification(user, "    some.u’ser@SOMEwhere.COM", url)
+      val linkEmailAndUsername = verifyEmailService.requestVerification(user, "    some.u’ser@SOMEwhere.COM")
 
       assertThat(linkEmailAndUsername.email).isEqualTo("some.u'ser@somewhere.com")
     }

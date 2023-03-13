@@ -11,6 +11,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
@@ -19,18 +20,17 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
-import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
 class UserServiceTest {
   private val nomisUserApiService: UserApiService = mock()
   private val authApiService: AuthApiService = mock()
-  private val tokenService: TokenService = mock()
+  private val notificationService: NotificationService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
   private val nomisUserService = UserService(
     nomisUserApiService,
     authApiService,
-    tokenService,
+    notificationService,
     verifyEmailDomainService,
   )
 
@@ -51,7 +51,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createCentralAdminUser(user)
-      verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
+      verify(notificationService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test
@@ -68,7 +68,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createGeneralUser(user)
-      verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
+      verify(notificationService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test
@@ -85,7 +85,7 @@ class UserServiceTest {
       )
       nomisUserService.createUser(user)
       verify(nomisUserApiService).createLocalAdminUser(user)
-      verify(tokenService).saveAndSendInitialEmail(user, "DPSUserCreate")
+      verify(notificationService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test

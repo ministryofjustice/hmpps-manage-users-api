@@ -8,24 +8,21 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.check
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailNotification
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import java.util.UUID
@@ -39,10 +36,6 @@ class UserServiceTest {
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
 
-  private val authBaseUri: String = "test-auth-base-uri"
-  private val initialPasswordTemplateId: String = "test-initial-password-template"
-  private val enableUserTemplateId: String = "test-enable-user-template"
-
   private val userService = UserService(
     notificationService,
     userApiService,
@@ -51,9 +44,6 @@ class UserServiceTest {
     userGroupApiService,
     verifyEmailService,
     telemetryClient,
-    authBaseUri,
-    initialPasswordTemplateId,
-    enableUserTemplateId,
   )
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
 
@@ -62,35 +52,12 @@ class UserServiceTest {
 
     @Test
     fun `enable user by userId sends email`() {
-      val emailNotification = EmailNotification("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotification)
+      val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
+      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(enabledUser)
 
-      with(emailNotification) {
-        val expectedParameters = mapOf(
-          "firstName" to firstName,
-          "username" to username,
-          "signinUrl" to authBaseUri,
-        )
-
-        userService.enableUserByUserId(userUUID)
-
-        verify(notificationService).send(
-          eq(enableUserTemplateId),
-          eq(expectedParameters),
-          eq("ExternalUserEnabledEmail"),
-          eq(
-            NotificationDetails(username, email!!),
-          ),
-        )
-      }
-    }
-
-    @Test
-    fun `enable user by userId doesn't sends notification email`() {
-      val emailNotification = EmailNotification("CEN_ADM", "firstName", null, "admin")
-      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(emailNotification)
       userService.enableUserByUserId(userUUID)
-      verifyNoInteractions(notificationService)
+
+      verify(notificationService).externalUserEnabledNotification(enabledUser)
     }
   }
 
@@ -119,7 +86,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       doThrow(VerifyEmailService.ValidEmailException("reason"))
-        .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))
+        .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress))
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
@@ -149,7 +116,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
         VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
@@ -164,7 +131,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress), eq("test-auth-base-uri/verify-email-confirm?token="))).thenReturn(
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
         VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
@@ -216,13 +183,12 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).send(
-        anyString(),
-        check {
-          assertThat(it["supportLink"]).isEqualTo("service-pecs@testing.com")
-        },
-        anyString(),
+      verify(notificationService).externalUserEmailAmendInitialNotification(
         any(),
+        any(),
+        anyString(),
+        anyString(),
+        eq("service-pecs@testing.com"),
       )
     }
 
@@ -238,13 +204,12 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).send(
-        anyString(),
-        check {
-          assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
-        },
-        anyString(),
+      verify(notificationService).externalUserEmailAmendInitialNotification(
         any(),
+        any(),
+        anyString(),
+        anyString(),
+        eq("service-not-pecs@testing.com"),
       )
     }
 
@@ -266,13 +231,12 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).send(
-        anyString(),
-        check {
-          assertThat(it["supportLink"]).isEqualTo("service-pecs@testing.com")
-        },
-        anyString(),
+      verify(notificationService).externalUserEmailAmendInitialNotification(
         any(),
+        any(),
+        anyString(),
+        anyString(),
+        eq("service-pecs@testing.com"),
       )
     }
 
@@ -288,13 +252,12 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).send(
-        anyString(),
-        check {
-          assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
-        },
-        anyString(),
+      verify(notificationService).externalUserEmailAmendInitialNotification(
         any(),
+        any(),
+        anyString(),
+        anyString(),
+        eq("service-not-pecs@testing.com"),
       )
     }
 
@@ -310,20 +273,7 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).send(
-        eq(initialPasswordTemplateId),
-        check {
-          assertThat(it["firstName"]).isEqualTo("${externalUser.firstName} ${externalUser.lastName}")
-          assertThat(it["fullName"]).isEqualTo("${externalUser.firstName} ${externalUser.lastName}")
-          assertThat(it["resetLink"]).isEqualTo("$authBaseUri/initial-password?token=$token")
-          assertThat(it["supportLink"]).isEqualTo("service-not-pecs@testing.com")
-        },
-        eq("AuthUserAmend"),
-        check {
-          assertThat(it.email).isEqualTo(newEmailAddress)
-          assertThat(it.username).isEqualTo("testing")
-        },
-      )
+      verify(notificationService).externalUserEmailAmendInitialNotification(userId, externalUser, newEmailAddress, externalUser.username, "service-not-pecs@testing.com")
     }
 
     @Test

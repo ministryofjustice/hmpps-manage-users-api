@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -10,14 +11,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserReq
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_LSA
-import uk.gov.justice.digital.hmpps.manageusersapi.service.TokenService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 
 @Service("NomisUserService")
 class UserService(
   private val nomisUserApiService: UserApiService,
   private val authApiService: AuthApiService,
-  private val tokenService: TokenService,
+  private val notificationService: NotificationService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
 ) {
   @Throws(HmppsValidationException::class)
@@ -31,7 +31,7 @@ class UserService(
       DPS_GEN -> nomisUserApiService.createGeneralUser(user)
       DPS_LSA -> nomisUserApiService.createLocalAdminUser(user)
     }
-    tokenService.saveAndSendInitialEmail(user, "DPSUserCreate")
+    notificationService.newPrisonUserNotification(user, "DPSUserCreate")
     return nomisUserDetails
   }
 
