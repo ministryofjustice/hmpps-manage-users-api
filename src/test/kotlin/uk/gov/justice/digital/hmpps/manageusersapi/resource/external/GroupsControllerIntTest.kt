@@ -464,7 +464,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class CreateGroup {
     @Test
     fun `Create group`() {
-      externalUsersApiMockServer.stubCreateHttpStatus("/groups")
+      externalUsersApiMockServer.stubPostCreate("/groups")
       webTestClient
         .post().uri("/groups")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -570,7 +570,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class CreateChildGroup {
     @Test
     fun `Create child group`() {
-      externalUsersApiMockServer.stubCreateHttpStatus("/groups/child")
+      externalUsersApiMockServer.stubPostCreate("/groups/child")
       webTestClient
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))

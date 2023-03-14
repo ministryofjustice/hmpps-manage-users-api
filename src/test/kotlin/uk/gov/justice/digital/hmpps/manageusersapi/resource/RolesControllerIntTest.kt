@@ -76,7 +76,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role`() {
-      externalUsersApiMockServer.stubCreateHttpStatus("/roles")
+      externalUsersApiMockServer.stubPostCreate("/roles")
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -96,7 +96,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role when role name has 30 characters`() {
-      externalUsersApiMockServer.stubCreateHttpStatus("/roles")
+      externalUsersApiMockServer.stubPostCreate("/roles")
       nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -123,7 +123,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create role doesn't call external users api if nomis fails`() {
       nomisApiMockServer.stubCreateRoleFail(CONFLICT, "RC1")
-      externalUsersApiMockServer.stubCreateHttpStatus("/roles")
+      externalUsersApiMockServer.stubPostCreate("/roles")
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -152,7 +152,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role when role name has greater than 30 characters`() {
-      externalUsersApiMockServer.stubCreateHttpStatus("/roles")
+      externalUsersApiMockServer.stubPostCreate("/roles")
       nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -178,7 +178,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role ROLE_`() {
-      externalUsersApiMockServer.stubCreateHttpStatus("/roles")
+      externalUsersApiMockServer.stubPostCreate("/roles")
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

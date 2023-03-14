@@ -60,7 +60,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubCreateHttpStatus(url: String) {
+  fun stubPostCreate(url: String) {
     stubFor(
       post(urlEqualTo(url))
         .willReturn(
