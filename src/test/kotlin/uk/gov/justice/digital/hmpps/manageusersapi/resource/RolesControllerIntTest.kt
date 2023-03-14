@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.REQUEST_TIMEOUT
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
@@ -75,7 +76,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role`() {
-      externalUsersApiMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubPostCreate("/roles")
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -95,7 +96,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role when role name has 30 characters`() {
-      externalUsersApiMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubPostCreate("/roles")
       nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -122,7 +123,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `create role doesn't call external users api if nomis fails`() {
       nomisApiMockServer.stubCreateRoleFail(CONFLICT, "RC1")
-      externalUsersApiMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubPostCreate("/roles")
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -151,7 +152,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role when role name has greater than 30 characters`() {
-      externalUsersApiMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubPostCreate("/roles")
       nomisApiMockServer.stubCreateRole()
 
       webTestClient.post().uri("/roles")
@@ -177,7 +178,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `create role ROLE_`() {
-      externalUsersApiMockServer.stubCreateRole()
+      externalUsersApiMockServer.stubPostCreate("/roles")
 
       webTestClient.post().uri("/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -520,6 +521,21 @@ class RolesControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `access forbidden when no authority to get external admin`() {
+      webTestClient.get().uri("/roles?adminTypes=EXT_ADM")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role to fetch external admin`() {
+      webTestClient.get().uri("/roles?adminTypes=EXT_ADM")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     fun `get all roles filter multiple admin types`() {
       externalUsersApiMockServer.stubGetAllRolesFilterAdminTypes()
       webTestClient.get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_ADM")
@@ -710,7 +726,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get role fail - role not found`() {
-      externalUsersApiMockServer.stubGetRoleDetailsFail(NOT_FOUND, "AUTH_GROUP_MANAGER")
+      val userMessage = "User message for Get Role details failed"
+      val developerMessage = "Developer message for get role details failed"
+      externalUsersApiMockServer.stubGet(NOT_FOUND, "/roles/AUTH_GROUP_MANAGER", userMessage, developerMessage)
       webTestClient.get().uri("/roles/AUTH_GROUP_MANAGER")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
         .exchange()
@@ -718,8 +736,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("User message for Get Role details failed")
-          assertThat(it["developerMessage"] as String).isEqualTo("Developer message for get role details failed")
+          assertThat(it["userMessage"] as String).isEqualTo(userMessage)
+          assertThat(it["developerMessage"] as String).isEqualTo(developerMessage)
         }
     }
   }
@@ -801,7 +819,10 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name returns error when role not found`() {
       externalUsersApiMockServer.stubGetRoleDetails("Not_A_Role")
-      externalUsersApiMockServer.stubPutRoleNameFail("Not_A_Role", NOT_FOUND)
+
+      val userMessage = "User message for PUT Role Name failed"
+      val developerMessage = "Developer message for PUT Role Name failed"
+      externalUsersApiMockServer.stubPut(NOT_FOUND, "/roles/Not_A_Role", userMessage, developerMessage)
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -814,8 +835,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to NOT_FOUND.value(),
-              "userMessage" to "User message for PUT Role Name failed",
-              "developerMessage" to "Developer message for PUT Role Name failed",
+              "userMessage" to userMessage,
+              "developerMessage" to developerMessage,
             ),
           )
         }
@@ -824,7 +845,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for DPS Role`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN", "", "")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -845,7 +866,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for Role with name has 30 characters`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN", "", "")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -868,7 +889,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for Role with name greater than 30 characters`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN", "", "")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
@@ -903,7 +924,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name success for non-DPS Role`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -920,7 +941,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role name passes regex validation`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleName("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -959,7 +980,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns error when role not found`() {
-      externalUsersApiMockServer.stubPutRoleDescriptionFail("Not_A_Role", NOT_FOUND)
+      val userMessage = "User message for PUT Role Name failed"
+      val developerMessage = "Developer message for PUT Role Name failed"
+      externalUsersApiMockServer.stubPut(NOT_FOUND, "/roles/Not_A_Role/description", userMessage, developerMessage)
       webTestClient
         .put().uri("/roles/Not_A_Role/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -972,8 +995,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to NOT_FOUND.value(),
-              "userMessage" to "User message for PUT Role Description failed",
-              "developerMessage" to "Developer message for PUT Role Description failed",
+              "userMessage" to userMessage,
+              "developerMessage" to developerMessage,
             ),
           )
         }
@@ -1010,7 +1033,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description success`() {
-      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/description", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1021,7 +1044,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns success for empty roleDescription`() {
-      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/description", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1032,7 +1055,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description returns success for no role description`() {
-      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/description", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1043,7 +1066,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description passes regex validation`() {
-      externalUsersApiMockServer.stubPutRoleDescription("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/description", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1083,7 +1106,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role admin type returns error when role not found`() {
       externalUsersApiMockServer.stubGetRoleDetails("Not_A_Role")
-      externalUsersApiMockServer.stubPutRoleAdminTypeFail("Not_A_Role", NOT_FOUND)
+      val userMessage = "User message for PUT Role Admin Type failed"
+      val developerMessage = "Developer message for PUT Role Admin Type failed"
+      externalUsersApiMockServer.stubPut(NOT_FOUND, "/roles/Not_A_Role/admintype", userMessage, developerMessage)
       webTestClient
         .put().uri("/roles/Not_A_Role/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1096,8 +1121,8 @@ class RolesControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to NOT_FOUND.value(),
-              "userMessage" to "User message for PUT Role Admin Type failed",
-              "developerMessage" to "Developer message for PUT Role Admin Type failed",
+              "userMessage" to userMessage,
+              "developerMessage" to developerMessage,
             ),
           )
         }
@@ -1130,7 +1155,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role admin type returns success - creating new DPS Role`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/admintype", "", "")
       nomisApiMockServer.stubCreateRole()
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
@@ -1143,7 +1168,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role admin type does not call external users when nomis fails - creating new DPS Role`() {
       externalUsersApiMockServer.stubGetRoleDetails("OAUTH_ADMIN2")
-      externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN2")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN2/admintype", "", "")
       nomisApiMockServer.stubPostFailEmptyResponse("/roles", REQUEST_TIMEOUT)
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN2/admintype")
@@ -1158,7 +1183,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role admin type returns success - new External Admin Role`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/admintype", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
@@ -1170,7 +1195,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role admin type returns success - becoming different type of DPS Role`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN")
-      externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN/admintype", "", "")
       nomisApiMockServer.stubPutRole("OAUTH_ADMIN")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
@@ -1184,7 +1209,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     fun `Change role admin type does not call external users when nomis fails - becoming different type of DPS Role`() {
       externalUsersApiMockServer.stubGetDPSRoleDetails("OAUTH_ADMIN3")
       nomisApiMockServer.stubPutRoleFail("OAUTH_ADMIN3", REQUEST_TIMEOUT)
-      externalUsersApiMockServer.stubPutRoleAdminType("OAUTH_ADMIN3")
+      externalUsersApiMockServer.stubPut(OK, "/roles/OAUTH_ADMIN3/admintype", "", "")
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN3/admintype")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))

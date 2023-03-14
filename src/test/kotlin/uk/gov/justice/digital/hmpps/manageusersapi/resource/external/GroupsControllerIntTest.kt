@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -157,7 +158,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Group details endpoint returns error when user is not allowed to maintain group`() {
-      externalUsersApiMockServer.stubGetGroupDetailsForUserNotAllowed("SITE_1_GROUP_2", FORBIDDEN)
+      val userMessage = "User message"
+      val developerMessage = "Developer message"
+      externalUsersApiMockServer.stubGet(FORBIDDEN, "/groups/SITE_1_GROUP_2", userMessage, developerMessage)
       webTestClient
         .get().uri("/groups/SITE_1_GROUP_2")
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
@@ -180,7 +183,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Group details endpoint returns error when group in not found`() {
-      externalUsersApiMockServer.stubCreateGroupNotFound("SITE_1_GROUP_2")
+      val userMessage = "Unable to get group: SITE_1_GROUP_2 with reason: notfound"
+      val developerMessage = "Group Not found: Unable to get group: SITE_1_GROUP_2 with reason: notfound"
+      externalUsersApiMockServer.stubGet(NOT_FOUND, "/groups/SITE_1_GROUP_2", userMessage, developerMessage)
       webTestClient
         .get().uri("/groups/SITE_1_GROUP_2")
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
@@ -192,8 +197,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to NOT_FOUND.value(),
-              "developerMessage" to "Unable to get group: SITE_1_GROUP_2 with reason: notfound",
-              "userMessage" to "Group Not found: Unable to get group: SITE_1_GROUP_2 with reason: notfound",
+              "developerMessage" to developerMessage,
+              "userMessage" to userMessage,
               "errorCode" to null,
               "moreInfo" to null,
             ),
@@ -247,7 +252,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `returns error when user not allowed to maintain group`() {
-      externalUsersApiMockServer.stubGetChildGroupDetailsForUserNotAllowed("CHILD_1", FORBIDDEN)
+      val userMessage = "User message"
+      val developerMessage = "Developer message"
+      externalUsersApiMockServer.stubGet(FORBIDDEN, "/groups/child/CHILD_1", userMessage, developerMessage)
       webTestClient
         .get().uri("/groups/child/CHILD_1")
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
@@ -268,7 +275,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `returns error when child group not found`() {
-      externalUsersApiMockServer.stubGetNotFound("/groups/child/CHILD_1")
+      val userMessage = "User message"
+      val developerMessage = "Developer message"
+      externalUsersApiMockServer.stubGet(NOT_FOUND, "/groups/child/CHILD_1", userMessage, developerMessage)
       webTestClient
         .get().uri("/groups/child/CHILD_1")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -280,8 +289,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to NOT_FOUND.value(),
-              "developerMessage" to "Developer message",
-              "userMessage" to "User message",
+              "developerMessage" to developerMessage,
+              "userMessage" to userMessage,
               "errorCode" to null,
               "moreInfo" to null,
             ),
@@ -294,7 +303,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class ChangeChildGroupName {
     @Test
     fun `Change group name`() {
-      externalUsersApiMockServer.stubPutUpdateChildGroup("CHILD_9")
+      externalUsersApiMockServer.stubPut(OK, "/groups/child/CHILD_9", "", "")
       webTestClient
         .put().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -322,7 +331,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change group name returns error when group not found`() {
-      externalUsersApiMockServer.stubPutUpdateChildGroupFail("Not_A_Group", NOT_FOUND)
+      val userMessage = "Group Not found: Unable to maintain group: Not_A_Group with reason: notfound"
+      val developerMessage = "Unable to maintain group: Not_A_Group with reason: notfound"
+      externalUsersApiMockServer.stubPut(NOT_FOUND, "/groups/child/Not_A_Group", userMessage, developerMessage)
       webTestClient
         .put().uri("/groups/child/Not_A_Group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -340,7 +351,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Group details endpoint returns error when group in not found`() {
-      externalUsersApiMockServer.stubUpdateChildGroupNotFound("CHILD_9")
+      val userMessage = "Unable to get group: CHILD_9 with reason: notfound"
+      val developerMessage = "Unable to get group: CHILD_9 with reason: notfound"
+      externalUsersApiMockServer.stubPut(NOT_FOUND, "/groups/child/CHILD_9", userMessage, developerMessage)
 
       webTestClient
         .put().uri("/groups/child/CHILD_9")
@@ -354,8 +367,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to NOT_FOUND.value(),
-              "developerMessage" to "Unable to get group: CHILD_9 with reason: notfound",
-              "userMessage" to "Child Group Not found: Unable to get group: CHILD_9 with reason: notfound",
+              "developerMessage" to developerMessage,
+              "userMessage" to userMessage,
               "errorCode" to null,
               "moreInfo" to null,
             ),
@@ -375,7 +388,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class ChangeGroupName {
     @Test
     fun `Change group name`() {
-      externalUsersApiMockServer.stubPutUpdateGroup("GROUP_9")
+      externalUsersApiMockServer.stubPut(OK, "/groups/GROUP_9", "", "")
       webTestClient
         .put().uri("/groups/GROUP_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -403,7 +416,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change group name returns error when group not found`() {
-      externalUsersApiMockServer.stubPutUpdateGroupFail("Not_A_Group", NOT_FOUND)
+      val userMessage = "User error message"
+      val developerMessage = "Developer error message"
+      externalUsersApiMockServer.stubPut(NOT_FOUND, "/groups/Not_A_Group", userMessage, developerMessage)
       webTestClient
         .put().uri("/groups/Not_A_Group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -414,8 +429,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"] as String).startsWith("User error message")
-          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["userMessage"] as String).startsWith(userMessage)
+          assertThat(it["developerMessage"] as String).startsWith(developerMessage)
         }
     }
 
@@ -449,7 +464,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class CreateGroup {
     @Test
     fun `Create group`() {
-      externalUsersApiMockServer.stubCreateGroup()
+      externalUsersApiMockServer.stubPostCreate("/groups")
       webTestClient
         .post().uri("/groups")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -555,7 +570,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   inner class CreateChildGroup {
     @Test
     fun `Create child group`() {
-      externalUsersApiMockServer.stubCreateChildGroup()
+      externalUsersApiMockServer.stubPostCreate("/groups/child")
       webTestClient
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))

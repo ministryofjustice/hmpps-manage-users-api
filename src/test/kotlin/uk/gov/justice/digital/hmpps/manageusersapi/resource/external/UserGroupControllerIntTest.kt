@@ -3,8 +3,10 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import java.util.UUID
@@ -32,7 +34,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get user groups when user does not exist`() {
-      externalUsersApiMockServer.stubGetNotFound("/users/$userId/groups?children=true")
+      val userMessage = "User message"
+      val developerMessage = "Developer message"
+      externalUsersApiMockServer.stubGet(HttpStatus.NOT_FOUND, "/users/$userId/groups?children=true", userMessage, developerMessage)
       webTestClient.get().uri("/externalusers/$userId/groups")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
@@ -200,7 +204,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `adds a group to a user`() {
-      externalUsersApiMockServer.stubAddGroupToUser(userId.toString(), group)
+      externalUsersApiMockServer.stubPut(NO_CONTENT, "/users/$userId/groups/$group", "", "")
       webTestClient
         .put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -210,7 +214,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `fail bad request`() {
-      externalUsersApiMockServer.stubAddUserGroupFail(userId.toString(), group, BAD_REQUEST)
+      val userMessage = "User error message"
+      val developerMessage = "Developer error message"
+      externalUsersApiMockServer.stubPut(BAD_REQUEST, "/users/$userId/groups/$group", userMessage, developerMessage)
       webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
@@ -219,14 +225,16 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(BAD_REQUEST.value())
-          assertThat(it["userMessage"] as String).startsWith("User error message")
-          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["userMessage"] as String).startsWith(userMessage)
+          assertThat(it["developerMessage"] as String).startsWith(developerMessage)
         }
     }
 
     @Test
     fun `fail forbidden`() {
-      externalUsersApiMockServer.stubAddUserGroupFail(userId.toString(), group, FORBIDDEN)
+      val userMessage = "User error message"
+      val developerMessage = "Developer error message"
+      externalUsersApiMockServer.stubPut(FORBIDDEN, "/users/$userId/groups/$group", userMessage, developerMessage)
       webTestClient.put().uri("/externalusers/$userId/groups/$group")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
@@ -235,8 +243,8 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
-          assertThat(it["userMessage"] as String).startsWith("User error message")
-          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+          assertThat(it["userMessage"] as String).startsWith(userMessage)
+          assertThat(it["developerMessage"] as String).startsWith(developerMessage)
         }
     }
   }

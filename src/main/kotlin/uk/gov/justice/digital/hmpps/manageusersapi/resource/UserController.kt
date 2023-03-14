@@ -132,10 +132,12 @@ class UserController(
   )
   fun myRoles() = userService.myRoles()
 
-  @GetMapping("/user/{username}/roles")
+  @GetMapping("/users/{username}/roles")
   @Operation(
     summary = "List of roles for user.",
-    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PF_USER_ADMIN or ROLE_PCMS_USER_ADMIN.",
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PF_USER_ADMIN or ROLE_PCMS_USER_ADMIN." +
+      "***Change to old endpoint in Auth** 1)  Nomis / Prision user doesn't return additional role in the list:  PRISON " +
+      "                                         2)  Delius user doesn't return additional role in the list:  PROBATION ",
   )
   @ApiResponses(
     value = [
