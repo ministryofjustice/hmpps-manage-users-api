@@ -61,14 +61,7 @@ class AuthApiService(
     serviceWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
 
   fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUser =
-    serviceWebClientUtils.getWithParams(
-      "/api/user",
-      AuthUser::class.java,
-      mapOf(
-        "username" to username,
-        "source" to source,
-      ),
-    )
+    serviceWebClientUtils.get("/api/user/$username/$source", AuthUser::class.java)
 
   fun findUserEmails(usernames: List<String>): List<EmailAddress> = userWebClientUtils.postWithResponse(
     "/api/prisonuser/email",
