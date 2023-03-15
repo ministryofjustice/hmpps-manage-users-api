@@ -106,7 +106,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubUserByUsernameAndSource(username: String, source: AuthSource, uuid: UUID) {
     stubFor(
-      get("/auth/api/user?username=$username&source=${source.name}")
+      get("/auth/api/user/$username/${source.name}")
         .willReturn(
           aResponse()
             .withStatus(HttpStatus.OK.value())
