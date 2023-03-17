@@ -21,17 +21,20 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 
 class UserServiceTest {
   private val nomisUserApiService: UserApiService = mock()
   private val authApiService: AuthApiService = mock()
   private val notificationService: NotificationService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
+  private val verifyEmailService: VerifyEmailService = mock()
   private val nomisUserService = UserService(
     nomisUserApiService,
     authApiService,
     notificationService,
     verifyEmailDomainService,
+    verifyEmailService
   )
 
   @Nested
