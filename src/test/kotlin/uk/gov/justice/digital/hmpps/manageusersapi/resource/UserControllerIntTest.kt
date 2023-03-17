@@ -390,4 +390,40 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
     }
   }
+
+  @Nested
+  inner class MappedDeliusRoles {
+    @Test
+    fun `User Me Roles endpoint returns principal user data for auth user`() {
+      webTestClient
+        .get().uri("/roles/delius?deliusRoles=TEST_ROLE,TEST_WORKLOAD_MEASUREMENT_ROLE")
+        .headers(setAuthorisation("AUTH_ADM", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].name").value<List<String>> {
+          assertThat(it).contains("ROLE_LICENCE_RO", "ROLE_GLOBAL_SEARCH", "ROLE_WORKLOAD_MEASUREMENT")
+        }
+    }
+
+    @Test
+    fun `User Me Roles endpoint returns principal user data for auth user1`() {
+      webTestClient
+        .get().uri("/roles/delius?deliusRoles=NON_MAPPED_ROLE")
+        .headers(setAuthorisation("AUTH_ADM", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].name").value<List<String>> {
+          assertThat(it).hasSize(0)
+        }
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/roles/delius?deliusRoles=NON_MAPPED_ROLE")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
 }

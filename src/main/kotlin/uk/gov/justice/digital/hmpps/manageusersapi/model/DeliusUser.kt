@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class DeliusUser(
-  private val username: String,
+  val username: String,
   val userId: String,
   val firstName: String,
   val surname: String,
-  private val enabled: Boolean = false,
+  val enabled: Boolean = false,
   val email: String,
   val roles: List<UserRole>? = emptyList(),
 ) : SourceUser {
