@@ -46,11 +46,11 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
-      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
+      whenever(notificationService.verifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
       verifyEmailService.requestVerification(user, newEmailAddress)
 
-      verify(notificationService).externalUserVerifyEmailNotification(eq(user), eq(newEmailAddress))
+      verify(notificationService).verifyEmailNotification(eq(user), eq(newEmailAddress))
     }
 
     @Test
@@ -58,7 +58,7 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
-      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
+      whenever(notificationService.verifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
       val linkEmailAndUsername = verifyEmailService.requestVerification(user, newEmailAddress)
 
@@ -84,7 +84,7 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
-      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
+      whenever(notificationService.verifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
       verifyEmailService.requestVerification(user, newEmailAddress)
 
@@ -103,7 +103,7 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("testing.com")).thenReturn(true)
-      whenever(notificationService.externalUserVerifyEmailNotification(user, newEmailAddress)).thenReturn("link")
+      whenever(notificationService.verifyEmailNotification(user, newEmailAddress)).thenReturn("link")
 
       val linkEmailAndUsername = verifyEmailService.requestVerification(user, newEmailAddress)
 
@@ -117,7 +117,7 @@ class VerifyEmailServiceTest {
       val user = createExternalUserDetails(userId = userId, username = "someuser@user.com")
       whenever(authApiService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn(token)
       whenever(verifyEmailDomainService.isValidEmailDomain("somewhere.com")).thenReturn(true)
-      whenever(notificationService.externalUserVerifyEmailNotification(user, "some.u'ser@somewhere.com")).thenReturn("link")
+      whenever(notificationService.verifyEmailNotification(user, "some.u'ser@somewhere.com")).thenReturn("link")
 
       val linkEmailAndUsername = verifyEmailService.requestVerification(user, "    some.u’ser@SOMEwhere.COM")
 

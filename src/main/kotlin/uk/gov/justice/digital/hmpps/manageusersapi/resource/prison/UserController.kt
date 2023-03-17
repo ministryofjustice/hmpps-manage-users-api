@@ -26,12 +26,69 @@ import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.web.bind.annotation.PathVariable
 
 @RestController("NomisUserController")
 @Validated
 class UserController(
   private val nomisUserService: UserService,
+  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
+  @PostMapping("/prisonusers/{username}/email")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
+  @Operation(
+    summary = "Amend a prison user email address.",
+    description = "Amend a prison user email address.",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Bad request e.g. missing email address.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun amendUserEmail(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String,
+    @Valid @RequestBody
+    amendEmail: AmendEmail,
+  ): String? {
+    val link = nomisUserService.changeEmail(username, amendEmail.email!!)
+    return if (smokeTestEnabled) link else ""
+  }
+
   @PostMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
@@ -219,3 +276,9 @@ data class NewPrisonUserDto(
     }
   }
 }
+
+data class AmendEmail(
+  @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
+  @field:NotBlank(message = "Email must not be blank")
+  val email: String?,
+)

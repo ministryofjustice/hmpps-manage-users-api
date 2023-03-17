@@ -70,6 +70,12 @@ class AuthApiService(
       ),
     )
 
+  fun recognised(username: String) =
+    userWebClientUtils.get("/api/user/$username/recognised", Boolean::class.java)
+
+  fun updateEmail(username: String, newEmailAddress: String) =
+    userWebClientUtils.put("api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
+
   fun findUserEmails(usernames: List<String>): List<EmailAddress> = userWebClientUtils.postWithResponse(
     "/api/prisonuser/email",
     usernames,

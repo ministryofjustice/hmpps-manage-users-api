@@ -23,6 +23,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
 import javax.validation.ValidationException
+import org.springframework.http.HttpStatus.NOT_FOUND
+import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
 
 @RestControllerAdvice
 @Order(LOWEST_PRECEDENCE)
@@ -63,6 +65,14 @@ class HmppsManageUsersApiExceptionHandler {
       .status(INTERNAL_SERVER_ERROR)
       .contentType(APPLICATION_JSON)
       .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
+  }
+
+  @ExceptionHandler(EntityNotFoundException::class)
+  fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> {
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .contentType(APPLICATION_JSON)
+      .body(ErrorResponse(status = NOT_FOUND.value(), developerMessage = e.message))
   }
 
   @ExceptionHandler(Exception::class)
