@@ -34,7 +34,7 @@ class UserServiceTest {
     authApiService,
     notificationService,
     verifyEmailDomainService,
-    verifyEmailService
+    verifyEmailService,
   )
 
   @Nested
