@@ -8,10 +8,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.CreateTokenReque
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailType
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 
 @Service
 class NotificationService(

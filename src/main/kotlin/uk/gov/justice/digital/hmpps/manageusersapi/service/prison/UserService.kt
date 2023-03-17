@@ -21,21 +21,19 @@ class UserService(
   private val authApiService: AuthApiService,
   private val notificationService: NotificationService,
   private val verifyEmailDomainService: VerifyEmailDomainService,
-  private val verifyEmailService: VerifyEmailService
+  private val verifyEmailService: VerifyEmailService,
 ) {
 
   fun changeEmail(username: String, newEmailAddress: String): String {
     val prisonUser = prisonUserApiService.findUserByUsername(username)
     prisonUser?.let {
-
-      if(!authApiService.recognised(username)) {
+      if (!authApiService.recognised(username)) {
         throw EntityNotFoundException("Username $username not recognised")
       }
 
       val verifyLinkEmailAndUsername = verifyEmailService.requestVerification(prisonUser, newEmailAddress)
       authApiService.updateEmail(username, verifyLinkEmailAndUsername.email)
       return verifyLinkEmailAndUsername.link
-
     } ?: throw EntityNotFoundException("Prison username $username not found")
   }
 
