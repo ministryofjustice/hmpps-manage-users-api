@@ -329,7 +329,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPage3Descending() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=3&size=4&sort=roleName,desc&roleName&roleCode&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=3&size=4&sort=roleName%2Cdesc&roleName&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -415,7 +415,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterRoleCode() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode=account&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode=account&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -428,7 +428,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterRoleName() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName=manager&roleCode&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName=manager&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -441,7 +441,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterAdminType() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode&adminTypes=EXT_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -454,7 +454,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterAdminTypes() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -467,7 +467,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedUsingAllFilters() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=1&size=10&sort=roleName,asc&roleName=manager&roleCode=account&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+      get(urlEqualTo("/roles/paged?page=1&size=10&sort=roleName%2Casc&roleName=manager&roleCode=account&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -501,7 +501,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPaged() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
