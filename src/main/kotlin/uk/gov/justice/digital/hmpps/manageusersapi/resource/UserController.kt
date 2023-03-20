@@ -153,6 +153,29 @@ class UserController(
       }
     } ?: throw NotFoundException("Account for username $username not found")
 
+  @GetMapping("/users/me/email")
+  @Operation(
+    summary = "Email address for current user",
+    description = "Verified email address for current user",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "204",
+        description = "No content.  No verified email address found for user",
+      ),
+    ],
+  )
+  fun myEmail(
+    @Parameter(description = "Return unverified email addresses.", required = false)
+    @RequestParam
+    unverified: Boolean = false,
+  ): ResponseEntity<*> = getUserEmail(authenticationFacade.currentUsername!!, unverified = unverified)
+
   @GetMapping("/users/me/roles")
   @Operation(
     summary = "List of roles for current user.",
