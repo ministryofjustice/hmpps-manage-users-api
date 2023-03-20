@@ -233,12 +233,13 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with paged results when users found`() {
       val name = "tester.mctesty@digital.justice.gov.uk"
+      val encodedName = "tester.mctesty%40digital.justice.gov.uk"
       val roles = listOf("TESTING", "MORE_TESTING")
       val groups = listOf("TESTING_GROUP", "MORE_TESTING_GROUP")
       val rolesJoined = roles.joinToString(",")
       val groupsJoined = groups.joinToString(",")
 
-      externalUsersApiMockServer.stubUserSearchAllFiltersWithResults(name, roles, groups)
+      externalUsersApiMockServer.stubUserSearchAllFiltersWithResults(encodedName, roles, groups)
 
       webTestClient.get().uri("/externalusers/search?name=$name&roles=$rolesJoined&groups=$groupsJoined")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))

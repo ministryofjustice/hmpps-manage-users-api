@@ -1566,8 +1566,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   }
 
   fun stubUserSearchAllFiltersWithResults(name: String, roles: List<String>, groups: List<String>) {
-    val rolesJoined = roles.joinToString(",")
-    val groupsJoined = groups.joinToString(",")
+    val rolesJoined = roles.joinToString("%2C")
+    val groupsJoined = groups.joinToString("%2C")
 
     stubFor(
       get("/users/search?name=$name&roles=$rolesJoined&groups=$groupsJoined&status=ALL&page=0&size=10")
