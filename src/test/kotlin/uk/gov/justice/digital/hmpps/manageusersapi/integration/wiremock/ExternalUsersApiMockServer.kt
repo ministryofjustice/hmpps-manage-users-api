@@ -1636,6 +1636,62 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubUserSearchEncodedQueryParams(encodedName: String) {
+    stubFor(
+      get("/users/search?name=$encodedName&roles=&groups=&status=ALL&page=0&size=10")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                   "content": [
+                       {
+                           "userId": "006a9299-ef3d-4990-8604-13cefac706b5",
+                           "username": "TESTER.MCTESTY+EMAIL@DIGITAL.JUSTICE.GOV.UK",
+                           "email": "tester.mctesty+email@digital.justice.gov.uk",
+                           "firstName": "Tester1",
+                           "lastName": "McTester1",
+                           "locked": false,
+                           "enabled": true,
+                           "verified": true,
+                           "lastLoggedIn": "2022-12-14T10:23:04.915132",
+                           "inactiveReason": null
+                       }
+                   ],
+                   "pageable": {
+                       "sort": {
+                           "empty": false,
+                           "sorted": true,
+                           "unsorted": false
+                       },
+                       "offset": 0,
+                       "pageSize": 10,
+                       "pageNumber": 0,
+                       "paged": true,
+                       "unpaged": false
+                   },
+                   "totalPages": 19,
+                   "totalElements": 185,
+                   "last": false,
+                   "size": 10,
+                   "number": 0,
+                   "sort": {
+                       "empty": false,
+                       "sorted": true,
+                       "unsorted": false
+                   },
+                   "first": true,
+                   "numberOfElements": 2,
+                   "empty": false
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubGetFail(url: String, status: HttpStatus) {
     stubFor(
       get(url)

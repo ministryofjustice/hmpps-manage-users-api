@@ -276,5 +276,21 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.sort.sorted").isEqualTo(true)
         .jsonPath("$.sort.unsorted").isEqualTo(false)
     }
+
+    @Test
+    fun `should correctly encode query parameters`() {
+      val name = "tester.mctesty+email@digital.justice.gov.uk"
+      val encodedName = "tester.mctesty%20email%40digital.justice.gov.uk"
+
+      externalUsersApiMockServer.stubUserSearchEncodedQueryParams(encodedName)
+
+      webTestClient.get().uri("/externalusers/search?name=$name&roles=&groups=&status=ALL&page=0&size=10")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].username").isEqualTo("TESTER.MCTESTY+EMAIL@DIGITAL.JUSTICE.GOV.UK")
+        .jsonPath("$.content[0].email").isEqualTo("tester.mctesty+email@digital.justice.gov.uk")
+    }
   }
 }
