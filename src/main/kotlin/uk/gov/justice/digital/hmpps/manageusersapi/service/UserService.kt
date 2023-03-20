@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchAp
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole as DeliusMappedRole
 
 @Service
 class UserService(
@@ -42,6 +43,10 @@ class UserService(
       ?: run { nomisApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
       ?: run { authApiService.findAzureUserByUsername(username)?.roles?.map { UserRole(it.name) } }
       ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name) } }
+  }
+
+  fun getMappedDeliusRoles(deliusRoles: List<String>): List<DeliusMappedRole>? {
+    return deliusApiService.mapUserRolesToAuthorities(deliusRoles.map { DeliusMappedRole(it) })
   }
 
   fun myRoles() =
