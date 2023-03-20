@@ -159,4 +159,22 @@ class UserControllerTest {
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", null, false))
     }
   }
+
+  @Nested
+  inner class MyEmail {
+    @Test
+    fun myEmail() {
+      whenever(authenticationFacade.currentUsername).thenReturn("me")
+      whenever(userService.findUserEmail(any(), any())).thenReturn(
+        EmailAddress(
+          username = "JOE",
+          verified = true,
+          email = "someemail",
+        ),
+      )
+      val responseEntity = userController.myEmail()
+      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", true))
+    }
+  }
 }
