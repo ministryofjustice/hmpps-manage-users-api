@@ -233,12 +233,13 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with paged results when users found`() {
       val name = "tester.mctesty@digital.justice.gov.uk"
+      val encodedName = "tester.mctesty%40digital.justice.gov.uk"
       val roles = listOf("TESTING", "MORE_TESTING")
       val groups = listOf("TESTING_GROUP", "MORE_TESTING_GROUP")
       val rolesJoined = roles.joinToString(",")
       val groupsJoined = groups.joinToString(",")
 
-      externalUsersApiMockServer.stubUserSearchAllFiltersWithResults(name, roles, groups)
+      externalUsersApiMockServer.stubUserSearchAllFiltersWithResults(encodedName, roles, groups)
 
       webTestClient.get().uri("/externalusers/search?name=$name&roles=$rolesJoined&groups=$groupsJoined")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -275,6 +276,22 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.sort.empty").isEqualTo(false)
         .jsonPath("$.sort.sorted").isEqualTo(true)
         .jsonPath("$.sort.unsorted").isEqualTo(false)
+    }
+
+    @Test
+    fun `should correctly encode query parameters`() {
+      val name = "tester.mctesty+email@digital.justice.gov.uk"
+      val encodedName = "tester.mctesty%20email%40digital.justice.gov.uk"
+
+      externalUsersApiMockServer.stubUserSearchEncodedQueryParams(encodedName)
+
+      webTestClient.get().uri("/externalusers/search?name=$name&roles=&groups=&status=ALL&page=0&size=10")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.content[0].username").isEqualTo("TESTER.MCTESTY+EMAIL@DIGITAL.JUSTICE.GOV.UK")
+        .jsonPath("$.content[0].email").isEqualTo("tester.mctesty+email@digital.justice.gov.uk")
     }
   }
 }

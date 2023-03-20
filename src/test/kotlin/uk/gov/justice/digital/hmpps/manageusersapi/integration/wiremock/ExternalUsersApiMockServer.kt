@@ -329,7 +329,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPage3Descending() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=3&size=4&sort=roleName,desc&roleName&roleCode&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=3&size=4&sort=roleName%2Cdesc&roleName&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -415,7 +415,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterRoleCode() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode=account&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode=account&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -428,7 +428,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterRoleName() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName=manager&roleCode&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName=manager&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -441,7 +441,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterAdminType() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode&adminTypes=EXT_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -454,7 +454,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedFilterAdminTypes() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -467,7 +467,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPagedUsingAllFilters() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=1&size=10&sort=roleName,asc&roleName=manager&roleCode=account&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
+      get(urlEqualTo("/roles/paged?page=1&size=10&sort=roleName%2Casc&roleName=manager&roleCode=account&adminTypes=EXT_ADM&adminTypes=DPS_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -501,7 +501,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetAllRolesPaged() {
     stubFor(
-      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName,asc&roleName&roleCode&adminTypes"))
+      get(urlEqualTo("/roles/paged?page=0&size=10&sort=roleName%2Casc&roleName&roleCode&adminTypes"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -1566,8 +1566,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
   }
 
   fun stubUserSearchAllFiltersWithResults(name: String, roles: List<String>, groups: List<String>) {
-    val rolesJoined = roles.joinToString(",")
-    val groupsJoined = groups.joinToString(",")
+    val rolesJoined = roles.joinToString("%2C")
+    val groupsJoined = groups.joinToString("%2C")
 
     stubFor(
       get("/users/search?name=$name&roles=$rolesJoined&groups=$groupsJoined&status=ALL&page=0&size=10")
@@ -1601,6 +1601,62 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                            "enabled": true,
                            "verified": true,
                            "lastLoggedIn": "2022-12-14T13:57:27.85401",
+                           "inactiveReason": null
+                       }
+                   ],
+                   "pageable": {
+                       "sort": {
+                           "empty": false,
+                           "sorted": true,
+                           "unsorted": false
+                       },
+                       "offset": 0,
+                       "pageSize": 10,
+                       "pageNumber": 0,
+                       "paged": true,
+                       "unpaged": false
+                   },
+                   "totalPages": 19,
+                   "totalElements": 185,
+                   "last": false,
+                   "size": 10,
+                   "number": 0,
+                   "sort": {
+                       "empty": false,
+                       "sorted": true,
+                       "unsorted": false
+                   },
+                   "first": true,
+                   "numberOfElements": 2,
+                   "empty": false
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubUserSearchEncodedQueryParams(encodedName: String) {
+    stubFor(
+      get("/users/search?name=$encodedName&roles=&groups=&status=ALL&page=0&size=10")
+        .willReturn(
+          aResponse()
+            .withStatus(OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+               {
+                   "content": [
+                       {
+                           "userId": "006a9299-ef3d-4990-8604-13cefac706b5",
+                           "username": "TESTER.MCTESTY+EMAIL@DIGITAL.JUSTICE.GOV.UK",
+                           "email": "tester.mctesty+email@digital.justice.gov.uk",
+                           "firstName": "Tester1",
+                           "lastName": "McTester1",
+                           "locked": false,
+                           "enabled": true,
+                           "verified": true,
+                           "lastLoggedIn": "2022-12-14T10:23:04.915132",
                            "inactiveReason": null
                        }
                    ],
