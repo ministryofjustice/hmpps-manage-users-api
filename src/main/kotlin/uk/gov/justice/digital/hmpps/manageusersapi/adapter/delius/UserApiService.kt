@@ -26,16 +26,10 @@ class UserApiService(
       log.debug("Delius not called with username as contained @: {}", username)
       return null
     }
-    var users =
-      serviceWebClientUtils.getIgnoreError(
-        "/users/$username/details",
-        DeliusUser::class.java,
-      )
-
-    if (users != null) {
-      users = mapUserDetailsToDeliusUser(users)
-    }
-    return users
+    return serviceWebClientUtils.getIgnoreError(
+      "/users/$username/details",
+      DeliusUser::class.java,
+    )?.let { user -> mapUserDetailsToDeliusUser(user) }
   }
 
   private fun mapUserDetailsToDeliusUser(userDetails: DeliusUser): DeliusUser =
