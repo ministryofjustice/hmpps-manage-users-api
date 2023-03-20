@@ -7,14 +7,17 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
@@ -107,6 +110,48 @@ class UserController(
       UserDetailsDto.fromDomain(user)
     } ?: UsernameDto(authenticationFacade.currentUsername!!)
   }
+
+  @GetMapping("/users/{username}/email")
+  @Operation(
+    summary = "Email address for user",
+    description = "Verified email address for user",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "204",
+        description = "No content.  No verified email address found for user",
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found. The user doesn't exist so could have never logged in",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun getUserEmail(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String,
+    @Parameter(description = "Return unverified email addresses.", required = false)
+    @RequestParam
+    unverified: Boolean = false,
+  ): ResponseEntity<*> = userService.findUserEmail(username, unverified)
+    ?.let {
+      if (it.verified || unverified) {
+        ResponseEntity.ok(EmailAddressDto(it))
+      } else {
+        ResponseEntity.noContent().build<Any>()
+      }
+    } ?: throw NotFoundException("Account for username $username not found")
 
   @GetMapping("/users/me/roles")
   @Operation(
@@ -219,6 +264,21 @@ interface User {
 data class UsernameDto(
   override val username: String,
 ) : User
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "User email details")
+data class EmailAddressDto(
+  @Schema(required = true, description = "Username", example = "DEMO_USER1")
+  val username: String,
+
+  @Schema(description = "Email", example = "john.smith@digital.justice.gov.uk")
+  val email: String?,
+
+  @Schema(required = true, description = "Verified email", example = "true")
+  val verified: Boolean,
+) {
+  constructor(emailAddress: EmailAddress) : this(emailAddress.username, emailAddress.email, emailAddress.verified)
+}
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "User Details")

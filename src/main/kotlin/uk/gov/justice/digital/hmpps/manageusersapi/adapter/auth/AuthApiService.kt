@@ -48,6 +48,9 @@ class AuthApiService(
   fun createResetTokenForUser(userId: UUID) =
     serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
 
+  fun findAuthUserEmail(username: String, unverified: Boolean) =
+    serviceWebClientUtils.getIgnoreError("/api/user/$username/authEmail?unverified=$unverified", EmailAddress::class.java)
+
   fun findAzureUserByUsername(username: String): AzureUser? =
     try {
       UUID.fromString(username)

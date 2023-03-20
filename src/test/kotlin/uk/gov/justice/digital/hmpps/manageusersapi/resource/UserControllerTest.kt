@@ -5,11 +5,13 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
@@ -98,6 +100,63 @@ class UserControllerTest {
       assertThatThrownBy { userController.userRoles("JOE") }
         .isInstanceOf(NotFoundException::class.java)
         .hasMessage("Account for username JOE not found")
+    }
+  }
+
+  @Nested
+  inner class UserEmail {
+    @Test
+    fun userEmail_found() {
+      whenever(userService.findUserEmail(any(), any())).thenReturn(
+        EmailAddress(
+          username = "JOE",
+          verified = true,
+          email = "someemail",
+        ),
+      )
+
+      val responseEntity = userController.getUserEmail("joe")
+      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", true))
+    }
+
+    @Test
+    fun userEmail_found_unverified() {
+      whenever(userService.findUserEmail(any(), any())).thenReturn(
+        EmailAddress(username = "JOE", verified = false, email = "someemail"),
+      )
+      val responseEntity = userController.getUserEmail("joe", unverified = true)
+      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", false))
+    }
+
+    @Test
+    fun userEmail_notFound() {
+      whenever(userService.findUserEmail(any(), any())).thenReturn(null)
+
+      assertThatThrownBy { userController.getUserEmail("joe") }
+        .isInstanceOf(NotFoundException::class.java)
+        .hasMessage("Account for username joe not found")
+    }
+
+    @Test
+    fun userEmail_notVerified() {
+      whenever(userService.findUserEmail(any(), any())).thenReturn(
+        EmailAddress(username = "JOE", verified = false, email = null),
+      )
+      val responseEntity = userController.getUserEmail("joe")
+      assertThat(responseEntity.statusCodeValue).isEqualTo(204)
+      assertThat(responseEntity.body).isNull()
+    }
+
+    @Test
+    fun userEmail_null() {
+      whenever(userService.findUserEmail(any(), any())).thenReturn(
+        EmailAddress(username = "JOE", verified = false, email = null),
+      )
+      val responseEntity = userController.getUserEmail("joe", unverified = true)
+      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", null, false))
     }
   }
 }

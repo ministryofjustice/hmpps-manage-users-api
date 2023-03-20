@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import java.util.UUID
@@ -117,81 +118,176 @@ class UserServiceTest {
       verify(authApiService).findAzureUserByUsername(anyString())
       assertThat(user).isNull()
     }
+  }
 
-    @Nested
-    inner class UserRolesList {
-      @Test
-      fun `user not found`() {
-        whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-        whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
-        whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
-        whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
-
-        val userRoleList = userService.findRolesByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
-        verify(authApiService).findAzureUserByUsername(anyString())
-        assertThat(userRoleList).isNull()
-      }
-
-      @Test
-      fun `find roles of delius user`() {
-        val uuid = UUID.randomUUID()
-        whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-        whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
-        whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
-        whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
-        whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
-
-        val userRoleList = userService.findRolesByUsername("deliususer")
-        assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "TEST_ROLE")))
-      }
-
-      @Test
-      fun `find roles of azure user`() {
-        whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-        whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
-        whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
-
-        val userRoleList = userService.findRolesByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
-        assertThat(userRoleList).isEmpty()
-        verifyNoInteractions(deliusUserApiService)
-      }
-
-      @Test
-      fun `find roles of nomis user`() {
-        whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-        whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
-
-        val userRoleList = userService.findRolesByUsername("nuser_gen")
-        assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "ROLE1"), UserRole(roleCode = "ROLE2"), UserRole(roleCode = "ROLE3")))
-        verifyNoInteractions(deliusUserApiService)
-      }
-
-      @Test
-      fun `find roles of external user`() {
-        whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(createRolesList())
-
-        val userRoleList = userService.findRolesByUsername("external_user")
-        assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "AUDIT_VIEWER"), UserRole(roleCode = "AUTH_GROUP_MANAGER")))
-        verifyNoInteractions(nomisUserApiService)
-        verifyNoInteractions(deliusUserApiService)
-      }
+  @Nested
+  inner class FindUserEmail {
+    @Test
+    fun `find user email - already exists in auth`() {
+      whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(createEmailAddressVerified())
+      val user = userService.findUserEmail("verified_user", true)
+      assertThat(user!!.username).isEqualTo("verified_user")
+      verifyNoInteractions(externalUsersApiService)
+      verifyNoInteractions(nomisUserApiService)
+      verifyNoInteractions(deliusUserApiService)
     }
 
-    @Nested
-    inner class MyRoles {
-      @Test
-      fun myRoles() {
-        whenever(authenticationFacade.authentication).thenReturn(authentication)
-        whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_BOB"), SimpleGrantedAuthority("ROLE_JOE_FRED")))
-        assertThat(userService.myRoles()).containsOnly(ExternalUserRole("BOB"), ExternalUserRole("JOE_FRED"))
-      }
+    @Test
+    fun `find user email only stored in external users`() {
+      whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
+      whenever(authApiService.findUserByUsernameAndSource("external_user", auth)).thenReturn(
+        createAuthUserDetails(),
+      )
 
-      @Test
-      fun myRoles_noRoles() {
-        whenever(authenticationFacade.authentication).thenReturn(authentication)
-        whenever(authentication.authorities).thenReturn(emptyList())
-        assertThat(userService.myRoles()).isEmpty()
-      }
+      val userEmail = userService.findUserEmail("external_user", true)
+      assertThat(userEmail!!.username).isEqualTo("external_user")
+      assertThat(userEmail.email).isEqualTo("someemail@hello.com")
+      verifyNoInteractions(nomisUserApiService)
+      verifyNoInteractions(deliusUserApiService)
+    }
+
+    @Test
+    fun `find user email only stored in nomis`() {
+      whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
+      whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
+      whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(
+        createAuthUserDetails(),
+      )
+
+      val userEmail = userService.findUserEmail("nuser_gen", true)
+      assertThat(userEmail!!.username).isEqualTo("NUSER_GEN")
+      assertThat(userEmail.email).isEqualTo("nomis.usergen@digital.justice.gov.uk")
+      verifyNoInteractions(deliusUserApiService)
+    }
+
+    @Test
+    fun `find user email only stored in azure`() {
+      whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
+      whenever(
+        authApiService.findUserByUsernameAndSource(
+          "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
+          azuread,
+        ),
+      ).thenReturn((createAuthUserDetails()))
+
+      val userEmail = userService.findUserEmail("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", true)
+      assertThat(userEmail!!.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      assertThat(userEmail.email).isEqualTo("azureuser@justice.gov.uk")
+      verifyNoInteractions(deliusUserApiService)
+    }
+
+    @Test
+    fun `find user email only stored in delius`() {
+      whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
+      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
+      whenever(
+        authApiService.findUserByUsernameAndSource(
+          "deliususer",
+          delius,
+        ),
+      ).thenReturn((createAuthUserDetails()))
+
+      val userEmail = userService.findUserEmail("deliususer", true)
+      assertThat(userEmail!!.username).isEqualTo("deliususer")
+      assertThat(userEmail.email).isEqualTo("delius.smith@digital.justice.gov.uk")
+    }
+
+    @Test
+    fun `user not found`() {
+      whenever(authApiService.findAuthUserEmail("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", true)).thenReturn(null)
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
+
+      val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      verify(authApiService).findAzureUserByUsername(anyString())
+      assertThat(user).isNull()
+    }
+  }
+
+  @Nested
+  inner class UserRolesList {
+    @Test
+    fun `user not found`() {
+      whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
+
+      val userRoleList = userService.findRolesByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      verify(authApiService).findAzureUserByUsername(anyString())
+      assertThat(userRoleList).isNull()
+    }
+
+    @Test
+    fun `find roles of delius user`() {
+      val uuid = UUID.randomUUID()
+      whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
+      whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
+      whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
+
+      val userRoleList = userService.findRolesByUsername("deliususer")
+      assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "TEST_ROLE")))
+    }
+
+    @Test
+    fun `find roles of azure user`() {
+      whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(null)
+      whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
+
+      val userRoleList = userService.findRolesByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
+      assertThat(userRoleList).isEmpty()
+      verifyNoInteractions(deliusUserApiService)
+    }
+
+    @Test
+    fun `find roles of nomis user`() {
+      whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
+      whenever(nomisUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUser())
+
+      val userRoleList = userService.findRolesByUsername("nuser_gen")
+      assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "ROLE1"), UserRole(roleCode = "ROLE2"), UserRole(roleCode = "ROLE3")))
+      verifyNoInteractions(deliusUserApiService)
+    }
+
+    @Test
+    fun `find roles of external user`() {
+      whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(createRolesList())
+
+      val userRoleList = userService.findRolesByUsername("external_user")
+      assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "AUDIT_VIEWER"), UserRole(roleCode = "AUTH_GROUP_MANAGER")))
+      verifyNoInteractions(nomisUserApiService)
+      verifyNoInteractions(deliusUserApiService)
+    }
+  }
+
+  @Nested
+  inner class MyRoles {
+    @Test
+    fun myRoles() {
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_BOB"), SimpleGrantedAuthority("ROLE_JOE_FRED")))
+      assertThat(userService.myRoles()).containsOnly(ExternalUserRole("BOB"), ExternalUserRole("JOE_FRED"))
+    }
+
+    @Test
+    fun myRoles_noRoles() {
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(emptyList())
+      assertThat(userService.myRoles()).isEmpty()
     }
   }
 
@@ -215,29 +311,37 @@ class UserServiceTest {
       roles = listOf(uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole(name = "TEST_ROLE")),
     )
 
-  fun createExternalUser(): ExternalUser {
-    return ExternalUser(
-      userId = UUID.randomUUID(),
-      username = "external_user",
-      email = "someemail@hello.com",
-      firstName = "fred",
-      lastName = "Smith",
-    )
-  }
+  fun createExternalUser() = ExternalUser(
+    userId = UUID.randomUUID(),
+    username = "external_user",
+    email = "someemail@hello.com",
+    firstName = "fred",
+    lastName = "Smith",
+  )
 
-  fun createRolesList(): List<UserRoleResponse> {
-    return listOf(
-      UserRoleResponse(
-        roleCode = "AUDIT_VIEWER",
-        roleName = "viewer",
-      ),
-      UserRoleResponse(
-        roleCode = "AUTH_GROUP_MANAGER",
-        roleName = "Auth Group Manager that has more than 30 characters in the role name",
-        roleDescription = "Gives group manager ability to administer user in there groups",
-      ),
-    )
-  }
+  fun createEmailAddressVerified() = EmailAddress(
+    username = "verified_user",
+    email = "someemail@hello.com",
+    verified = true,
+  )
+
+  fun createEmailAddressUnverified() = EmailAddress(
+    username = "external_user",
+    email = "someemail@hello.com",
+    verified = false,
+  )
+
+  fun createRolesList() = listOf(
+    UserRoleResponse(
+      roleCode = "AUDIT_VIEWER",
+      roleName = "viewer",
+    ),
+    UserRoleResponse(
+      roleCode = "AUTH_GROUP_MANAGER",
+      roleName = "Auth Group Manager that has more than 30 characters in the role name",
+      roleDescription = "Gives group manager ability to administer user in there groups",
+    ),
+  )
 
   fun createNomisUser() =
     NomisUser(
@@ -251,5 +355,5 @@ class UserServiceTest {
       roles = listOf("ROLE1", "ROLE2", "ROLE3"),
     )
 
-  fun createAuthUserDetails(uuid: UUID) = AuthUser(uuid = uuid)
+  fun createAuthUserDetails(uuid: UUID = UUID.randomUUID()) = AuthUser(uuid = uuid)
 }

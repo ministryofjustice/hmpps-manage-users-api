@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -20,9 +21,15 @@ data class ExternalUser(
     GenericUser(
       username = username,
       active = enabled,
-      authSource = AuthSource.auth,
+      authSource = auth,
       name = "$firstName $lastName",
       userId = userId.toString(),
       uuid = userId,
     )
+
+  override fun emailAddress(): EmailAddress =
+    EmailAddress(username, email, verified)
+
+  override val authSource: AuthSource
+    get() = auth
 }

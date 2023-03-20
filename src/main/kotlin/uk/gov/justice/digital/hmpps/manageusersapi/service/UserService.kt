@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole as DeliusMappedRole
@@ -21,7 +22,14 @@ class UserService(
   private val externalRolesApiService: UserRolesApiService,
 ) {
   fun findUserByUsername(username: String): GenericUser? {
-    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)
+    return findMasterUser(username)?.toGenericUser()?.apply {
+      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
+      this.uuid = authUserDetails.uuid
+    }
+  }
+
+  fun findMasterUser(username: String) =
+    externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
         nomisApiService.findUserByUsername(username)
           ?: run {
@@ -32,11 +40,16 @@ class UserService(
           }
       }
 
-    return userDetails?.toGenericUser()?.apply {
-      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
-      this.uuid = authUserDetails.uuid
-    }
-  }
+  fun findUserEmail(username: String, unverified: Boolean): EmailAddress? =
+    authApiService.findAuthUserEmail(username, unverified)
+      ?: run {
+        findMasterUser(username)?.let { masterUser ->
+          val userEmail = masterUser.emailAddress()
+          // save back to auth
+          authApiService.findUserByUsernameAndSource(username, masterUser.authSource)
+          userEmail
+        }
+      }
 
   fun findRolesByUsername(username: String): List<UserRole>? {
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
