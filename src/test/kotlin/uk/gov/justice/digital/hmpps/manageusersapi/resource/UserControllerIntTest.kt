@@ -97,7 +97,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username,
               "active" to true,
               "name" to "Ext Adm",
               "authSource" to "auth",
@@ -316,7 +316,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username,
               "email" to "User.FromAuth@digital.justice.gov.uk",
               "verified" to false,
             ),
@@ -339,7 +339,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username,
               "email" to "User.FromAuth@digital.justice.gov.uk",
               "verified" to true,
             ),
@@ -364,7 +364,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username,
               "email" to "ext_test@digital.justice.gov.uk",
               "verified" to true,
             ),
@@ -390,7 +390,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username,
               "email" to "nomis.usergen@digital.justice.gov.uk",
               "verified" to true,
             ),
@@ -416,7 +416,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username,
               "verified" to false,
             ),
           )
@@ -441,7 +441,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "username" to "$username",
+              "username" to username.uppercase(),
               "email" to "delius.smithy@digital.justice.gov.uk",
               "verified" to true,
             ),
