@@ -26,6 +26,40 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubFindUserByUsernameNoEmail(username: String) {
+    stubFor(
+      get("/users/$username")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """ {
+                "username": "$username",
+                "staffId": 123456,
+                "firstName": "Nomis",
+                "lastName": "Take",
+                "activeCaseloadId": "MDI",
+                "accountStatus": "OPEN",
+                "accountType": "GENERAL",
+                "dpsRoleCodes": [
+                  "MAINTAIN_ACCESS_ROLES",
+                  "GLOBAL_SEARCH",
+                  "HMPPS_REGISTERS_MAINTAINER",
+                  "HPA_USER"
+                ],
+                "accountNonLocked": true,
+                "credentialsNonExpired": false,
+                "enabled": true,
+                "admin": false,
+                "active": true,
+                "staffStatus": "ACTIVE"
+              }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubCreateCentralAdminUser() {
     stubFor(
       post(urlEqualTo("/users/admin-account"))
@@ -325,7 +359,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
               """ {
-                "username": "NUSER_GEN",
+                "username": "$username",
                 "staffId": 123456,
                 "firstName": "Nomis",
                 "lastName": "Take",

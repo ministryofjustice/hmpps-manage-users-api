@@ -10,6 +10,9 @@ data class AzureUser(
   var email: String,
   var roles: List<UserRole> = emptyList(),
 ) : SourceUser {
+  override val authSource: AuthSource
+    get() = azuread
+
   override fun toGenericUser(): GenericUser =
     GenericUser(
       username = username,
@@ -19,4 +22,7 @@ data class AzureUser(
       userId = email,
       uuid = null,
     )
+
+  override fun emailAddress(): EmailAddress =
+    EmailAddress(username, email, true)
 }
