@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.SourceUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
@@ -21,18 +23,21 @@ data class NomisUser(
   val name: String
     get() = "$firstName $lastName"
 
-  val authSource: String
-    get() = "nomis"
+  override val authSource: AuthSource
+    get() = nomis
 
   override fun toGenericUser(): GenericUser =
     GenericUser(
       username = username,
       active = enabled,
-      authSource = AuthSource.nomis,
+      authSource = nomis,
       userId = userId,
       name = name,
       uuid = null,
       staffId = userId.toLong(),
       activeCaseLoadId = activeCaseLoadId,
     )
+
+  override fun emailAddress(): EmailAddress =
+    EmailAddress(username, email, !email.isNullOrEmpty())
 }

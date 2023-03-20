@@ -118,10 +118,10 @@ class WebClientUtils(private val client: WebClient) {
         if (value is Collection<*>) {
           queryParam(key, value)
         } else {
-          queryParam(key, value)
+          queryParam(key, "{$key}")
         }
       } ?: run { queryParam(key, value) }
     }
-    return build()
+    return build(queryParams)
   }
 }

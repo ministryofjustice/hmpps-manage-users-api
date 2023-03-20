@@ -48,7 +48,7 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "name": "SPGADBT005"
                     }
                 ],
-                "username": "DELIUSUSER"
+                "username": "$username"
               }
               """.trimIndent(),
             ),

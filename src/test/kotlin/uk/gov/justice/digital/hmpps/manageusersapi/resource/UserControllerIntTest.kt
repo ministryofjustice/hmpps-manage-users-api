@@ -2,10 +2,12 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
@@ -16,6 +18,7 @@ import java.util.Locale
 import java.util.UUID
 
 class UserControllerIntTest : IntegrationTestBase() {
+
   @Nested
   inner class FindByUsername {
 
@@ -109,7 +112,10 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun ` nomis user found success`() {
       val username = "NUSER_GEN"
       val uuid = UUID.randomUUID()
-      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
+
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       nomisApiMockServer.stubFindUserByUsername(username)
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, uuid)
       webTestClient.get().uri("/users/$username")
@@ -138,7 +144,9 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun ` azure user found success`() {
       val username = "ce232d07-40c3-47c6-9903-613bb31132af"
       val uuid = UUID.randomUUID()
-      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGet(OK, "/users/$username", userMessage, developerMessage)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, azuread, uuid)
@@ -166,7 +174,9 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun ` delius user found success`() {
       val uuid = UUID.randomUUID()
       val username = "deliususer"
-      externalUsersApiMockServer.stubNoUsersFound("/users/$username", username)
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGet(OK, "/users/$username", userMessage, developerMessage)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       deliusApiMockServer.stubGetUser(username)
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, delius, uuid)
@@ -254,6 +264,219 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class FindUserEmail {
+
+    @Test
+    fun `User email endpoint not accessible without valid token`() {
+      webTestClient
+        .get().uri("/users/bob/email")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `User email endpoint returns no content for unverified user in auth`() {
+      hmppsAuthMockServer.stubUserEmail("AUTH_UNVERIFIED", false, false)
+
+      webTestClient
+        .get().uri("/users/AUTH_UNVERIFIED/email")
+        .headers(setAuthorisation("ITAG_USER"))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `User email endpoint returns not found if no user`() {
+      val username = "no_user"
+      hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      nomisApiMockServer.stubGetFail("/users/${username.uppercase()}", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
+
+      webTestClient
+        .get().uri("/users/$username/email")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isNotFound
+
+      hmppsAuthMockServer.verify(0, getRequestedFor(urlMatching("/auth/api/user\\?username=$username&source=([a-z]*)")))
+    }
+
+    @Test
+    fun `User email endpoint returns unverified user in auth if param set`() {
+      val username = "AUTH_UNVERIFIED"
+      hmppsAuthMockServer.stubUserEmail(username, true, false)
+
+      webTestClient
+        .get().uri("/users/$username/email?unverified=true")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username,
+              "email" to "User.FromAuth@digital.justice.gov.uk",
+              "verified" to false,
+            ),
+          )
+        }
+      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/user/$username/auth")))
+    }
+
+    @Test
+    fun `User email endpoint returns verified user email from auth`() {
+      val username = "AUTH_USER"
+      hmppsAuthMockServer.stubUserEmail("AUTH_USER")
+
+      webTestClient
+        .get().uri("/users/$username/email")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username,
+              "email" to "User.FromAuth@digital.justice.gov.uk",
+              "verified" to true,
+            ),
+          )
+        }
+      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/user/$username/auth")))
+    }
+
+    @Test
+    fun `User email endpoint returns user data for external user`() {
+      val username = "AUTH_USER"
+      hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
+      externalUsersApiMockServer.stubUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, UUID.randomUUID())
+
+      webTestClient
+        .get().uri("/users/$username/email")
+        .headers(setAuthorisation(username))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username,
+              "email" to "ext_test@digital.justice.gov.uk",
+              "verified" to true,
+            ),
+          )
+        }
+      hmppsAuthMockServer.verify(1, getRequestedFor(urlEqualTo("/auth/api/user/$username/auth")))
+    }
+
+    @Test
+    fun `User email endpoint returns user data for nomis user`() {
+      val username = "NUSER_GEN1"
+      hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      nomisApiMockServer.stubFindUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, UUID.randomUUID())
+
+      webTestClient
+        .get().uri("/users/$username/email")
+        .headers(setAuthorisation(username))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username,
+              "email" to "nomis.usergen@digital.justice.gov.uk",
+              "verified" to true,
+            ),
+          )
+        }
+      hmppsAuthMockServer.verify(1, getRequestedFor(urlEqualTo("/auth/api/user/$username/nomis")))
+    }
+
+    @Test
+    fun `User email endpoint returns empty for nomis user without email`() {
+      val username = "NUSER_GEN"
+      hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=true", NOT_FOUND)
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      nomisApiMockServer.stubFindUserByUsernameNoEmail(username.uppercase())
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, UUID.randomUUID())
+
+      webTestClient
+        .get().uri("/users/$username/email?unverified=true")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username,
+              "verified" to false,
+            ),
+          )
+        }
+    }
+
+    @Test
+    fun `User email endpoint returns user data for delius user`() {
+      val username = "delius_smith"
+      hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      nomisApiMockServer.stubGetFail("/users/${username.uppercase()}", NOT_FOUND)
+      deliusApiMockServer.stubGetUser(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, delius, UUID.randomUUID())
+
+      webTestClient
+        .get().uri("/users/$username/email")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username.uppercase(),
+              "email" to "delius.smithy@digital.justice.gov.uk",
+              "verified" to true,
+            ),
+          )
+        }
+    }
+
+    @Test
+    fun `User email endpoint returns user data for azure user`() {
+      val username = "ce232d07-40c3-47c6-9903-613bb31132af"
+      hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
+      externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      nomisApiMockServer.stubGetFail("/users/${username.uppercase()}", NOT_FOUND)
+      hmppsAuthMockServer.stubAzureUserByUsername(username)
+      hmppsAuthMockServer.stubUserByUsernameAndSource(username, azuread, UUID.randomUUID())
+
+      webTestClient
+        .get().uri("/users/$username/email")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username.uppercase(),
+              "email" to "azure.user@justice.gov.uk",
+              "verified" to true,
+            ),
+          )
+        }
+    }
+  }
+
+  @Nested
   inner class MyRoles {
     @Test
     fun `User Me Roles endpoint returns principal user data`() {
@@ -301,10 +524,12 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `No roles for for valid azure user`() {
       val username = "ce232d07-40c3-47c6-9903-613bb31132af".uppercase(Locale.getDefault())
-      externalUsersApiMockServer.stubNoUsersFound("/users/username/$username/roles", username)
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGet(OK, "/users/username/$username/roles", userMessage, developerMessage)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
-      webTestClient.get().uri("/user/$username/roles")
+      webTestClient.get().uri("/users/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_INTEL_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -318,9 +543,11 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Roles of valid nomis user`() {
       val username = "NUSER_GEN"
-      externalUsersApiMockServer.stubNoUsersFound("/users/username/$username/roles", username)
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGet(OK, "/users/username/$username/roles", userMessage, developerMessage)
       nomisApiMockServer.stubFindUserByUsername(username)
-      webTestClient.get().uri("/user/$username/roles")
+      webTestClient.get().uri("/users/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -340,7 +567,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubGetSearchableRoles("/users/username/$username/roles")
       hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, uuid)
-      webTestClient.get().uri("/user/$username/roles")
+      webTestClient.get().uri("/users/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -353,7 +580,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `access forbidden when no authority`() {
-      webTestClient.get().uri("/user/username/roles")
+      webTestClient.get().uri("/users/username/roles")
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -364,7 +591,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubGetFail("/users/username/$username/roles", NOT_FOUND)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
       deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
-      webTestClient.get().uri("/user/$username/roles")
+      webTestClient.get().uri("/users/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()
         .expectStatus().isNotFound
@@ -376,6 +603,42 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it["field"]).isEqualTo("username")
         }
       hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
+    }
+  }
+
+  @Nested
+  inner class MappedDeliusRoles {
+    @Test
+    fun `User Me Roles endpoint returns principal user data for auth user`() {
+      webTestClient
+        .get().uri("/roles/delius?deliusRoles=TEST_ROLE,TEST_WORKLOAD_MEASUREMENT_ROLE")
+        .headers(setAuthorisation("AUTH_ADM", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].name").value<List<String>> {
+          assertThat(it).contains("ROLE_LICENCE_RO", "ROLE_GLOBAL_SEARCH", "ROLE_WORKLOAD_MEASUREMENT")
+        }
+    }
+
+    @Test
+    fun `User Me Roles endpoint returns principal user data for auth user1`() {
+      webTestClient
+        .get().uri("/roles/delius?deliusRoles=NON_MAPPED_ROLE")
+        .headers(setAuthorisation("AUTH_ADM", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].name").value<List<String>> {
+          assertThat(it).hasSize(0)
+        }
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/roles/delius?deliusRoles=NON_MAPPED_ROLE")
+        .exchange()
+        .expectStatus().isUnauthorized
     }
   }
 }

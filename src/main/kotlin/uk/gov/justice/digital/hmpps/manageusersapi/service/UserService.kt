@@ -7,8 +7,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole as DeliusMappedRole
 
 @Service
 class UserService(
@@ -20,7 +22,14 @@ class UserService(
   private val externalRolesApiService: UserRolesApiService,
 ) {
   fun findUserByUsername(username: String): GenericUser? {
-    val userDetails = externalUsersSearchApiService.findUserByUsernameOrNull(username)
+    return findMasterUser(username)?.toGenericUser()?.apply {
+      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
+      this.uuid = authUserDetails.uuid
+    }
+  }
+
+  fun findMasterUser(username: String) =
+    externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
         nomisApiService.findUserByUsername(username)
           ?: run {
@@ -31,17 +40,26 @@ class UserService(
           }
       }
 
-    return userDetails?.toGenericUser()?.apply {
-      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
-      this.uuid = authUserDetails.uuid
-    }
-  }
+  fun findUserEmail(username: String, unverified: Boolean): EmailAddress? =
+    authApiService.findAuthUserEmail(username, unverified)
+      ?: run {
+        findMasterUser(username)?.let { masterUser ->
+          val userEmail = masterUser.emailAddress()
+          // save back to auth
+          authApiService.findUserByUsernameAndSource(username, masterUser.authSource)
+          userEmail
+        }
+      }
 
   fun findRolesByUsername(username: String): List<UserRole>? {
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
       ?: run { nomisApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
       ?: run { authApiService.findAzureUserByUsername(username)?.roles?.map { UserRole(it.name) } }
       ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name) } }
+  }
+
+  fun getMappedDeliusRoles(deliusRoles: List<String>): List<DeliusMappedRole>? {
+    return deliusApiService.mapUserRolesToAuthorities(deliusRoles.map { DeliusMappedRole(it) })
   }
 
   fun myRoles() =

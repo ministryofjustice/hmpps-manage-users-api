@@ -110,7 +110,10 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun ` should fail with not_found for invalid user id`() {
-      externalUsersApiMockServer.stubPutEnableInvalidUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f")
+      val userId = "2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f"
+      val userMessage = "User not found: User $userId not found"
+      val developerMessage = "User $userId not found"
+      externalUsersApiMockServer.stubPut(HttpStatus.NOT_FOUND, "/users/$userId/enable", userMessage, developerMessage)
       webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
@@ -128,7 +131,9 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should fail with forbidden  for user not in group`() {
-      externalUsersApiMockServer.stubPutEnableFailUserNotInGroup()
+      val userMessage = "User group relationship exception: Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups"
+      val developerMessage = "Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups"
+      externalUsersApiMockServer.stubPut(HttpStatus.FORBIDDEN, "/users/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable", userMessage, developerMessage)
       webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d3f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
@@ -138,9 +143,9 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(HttpStatus.FORBIDDEN.value())
           assertThat(it["userMessage"] as String)
-            .startsWith("User group relationship exception: Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups")
+            .startsWith(userMessage)
           assertThat(it["developerMessage"] as String)
-            .startsWith("Unable to maintain user: AUTH_BULK_AMEND_EMAIL with reason: User not with your groups")
+            .startsWith(developerMessage)
         }
     }
 
@@ -229,7 +234,10 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
-      externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
+
+      val userMessage = "User not found: Account for username $userName not found"
+      val developerMessage = "Account for username $userName not found"
+      externalUsersApiMockServer.stubGet(HttpStatus.OK, "/users/username/$userName/roles", userMessage, developerMessage)
       externalUsersApiMockServer.stubPutEmailAndUsername(
         "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
         "bobby.b@digital.justice.gov.uk",
@@ -254,7 +262,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubResetTokenForUser("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F")
       hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
       externalUsersApiMockServer.stubGetUserGroups(UUID.fromString("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F"), false)
-      externalUsersApiMockServer.stubNoUsersFound("/users/$userName", userName)
+      val userMessage = "User not found: Account for username $userName not found"
+      val developerMessage = "Account for username $userName not found"
+      externalUsersApiMockServer.stubGet(HttpStatus.OK, "/users/username/$userName/roles", userMessage, developerMessage)
       externalUsersApiMockServer.stubPutEmailAndUsername(
         "2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F",
         "bobby.b@digital.justice.gov.uk",
