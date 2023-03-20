@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
@@ -175,6 +176,34 @@ class UserController(
     return userService.findRolesByUsername(username)
       ?: throw NotFoundException("Account for username $username not found")
   }
+
+  @GetMapping("/roles/delius")
+  @Operation(
+    summary = "List of mapped delius roles",
+    description = "List of mapped  delius roles",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun findMappedDeliusRoles(
+    @RequestParam(value = "deliusRoles", required = true)
+    deliusRoles: List<String>,
+  ) = userService.getMappedDeliusRoles(deliusRoles)
 }
 
 @Schema(description = "User Role")

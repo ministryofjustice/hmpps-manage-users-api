@@ -44,3 +44,12 @@ delius:
   client:
     client-id: manage-users-api-delius-client
     client-secret: clientsecret
+  roles:
+    mappings:
+      TEST_ROLE:
+        - 'ROLE_LICENCE_RO'
+        - 'ROLE_GLOBAL_SEARCH'
+      TEST_WORKLOAD_MEASUREMENT_ROLE:
+        - 'ROLE_WORKLOAD_MEASUREMENT'
+      TEST_MANAGE_A_WORKFORCE_ALLOCATE_ROLE:
+        - 'ROLE_MANAGE_A_WORKFORCE_ALLOCATE'
