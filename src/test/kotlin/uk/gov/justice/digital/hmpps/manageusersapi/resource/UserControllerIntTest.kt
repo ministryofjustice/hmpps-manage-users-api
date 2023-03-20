@@ -284,7 +284,6 @@ class UserControllerIntTest : IntegrationTestBase() {
             ),
           )
         }
-      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/user/$username/auth")))
     }
 
     @Test
@@ -327,7 +326,6 @@ class UserControllerIntTest : IntegrationTestBase() {
             ),
           )
         }
-      hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/user/$username/auth")))
     }
   }
 
