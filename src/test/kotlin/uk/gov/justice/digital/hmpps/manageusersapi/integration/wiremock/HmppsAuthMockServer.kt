@@ -128,7 +128,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubUserEmail(username: String, unverifiedParam: Boolean = false, verfiedEmail: Boolean = true) {
+  fun stubUserEmail(username: String, unverifiedParam: Boolean = false, verifiedEmail: Boolean = true) {
     stubFor(
       get("/auth/api/user/$username/authEmail?unverified=$unverifiedParam")
         .willReturn(
@@ -140,7 +140,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 {
                   "email": "User.FromAuth@digital.justice.gov.uk",
                   "username": "$username",
-                  "verified": $verfiedEmail
+                  "verified": $verifiedEmail
                 }
               """.trimIndent(),
             ),
