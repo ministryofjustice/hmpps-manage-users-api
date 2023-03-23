@@ -263,7 +263,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `My email endpoint returns unverified email`() {
       val username = "USER_UNVERIFIED"
-      hmppsAuthMockServer.stubUserEmail(username, true, false)
+      hmppsAuthMockServer.stubUserEmail(username, unverifiedParam = true, verifiedEmail = false)
 
       webTestClient
         .get().uri("/users/me/email?unverified=true")
@@ -305,7 +305,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `My email endpoint returns verified email`() {
       val username = "USER_VERIFIED"
-      hmppsAuthMockServer.stubUserEmail(username, unverifiedParam = false, verifiedEmail = true)
+      hmppsAuthMockServer.stubUserEmail(username)
 
       webTestClient
         .get().uri("/users/me/email")
@@ -342,7 +342,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `User email endpoint returns no content for unverified user in auth`() {
-      hmppsAuthMockServer.stubUserEmail("AUTH_UNVERIFIED", false, false)
+      hmppsAuthMockServer.stubUserEmail("AUTH_UNVERIFIED", unverifiedParam = false, verifiedEmail = false)
 
       webTestClient
         .get().uri("/users/AUTH_UNVERIFIED/email")
@@ -369,7 +369,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User email endpoint returns unverified user in auth if param set`() {
       val username = "AUTH_UNVERIFIED"
-      hmppsAuthMockServer.stubUserEmail(username, true, false)
+      hmppsAuthMockServer.stubUserEmail(username, unverifiedParam = true, verifiedEmail = false)
 
       webTestClient
         .get().uri("/users/$username/email?unverified=true")

@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
@@ -29,6 +30,8 @@ class UserApiService(
         "lastName" to centralAdminUser.lastName,
       ),
       NewPrisonUser::class.java,
+      HttpStatus.CONFLICT,
+      UserExistsException(centralAdminUser.username),
     )
   }
 
@@ -44,6 +47,8 @@ class UserApiService(
         "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
       NewPrisonUser::class.java,
+      HttpStatus.CONFLICT,
+      UserExistsException(generalUser.username),
     )
   }
 
@@ -59,6 +64,8 @@ class UserApiService(
         "localAdminGroup" to localAdminUser.defaultCaseloadId,
       ),
       NewPrisonUser::class.java,
+      HttpStatus.CONFLICT,
+      UserExistsException(localAdminUser.username),
     )
   }
 
@@ -83,3 +90,6 @@ class UserApiService(
 }
 
 class NomisUserList : MutableList<PrisonUserSummary> by ArrayList()
+
+class UserExistsException(username: String) :
+  Exception("Unable to create user: username $username already exists")
