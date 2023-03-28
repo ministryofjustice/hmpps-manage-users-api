@@ -16,11 +16,76 @@ import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBa
 class UserControllerIntTest : IntegrationTestBase() {
 
   @Nested
+  inner class AmendUserEmail {
+    private val username = "testy"
+    private val domain = "testing.com"
+    private val newEmailAddress = "new.testy@$domain"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `amend user email`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      hmppsAuthMockServer.stubConfirmRecognised(username)
+      hmppsAuthMockServer.stubUpdatePrisonUserEmail(username, newEmailAddress)
+      externalUsersApiMockServer.stubValidateEmailDomain(domain, true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
   inner class CreateUser {
 
     @Test
     fun `access forbidden when no authority`() {
       webTestClient.post().uri("/prisonusers")
+        .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isUnauthorized
     }

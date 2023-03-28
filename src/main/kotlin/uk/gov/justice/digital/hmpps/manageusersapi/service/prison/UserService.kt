@@ -27,10 +27,7 @@ class UserService(
   fun changeEmail(username: String, newEmailAddress: String): String {
     val prisonUser = prisonUserApiService.findUserByUsername(username)
     prisonUser?.let {
-      if (!authApiService.recognised(username)) {
-        throw EntityNotFoundException("Username $username not recognised")
-      }
-
+      authApiService.confirmRecognised(username)
       val verifyLinkEmailAndUsername = verifyEmailService.requestVerification(prisonUser, newEmailAddress)
       authApiService.updateEmail(username, verifyLinkEmailAndUsername.email)
       return verifyLinkEmailAndUsername.link

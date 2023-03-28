@@ -66,8 +66,8 @@ class AuthApiService(
   fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUser =
     serviceWebClientUtils.get("/api/user/$username/$source", AuthUser::class.java)
 
-  fun recognised(username: String) =
-    userWebClientUtils.get("/api/user/$username/recognised", Boolean::class.java)
+  fun confirmRecognised(username: String) =
+    userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/$username/recognised")
 
   fun updateEmail(username: String, newEmailAddress: String) =
     userWebClientUtils.put("api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
