@@ -211,7 +211,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubUserDefaultSearchNoResults() {
+  fun stubUserSearchNoResults() {
     stubFor(
       get("/auth/api/user/search")
         .willReturn(
@@ -254,9 +254,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubUserSearchAllFiltersWithResults(name: String) {
+  fun stubUserSearchWithResults(searchParams: String) {
     stubFor(
-      get("/auth/api/user/search?name=$name")
+      get("/auth/api/user/search?$searchParams")
         .willReturn(
           aResponse()
             .withStatus(HttpStatus.OK.value())

@@ -27,7 +27,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should contain paging`() {
-      hmppsAuthMockServer.stubUserDefaultSearchNoResults()
+      hmppsAuthMockServer.stubUserSearchNoResults()
       val sortMap = mapOf(
         "empty" to false,
         "sorted" to true,
@@ -68,7 +68,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should respond with no results when no users found`() {
-      hmppsAuthMockServer.stubUserDefaultSearchNoResults()
+      hmppsAuthMockServer.stubUserSearchNoResults()
 
       webTestClient.get().uri("/users/search")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
@@ -79,11 +79,21 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `should pass through all parameters`() {
+      hmppsAuthMockServer.stubUserSearchWithResults("name=fred&authSources=auth&authSources=nomis&page=1&size=50&sort=source%2Cdesc")
+
+      webTestClient.get().uri("/users/search?name=fred&authSources=auth&authSources=nomis&page=1&size=50&sort=source,desc")
+        .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `should respond with paged results when users found`() {
       val name = "tester.mctesty@digital.justice.gov.uk"
       val encodedName = "tester.mctesty%40digital.justice.gov.uk"
 
-      hmppsAuthMockServer.stubUserSearchAllFiltersWithResults(encodedName)
+      hmppsAuthMockServer.stubUserSearchWithResults("name=$encodedName")
 
       webTestClient.get().uri("/users/search?name=$name")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))

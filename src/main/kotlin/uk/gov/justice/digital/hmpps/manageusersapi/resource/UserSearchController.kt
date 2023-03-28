@@ -26,7 +26,6 @@ class UserSearchController(
     description = """
       Search for users in the Auth DB only who match on partial first name, surname, username or email and return a pageable result set. 
       Optionally choose the authentication sources from any combination of auth, delius, nomis and azuread sources.
-      It will default to AuthSource.auth if the authSources parameter is omitted.
       Provide the authSources as a list of values with the same name. e.g. ?authSources=nomis&authSources=delius&authSources=auth
       It will return users with the requested auth sources where they have authenticated against the auth service at least once.
       Note: User information held in the auth service may be out of date with the user information held in the source systems as
