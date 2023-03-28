@@ -50,15 +50,15 @@ class UserService(
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUser> {
-    val nomisUsers: List<PrisonUserSummary> = prisonUserApiService.findUsersByFirstAndLastName(firstName, lastName)
+    val prisonUsers: List<PrisonUserSummary> = prisonUserApiService.findUsersByFirstAndLastName(firstName, lastName)
     // The users may have an unverified email, so we need to go to auth to determine if they are different
-    if (nomisUsers.isNotEmpty()) {
+    if (prisonUsers.isNotEmpty()) {
       val authUsersByUsername = authApiService
-        .findUserEmails(nomisUsers.map { it.username })
+        .findUserEmails(prisonUsers.map { it.username })
         .filter { !it.email.isNullOrBlank() }
         .associateBy { it.username }
 
-      return nomisUsers.map {
+      return prisonUsers.map {
         PrisonUser(
           username = it.username,
           userId = it.staffId,
