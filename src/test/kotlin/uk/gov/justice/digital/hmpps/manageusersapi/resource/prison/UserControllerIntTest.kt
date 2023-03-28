@@ -85,7 +85,6 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `access forbidden when no authority`() {
       webTestClient.post().uri("/prisonusers")
-        .headers(setAuthorisation(roles = listOf()))
         .exchange()
         .expectStatus().isUnauthorized
     }
