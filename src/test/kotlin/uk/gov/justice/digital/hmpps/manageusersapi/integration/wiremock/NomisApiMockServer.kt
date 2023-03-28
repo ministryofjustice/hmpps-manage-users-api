@@ -139,7 +139,6 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${HttpStatus.CONFLICT.value()},
-                "errorCode": 601,
                 "userMessage": "User already exists",
                 "developerMessage": "User TEST21 already exists"
                }
@@ -179,7 +178,6 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${HttpStatus.CONFLICT.value()},
-                "errorCode": 601,
                 "userMessage": "User already exists",
                 "developerMessage": "User TEST21 already exists"
                }
@@ -219,7 +217,6 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${HttpStatus.CONFLICT.value()},
-                "errorCode": 601,
                 "userMessage": "User already exists",
                 "developerMessage": "User TEST21 already exists"
                }
@@ -270,7 +267,6 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${status.value()},
-                "errorCode": 601,
                 "userMessage": "Role already exists: Role with code $roleCode already exists",
                 "developerMessage": "Role with code $roleCode already exists"
                }

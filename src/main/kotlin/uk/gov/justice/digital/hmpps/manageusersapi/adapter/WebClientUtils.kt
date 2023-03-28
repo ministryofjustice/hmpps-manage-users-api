@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.util.UriBuilder
@@ -111,6 +112,18 @@ class WebClientUtils(private val client: WebClient) {
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
+
+  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>, status: HttpStatus, newException: Exception): T =
+    try {
+      client.post()
+        .uri(uri)
+        .bodyValue(body)
+        .retrieve()
+        .bodyToMono(elementClass)
+        .block()!!
+    } catch (e: WebClientResponseException) {
+      throw if (e.statusCode.equals(status)) newException else e
+    }
 
   fun delete(uri: String) {
     client.delete()

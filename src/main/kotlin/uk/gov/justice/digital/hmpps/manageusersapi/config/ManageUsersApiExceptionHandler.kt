@@ -22,6 +22,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
 import javax.validation.ValidationException
@@ -56,6 +57,21 @@ class HmppsManageUsersApiExceptionHandler {
       .status(e.rawStatusCode)
       .contentType(APPLICATION_JSON)
       .body(e.responseBodyAsByteArray)
+  }
+
+  @ExceptionHandler(UserExistsException::class)
+  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse?>? {
+    log.debug("User exists exception caught: {}", e.message)
+    return ResponseEntity
+      .status(CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          errorCode = USER_EXISTS,
+          userMessage = "User already exists",
+          developerMessage = e.message,
+        ),
+      )
   }
 
   @ExceptionHandler(WebClientException::class)
@@ -154,8 +170,8 @@ class HmppsManageUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = CONFLICT,
-          errorCode = 602,
-          userMessage = "${e.message}",
+          errorCode = BASIC_VALIDATION_FAILURE,
+          userMessage = e.message,
           developerMessage = e.message,
         ),
       )
@@ -165,6 +181,9 @@ class HmppsManageUsersApiExceptionHandler {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
+
+const val USER_EXISTS = 601
+const val BASIC_VALIDATION_FAILURE = 602
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ErrorResponse(
