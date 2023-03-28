@@ -3,9 +3,10 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import java.util.UUID
 
-@Service
+@Service("ExternalUserSearchService")
 class UserSearchService(
   val userSearchApiService: UserSearchApiService,
 ) {
@@ -25,8 +26,4 @@ class UserSearchService(
     pageable: Pageable,
     status: Status,
   ) = userSearchApiService.findUsers(name, roles, groups, pageable, status)
-}
-
-enum class Status {
-  ACTIVE, INACTIVE, ALL
 }

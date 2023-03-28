@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
+import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserSearchService
 import java.time.LocalDateTime
 import java.util.UUID
 
-@RestController
+@RestController("ExternalUserSearchController")
 @RequestMapping("/externalusers")
 class UserSearchController(
   private val userSearchService: UserSearchService,

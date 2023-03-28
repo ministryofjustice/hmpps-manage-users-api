@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
@@ -10,6 +11,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
+import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import java.util.UUID
 
 @Service
@@ -77,7 +81,30 @@ class AuthApiService(
     usernames,
     EmailList::class.java,
   )
+
+  fun findUsers(
+    name: String?,
+    status: Status?,
+    authSources: List<AuthSource>?,
+    page: Int?,
+    size: Int?,
+    sort: String?,
+  ) =
+    userWebClientUtils.getWithParams(
+      "/api/user/search",
+      object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>>() {},
+      mapNonNull(
+        "name" to name,
+        "status" to status,
+        "authSources" to authSources,
+        "page" to page,
+        "size" to size,
+        "sort" to sort,
+      ),
+    )
 }
+
+fun <K, V> mapNonNull(vararg pairs: Pair<K, V>) = mapOf(*pairs).filterValues { it != null }
 
 class EmailList : MutableList<EmailAddress> by ArrayList()
 

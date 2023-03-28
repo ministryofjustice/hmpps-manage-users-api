@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status
+import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import java.util.UUID
 
 @Service
