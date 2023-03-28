@@ -191,7 +191,7 @@ class UserRolesController(
   ) = userRolesService.addRolesByUserId(userId, roles)
 
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @GetMapping("{userId}/assignable-roles")
+  @GetMapping("/{userId}/assignable-roles")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Get list of roles associated with the users account",
