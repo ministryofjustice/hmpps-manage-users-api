@@ -172,6 +172,27 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubPutFail(url: String, status: HttpStatus) {
+    stubFor(
+      put(url)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Auth User message for PUT failed",
+                "developerMessage": "Developer Auth user message for PUT failed",
+                "moreInfo": null
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubUserEmails() {
     stubFor(
       post("/auth/api/prisonuser/email")
