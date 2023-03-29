@@ -349,7 +349,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubFindUserByUsername(username: String) {
     stubFor(
-      get("/users/$username")
+      get("/users/${username.uppercase()}")
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -21,7 +22,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserExistsException
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ValidEmailException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
 import javax.validation.ValidationException
 
@@ -81,6 +83,14 @@ class HmppsManageUsersApiExceptionHandler {
       .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
   }
 
+  @ExceptionHandler(EntityNotFoundException::class)
+  fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> {
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .contentType(APPLICATION_JSON)
+      .body(ErrorResponse(status = NOT_FOUND.value(), developerMessage = e.message))
+  }
+
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
     log.error("Unexpected exception", e)
@@ -90,8 +100,8 @@ class HmppsManageUsersApiExceptionHandler {
       .body(ErrorResponse(status = INTERNAL_SERVER_ERROR.value(), developerMessage = e.message))
   }
 
-  @ExceptionHandler(VerifyEmailService.ValidEmailException::class)
-  fun handleAuthUserLastGroupException(e: VerifyEmailService.ValidEmailException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(ValidEmailException::class)
+  fun handleAuthUserLastGroupException(e: ValidEmailException): ResponseEntity<ErrorResponse> {
     log.info("Email validation exception caught: {}", e.message)
     return ResponseEntity.badRequest()
       .body(ErrorResponse(status = BAD_REQUEST.value(), developerMessage = e.message))

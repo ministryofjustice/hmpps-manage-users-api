@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.CreateTokenReque
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailType
 import java.util.UUID
@@ -86,7 +87,7 @@ class NotificationService(
     return setPasswordLink
   }
 
-  fun externalUserVerifyEmailNotification(userDetails: ExternalUser, email: String): String {
+  fun verifyEmailNotification(userDetails: UserIdentity, email: String): String {
     val verifyLink = buildLink(
       authService.createTokenByEmailType(TokenByEmailTypeRequest(userDetails.username, EmailType.PRIMARY.name)),
       "verify-email-confirm",

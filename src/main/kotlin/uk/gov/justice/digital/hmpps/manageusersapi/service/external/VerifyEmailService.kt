@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 
 @Service
@@ -21,7 +21,7 @@ class VerifyEmailService(
 ) {
 
   fun requestVerification(
-    userDetails: ExternalUser,
+    userDetails: UserIdentity,
     emailInput: String?,
   ): LinkEmailAndUsername {
     val email = EmailHelper.format(emailInput)
@@ -32,7 +32,7 @@ class VerifyEmailService(
       usernameToUpdate = confirmUsernameValidForUpdate(email, userDetails.username)
     }
 
-    val verifyLink = notificationService.externalUserVerifyEmailNotification(userDetails, email!!)
+    val verifyLink = notificationService.verifyEmailNotification(userDetails, email!!)
     return LinkEmailAndUsername(verifyLink, email, usernameToUpdate)
   }
 
@@ -87,15 +87,15 @@ class VerifyEmailService(
     }
   }
 
-  class ValidEmailException(val reason: String) : RuntimeException("Validate email failed with reason: $reason")
-
-  data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
-
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
     private const val MAX_LENGTH_EMAIL = 240
   }
 }
+
+class ValidEmailException(val reason: String) : RuntimeException("Validate email failed with reason: $reason")
+
+data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
 
 enum class EmailType(val description: String) {
   PRIMARY("primary"),

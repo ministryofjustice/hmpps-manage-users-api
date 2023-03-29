@@ -6,17 +6,18 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.SourceUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 
 data class NomisUser(
-  private val username: String,
-  val firstName: String,
+  override val username: String,
+  override val firstName: String,
   val staffId: String,
-  val lastName: String,
+  override val lastName: String,
   @JsonProperty("activeCaseloadId") val activeCaseLoadId: String?,
   @JsonProperty("primaryEmail") val email: String?,
   private val enabled: Boolean = false,
   @JsonProperty("dpsRoleCodes") val roles: List<String> = emptyList(),
-) : SourceUser {
+) : SourceUser, UserIdentity {
   val userId = staffId
 
   val name: String

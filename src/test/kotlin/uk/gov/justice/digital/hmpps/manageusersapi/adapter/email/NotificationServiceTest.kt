@@ -168,7 +168,7 @@ class NotificationServiceTest {
   }
 
   @Nested
-  inner class ExternalUserVerifyEmailNotification {
+  inner class VerifyEmailNotification {
     private val userId: UUID = UUID.randomUUID()
 
     @Test
@@ -176,7 +176,7 @@ class NotificationServiceTest {
       val user = buildExternalUser(userId)
       whenever(authService.createTokenByEmailType(TokenByEmailTypeRequest(user.username, EmailType.PRIMARY.name))).thenReturn("token-by-email")
 
-      notificationService.externalUserVerifyEmailNotification(user, "testy@testing.com")
+      notificationService.verifyEmailNotification(user, "testy@testing.com")
 
       val expectedParameters = mapOf(
         "firstName" to user.firstName,
@@ -202,7 +202,7 @@ class NotificationServiceTest {
       }.whenever(emailAdapter).send(notifyTemplateId, expectedParameters, "VerifyEmailRequest", user.username, "testy@testing.com")
 
       Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
-        .isThrownBy { notificationService.externalUserVerifyEmailNotification(user, "testy@testing.com") }
+        .isThrownBy { notificationService.verifyEmailNotification(user, "testy@testing.com") }
     }
   }
 
