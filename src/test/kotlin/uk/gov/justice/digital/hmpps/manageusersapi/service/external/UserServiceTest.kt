@@ -85,7 +85,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
-      doThrow(VerifyEmailService.ValidEmailException("reason"))
+      doThrow(ValidEmailException("reason"))
         .whenever(verifyEmailService).requestVerification(eq(externalUser), eq(newEmailAddress))
 
       assertThatThrownBy {
@@ -93,7 +93,7 @@ class UserServiceTest {
           userId,
           newEmailAddress,
         )
-      }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
+      }.isInstanceOf(ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
 
       verify(userApiService, never()).updateUserEmailAddressAndUsername(any(), anyString(), anyString())
     }
@@ -117,7 +117,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
+        LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
       val link = userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -132,7 +132,7 @@ class UserServiceTest {
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(true)
       whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, "testing"),
+        LinkEmailAndUsername("link", newEmailAddress, "testing"),
       )
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
@@ -161,14 +161,14 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
-      doThrow(VerifyEmailService.ValidEmailException("format")).whenever(verifyEmailService).validateEmailAddress("inv@lid@gov.uk")
+      doThrow(ValidEmailException("format")).whenever(verifyEmailService).validateEmailAddress("inv@lid@gov.uk")
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(
           userId,
           "inv@lid@gov.uk",
         )
-      }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java).hasMessage("Validate email failed with reason: format")
+      }.isInstanceOf(ValidEmailException::class.java).hasMessage("Validate email failed with reason: format")
     }
 
     @Test
@@ -298,7 +298,7 @@ class UserServiceTest {
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
       whenever(userApiService.hasPassword(userId)).thenReturn(false)
-      doThrow(VerifyEmailService.ValidEmailException("duplicate")).whenever(verifyEmailService).confirmUsernameValidForUpdate(newEmailAddress, "TESTY@TESTING.COM")
+      doThrow(ValidEmailException("duplicate")).whenever(verifyEmailService).confirmUsernameValidForUpdate(newEmailAddress, "TESTY@TESTING.COM")
 
       assertThatThrownBy {
         userService.amendUserEmailByUserId(userId, newEmailAddress)

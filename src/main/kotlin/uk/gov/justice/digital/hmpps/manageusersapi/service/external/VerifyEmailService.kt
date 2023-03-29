@@ -87,15 +87,15 @@ class VerifyEmailService(
     }
   }
 
-  class ValidEmailException(val reason: String) : RuntimeException("Validate email failed with reason: $reason")
-
-  data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
-
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
     private const val MAX_LENGTH_EMAIL = 240
   }
 }
+
+class ValidEmailException(val reason: String) : RuntimeException("Validate email failed with reason: $reason")
+
+data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
 
 enum class EmailType(val description: String) {
   PRIMARY("primary"),

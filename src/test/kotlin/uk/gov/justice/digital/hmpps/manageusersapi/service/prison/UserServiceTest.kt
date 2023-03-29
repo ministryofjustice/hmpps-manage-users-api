@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.LinkEmailAndUsername
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 
@@ -78,7 +79,7 @@ class UserServiceTest {
       val prisonUser = createNomisUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, userName),
+        LinkEmailAndUsername("link", newEmailAddress, userName),
       )
 
       prisonUserService.changeEmail(userName, newEmailAddress)
@@ -91,7 +92,7 @@ class UserServiceTest {
       val prisonUser = createNomisUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, userName),
+        LinkEmailAndUsername("link", newEmailAddress, userName),
       )
 
       prisonUserService.changeEmail(userName, newEmailAddress)
@@ -104,7 +105,7 @@ class UserServiceTest {
       val prisonUser = createNomisUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
-        VerifyEmailService.LinkEmailAndUsername("link", newEmailAddress, userName),
+        LinkEmailAndUsername("link", newEmailAddress, userName),
       )
 
       val verifyLink = prisonUserService.changeEmail(userName, newEmailAddress)

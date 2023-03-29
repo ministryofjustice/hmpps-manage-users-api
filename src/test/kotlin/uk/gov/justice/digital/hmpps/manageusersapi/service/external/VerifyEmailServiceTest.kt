@@ -75,7 +75,7 @@ class VerifyEmailServiceTest {
       whenever(externalUserSearchApiService.findUserByUsernameIfPresent(anyString())).thenReturn(user)
 
       assertThatThrownBy { verifyEmailService.requestVerification(user, newEmailAddress) }.isInstanceOf(
-        VerifyEmailService.ValidEmailException::class.java,
+        ValidEmailException::class.java,
       ).extracting("reason").isEqualTo("duplicate")
     }
 
@@ -202,13 +202,13 @@ class VerifyEmailServiceTest {
         verifyEmailService.validateEmailAddress(
           email,
         )
-      }.isInstanceOf(VerifyEmailService.ValidEmailException::class.java)
+      }.isInstanceOf(ValidEmailException::class.java)
         .hasMessage("Validate email failed with reason: maxlength")
     }
 
     private fun verifyPrimaryEmailFailure(email: String, reason: String) {
       assertThatThrownBy { verifyEmailService.validateEmailAddress(email) }.isInstanceOf(
-        VerifyEmailService.ValidEmailException::class.java,
+        ValidEmailException::class.java,
       ).extracting("reason").isEqualTo(reason)
     }
   }
