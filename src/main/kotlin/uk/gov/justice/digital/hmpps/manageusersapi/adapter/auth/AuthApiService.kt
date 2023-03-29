@@ -74,7 +74,7 @@ class AuthApiService(
     userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/$username/recognised")
 
   fun updateEmail(username: String, newEmailAddress: String) =
-    userWebClientUtils.put("api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
+    userWebClientUtils.put("/api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
 
   fun findUserEmails(usernames: List<String>): List<EmailAddress> = userWebClientUtils.postWithResponse(
     "/api/prisonuser/email",
