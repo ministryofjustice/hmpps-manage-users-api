@@ -113,7 +113,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
               "enabled" to true,
               "verified" to true,
               "lastLoggedIn" to "2022-12-14T10:23:04.915132",
-              "inactiveReason" to null,
+              "source" to "nomis",
             ),
           )
         }

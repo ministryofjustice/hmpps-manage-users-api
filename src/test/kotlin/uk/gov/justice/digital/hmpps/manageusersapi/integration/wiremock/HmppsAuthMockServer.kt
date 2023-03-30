@@ -320,7 +320,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "enabled": true,
                     "verified": true,
                     "lastLoggedIn": "2022-12-14T10:23:04.915132",
-                    "inactiveReason": null
+                    "source": "nomis"
                   },
                   {
                     "userId": "bc7098ed-948e-456d-8b21-3afb0257aa23",
@@ -332,7 +332,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "enabled": true,
                     "verified": true,
                     "lastLoggedIn": "2022-12-14T13:57:27.85401",
-                    "inactiveReason": null
+                    "source": "auth"
                  }
                ],
                "pageable": {
@@ -388,7 +388,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "enabled": true,
                     "verified": true,
                     "lastLoggedIn": "2022-12-14T10:23:04.915132",
-                    "inactiveReason": null
+                    "source": "nomis"
                   }
                 ],
                 "pageable": {
