@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -12,8 +13,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.ExternalUserDetailsDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -55,6 +56,9 @@ class AuthApiService(
   fun findAuthUserEmail(username: String, unverified: Boolean) =
     serviceWebClientUtils.getIgnoreError("/api/user/$username/authEmail?unverified=$unverified", EmailAddress::class.java)
 
+  fun syncEmailWithNomis(username: String, nomisEmail: String?) =
+    serviceWebClientUtils.post("/api/prisonuser/$username/email/sync", mapOf("email" to nomisEmail))
+
   fun findAzureUserByUsername(username: String): AzureUser? =
     try {
       UUID.fromString(username)
@@ -92,7 +96,7 @@ class AuthApiService(
   ) =
     userWebClientUtils.getWithParams(
       "/api/user/search",
-      object : ParameterizedTypeReference<PagedResponse<ExternalUserDetailsDto>>() {},
+      object : ParameterizedTypeReference<PagedResponse<AuthUserDto>>() {},
       mapNonNull(
         "name" to name,
         "status" to status,
@@ -119,4 +123,36 @@ data class CreateTokenRequest(
   val source: String,
   val firstName: String,
   val lastName: String,
+)
+
+data class AuthUserDto(
+  @Schema(description = "User ID", example = "91229A16-B5F4-4784-942E-A484A97AC865")
+  val userId: String? = null,
+
+  @Schema(description = "Username", example = "externaluser")
+  val username: String? = null,
+
+  @Schema(description = "Email address", example = "external.user@someagency.justice.gov.uk")
+  val email: String? = null,
+
+  @Schema(description = "First name", example = "External")
+  val firstName: String? = null,
+
+  @Schema(description = "Last name", example = "User")
+  val lastName: String? = null,
+
+  @Schema(description = "Account is locked due to incorrect password attempts", example = "true")
+  val locked: Boolean,
+
+  @Schema(required = true, description = "Account is enabled", example = "false")
+  val enabled: Boolean,
+
+  @Schema(required = true, description = "Email address has been verified", example = "false")
+  val verified: Boolean,
+
+  @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
+  val lastLoggedIn: LocalDateTime? = null,
+
+  @Schema(required = true, description = "Authentication source", example = "delius")
+  val source: String,
 )
