@@ -127,28 +127,28 @@ data class CreateTokenRequest(
 
 data class AuthUserDto(
   @Schema(description = "User ID", example = "91229A16-B5F4-4784-942E-A484A97AC865")
-  val userId: UUID,
+  val userId: String? = null,
 
   @Schema(description = "Username", example = "externaluser")
-  val username: String,
+  val username: String? = null,
 
   @Schema(description = "Email address", example = "external.user@someagency.justice.gov.uk")
-  val email: String,
+  val email: String? = null,
 
   @Schema(description = "First name", example = "External")
-  val firstName: String,
+  val firstName: String? = null,
 
   @Schema(description = "Last name", example = "User")
-  val lastName: String,
+  val lastName: String? = null,
 
   @Schema(description = "Account is locked due to incorrect password attempts", example = "true")
-  val locked: Boolean = false,
+  val locked: Boolean,
 
   @Schema(required = true, description = "Account is enabled", example = "false")
-  val enabled: Boolean = false,
+  val enabled: Boolean,
 
   @Schema(required = true, description = "Email address has been verified", example = "false")
-  val verified: Boolean = false,
+  val verified: Boolean,
 
   @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
   val lastLoggedIn: LocalDateTime? = null,
