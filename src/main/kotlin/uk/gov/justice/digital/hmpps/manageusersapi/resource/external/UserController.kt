@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserService
+import uk.gov.service.notify.NotificationClientException
 import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 import javax.validation.constraints.NotBlank
@@ -233,7 +235,80 @@ class UserController(
     )
     return if (smokeTestEnabled) resetLink else null
   }
+
+  @PostMapping("/api/authuser/create")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Create user",
+    description = "Create user",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Validation failed.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "409",
+        description = "User or email already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @Throws(NotificationClientException::class)
+  fun createUserByEmail(
+    @Parameter(description = "Details of the user to be created.", required = true) @RequestBody
+    user: NewUser,
+  ): ResponseEntity<Any> {
+    return ResponseEntity.ok(userService.createUser(user))
+  }
 }
+
+data class NewUser(
+  @Schema(
+    required = true,
+    description = "Email address",
+    example = "nomis.user@someagency.justice.gov.uk",
+  )
+  val email: String,
+
+  @Schema(required = true, description = "First name", example = "Nomis")
+  val firstName: String,
+
+  @Schema(required = true, description = "Last name", example = "User")
+  val lastName: String,
+
+  @Schema(
+    description = "Initial groups, can be used for one or more initial groups",
+    example = "[\"SITE_1_GROUP_1\", \"SITE_1_GROUP_2\"]",
+  )
+  val groupCodes: Set<String>?,
+)
 
 data class AmendUser(
   @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")

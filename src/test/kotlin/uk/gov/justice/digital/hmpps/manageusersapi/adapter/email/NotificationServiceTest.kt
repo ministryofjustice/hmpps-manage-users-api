@@ -123,18 +123,18 @@ class NotificationServiceTest {
   }
 
   @Nested
-  inner class ExternalUserEmailAmendInitialNotification {
-
+  inner class ExternalUserInitialNotification {
     private val userId: UUID = UUID.randomUUID()
+    private val firstName = "Testy"
+    private val lastName = "McTester"
 
     @Test
     fun `Creates reset token and sends email notification`() {
-      val user = buildExternalUser(userId)
       whenever(authService.createResetTokenForUser(userId)).thenReturn("reset-token")
 
-      notificationService.externalUserEmailAmendInitialNotification(userId, user, "new.testy@testing.com", "newtesty", "support-link")
+      notificationService.externalUserInitialNotification(userId, firstName, lastName, "newtesty", "testy.mctester@testing.com", "support-link", "ExternalUserAmend")
 
-      val expectedName = "${user.firstName} ${user.lastName}"
+      val expectedName = "$firstName $lastName"
       val expectedParameters = mapOf(
         "firstName" to expectedName,
         "fullName" to expectedName,
@@ -142,15 +142,14 @@ class NotificationServiceTest {
         "supportLink" to "support-link",
       )
 
-      verify(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
+      verify(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "ExternalUserAmend", "newtesty", "testy.mctester@testing.com")
     }
 
     @Test
     fun `Throws exception thrown by email adapter`() {
-      val user = buildExternalUser(userId)
       whenever(authService.createResetTokenForUser(userId)).thenReturn("reset-token")
 
-      val expectedName = "${user.firstName} ${user.lastName}"
+      val expectedName = "$firstName $lastName"
       val expectedParameters = mapOf(
         "firstName" to expectedName,
         "fullName" to expectedName,
@@ -160,10 +159,10 @@ class NotificationServiceTest {
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "AuthUserAmend", "newtesty", "new.testy@testing.com")
+      }.whenever(emailAdapter).send(initialPasswordTemplateId, expectedParameters, "ExternalUserAmend", "newtesty", "new.testy@testing.com")
 
       Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
-        .isThrownBy { notificationService.externalUserEmailAmendInitialNotification(userId, user, "new.testy@testing.com", "newtesty", "support-link") }
+        .isThrownBy { notificationService.externalUserInitialNotification(userId, firstName, lastName, "newtesty", "new.testy@testing.com", "support-link", "ExternalUserAmend") }
     }
   }
 

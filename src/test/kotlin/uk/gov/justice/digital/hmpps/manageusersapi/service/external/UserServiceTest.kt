@@ -183,12 +183,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -204,12 +206,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-not-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -231,12 +235,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -252,12 +258,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-not-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -273,7 +281,7 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(userId, externalUser, newEmailAddress, externalUser.username, "service-not-pecs@testing.com")
+      verify(notificationService).externalUserInitialNotification(userId, externalUser.firstName, externalUser.lastName, externalUser.username, newEmailAddress, "service-not-pecs@testing.com", "ExternalUserAmend")
     }
 
     @Test

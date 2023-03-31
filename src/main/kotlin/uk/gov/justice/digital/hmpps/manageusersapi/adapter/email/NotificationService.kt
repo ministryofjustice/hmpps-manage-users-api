@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailType
@@ -65,17 +64,17 @@ class NotificationService(
     }
   }
 
-  fun externalUserEmailAmendInitialNotification(
+  fun externalUserInitialNotification(
     userId: UUID,
-    user: ExternalUser,
-    newEmail: String,
-    newUserName: String,
+    firstName: String,
+    lastName: String,
+    username: String,
+    emailAddress: String,
     supportLink: String,
+    eventPrefix: String,
   ): String {
     val setPasswordLink = buildInitialPasswordLink(authService.createResetTokenForUser(userId))
-
-    val name = "${user.firstName} ${user.lastName}"
-
+    val name = "$firstName $lastName"
     val parameters = mapOf(
       "firstName" to name,
       "fullName" to name,
@@ -83,7 +82,7 @@ class NotificationService(
       "supportLink" to supportLink,
     )
 
-    emailAdapter.send(initialPasswordTemplateId, parameters, "AuthUserAmend", newUserName, newEmail)
+    emailAdapter.send(initialPasswordTemplateId, parameters, eventPrefix, username, emailAddress)
     return setPasswordLink
   }
 
