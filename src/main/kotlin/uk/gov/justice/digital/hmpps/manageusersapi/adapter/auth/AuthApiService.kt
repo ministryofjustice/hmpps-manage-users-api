@@ -56,9 +56,6 @@ class AuthApiService(
   fun findAuthUserEmail(username: String, unverified: Boolean) =
     serviceWebClientUtils.getIgnoreError("/api/user/$username/authEmail?unverified=$unverified", EmailAddress::class.java)
 
-  fun syncEmailWithNomis(username: String, nomisEmail: String?) =
-    serviceWebClientUtils.post("/api/prisonuser/$username/email/sync", mapOf("email" to nomisEmail))
-
   fun findAzureUserByUsername(username: String): AzureUser? =
     try {
       UUID.fromString(username)
@@ -76,6 +73,9 @@ class AuthApiService(
 
   fun confirmRecognised(username: String) =
     userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/$username/recognised")
+
+  fun syncEmailWithNomis(username: String, nomisEmail: String?) =
+    userWebClientUtils.post("/api/prisonuser/$username/email/sync", mapOf("email" to nomisEmail))
 
   fun updateEmail(username: String, newEmailAddress: String) =
     userWebClientUtils.put("/api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
