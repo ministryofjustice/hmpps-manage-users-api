@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
@@ -19,7 +18,7 @@ class UserApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NewPrisonUser {
+  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUser {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/admin-account",
@@ -29,13 +28,13 @@ class UserApiService(
         "firstName" to centralAdminUser.firstName,
         "lastName" to centralAdminUser.lastName,
       ),
-      NewPrisonUser::class.java,
+      NomisUser::class.java,
       HttpStatus.CONFLICT,
       UserExistsException(centralAdminUser.username),
     )
   }
 
-  fun createGeneralUser(generalUser: CreateUserRequest): NewPrisonUser {
+  fun createGeneralUser(generalUser: CreateUserRequest): NomisUser {
     log.debug("Create DPS general user - {}", generalUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/general-account",
@@ -46,13 +45,13 @@ class UserApiService(
         "lastName" to generalUser.lastName,
         "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
-      NewPrisonUser::class.java,
+      NomisUser::class.java,
       HttpStatus.CONFLICT,
       UserExistsException(generalUser.username),
     )
   }
 
-  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NewPrisonUser {
+  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUser {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/local-admin-account",
@@ -63,7 +62,7 @@ class UserApiService(
         "lastName" to localAdminUser.lastName,
         "localAdminGroup" to localAdminUser.defaultCaseloadId,
       ),
-      NewPrisonUser::class.java,
+      NomisUser::class.java,
       HttpStatus.CONFLICT,
       UserExistsException(localAdminUser.username),
     )

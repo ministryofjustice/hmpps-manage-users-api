@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 data class NomisUser(
   override val username: String,
   override val firstName: String,
-  val staffId: String,
+  val staffId: Int,
   override val lastName: String,
   @JsonProperty("activeCaseloadId") val activeCaseLoadId: String?,
   @JsonProperty("primaryEmail") val email: String?,
@@ -31,7 +31,7 @@ data class NomisUser(
       username = username,
       active = enabled,
       authSource = nomis,
-      userId = userId,
+      userId = userId.toString(),
       name = name,
       uuid = null,
       staffId = userId.toLong(),

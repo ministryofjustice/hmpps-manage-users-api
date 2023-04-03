@@ -151,6 +151,17 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubSyncNomisEmail(username: String) {
+    stubFor(
+      post("/auth/api/prisonuser/$username/email/sync")
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.OK.value()),
+        ),
+    )
+  }
+
   fun stubGetFail(url: String, status: HttpStatus) {
     stubFor(
       get(url)

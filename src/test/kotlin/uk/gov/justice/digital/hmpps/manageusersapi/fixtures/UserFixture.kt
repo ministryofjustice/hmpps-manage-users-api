@@ -35,7 +35,7 @@ class UserFixture {
     fun createNomisUserDetails(
       username: String = "NUSER_GEN",
       firstName: String = "Nomis",
-      staffId: String = "123456",
+      staffId: Int = 123456,
       lastName: String = "Take",
       activeCaseLoadId: String = "MDI",
       email: String = "nomis.usergen@digital.justice.gov.uk",
