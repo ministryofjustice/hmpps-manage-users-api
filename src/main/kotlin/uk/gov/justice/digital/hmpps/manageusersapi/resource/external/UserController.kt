@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserService
-import uk.gov.service.notify.NotificationClientException
 import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 import javax.validation.constraints.NotBlank
@@ -280,7 +279,6 @@ class UserController(
       ),
     ],
   )
-  @Throws(NotificationClientException::class)
   fun createUserByEmail(
     @Parameter(description = "Details of the user to be created.", required = true) @RequestBody
     user: NewUser,
