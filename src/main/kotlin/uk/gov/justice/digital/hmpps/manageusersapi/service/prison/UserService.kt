@@ -3,8 +3,8 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundExcepti
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 
-@Service("NomisUserService")
+@Service("PrisonUserService")
 class UserService(
   private val prisonUserApiService: UserApiService,
   private val authApiService: AuthApiService,
@@ -35,18 +35,18 @@ class UserService(
   }
 
   @Throws(HmppsValidationException::class)
-  fun createUser(user: CreateUserRequest): NewPrisonUser {
+  fun createUser(user: CreateUserRequest): NomisUser {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {
       throw HmppsValidationException(user.email.substringAfter('@'), "Email domain not valid")
     }
 
-    val nomisUserDetails = when (user.userType) {
+    val prisonUserDetails = when (user.userType) {
       DPS_ADM -> prisonUserApiService.createCentralAdminUser(user)
       DPS_GEN -> prisonUserApiService.createGeneralUser(user)
       DPS_LSA -> prisonUserApiService.createLocalAdminUser(user)
     }
     notificationService.newPrisonUserNotification(user, "DPSUserCreate")
-    return nomisUserDetails
+    return prisonUserDetails
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUser> {

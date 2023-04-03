@@ -14,15 +14,17 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_LSA
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.LinkEmailAndUsername
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
@@ -119,14 +121,18 @@ class UserServiceTest {
     @Test
     fun `create a DPS central admin user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
-      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
+      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_ADM)
 
       whenever(prisonUserApiService.createCentralAdminUser(user)).thenReturn(
-        NewPrisonUser(
+        NomisUser(
           user.username,
-          user.email,
           user.firstName,
+          102,
           user.lastName,
+          "CADM_I",
+          user.email,
+          true,
+          listOf(),
         ),
       )
       prisonUserService.createUser(user)
@@ -137,13 +143,17 @@ class UserServiceTest {
     @Test
     fun `create a DPS general user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
-      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
+      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_GEN, "MDI")
       whenever(prisonUserApiService.createGeneralUser(user)).thenReturn(
-        NewPrisonUser(
+        NomisUser(
           user.username,
-          user.email,
           user.firstName,
+          101,
           user.lastName,
+          "BXI",
+          user.email,
+          true,
+          listOf(),
         ),
       )
       prisonUserService.createUser(user)
@@ -154,13 +164,17 @@ class UserServiceTest {
     @Test
     fun `create a DPS local admin user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
-      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
+      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_LSA, "MDI")
       whenever(prisonUserApiService.createLocalAdminUser(user)).thenReturn(
-        NewPrisonUser(
+        NomisUser(
           user.username,
-          user.email,
           user.firstName,
+          100,
           user.lastName,
+          "CADM_I",
+          user.email,
+          true,
+          listOf(),
         ),
       )
       prisonUserService.createUser(user)
@@ -176,7 +190,7 @@ class UserServiceTest {
         "cadmin@test.gov.uk",
         "First",
         "Last",
-        UserType.DPS_LSA,
+        DPS_LSA,
         "MDI",
       )
 
