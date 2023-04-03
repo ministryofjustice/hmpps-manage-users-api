@@ -38,7 +38,7 @@ class SyncServiceTest {
         NomisUser(
           "NUSER_GEN",
           "Nomis",
-          "123456",
+          123456,
           "Take",
           "MDI",
           null,
