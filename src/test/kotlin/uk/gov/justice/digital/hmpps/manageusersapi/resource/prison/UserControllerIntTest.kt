@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -199,6 +200,113 @@ class UserControllerIntTest : IntegrationTestBase() {
             containing(
               """
               {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","localAdminGroup":"MDI"}
+              """.trimIndent(),
+            ),
+          ),
+      )
+    }
+  }
+
+  @Nested
+  inner class CreateLinkedAdminUser {
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong scope`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_ROLE"), scopes = listOf("read")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `create Linked Central Admin user`() {
+      val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+
+      nomisApiMockServer.stubCreateLinkedCentralAdminUser(createLinkedAdminUserRequest)
+
+      val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(PrisonStaffUserDto::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(prisonStaffUser.staffId).isEqualTo(100L)
+      assertThat(prisonStaffUser.firstName).isEqualTo("First")
+      assertThat(prisonStaffUser.lastName).isEqualTo("Last")
+      assertThat(prisonStaffUser.status).isEqualTo("ACTIVE")
+      assertThat(prisonStaffUser.primaryEmail).isEqualTo("f.l@justice.gov.uk")
+      assertThat(prisonStaffUser.generalAccount?.accountType).isEqualTo(UsageType.GENERAL)
+      assertThat(prisonStaffUser.adminAccount?.accountType).isEqualTo(UsageType.ADMIN)
+
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/link-admin-account/${createLinkedAdminUserRequest.existingUsername}"))
+          .withRequestBody(
+            containing(
+              """
+              {"username":"${createLinkedAdminUserRequest.adminUsername}"}
               """.trimIndent(),
             ),
           ),
@@ -412,6 +520,58 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it["errorCode"] as Int).isEqualTo(602)
           assertThat(it["userMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
           assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
+        }
+    }
+  }
+
+  @Nested
+  inner class CreateLinkedAdminUserError {
+    @Test
+    fun `create linked central admin user returns error when username already exists`() {
+      nomisApiMockServer.stubCreateLinkedCentralAdminUserConflict()
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errorCode"] as Int).isEqualTo(601)
+          assertThat(it["userMessage"] as String).isEqualTo("User already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: username TEST_USER_ADM already exists")
+        }
+    }
+
+    @Test
+    fun `create linked central admin user passes through error when error thrown from nomisapi`() {
+      nomisApiMockServer.stubCreateLinkedCentralAdminUserWithErrorFail(BAD_REQUEST)
+
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(BAD_REQUEST)
+        .expectBody()
+        .jsonPath("status").isEqualTo("400")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: General user name is required")
+          assertThat(it["developerMessage"] as String).isEqualTo("A bigger message")
         }
     }
   }

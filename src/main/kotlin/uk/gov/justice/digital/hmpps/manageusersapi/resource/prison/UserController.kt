@@ -21,11 +21,14 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
+import javax.validation.constraints.Size
 
 @RestController("NomisUserController")
 @Validated
@@ -88,6 +91,63 @@ class UserController(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest,
   ) = nomisUserService.createUser(createUserRequest)
+
+  @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasRole('ROLE_CREATE_USER')")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+    summary = "Create a Linked DPS Admin user",
+    description = "Creates a specific Linked DPS user. Requires role ROLE_CREATE_USER",
+    security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Create a Linked DPS Admin user",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(
+              implementation = PrisonStaffUserDto::class,
+            ),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to create linked DPS Admin user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to create this user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun createLinkedUser(
+    @RequestBody @Valid
+    createLinkedAdminUserRequest: CreateLinkedAdminUserRequest,
+  ) = nomisUserService.createLinkedUser(createLinkedAdminUserRequest)
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -170,6 +230,9 @@ data class CreateUserRequest(
 
   @Schema(description = "Default caseload (a.k.a Prison ID)", example = "BXI", required = false)
   val defaultCaseloadId: String? = null,
+
+  @Schema(description = "Indicates if the new user account should be linked", example = "true", required = false)
+  val linkAccount: Boolean? = false,
 )
 
 enum class UserType {
@@ -219,3 +282,43 @@ data class NewPrisonUserDto(
     }
   }
 }
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Linking a new admin account to an existing general user")
+data class CreateLinkedAdminUserRequest(
+  @Schema(description = "existingUsername", example = "TESTUSER1", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Username must be between 1 and 30",
+  )
+  @NotBlank
+  val existingUsername: String,
+
+  @Schema(description = "adminUsername", example = "TESTUSER1_ADM", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Username must be between 1 and 30",
+  )
+  @NotBlank
+  val adminUsername: String,
+)
+
+data class PrisonStaffUserDto(
+  val staffId: Long,
+  val firstName: String,
+  val lastName: String,
+  val status: String,
+  val primaryEmail: String?,
+  val generalAccount: UserCaseloadDetailDto?,
+  val adminAccount: UserCaseloadDetailDto?,
+)
+
+data class UserCaseloadDetailDto(
+  val username: String,
+  val active: Boolean,
+  val accountType: UsageType = UsageType.GENERAL,
+  val activeCaseload: PrisonCaseload?,
+  val caseloads: List<PrisonCaseload>? = listOf(),
+)

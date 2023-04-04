@@ -16,8 +16,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
@@ -103,6 +107,47 @@ class UserServiceTest {
       assertThatThrownBy { nomisUserService.createUser(userWithInvalidEmailDomain) }
         .isInstanceOf(HmppsValidationException::class.java)
         .hasMessage("Invalid Email domain: test.gov.uk with reason: Email domain not valid")
+    }
+  }
+
+  @Nested
+  inner class CreateLinkedCentralAdminAccount {
+    @Test
+    fun `create a DPS central admin user linked to a General account`() {
+      val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+      val generalCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("BXI", "Brixton (HMP)"),
+      )
+      val adminCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
+      )
+      val generalAccount = UserCaseloadDetail(
+        "TEST_USER",
+        false,
+        UsageType.GENERAL,
+        generalCaseLoads.get(1),
+        generalCaseLoads,
+      )
+      val adminAccount =
+        UserCaseloadDetail("TEST_USER_ADM", false, UsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
+
+      whenever(nomisUserApiService.linkCentralAdminUser(createLinkedAdminUserRequest)).thenReturn(
+        PrisonStaffUser(
+          100,
+          "First",
+          "Last",
+          "ACTIVE",
+          "f.l@justice.gov.uk",
+          generalAccount,
+          adminAccount,
+        ),
+      )
+
+      nomisUserService.createLinkedUser(createLinkedAdminUserRequest)
+
+      verify(nomisUserApiService).linkCentralAdminUser(createLinkedAdminUserRequest)
     }
   }
 

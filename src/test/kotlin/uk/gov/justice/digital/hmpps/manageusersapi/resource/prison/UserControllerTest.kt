@@ -26,6 +26,16 @@ class UserControllerTest {
   }
 
   @Nested
+  inner class CreateLinkedAdminUser {
+    @Test
+    fun `create Linked DPS Admin user`() {
+      val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+      userController.createLinkedUser(createLinkedAdminUserRequest)
+      verify(userService).createLinkedUser(createLinkedAdminUserRequest)
+    }
+  }
+
+  @Nested
   inner class FindUsersByFirstAndLastName {
     @Test
     fun `no matches`() {
