@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 @Service("NomisUserRolesService")
 class UserRolesService(
   val externalRolesApiService: RolesApiService,
-  val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService,
+  val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService,
 ) {
 
   fun getUserRoles(username: String): PrisonUserRole {

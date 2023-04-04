@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 
 class UserRolesServiceTest {
   private val externalRolesApiService: RolesApiService = mock()
-  private val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService = mock()
+  private val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService = mock()
   private val userRolesService = UserRolesService(externalRolesApiService, nomisRolesApiService)
 
   @Test

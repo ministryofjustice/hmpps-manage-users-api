@@ -29,10 +29,10 @@ import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
 
-@RestController("NomisUserController")
+@RestController("PrisonUserController")
 @Validated
 class UserController(
-  private val nomisUserService: UserService,
+  private val prisonUserService: UserService,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
   @PostMapping("/prisonusers/{username}/email")
@@ -85,7 +85,7 @@ class UserController(
     @Valid @RequestBody
     amendEmail: AmendEmail,
   ): String? {
-    val link = nomisUserService.changeEmail(username, amendEmail.email!!)
+    val link = prisonUserService.changeEmail(username, amendEmail.email!!)
     return if (smokeTestEnabled) link else ""
   }
 
@@ -144,7 +144,7 @@ class UserController(
   fun createUser(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest,
-  ) = nomisUserService.createUser(createUserRequest)
+  ) = prisonUserService.createUser(createUserRequest)
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -186,7 +186,7 @@ class UserController(
       required = true,
     ) @RequestParam @NotEmpty
     lastName: String,
-  ): List<PrisonUserDto> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
+  ): List<PrisonUserDto> = prisonUserService.findUsersByFirstAndLastName(firstName, lastName)
     .map {
       PrisonUserDto(
         username = it.username,
@@ -254,7 +254,7 @@ data class PrisonUserDto(
   val activeCaseLoadId: String?,
 )
 
-@Schema(description = "Nomis User Created Details")
+@Schema(description = "Prison User Created Details")
 data class NewPrisonUserDto(
   @Schema(description = "Username", example = "TEST_USER")
   val username: String,
@@ -278,7 +278,7 @@ data class NewPrisonUserDto(
 }
 
 data class AmendEmail(
-  @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
+  @Schema(required = true, description = "Email address", example = "prison.user@someagency.justice.gov.uk")
   @field:NotBlank(message = "Email must not be blank")
   val email: String?,
 )
