@@ -34,6 +34,27 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubConflictOnPostTo(url: String) {
+    stubFor(
+      post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${CONFLICT.value()},
+                "errorCode": null,
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+                "moreInfo": null
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubGetAllRolesFilterAdminType() {
     stubFor(
       get(urlEqualTo("/roles?adminTypes=EXT_ADM"))
@@ -81,27 +102,6 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${status.value()},
-                "errorCode": null,
-                "userMessage": "User test message",
-                "developerMessage": "Developer test message",
-                "moreInfo": null
-               }
-              """.trimIndent(),
-            ),
-        ),
-    )
-  }
-
-  fun stubCreateEmailDomainConflict() {
-    stubFor(
-      post(urlEqualTo("/email-domains"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(CONFLICT.value())
-            .withBody(
-              """{
-                "status": ${CONFLICT.value()},
                 "errorCode": null,
                 "userMessage": "User test message",
                 "developerMessage": "Developer test message",
@@ -1106,26 +1106,6 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubCreateGroupsConflict() {
-    stubFor(
-      post(urlEqualTo("/groups"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(CONFLICT.value())
-            .withBody(
-              """{
-                "status": ${CONFLICT.value()},
-                "errorCode": null,
-                "userMessage": "User test message",
-                "developerMessage": "Developer test message",
-                "moreInfo": null
-               }
-              """.trimIndent(),
-            ),
-        ),
-    )
-  }
   fun stubCreateChildrenGroupFail(status: HttpStatus) {
     stubFor(
       post(urlEqualTo("/groups/child"))
@@ -1138,27 +1118,6 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "status": ${status.value()},
                 "errorCode": null,
                 "userMessage": "default message [groupName],100,4] default message [groupCode],30,2],default message [parentGroupCode],30,2]",
-                "developerMessage": "Developer test message",
-                "moreInfo": null
-               }
-              """.trimIndent(),
-            ),
-        ),
-    )
-  }
-
-  fun stubCreateChildGroupsConflict() {
-    stubFor(
-      post(urlEqualTo("/groups/child"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(CONFLICT.value())
-            .withBody(
-              """{
-                "status": ${CONFLICT.value()},
-                "errorCode": null,
-                "userMessage": "User test message",
                 "developerMessage": "Developer test message",
                 "moreInfo": null
                }
@@ -1729,6 +1688,22 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
                 ]
                   
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubCreateUserSuccess(userId: UUID) {
+    stubFor(
+      post(urlEqualTo("/users/user/create"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(OK.value())
+            .withBody(
+              """
+                $userId
               """.trimIndent(),
             ),
         ),

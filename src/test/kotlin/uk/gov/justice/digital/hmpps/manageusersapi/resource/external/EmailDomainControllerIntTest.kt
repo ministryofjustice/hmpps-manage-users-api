@@ -159,7 +159,7 @@ class EmailDomainControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `domain already exists`() {
-      externalUsersApiMockServer.stubCreateEmailDomainConflict()
+      externalUsersApiMockServer.stubConflictOnPostTo("/email-domains")
       webTestClient.post().uri("/email-domains")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
         .body(

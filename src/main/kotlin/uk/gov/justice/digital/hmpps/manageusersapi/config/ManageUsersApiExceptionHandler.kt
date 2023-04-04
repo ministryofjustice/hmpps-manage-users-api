@@ -101,10 +101,10 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(ValidEmailException::class)
-  fun handleAuthUserLastGroupException(e: ValidEmailException): ResponseEntity<ErrorResponse> {
+  fun handleValidEmailException(e: ValidEmailException): ResponseEntity<ErrorResponse> {
     log.info("Email validation exception caught: {}", e.message)
     return ResponseEntity.badRequest()
-      .body(ErrorResponse(status = BAD_REQUEST.value(), developerMessage = e.message))
+      .body(ErrorResponse(status = BAD_REQUEST.value(), userMessage = "Validation failure: ${e.message}", developerMessage = e.message))
   }
 
   @ExceptionHandler(ValidationException::class)
