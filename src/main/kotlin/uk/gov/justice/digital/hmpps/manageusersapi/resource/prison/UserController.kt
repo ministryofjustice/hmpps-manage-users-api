@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -269,7 +269,7 @@ data class NewPrisonUserDto(
   val lastName: String,
 ) {
   companion object {
-    fun fromDomain(newPrisonUser: NomisUser): NewPrisonUserDto {
+    fun fromDomain(newPrisonUser: PrisonUser): NewPrisonUserDto {
       with(newPrisonUser) {
         return NewPrisonUserDto(username, email!!, firstName, lastName)
       }

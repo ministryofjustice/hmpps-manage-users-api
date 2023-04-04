@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.fixtures
 
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -42,7 +42,7 @@ class UserFixture {
       enabled: Boolean = true,
       roles: List<String> = listOf("ROLE1", "ROLE2", "ROLE3"),
 
-    ) = NomisUser(
+    ) = PrisonUser(
       username = username,
       firstName = firstName,
       staffId = staffId,

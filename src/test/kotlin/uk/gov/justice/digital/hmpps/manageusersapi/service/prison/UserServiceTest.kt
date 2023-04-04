@@ -14,12 +14,12 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
@@ -124,7 +124,7 @@ class UserServiceTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_ADM)
 
       whenever(prisonUserApiService.createCentralAdminUser(user)).thenReturn(
-        NomisUser(
+        PrisonUser(
           user.username,
           user.firstName,
           102,
@@ -145,7 +145,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_GEN, "MDI")
       whenever(prisonUserApiService.createGeneralUser(user)).thenReturn(
-        NomisUser(
+        PrisonUser(
           user.username,
           user.firstName,
           101,
@@ -166,7 +166,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_LSA, "MDI")
       whenever(prisonUserApiService.createLocalAdminUser(user)).thenReturn(
-        NomisUser(
+        PrisonUser(
           user.username,
           user.firstName,
           100,
