@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.model
 
-data class PrisonUser(
+data class EnhancedPrisonUser(
   val username: String,
   val userId: String,
   val email: String?,

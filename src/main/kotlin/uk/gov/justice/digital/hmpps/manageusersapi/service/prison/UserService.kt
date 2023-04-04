@@ -5,7 +5,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
@@ -49,7 +49,7 @@ class UserService(
     return prisonUserDetails
   }
 
-  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUser> {
+  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<EnhancedPrisonUser> {
     val prisonUsers: List<PrisonUserSummary> = prisonUserApiService.findUsersByFirstAndLastName(firstName, lastName)
     // The users may have an unverified email, so we need to go to auth to determine if they are different
     if (prisonUsers.isNotEmpty()) {
@@ -59,7 +59,7 @@ class UserService(
         .associateBy { it.username }
 
       return prisonUsers.map {
-        PrisonUser(
+        EnhancedPrisonUser(
           username = it.username,
           userId = it.staffId,
           email = authUsersByUsername[it.username]?.email ?: it.email,
