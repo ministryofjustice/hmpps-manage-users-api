@@ -14,6 +14,16 @@ class WebClientUtils(private val client: WebClient) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
+
+  fun getWithEmptyResponseSucceeds(uri: String): Boolean {
+    client.get()
+      .uri(uri)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+    return true
+  }
+
   fun <T : Any> get(uri: String, elementClass: Class<T>): T =
     client.get()
       .uri(uri)

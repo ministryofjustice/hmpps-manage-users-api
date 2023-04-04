@@ -6,16 +6,16 @@ import java.util.UUID
 
 data class ExternalUser(
   val userId: UUID,
-  val username: String,
+  override val username: String,
   val email: String,
-  val firstName: String,
-  val lastName: String,
+  override val firstName: String,
+  override val lastName: String,
   val locked: Boolean = false,
   val enabled: Boolean = false,
   val verified: Boolean = false,
   val lastLoggedIn: LocalDateTime? = null,
   val inactiveReason: String? = null,
-) : SourceUser {
+) : SourceUser, UserIdentity {
 
   override fun toGenericUser(): GenericUser =
     GenericUser(

@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 class UserControllerTest {
 
   private val userService: UserService = mock()
-  private val userController = UserController(userService)
+  private val userController = UserController(userService, false)
 
   @Nested
   inner class CreateUser {

@@ -17,6 +17,95 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 class UserControllerIntTest : IntegrationTestBase() {
 
   @Nested
+  inner class AmendUserEmail {
+    private val username = "testy"
+    private val domain = "testing.com"
+    private val newEmailAddress = "new.testy@$domain"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `amend user email`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      hmppsAuthMockServer.stubConfirmRecognised(username)
+      externalUsersApiMockServer.stubValidateEmailDomain(domain, true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+      hmppsAuthMockServer.stubUpdatePrisonUserEmail(username, newEmailAddress)
+
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `remote failure passed on`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      hmppsAuthMockServer.stubConfirmRecognised(username)
+      externalUsersApiMockServer.stubValidateEmailDomain(domain, true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+      hmppsAuthMockServer.stubPutFail("/auth/api/prisonuser/$username/email", HttpStatus.INTERNAL_SERVER_ERROR)
+
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().is5xxServerError
+        .expectBody()
+        .jsonPath("status").isEqualTo("500")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Auth User message for PUT failed")
+          assertThat(it["developerMessage"] as String).isEqualTo("Developer Auth user message for PUT failed")
+        }
+    }
+  }
+
+  @Nested
   inner class CreateUser {
 
     @Test

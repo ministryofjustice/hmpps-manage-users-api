@@ -9,18 +9,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.commons.text.WordUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
@@ -34,7 +36,62 @@ import javax.validation.constraints.Size
 @Validated
 class UserController(
   private val nomisUserService: UserService,
+  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
+  @PostMapping("/prisonusers/{username}/email")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
+  @Operation(
+    summary = "Amend a prison user email address.",
+    description = "Amend a prison user email address.",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Bad request e.g. missing email address.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun amendUserEmail(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String,
+    @Valid @RequestBody
+    amendEmail: AmendEmail,
+  ): String? {
+    val link = nomisUserService.changeEmail(username, amendEmail.email!!)
+    return if (smokeTestEnabled) link else ""
+  }
+
   @PostMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
@@ -230,9 +287,6 @@ data class CreateUserRequest(
 
   @Schema(description = "Default caseload (a.k.a Prison ID)", example = "BXI", required = false)
   val defaultCaseloadId: String? = null,
-
-  @Schema(description = "Indicates if the new user account should be linked", example = "true", required = false)
-  val linkAccount: Boolean? = false,
 )
 
 enum class UserType {
@@ -275,9 +329,9 @@ data class NewPrisonUserDto(
   val lastName: String,
 ) {
   companion object {
-    fun fromDomain(newPrisonUser: NewPrisonUser): NewPrisonUserDto {
+    fun fromDomain(newPrisonUser: NomisUser): NewPrisonUserDto {
       with(newPrisonUser) {
-        return NewPrisonUserDto(username, primaryEmail, firstName, lastName)
+        return NewPrisonUserDto(username, email!!, firstName, lastName)
       }
     }
   }
@@ -303,6 +357,12 @@ data class CreateLinkedAdminUserRequest(
   )
   @NotBlank
   val adminUsername: String,
+)
+
+data class AmendEmail(
+  @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
+  @field:NotBlank(message = "Email must not be blank")
+  val email: String?,
 )
 
 data class PrisonStaffUserDto(

@@ -13,7 +13,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
-import uk.gov.justice.digital.hmpps.manageusersapi.service.external.Status.ACTIVE
+import uk.gov.justice.digital.hmpps.manageusersapi.service.Status.ACTIVE
 import java.util.UUID
 
 class UserSearchServiceTest {

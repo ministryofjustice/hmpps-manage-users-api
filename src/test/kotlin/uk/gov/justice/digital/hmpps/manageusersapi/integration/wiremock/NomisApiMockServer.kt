@@ -77,7 +77,16 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "lastName": "User",
                 "primaryEmail": "test@test.com",
                 "activeCaseloadId" : "CADM_I",
-                "accountType": "ADMIN"
+                "accountType": "ADMIN",
+                "staffId": 102,
+                "accountStatus": "EXPIRED",
+                "dpsRoleCodes": [],
+                "accountNonLocked": true,
+                "credentialsNonExpired": false,
+                "enabled": true,
+                "admin": true,
+                "active": false,
+                "staffStatus": "ACTIVE"
               }
               """.trimIndent(),
             ),
@@ -166,7 +175,16 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "lastName": "User",
                 "primaryEmail": "test@test.com",
                 "activeCaseloadId": "MDI",
-                "accountType": "GENERAL"
+                "accountType": "GENERAL",
+                "staffId": 101,
+                "accountStatus": "EXPIRED",
+                "dpsRoleCodes": [],
+                "accountNonLocked": true,
+                "credentialsNonExpired": false,
+                "enabled": true,
+                "admin": false,
+                "active": false,
+                "staffStatus": "ACTIVE"
               }
               """.trimIndent(),
             ),
@@ -189,7 +207,16 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "lastName": "User",
                 "primaryEmail": "test@test.com",
                 "activeCaseloadId": "MDI",
-                "accountType": "ADMIN"
+                "accountType": "ADMIN",
+                "staffId": 100,
+                "accountStatus": "EXPIRED",
+                "dpsRoleCodes": [],
+                "accountNonLocked": true,
+                "credentialsNonExpired": false,
+                "enabled": true,
+                "admin": true,
+                "active": false,
+                "staffStatus": "ACTIVE"
               }
               """.trimIndent(),
             ),
@@ -456,7 +483,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubFindUserByUsername(username: String) {
     stubFor(
-      get("/users/$username")
+      get("/users/${username.uppercase()}")
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))

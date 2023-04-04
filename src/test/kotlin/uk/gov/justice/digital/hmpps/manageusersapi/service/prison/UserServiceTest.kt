@@ -6,15 +6,18 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
-import uk.gov.justice.digital.hmpps.manageusersapi.model.NewPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -23,72 +26,163 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_LSA
+import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.LinkEmailAndUsername
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 
 class UserServiceTest {
-  private val nomisUserApiService: UserApiService = mock()
+
+  private val prisonUserApiService: UserApiService = mock()
   private val authApiService: AuthApiService = mock()
   private val notificationService: NotificationService = mock()
   private val verifyEmailDomainService: VerifyEmailDomainService = mock()
-  private val nomisUserService = UserService(
-    nomisUserApiService,
+  private val verifyEmailService: VerifyEmailService = mock()
+  private val prisonUserService = UserService(
+    prisonUserApiService,
     authApiService,
     notificationService,
     verifyEmailDomainService,
+    verifyEmailService,
   )
+
+  @Nested
+  inner class ChangeEmail {
+    private val userName = "testy"
+    private val newEmailAddress = "new.testy@testing.com"
+
+    @Test
+    fun `should throw exception when prison user not present in prison system`() {
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(null)
+
+      assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prison username $userName not found")
+
+      verify(authApiService, never()).confirmRecognised(any())
+      verify(verifyEmailService, never()).requestVerification(any(), any())
+      verify(authApiService, never()).updateEmail(any(), any())
+    }
+
+    @Test
+    fun `should throw exception when user not recognised by Auth`() {
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createNomisUserDetails())
+      doThrow(RuntimeException("Auth API call failed")).whenever(authApiService).confirmRecognised(userName)
+
+      assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress) }
+        .isInstanceOf(RuntimeException::class.java)
+        .hasMessage("Auth API call failed")
+
+      verify(verifyEmailService, never()).requestVerification(any(), any())
+      verify(authApiService, never()).updateEmail(any(), any())
+    }
+
+    @Test
+    fun `should request verification of new email address`() {
+      val prisonUser = createNomisUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
+      whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, userName),
+      )
+
+      prisonUserService.changeEmail(userName, newEmailAddress)
+
+      verify(verifyEmailService).requestVerification(prisonUser, newEmailAddress)
+    }
+
+    @Test
+    fun `should update email address in Auth`() {
+      val prisonUser = createNomisUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
+      whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, userName),
+      )
+
+      prisonUserService.changeEmail(userName, newEmailAddress)
+
+      verify(authApiService).updateEmail(userName, newEmailAddress)
+    }
+
+    @Test
+    fun `should respond with verify link`() {
+      val prisonUser = createNomisUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
+      whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, userName),
+      )
+
+      val verifyLink = prisonUserService.changeEmail(userName, newEmailAddress)
+
+      assertThat(verifyLink).isEqualTo("link")
+    }
+  }
 
   @Nested
   inner class CreateUser {
     @Test
     fun `create a DPS central admin user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
-      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
+      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_ADM)
 
-      whenever(nomisUserApiService.createCentralAdminUser(user)).thenReturn(
-        NewPrisonUser(
+      whenever(prisonUserApiService.createCentralAdminUser(user)).thenReturn(
+        NomisUser(
           user.username,
-          user.email,
           user.firstName,
+          102,
           user.lastName,
+          "CADM_I",
+          user.email,
+          true,
+          listOf(),
         ),
       )
-      nomisUserService.createUser(user)
-      verify(nomisUserApiService).createCentralAdminUser(user)
+      prisonUserService.createUser(user)
+      verify(prisonUserApiService).createCentralAdminUser(user)
       verify(notificationService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test
     fun `create a DPS general user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
-      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_GEN, "MDI")
-      whenever(nomisUserApiService.createGeneralUser(user)).thenReturn(
-        NewPrisonUser(
+      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_GEN, "MDI")
+      whenever(prisonUserApiService.createGeneralUser(user)).thenReturn(
+        NomisUser(
           user.username,
-          user.email,
           user.firstName,
+          101,
           user.lastName,
+          "BXI",
+          user.email,
+          true,
+          listOf(),
         ),
       )
-      nomisUserService.createUser(user)
-      verify(nomisUserApiService).createGeneralUser(user)
+      prisonUserService.createUser(user)
+      verify(prisonUserApiService).createGeneralUser(user)
       verify(notificationService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
     @Test
     fun `create a DPS local admin user`() {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
-      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_LSA, "MDI")
-      whenever(nomisUserApiService.createLocalAdminUser(user)).thenReturn(
-        NewPrisonUser(
+      val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_LSA, "MDI")
+      whenever(prisonUserApiService.createLocalAdminUser(user)).thenReturn(
+        NomisUser(
           user.username,
-          user.email,
           user.firstName,
+          100,
           user.lastName,
+          "CADM_I",
+          user.email,
+          true,
+          listOf(),
         ),
       )
-      nomisUserService.createUser(user)
-      verify(nomisUserApiService).createLocalAdminUser(user)
+      prisonUserService.createUser(user)
+      verify(prisonUserApiService).createLocalAdminUser(user)
       verify(notificationService).newPrisonUserNotification(user, "DPSUserCreate")
     }
 
@@ -100,11 +194,11 @@ class UserServiceTest {
         "cadmin@test.gov.uk",
         "First",
         "Last",
-        UserType.DPS_LSA,
+        DPS_LSA,
         "MDI",
       )
 
-      assertThatThrownBy { nomisUserService.createUser(userWithInvalidEmailDomain) }
+      assertThatThrownBy { prisonUserService.createUser(userWithInvalidEmailDomain) }
         .isInstanceOf(HmppsValidationException::class.java)
         .hasMessage("Invalid Email domain: test.gov.uk with reason: Email domain not valid")
     }
@@ -133,7 +227,7 @@ class UserServiceTest {
       val adminAccount =
         UserCaseloadDetail("TEST_USER_ADM", false, UsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
 
-      whenever(nomisUserApiService.linkCentralAdminUser(createLinkedAdminUserRequest)).thenReturn(
+      whenever(prisonUserApiService.linkCentralAdminUser(createLinkedAdminUserRequest)).thenReturn(
         PrisonStaffUser(
           100,
           "First",
@@ -145,9 +239,9 @@ class UserServiceTest {
         ),
       )
 
-      nomisUserService.createLinkedUser(createLinkedAdminUserRequest)
+      prisonUserService.createLinkedUser(createLinkedAdminUserRequest)
 
-      verify(nomisUserApiService).linkCentralAdminUser(createLinkedAdminUserRequest)
+      verify(prisonUserApiService).linkCentralAdminUser(createLinkedAdminUserRequest)
     }
   }
 
@@ -155,15 +249,15 @@ class UserServiceTest {
   inner class FindPrisonUsersByFirstAndLastNames {
     @Test
     fun `no matches`() {
-      whenever(nomisUserService.findUsersByFirstAndLastName("first", "last")).thenReturn(listOf())
+      whenever(prisonUserService.findUsersByFirstAndLastName("first", "last")).thenReturn(listOf())
 
-      assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last")).isEmpty()
+      assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last")).isEmpty()
       verifyNoInteractions(authApiService)
     }
 
     @Test
     fun `prison users only`() {
-      whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
+      whenever(prisonUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
@@ -172,7 +266,7 @@ class UserServiceTest {
       )
       whenever(authApiService.findUserEmails(listOf())).thenReturn(listOf())
 
-      assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
+      assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
           PrisonUser(
             username = "U1",
@@ -206,7 +300,7 @@ class UserServiceTest {
 
     @Test
     fun `Prison users matched in auth`() {
-      whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
+      whenever(prisonUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
@@ -222,8 +316,8 @@ class UserServiceTest {
         ),
       )
 
-      assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last").size).isEqualTo(3)
-      assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
+      assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last").size).isEqualTo(3)
+      assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
           PrisonUser(
             username = "U1",
@@ -258,7 +352,7 @@ class UserServiceTest {
 
     @Test
     fun `Prison users partially matched in auth`() {
-      whenever(nomisUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
+      whenever(prisonUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
@@ -275,7 +369,7 @@ class UserServiceTest {
         ),
       )
 
-      assertThat(nomisUserService.findUsersByFirstAndLastName("first", "last"))
+      assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
           PrisonUser(
             username = "U1",
