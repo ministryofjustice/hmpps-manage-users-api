@@ -144,7 +144,7 @@ class UserController(
   fun createUser(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest,
-  ): NewPrisonUserDto = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
+  ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
