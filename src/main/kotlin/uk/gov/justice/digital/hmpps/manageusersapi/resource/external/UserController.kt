@@ -235,7 +235,7 @@ class UserController(
     return if (smokeTestEnabled) resetLink else null
   }
 
-  @PostMapping("/api/authuser/create")
+  @PostMapping("/externalusers/create")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Create user",

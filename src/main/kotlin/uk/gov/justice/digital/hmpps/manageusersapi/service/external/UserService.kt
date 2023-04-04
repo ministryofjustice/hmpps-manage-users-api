@@ -27,7 +27,6 @@ class UserService(
   fun createUser(user: NewUser): String {
     val email = EmailHelper.format(user.email)
     verifyEmailService.validateEmailAddress(email)
-
     val userId = UUID.fromString(externalUsersApiService.createUser(user.firstName, user.lastName, email!!, user.groupCodes))
     val initialNotificationSupportLink = initialNotificationSupportLink(userId)
     notificationService.externalUserInitialNotification(userId, user.firstName, user.lastName, upperCase(email), email, initialNotificationSupportLink, "ExternalUserCreate")
