@@ -27,7 +27,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.UserApiService as PrisonUserApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as PrisonUserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole as UserRoleResponse
 
 class UserServiceTest {

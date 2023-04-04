@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 
-@Service(value = "prisonRolesApiService")
+@Service(value = "nomisRolesApiService")
 class RolesApiService(
   @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {

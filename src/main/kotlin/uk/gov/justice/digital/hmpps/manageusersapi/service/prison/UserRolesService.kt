@@ -6,7 +6,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService as PrisonRolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as PrisonRolesApiService
 
 @Service("PrisonUserRolesService")
 class UserRolesService(

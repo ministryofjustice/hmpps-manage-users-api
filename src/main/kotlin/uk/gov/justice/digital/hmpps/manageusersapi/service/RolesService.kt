@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendme
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService as ExternalRolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService as PrisonRolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as PrisonRolesApiService
 
 @Service
 class RolesService(

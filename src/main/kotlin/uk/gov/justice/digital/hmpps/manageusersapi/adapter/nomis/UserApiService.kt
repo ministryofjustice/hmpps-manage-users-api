@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison
+package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
-@Service(value = "prisonUserApiService")
+@Service(value = "nomisUserApiService")
 class UserApiService(
   @Qualifier("nomisWebClientUtils") val serviceWebClientUtils: WebClientUtils,
   @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,

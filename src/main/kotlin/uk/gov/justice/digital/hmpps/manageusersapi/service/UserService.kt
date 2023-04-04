@@ -17,7 +17,7 @@ class UserService(
   private val authApiService: AuthApiService,
   private val deliusApiService: UserApiService,
   private val externalUsersSearchApiService: UserSearchApiService,
-  private val prisonApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.UserApiService,
+  private val prisonApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
   private val authenticationFacade: AuthenticationFacade,
   private val externalRolesApiService: UserRolesApiService,
 ) {

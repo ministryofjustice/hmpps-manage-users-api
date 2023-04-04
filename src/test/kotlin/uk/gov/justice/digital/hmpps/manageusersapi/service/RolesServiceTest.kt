@@ -27,7 +27,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 
 class RolesServiceTest {
-  private val prisonRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService = mock()
+  private val prisonRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService = mock()
   private val externalRolesApiService: RolesApiService = mock()
   private val rolesService = RolesService(prisonRolesApiService, externalRolesApiService)
 
