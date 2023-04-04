@@ -177,7 +177,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForNewToken()
       externalUsersApiMockServer.stubValidEmailDomain()
 
-      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
+      val prisonUserDetails = webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -195,10 +195,10 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody(NewPrisonUserDto::class.java)
         .returnResult().responseBody!!
 
-      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
-      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
-      assertThat(nomisUserDetails.lastName).isEqualTo("User")
-      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
+      assertThat(prisonUserDetails.username).isEqualTo("TEST1")
+      assertThat(prisonUserDetails.firstName).isEqualTo("Test")
+      assertThat(prisonUserDetails.lastName).isEqualTo("User")
+      assertThat(prisonUserDetails.primaryEmail).isEqualTo("test@test.com")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/admin-account"))
@@ -217,7 +217,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateGeneralUser()
       hmppsAuthMockServer.stubForNewToken()
 
-      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
+      val prisonUserDetails = webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -236,10 +236,10 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody(NewPrisonUserDto::class.java)
         .returnResult().responseBody!!
 
-      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
-      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
-      assertThat(nomisUserDetails.lastName).isEqualTo("User")
-      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
+      assertThat(prisonUserDetails.username).isEqualTo("TEST1")
+      assertThat(prisonUserDetails.firstName).isEqualTo("Test")
+      assertThat(prisonUserDetails.lastName).isEqualTo("User")
+      assertThat(prisonUserDetails.primaryEmail).isEqualTo("test@test.com")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/general-account"))
@@ -258,7 +258,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateLocalAdminUser()
       hmppsAuthMockServer.stubForNewToken()
 
-      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
+      val prisonUserDetails = webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
@@ -277,10 +277,10 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody(NewPrisonUserDto::class.java)
         .returnResult().responseBody!!
 
-      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
-      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
-      assertThat(nomisUserDetails.lastName).isEqualTo("User")
-      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
+      assertThat(prisonUserDetails.username).isEqualTo("TEST1")
+      assertThat(prisonUserDetails.firstName).isEqualTo("Test")
+      assertThat(prisonUserDetails.lastName).isEqualTo("User")
+      assertThat(prisonUserDetails.primaryEmail).isEqualTo("test@test.com")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/local-admin-account"))
