@@ -13,11 +13,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRoleType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService as PrisonRolesApiService
 
 class UserRolesServiceTest {
   private val externalRolesApiService: RolesApiService = mock()
-  private val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.RolesApiService = mock()
-  private val userRolesService = UserRolesService(externalRolesApiService, nomisRolesApiService)
+  private val prisonRolesApiService: PrisonRolesApiService = mock()
+  private val userRolesService = UserRolesService(externalRolesApiService, prisonRolesApiService)
 
   @Test
   fun `get user roles`() {
@@ -38,7 +39,7 @@ class UserRolesServiceTest {
     )
 
     whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
-    whenever(nomisRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    whenever(prisonRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
     assertThat(userRoles).isEqualTo(userRolesFromNomis)
@@ -63,7 +64,7 @@ class UserRolesServiceTest {
     )
 
     whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
-    whenever(nomisRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    whenever(prisonRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
     assertThat(userRoles).isNotEqualTo(userRolesFromNomis)
@@ -89,7 +90,7 @@ class UserRolesServiceTest {
     )
 
     whenever(externalRolesApiService.getRoles(any())).thenReturn(rolesFromExternalUsers)
-    whenever(nomisRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
+    whenever(prisonRolesApiService.getUserRoles(anyString())).thenReturn(userRolesFromNomis)
     val userRoles = userRolesService.getUserRoles("BOB")
 
     assertThat(userRoles).isNotEqualTo(userRolesFromNomis)

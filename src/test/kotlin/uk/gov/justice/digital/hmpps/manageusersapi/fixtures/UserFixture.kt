@@ -32,7 +32,7 @@ class UserFixture {
       inactiveReason = inactiveReason,
     )
 
-    fun createNomisUserDetails(
+    fun createPrisonUserDetails(
       username: String = "NUSER_GEN",
       firstName: String = "Nomis",
       staffId: Int = 123456,

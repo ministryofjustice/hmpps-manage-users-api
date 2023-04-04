@@ -10,7 +10,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 
@@ -52,7 +52,7 @@ class SyncServiceTest {
 
     @Test
     fun `sync email`() {
-      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
 
       syncService.syncEmailWithNomis("nomis_user")
       verify(prisonUserApiService).findUserByUsername("nomis_user")

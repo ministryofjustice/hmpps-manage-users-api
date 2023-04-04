@@ -15,7 +15,7 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.prison.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
@@ -65,7 +65,7 @@ class UserServiceTest {
 
     @Test
     fun `should throw exception when user not recognised by Auth`() {
-      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createNomisUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createPrisonUserDetails())
       doThrow(RuntimeException("Auth API call failed")).whenever(authApiService).confirmRecognised(userName)
 
       assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress) }
@@ -78,7 +78,7 @@ class UserServiceTest {
 
     @Test
     fun `should request verification of new email address`() {
-      val prisonUser = createNomisUserDetails()
+      val prisonUser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
@@ -91,7 +91,7 @@ class UserServiceTest {
 
     @Test
     fun `should update email address in Auth`() {
-      val prisonUser = createNomisUserDetails()
+      val prisonUser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
@@ -104,7 +104,7 @@ class UserServiceTest {
 
     @Test
     fun `should respond with verify link`() {
-      val prisonUser = createNomisUserDetails()
+      val prisonUser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),

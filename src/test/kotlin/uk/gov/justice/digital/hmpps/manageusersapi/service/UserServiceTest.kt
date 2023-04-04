@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
@@ -67,7 +67,7 @@ class UserServiceTest {
     fun `find nomis user`() {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
       whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserDetails(uuid))
 
       val user = userService.findUserByUsername("nuser_gen")
@@ -152,7 +152,7 @@ class UserServiceTest {
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
       whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(
         createAuthUserDetails(),
       )
@@ -256,7 +256,7 @@ class UserServiceTest {
     @Test
     fun `find roles of nomis user`() {
       whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createNomisUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
 
       val userRoleList = userService.findRolesByUsername("nuser_gen")
       assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "ROLE1"), UserRole(roleCode = "ROLE2"), UserRole(roleCode = "ROLE3")))
