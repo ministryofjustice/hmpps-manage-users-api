@@ -7,7 +7,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 
 class UserControllerTest {
@@ -35,7 +35,7 @@ class UserControllerTest {
 
     @Test
     fun `User mapped to PrisonUser`() {
-      val user = PrisonUser(
+      val user = EnhancedPrisonUser(
         verified = true,
         username = "username",
         email = "user@justice.gov.uk",
@@ -63,7 +63,7 @@ class UserControllerTest {
 
     @Test
     fun `User mapped to PrisonUser handling missing values`() {
-      val user = PrisonUser(
+      val user = EnhancedPrisonUser(
         verified = false,
         username = "username",
         firstName = "first",
