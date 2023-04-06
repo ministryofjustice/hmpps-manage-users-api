@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -153,13 +153,13 @@ class UserController(
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
-    summary = "Create a Linked DPS Admin user",
-    description = "Creates a specific Linked DPS user. Requires role ROLE_CREATE_USER",
+    summary = "Link an Admin User to an existing General Account",
+    description = "Link an Admin User to an existing General Account. Requires role ROLE_CREATE_USER",
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Create a Linked DPS Admin user",
+        description = "Admin User linked to an existing General Account",
         content = [
           io.swagger.v3.oas.annotations.media.Content(
             mediaType = "application/json",
@@ -171,7 +171,7 @@ class UserController(
       ),
       ApiResponse(
         responseCode = "400",
-        description = "Incorrect request to create linked DPS Admin user",
+        description = "Incorrect request to link an admin user to a general user",
         content = [
           Content(
             mediaType = "application/json",
@@ -191,7 +191,7 @@ class UserController(
       ),
       ApiResponse(
         responseCode = "403",
-        description = "Incorrect permissions to create this user",
+        description = "Incorrect permissions to link an admin user to an existing general user",
         content = [
           Content(
             mediaType = "application/json",
@@ -378,7 +378,7 @@ data class PrisonStaffUserDto(
 data class UserCaseloadDetailDto(
   val username: String,
   val active: Boolean,
-  val accountType: UsageType = UsageType.GENERAL,
+  val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
   val activeCaseload: PrisonCaseload?,
   val caseloads: List<PrisonCaseload>? = listOf(),
 )

@@ -13,7 +13,7 @@ data class PrisonStaffUser(
 data class UserCaseloadDetail(
   val username: String,
   val active: Boolean,
-  val accountType: UsageType = UsageType.GENERAL,
+  val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
   val activeCaseload: PrisonCaseload?,
   val caseloads: List<PrisonCaseload>? = listOf(),
 )

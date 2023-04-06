@@ -20,9 +20,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
@@ -220,12 +220,12 @@ class UserServiceTest {
       val generalAccount = UserCaseloadDetail(
         "TEST_USER",
         false,
-        UsageType.GENERAL,
+        PrisonUsageType.GENERAL,
         generalCaseLoads.get(1),
         generalCaseLoads,
       )
       val adminAccount =
-        UserCaseloadDetail("TEST_USER_ADM", false, UsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
+        UserCaseloadDetail("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
 
       whenever(prisonUserApiService.linkCentralAdminUser(createLinkedAdminUserRequest)).thenReturn(
         PrisonStaffUser(

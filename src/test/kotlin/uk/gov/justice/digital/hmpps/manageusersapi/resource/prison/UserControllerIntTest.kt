@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -375,7 +375,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `create Linked Central Admin user`() {
+    fun `Link a Central Admin user to a General User`() {
       val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
 
       nomisApiMockServer.stubCreateLinkedCentralAdminUser(createLinkedAdminUserRequest)
@@ -400,8 +400,8 @@ class UserControllerIntTest : IntegrationTestBase() {
       assertThat(prisonStaffUser.lastName).isEqualTo("Last")
       assertThat(prisonStaffUser.status).isEqualTo("ACTIVE")
       assertThat(prisonStaffUser.primaryEmail).isEqualTo("f.l@justice.gov.uk")
-      assertThat(prisonStaffUser.generalAccount?.accountType).isEqualTo(UsageType.GENERAL)
-      assertThat(prisonStaffUser.adminAccount?.accountType).isEqualTo(UsageType.ADMIN)
+      assertThat(prisonStaffUser.generalAccount?.accountType).isEqualTo(PrisonUsageType.GENERAL)
+      assertThat(prisonStaffUser.adminAccount?.accountType).isEqualTo(PrisonUsageType.ADMIN)
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/link-admin-account/${createLinkedAdminUserRequest.existingUsername}"))
