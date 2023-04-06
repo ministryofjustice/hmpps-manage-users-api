@@ -32,10 +32,10 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Size
 
-@RestController("NomisUserController")
+@RestController("PrisonUserController")
 @Validated
 class UserController(
-  private val nomisUserService: UserService,
+  private val prisonUserService: UserService,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
   @PostMapping("/prisonusers/{username}/email")
@@ -88,7 +88,7 @@ class UserController(
     @Valid @RequestBody
     amendEmail: AmendEmail,
   ): String? {
-    val link = nomisUserService.changeEmail(username, amendEmail.email!!)
+    val link = prisonUserService.changeEmail(username, amendEmail.email!!)
     return if (smokeTestEnabled) link else ""
   }
 
@@ -147,7 +147,7 @@ class UserController(
   fun createUser(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest,
-  ) = NewPrisonUserDto.fromDomain(nomisUserService.createUser(createUserRequest))
+  ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
@@ -204,7 +204,7 @@ class UserController(
   fun createLinkedAdminUser(
     @RequestBody @Valid
     createLinkedAdminUserRequest: CreateLinkedAdminUserRequest,
-  ) = nomisUserService.createLinkedUser(createLinkedAdminUserRequest)
+  ) = prisonUserService.createLinkedUser(createLinkedAdminUserRequest)
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -246,7 +246,7 @@ class UserController(
       required = true,
     ) @RequestParam @NotEmpty
     lastName: String,
-  ): List<PrisonUserDto> = nomisUserService.findUsersByFirstAndLastName(firstName, lastName)
+  ): List<PrisonUserDto> = prisonUserService.findUsersByFirstAndLastName(firstName, lastName)
     .map {
       PrisonUserDto(
         username = it.username,
