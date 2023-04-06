@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -616,8 +617,8 @@ class UserControllerIntTest : IntegrationTestBase() {
   @Nested
   inner class CreateLinkedAdminUserError {
     @Test
-    fun `create linked central admin user returns error when username already exists`() {
-      nomisApiMockServer.stubCreateLinkedCentralAdminUserConflict()
+    fun `create linked central admin user returns error when general user already has a linked admin account`() {
+      nomisApiMockServer.stubCreateLinkedCentralAdminUserDuplicateConflict()
       webTestClient.post().uri("/linkedprisonusers/admin")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
@@ -634,9 +635,56 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("status").isEqualTo("409")
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["errorCode"] as Int).isEqualTo(601)
-          assertThat(it["userMessage"] as String).isEqualTo("User already exists")
-          assertThat(it["developerMessage"] as String).isEqualTo("Unable to create user: username TEST_USER_ADM already exists")
+          assertThat(it["userMessage"] as String).isEqualTo("User already exists: Admin user already exists for this staff member")
+          assertThat(it["developerMessage"] as String).isEqualTo("Admin user already exists for this staff member")
+        }
+    }
+
+    @Test
+    fun `create linked central admin user returns error when the admin user already exists`() {
+      nomisApiMockServer.stubCreateLinkedCentralAdminUserExistConflict()
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("409")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("User already exists: User TEST_USER_ADM already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("User TEST_USER_ADM already exists")
+        }
+    }
+
+    @Test
+    fun `create linked central admin user returns error when specified general user is not found`() {
+      nomisApiMockServer.stubCreateLinkedCentralAdminWhenGeneralUserNotFound()
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER_NOT_FOUND",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(NOT_FOUND)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo("404")
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("User not found: Linked User Account TEST_USER_NOT_FOUND not found")
+          assertThat(it["developerMessage"] as String).isEqualTo("Linked User Account TEST_USER_NOT_FOUND not found")
         }
     }
 

@@ -201,7 +201,7 @@ class UserController(
       ),
     ],
   )
-  fun createLinkedUser(
+  fun createLinkedAdminUser(
     @RequestBody @Valid
     createLinkedAdminUserRequest: CreateLinkedAdminUserRequest,
   ) = nomisUserService.createLinkedUser(createLinkedAdminUserRequest)

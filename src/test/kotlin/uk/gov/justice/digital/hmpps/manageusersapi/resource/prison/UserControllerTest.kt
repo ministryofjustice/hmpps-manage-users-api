@@ -30,7 +30,7 @@ class UserControllerTest {
     @Test
     fun `create Linked DPS Admin user`() {
       val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
-      userController.createLinkedUser(createLinkedAdminUserRequest)
+      userController.createLinkedAdminUser(createLinkedAdminUserRequest)
       verify(userService).createLinkedUser(createLinkedAdminUserRequest)
     }
   }

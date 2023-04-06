@@ -243,7 +243,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubCreateLinkedCentralAdminUserConflict() {
+  fun stubCreateLinkedCentralAdminUserDuplicateConflict() {
     stubFor(
       post(urlEqualTo("/users/link-admin-account/TEST_USER"))
         .willReturn(
@@ -255,6 +255,44 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "status": ${HttpStatus.CONFLICT.value()},
                 "userMessage": "User already exists: Admin user already exists for this staff member",
                 "developerMessage": "Admin user already exists for this staff member"
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubCreateLinkedCentralAdminUserExistConflict() {
+    stubFor(
+      post(urlEqualTo("/users/link-admin-account/TEST_USER"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "userMessage": "User already exists: User TEST_USER_ADM already exists",
+                "developerMessage": "User TEST_USER_ADM already exists"
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubCreateLinkedCentralAdminWhenGeneralUserNotFound() {
+    stubFor(
+      post(urlEqualTo("/users/link-admin-account/TEST_USER_NOT_FOUND"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "userMessage": "User not found: Linked User Account TEST_USER_NOT_FOUND not found",
+                "developerMessage": "Linked User Account TEST_USER_NOT_FOUND not found"
                }
               """.trimIndent(),
             ),

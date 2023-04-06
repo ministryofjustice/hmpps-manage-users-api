@@ -97,8 +97,6 @@ class UserApiService(
         "username" to centralAdminUser.adminUsername,
       ),
       PrisonStaffUser::class.java,
-      HttpStatus.CONFLICT,
-      UserExistsException(centralAdminUser.adminUsername),
     )
   }
 }
