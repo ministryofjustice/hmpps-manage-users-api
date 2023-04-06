@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -13,6 +14,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
@@ -25,6 +27,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
+import uk.gov.service.notify.NotificationClientException
 import java.util.UUID
 
 class UserServiceTest {
@@ -46,6 +50,145 @@ class UserServiceTest {
     telemetryClient,
   )
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+
+  @Nested
+  inner class CreateUser {
+    private val emailAddress = "testy.mctester@testing.com"
+
+    @Test
+    fun `should fail when email invalid`() {
+      doThrow(ValidEmailException("reason"))
+        .whenever(verifyEmailService).validateEmailAddress(emailAddress)
+
+      assertThatThrownBy {
+        userService.createUser(NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1")))
+      }.isInstanceOf(ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
+
+      verifyNoInteractions(userApiService, notificationService)
+    }
+
+    @Test
+    fun `should fail when remote call to external users fails`() {
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      doThrow(WebClientResponseException::class).whenever(
+        userApiService,
+      ).createUser(newUser.firstName, newUser.lastName, newUser.email, newUser.groupCodes)
+
+      assertThatThrownBy {
+        userService.createUser(newUser)
+      }.isInstanceOf(WebClientResponseException::class.java)
+
+      verifyNoInteractions(notificationService)
+    }
+
+    @Test
+    fun `should fail when attempt to send email fails`() {
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      val userId = uuid.toString()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+      }
+      whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf())
+      whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("prison-staff-hub", "service-not-pecs@testing.com"))
+
+      whenever(notificationService.externalUserInitialNotification(any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).then {
+        throw NotificationClientException("email service failed")
+      }
+
+      assertThatThrownBy {
+        userService.createUser(newUser)
+      }.isInstanceOf(NotificationClientException::class.java)
+    }
+
+    @Test
+    fun `should format email`() {
+      val newUser = NewUser("SARAH.o’connor@gov.uk", "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      val userId = uuid.toString()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, "sarah.o'connor@gov.uk", groupCodes)).thenReturn(userId)
+
+        whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf())
+        whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
+          createAuthServiceWith(
+            "prison-staff-hub",
+            "service-not-pecs@testing.com",
+          ),
+        )
+
+        userService.createUser(newUser)
+
+        verify(notificationService).externalUserInitialNotification(uuid, firstName, lastName, "SARAH.O'CONNOR@GOV.UK", "sarah.o'connor@gov.uk", "prison-staff-hub", "ExternalUserCreate")
+      }
+    }
+
+    @Test
+    fun `should generate pecs user group support link`() {
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      val userId = uuid.toString()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+
+        whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf(UserGroup("PECS Groups", "PECS Test Group")))
+        whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(
+          createAuthServiceWith(
+            "book-a-secure-move-ui",
+            "service-pecs@testing.com",
+          ),
+        )
+
+        userService.createUser(newUser)
+
+        verify(notificationService).externalUserInitialNotification(uuid, firstName, lastName, emailAddress.uppercase(), emailAddress, "book-a-secure-move-ui", "ExternalUserCreate")
+      }
+    }
+
+    @Test
+    fun `should generate non pecs user group support link`() {
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      val userId = uuid.toString()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+
+        whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf(UserGroup("NON PECS Groups", "NON PECS Test Group")))
+        whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
+          createAuthServiceWith(
+            "prison-staff-hub",
+            "service-non-pecs@testing.com",
+          ),
+        )
+
+        userService.createUser(newUser)
+
+        verify(notificationService).externalUserInitialNotification(uuid, firstName, lastName, emailAddress.uppercase(), emailAddress, "prison-staff-hub", "ExternalUserCreate")
+      }
+    }
+
+    @Test
+    fun `should return user id`() {
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      val userId = uuid.toString()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+
+        whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf(UserGroup("NON PECS Groups", "NON PECS Test Group")))
+        whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
+          createAuthServiceWith(
+            "prison-staff-hub",
+            "service-non-pecs@testing.com",
+          ),
+        )
+
+        val actualUserId = userService.createUser(newUser)
+
+        assertEquals(userId, actualUserId)
+      }
+    }
+  }
 
   @Nested
   inner class EnableExternalUser {
@@ -183,12 +326,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -204,12 +349,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-not-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -231,12 +378,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -252,12 +401,14 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(
+      verify(notificationService).externalUserInitialNotification(
         any(),
-        any(),
+        anyString(),
+        anyString(),
         anyString(),
         anyString(),
         eq("service-not-pecs@testing.com"),
+        anyString(),
       )
     }
 
@@ -273,7 +424,7 @@ class UserServiceTest {
 
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
-      verify(notificationService).externalUserEmailAmendInitialNotification(userId, externalUser, newEmailAddress, externalUser.username, "service-not-pecs@testing.com")
+      verify(notificationService).externalUserInitialNotification(userId, externalUser.firstName, externalUser.lastName, externalUser.username, newEmailAddress, "service-not-pecs@testing.com", "ExternalUserAmend")
     }
 
     @Test
@@ -304,9 +455,9 @@ class UserServiceTest {
         userService.amendUserEmailByUserId(userId, newEmailAddress)
       }.hasMessage("Validate email failed with reason: duplicate")
     }
+  }
 
-    private fun createAuthServiceWith(contact: String, code: String): AuthService {
-      return AuthService(code, "name", "desc", contact, "url")
-    }
+  private fun createAuthServiceWith(contact: String, code: String): AuthService {
+    return AuthService(code, "name", "desc", contact, "url")
   }
 }

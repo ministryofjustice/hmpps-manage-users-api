@@ -528,7 +528,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Create group - group already exists`() {
-      externalUsersApiMockServer.stubCreateGroupsConflict()
+      externalUsersApiMockServer.stubConflictOnPostTo("/groups")
 
       webTestClient
         .post().uri("/groups")
@@ -656,7 +656,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Create child group - group already exists`() {
-      externalUsersApiMockServer.stubCreateChildGroupsConflict()
+      externalUsersApiMockServer.stubConflictOnPostTo("/groups/child")
       webTestClient
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))

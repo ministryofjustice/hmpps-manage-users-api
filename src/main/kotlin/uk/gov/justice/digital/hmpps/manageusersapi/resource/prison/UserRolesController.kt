@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesServi
 import javax.validation.constraints.Size
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as PrisonCaseloadDomain
 
-@RestController("NomisUserRolesController")
+@RestController("PrisonUserRolesController")
 @Validated
 @RequestMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserRolesController(

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
@@ -20,7 +21,7 @@ class UserApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): NomisUser {
+  fun createCentralAdminUser(centralAdminUser: CreateUserRequest): PrisonUser {
     log.debug("Create DPS central admin user - {}", centralAdminUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/admin-account",
@@ -30,13 +31,13 @@ class UserApiService(
         "firstName" to centralAdminUser.firstName,
         "lastName" to centralAdminUser.lastName,
       ),
-      NomisUser::class.java,
+      PrisonUser::class.java,
       HttpStatus.CONFLICT,
       UserExistsException(centralAdminUser.username),
     )
   }
 
-  fun createGeneralUser(generalUser: CreateUserRequest): NomisUser {
+  fun createGeneralUser(generalUser: CreateUserRequest): PrisonUser {
     log.debug("Create DPS general user - {}", generalUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/general-account",
@@ -47,13 +48,13 @@ class UserApiService(
         "lastName" to generalUser.lastName,
         "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
-      NomisUser::class.java,
+      PrisonUser::class.java,
       HttpStatus.CONFLICT,
       UserExistsException(generalUser.username),
     )
   }
 
-  fun createLocalAdminUser(localAdminUser: CreateUserRequest): NomisUser {
+  fun createLocalAdminUser(localAdminUser: CreateUserRequest): PrisonUser {
     log.debug("Create DPS local admin user - {}", localAdminUser.username)
     return userWebClientUtils.postWithResponse(
       "/users/local-admin-account",
@@ -64,18 +65,18 @@ class UserApiService(
         "lastName" to localAdminUser.lastName,
         "localAdminGroup" to localAdminUser.defaultCaseloadId,
       ),
-      NomisUser::class.java,
+      PrisonUser::class.java,
       HttpStatus.CONFLICT,
       UserExistsException(localAdminUser.username),
     )
   }
 
-  fun findUserByUsername(username: String): NomisUser? {
+  fun findUserByUsername(username: String): PrisonUser? {
     if ("@" in username) {
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", NomisUser::class.java)
+    return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", PrisonUser::class.java)
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {

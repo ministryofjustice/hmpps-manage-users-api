@@ -7,7 +7,8 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 
 class UserControllerTest {
@@ -20,7 +21,16 @@ class UserControllerTest {
     @Test
     fun `create DPS user`() {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", UserType.DPS_ADM)
-      userController.createUser(user)
+      whenever(userService.createUser(user)).thenReturn(createPrisonUserDetails())
+
+      assertThat(userController.createUser(user)).isEqualTo(
+        NewPrisonUserDto(
+          username = "NUSER_GEN",
+          primaryEmail = "nomis.usergen@digital.justice.gov.uk",
+          firstName = "Nomis",
+          lastName = "Take",
+        ),
+      )
       verify(userService).createUser(user)
     }
   }
@@ -45,7 +55,7 @@ class UserControllerTest {
 
     @Test
     fun `User mapped to PrisonUser`() {
-      val user = PrisonUser(
+      val user = EnhancedPrisonUser(
         verified = true,
         username = "username",
         email = "user@justice.gov.uk",
@@ -73,7 +83,7 @@ class UserControllerTest {
 
     @Test
     fun `User mapped to PrisonUser handling missing values`() {
-      val user = PrisonUser(
+      val user = EnhancedPrisonUser(
         verified = false,
         username = "username",
         firstName = "first",

@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
@@ -147,7 +147,7 @@ class UserController(
   fun createUser(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest,
-  ) = nomisUserService.createUser(createUserRequest)
+  ) = NewPrisonUserDto.fromDomain(nomisUserService.createUser(createUserRequest))
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
@@ -314,7 +314,7 @@ data class PrisonUserDto(
   val activeCaseLoadId: String?,
 )
 
-@Schema(description = "Nomis User Created Details")
+@Schema(description = "Prison User Created Details")
 data class NewPrisonUserDto(
   @Schema(description = "Username", example = "TEST_USER")
   val username: String,
@@ -329,7 +329,7 @@ data class NewPrisonUserDto(
   val lastName: String,
 ) {
   companion object {
-    fun fromDomain(newPrisonUser: NomisUser): NewPrisonUserDto {
+    fun fromDomain(newPrisonUser: PrisonUser): NewPrisonUserDto {
       with(newPrisonUser) {
         return NewPrisonUserDto(username, email!!, firstName, lastName)
       }
@@ -360,7 +360,7 @@ data class CreateLinkedAdminUserRequest(
 )
 
 data class AmendEmail(
-  @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
+  @Schema(required = true, description = "Email address", example = "prison.user@someagency.justice.gov.uk")
   @field:NotBlank(message = "Email must not be blank")
   val email: String?,
 )

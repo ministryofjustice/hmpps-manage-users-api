@@ -17,7 +17,7 @@ class UserService(
   private val authApiService: AuthApiService,
   private val deliusApiService: UserApiService,
   private val externalUsersSearchApiService: UserSearchApiService,
-  private val nomisApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
+  private val prisonApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
   private val authenticationFacade: AuthenticationFacade,
   private val externalRolesApiService: UserRolesApiService,
 ) {
@@ -31,7 +31,7 @@ class UserService(
   fun findMasterUser(username: String) =
     externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
-        nomisApiService.findUserByUsername(username)
+        prisonApiService.findUserByUsername(username)
           ?: run {
             authApiService.findAzureUserByUsername(username)
               ?: run {
@@ -53,7 +53,7 @@ class UserService(
 
   fun findRolesByUsername(username: String): List<UserRole>? {
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
-      ?: run { nomisApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
+      ?: run { prisonApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
       ?: run { authApiService.findAzureUserByUsername(username)?.roles?.map { UserRole(it.name) } }
       ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name.substring(5)) } } // remove ROLE_
   }

@@ -179,14 +179,14 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubForNewToken()
       externalUsersApiMockServer.stubValidEmailDomain()
 
-      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
             mapOf(
-              "username" to "TEST1",
-              "email" to "test@gov.uk",
-              "firstName" to "Test",
+              "username" to "TEST_ADM",
+              "email" to "testadm@gov.uk",
+              "firstName" to "Testadm",
               "lastName" to "User",
               "userType" to "DPS_ADM",
             ),
@@ -194,20 +194,24 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
-        .expectBody(NewPrisonUserDto::class.java)
-        .returnResult().responseBody!!
-
-      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
-      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
-      assertThat(nomisUserDetails.lastName).isEqualTo("User")
-      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to "TEST_ADM",
+              "firstName" to "Testadm",
+              "lastName" to "User",
+              "primaryEmail" to "testadm@test.com",
+            ),
+          )
+        }
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/admin-account"))
           .withRequestBody(
             containing(
               """
-              {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User"}
+              {"username":"TEST_ADM","email":"testadm@gov.uk","firstName":"Testadm","lastName":"User"}
               """.trimIndent(),
             ),
           ),
@@ -219,14 +223,14 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateGeneralUser()
       hmppsAuthMockServer.stubForNewToken()
 
-      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
             mapOf(
-              "username" to "TEST1",
-              "email" to "test@gov.uk",
-              "firstName" to "Test",
+              "username" to "TEST_GEN",
+              "email" to "testgen@gov.uk",
+              "firstName" to "Testgen",
               "lastName" to "User",
               "userType" to "DPS_GEN",
               "defaultCaseloadId" to "MDI",
@@ -235,20 +239,24 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
-        .expectBody(NewPrisonUserDto::class.java)
-        .returnResult().responseBody!!
-
-      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
-      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
-      assertThat(nomisUserDetails.lastName).isEqualTo("User")
-      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to "TEST_GEN",
+              "firstName" to "Testgen",
+              "lastName" to "User",
+              "primaryEmail" to "testgen@test.com",
+            ),
+          )
+        }
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/general-account"))
           .withRequestBody(
             containing(
               """
-              {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","defaultCaseloadId":"MDI"}
+              {"username":"TEST_GEN","email":"testgen@gov.uk","firstName":"Testgen","lastName":"User","defaultCaseloadId":"MDI"}
               """.trimIndent(),
             ),
           ),
@@ -260,14 +268,14 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.stubCreateLocalAdminUser()
       hmppsAuthMockServer.stubForNewToken()
 
-      val nomisUserDetails = webTestClient.post().uri("/prisonusers")
+      webTestClient.post().uri("/prisonusers")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
           fromValue(
             mapOf(
-              "username" to "TEST1",
-              "email" to "test@gov.uk",
-              "firstName" to "Test",
+              "username" to "TEST_LADM",
+              "email" to "testladm@gov.uk",
+              "firstName" to "Testladm",
               "lastName" to "User",
               "userType" to "DPS_LSA",
               "defaultCaseloadId" to "MDI",
@@ -276,20 +284,24 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isCreated
-        .expectBody(NewPrisonUserDto::class.java)
-        .returnResult().responseBody!!
-
-      assertThat(nomisUserDetails.username).isEqualTo("TEST1")
-      assertThat(nomisUserDetails.firstName).isEqualTo("Test")
-      assertThat(nomisUserDetails.lastName).isEqualTo("User")
-      assertThat(nomisUserDetails.primaryEmail).isEqualTo("test@test.com")
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to "TEST_LADM",
+              "firstName" to "Testladm",
+              "lastName" to "User",
+              "primaryEmail" to "testladm@test.com",
+            ),
+          )
+        }
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/local-admin-account"))
           .withRequestBody(
             containing(
               """
-              {"username":"TEST1","email":"test@gov.uk","firstName":"Test","lastName":"User","localAdminGroup":"MDI"}
+              {"username":"TEST_LADM","email":"testladm@gov.uk","firstName":"Testladm","lastName":"User","localAdminGroup":"MDI"}
               """.trimIndent(),
             ),
           ),

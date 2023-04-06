@@ -14,10 +14,10 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.NomisUser
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createNomisUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -69,7 +69,7 @@ class UserServiceTest {
 
     @Test
     fun `should throw exception when user not recognised by Auth`() {
-      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createNomisUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createPrisonUserDetails())
       doThrow(RuntimeException("Auth API call failed")).whenever(authApiService).confirmRecognised(userName)
 
       assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress) }
@@ -82,7 +82,7 @@ class UserServiceTest {
 
     @Test
     fun `should request verification of new email address`() {
-      val prisonUser = createNomisUserDetails()
+      val prisonUser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
@@ -95,7 +95,7 @@ class UserServiceTest {
 
     @Test
     fun `should update email address in Auth`() {
-      val prisonUser = createNomisUserDetails()
+      val prisonUser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
@@ -108,7 +108,7 @@ class UserServiceTest {
 
     @Test
     fun `should respond with verify link`() {
-      val prisonUser = createNomisUserDetails()
+      val prisonUser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
@@ -128,7 +128,7 @@ class UserServiceTest {
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_ADM)
 
       whenever(prisonUserApiService.createCentralAdminUser(user)).thenReturn(
-        NomisUser(
+        PrisonUser(
           user.username,
           user.firstName,
           102,
@@ -149,7 +149,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_GEN, "MDI")
       whenever(prisonUserApiService.createGeneralUser(user)).thenReturn(
-        NomisUser(
+        PrisonUser(
           user.username,
           user.firstName,
           101,
@@ -170,7 +170,7 @@ class UserServiceTest {
       whenever(verifyEmailDomainService.isValidEmailDomain(any())).thenReturn(true)
       val user = CreateUserRequest("CEN_ADM", "cadmin@gov.uk", "First", "Last", DPS_LSA, "MDI")
       whenever(prisonUserApiService.createLocalAdminUser(user)).thenReturn(
-        NomisUser(
+        PrisonUser(
           user.username,
           user.firstName,
           100,
@@ -268,7 +268,7 @@ class UserServiceTest {
 
       assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U1",
             email = "u1@justice.gov.uk",
             verified = true,
@@ -277,7 +277,7 @@ class UserServiceTest {
             lastName = "l1",
             activeCaseLoadId = null,
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U2",
             email = null,
             verified = false,
@@ -286,7 +286,7 @@ class UserServiceTest {
             lastName = "l2",
             activeCaseLoadId = null,
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U3",
             email = null,
             verified = false,
@@ -319,7 +319,7 @@ class UserServiceTest {
       assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last").size).isEqualTo(3)
       assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U1",
             email = "u1@b.com",
             verified = true,
@@ -328,7 +328,7 @@ class UserServiceTest {
             lastName = "l1",
             activeCaseLoadId = "MDI",
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U2",
             email = "u2@b.com",
             verified = true,
@@ -338,7 +338,7 @@ class UserServiceTest {
             activeCaseLoadId = null,
 
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U3",
             email = "u3@b.com",
             verified = false,
@@ -371,7 +371,7 @@ class UserServiceTest {
 
       assertThat(prisonUserService.findUsersByFirstAndLastName("first", "last"))
         .containsExactlyInAnyOrder(
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U1",
             email = "u1@b.com",
             verified = true,
@@ -380,7 +380,7 @@ class UserServiceTest {
             lastName = "l1",
             activeCaseLoadId = "MDI",
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U2",
             email = "u2@justice.gov.uk",
             verified = true,
@@ -389,7 +389,7 @@ class UserServiceTest {
             lastName = "l2",
             activeCaseLoadId = null,
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U3",
             email = "u3@justice.gov.uk",
             verified = true,
@@ -398,7 +398,7 @@ class UserServiceTest {
             lastName = "l3",
             activeCaseLoadId = null,
           ),
-          PrisonUser(
+          EnhancedPrisonUser(
             username = "U4",
             email = null,
             verified = false,

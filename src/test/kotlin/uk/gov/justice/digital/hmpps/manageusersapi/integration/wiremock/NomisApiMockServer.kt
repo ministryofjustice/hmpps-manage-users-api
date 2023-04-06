@@ -72,10 +72,10 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """
               { 
-                "username": "TEST1",
-                "firstName": "Test",
+                "username": "TEST_ADM",
+                "firstName": "Testadm",
                 "lastName": "User",
-                "primaryEmail": "test@test.com",
+                "primaryEmail": "testadm@test.com",
                 "activeCaseloadId" : "CADM_I",
                 "accountType": "ADMIN",
                 "staffId": 102,
@@ -170,10 +170,10 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """
               { 
-                "username": "TEST1",
-                "firstName": "Test",
+                "username": "TEST_GEN",
+                "firstName": "Testgen",
                 "lastName": "User",
-                "primaryEmail": "test@test.com",
+                "primaryEmail": "testgen@test.com",
                 "activeCaseloadId": "MDI",
                 "accountType": "GENERAL",
                 "staffId": 101,
@@ -202,10 +202,10 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """
               { 
-                "username": "TEST1",
-                "firstName": "Test",
+                "username": "TEST_LADM",
+                "firstName": "Testladm",
                 "lastName": "User",
-                "primaryEmail": "test@test.com",
+                "primaryEmail": "testladm@test.com",
                 "activeCaseloadId": "MDI",
                 "accountType": "ADMIN",
                 "staffId": 100,

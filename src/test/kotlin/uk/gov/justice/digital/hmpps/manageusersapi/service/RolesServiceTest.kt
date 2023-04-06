@@ -27,9 +27,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 
 class RolesServiceTest {
-  private val nomisRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService = mock()
+  private val prisonRolesApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService = mock()
   private val externalRolesApiService: RolesApiService = mock()
-  private val rolesService = RolesService(nomisRolesApiService, externalRolesApiService)
+  private val rolesService = RolesService(prisonRolesApiService, externalRolesApiService)
 
   @Nested
   inner class GetAllRoles {
@@ -43,7 +43,7 @@ class RolesServiceTest {
 
       val allRoles = externalRolesApiService.getRoles(null)
       assertThat(allRoles).isEqualTo(roles)
-      verifyNoMoreInteractions(nomisRolesApiService)
+      verifyNoMoreInteractions(prisonRolesApiService)
     }
   }
 
@@ -66,7 +66,7 @@ class RolesServiceTest {
 
       val allRoles = externalRolesApiService.getPagedRoles(3, 4, "roleName,asc", null, null, null)
       assertThat(allRoles).isEqualTo(roles)
-      verifyNoMoreInteractions(nomisRolesApiService)
+      verifyNoMoreInteractions(prisonRolesApiService)
     }
   }
 
@@ -85,7 +85,7 @@ class RolesServiceTest {
       val roleDetails = rolesService.getRoleDetail("RC1")
 
       assertThat(roleDetails).isEqualTo(role)
-      verifyNoMoreInteractions(nomisRolesApiService)
+      verifyNoMoreInteractions(prisonRolesApiService)
     }
   }
 
@@ -97,7 +97,7 @@ class RolesServiceTest {
 
       rolesService.createRole(role)
       verify(externalRolesApiService).createRole(role)
-      verifyNoMoreInteractions(nomisRolesApiService)
+      verifyNoMoreInteractions(prisonRolesApiService)
     }
 
     @Test
@@ -106,7 +106,7 @@ class RolesServiceTest {
 
       rolesService.createRole(role)
       verify(externalRolesApiService).createRole(role)
-      verify(nomisRolesApiService).createRole(role)
+      verify(prisonRolesApiService).createRole(role)
     }
 
     @Test
@@ -115,7 +115,7 @@ class RolesServiceTest {
 
       rolesService.createRole(role)
       verify(externalRolesApiService).createRole(role)
-      verify(nomisRolesApiService).createRole(role)
+      verify(prisonRolesApiService).createRole(role)
     }
   }
 
@@ -135,7 +135,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleName("ROLE_1", roleAmendment)
-      verify(nomisRolesApiService).updateRoleName("ROLE_1", roleAmendment)
+      verify(prisonRolesApiService).updateRoleName("ROLE_1", roleAmendment)
     }
 
     @Test
@@ -152,7 +152,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleName("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleName("ROLE_1", roleAmendment)
-      verifyNoInteractions(nomisRolesApiService)
+      verifyNoInteractions(prisonRolesApiService)
     }
   }
 
@@ -172,7 +172,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleDescription("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleDescription("ROLE_1", roleAmendment)
-      verifyNoInteractions(nomisRolesApiService)
+      verifyNoInteractions(prisonRolesApiService)
     }
 
     @Test
@@ -189,7 +189,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleDescription("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleDescription("ROLE_1", roleAmendment)
-      verifyNoInteractions(nomisRolesApiService)
+      verifyNoInteractions(prisonRolesApiService)
     }
   }
 
@@ -209,7 +209,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(nomisRolesApiService).createRole(CreateRoleDto("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM, DPS_ADM)))
+      verify(prisonRolesApiService).createRole(CreateRoleDto("ROLE_1", "Role Name", "A Role", setOf(EXT_ADM, DPS_ADM)))
     }
 
     @Test
@@ -226,7 +226,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
-      verifyNoMoreInteractions(nomisRolesApiService)
+      verifyNoMoreInteractions(prisonRolesApiService)
     }
 
     @Test
@@ -245,7 +245,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(nomisRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(prisonRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
 
     @Test
@@ -265,7 +265,7 @@ class RolesServiceTest {
 
       rolesService.updateRoleAdminType("ROLE_1", roleAmendment)
       verify(externalRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
-      verify(nomisRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
+      verify(prisonRolesApiService).updateRoleAdminType("ROLE_1", roleAmendment)
     }
   }
 

@@ -12,9 +12,9 @@ notification:
     dpsmenu: DPS user menu banner message
 
 hmpps-auth:
-  enabled: true
+  enabled: false
   endpoint:
-    url: http://localhost:8090/auth/
+    url: http://localhost:8090/auth
     timeout: 1s
 
   client:

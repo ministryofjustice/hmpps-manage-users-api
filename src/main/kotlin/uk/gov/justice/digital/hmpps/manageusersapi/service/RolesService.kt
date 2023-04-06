@@ -11,17 +11,17 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendme
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleDescriptionAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService as ExternalRolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as NomisRolesApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as PrisonRolesApiService
 
 @Service
 class RolesService(
-  val nomisRolesApiService: NomisRolesApiService,
+  val prisonRolesApiService: PrisonRolesApiService,
   val externalRolesApiService: ExternalRolesApiService,
 ) {
 
   fun createRole(role: CreateRoleDto) {
     if (role.adminType.hasDPSAdminType()) {
-      nomisRolesApiService.createRole(role)
+      prisonRolesApiService.createRole(role)
     }
     externalRolesApiService.createRole(role)
   }
@@ -44,7 +44,7 @@ class RolesService(
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     val originalRole = getRoleDetail(roleCode)
     if (originalRole.isDPSRole()) {
-      nomisRolesApiService.updateRoleName(roleCode, roleAmendment)
+      prisonRolesApiService.updateRoleName(roleCode, roleAmendment)
     }
     externalRolesApiService.updateRoleName(roleCode, roleAmendment)
   }
@@ -55,9 +55,9 @@ class RolesService(
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) {
     val originalRole = externalRolesApiService.getRoleDetail(roleCode)
     if (originalRole.isDpsRoleAdminTypeChanging(roleAmendment.adminType)) {
-      nomisRolesApiService.updateRoleAdminType(roleCode, roleAmendment)
+      prisonRolesApiService.updateRoleAdminType(roleCode, roleAmendment)
     } else if (!originalRole.isDPSRole() && roleAmendment.adminType.hasDPSAdminType()) {
-      nomisRolesApiService.createRole(
+      prisonRolesApiService.createRole(
         CreateRoleDto(
           originalRole.roleCode,
           originalRole.roleName,

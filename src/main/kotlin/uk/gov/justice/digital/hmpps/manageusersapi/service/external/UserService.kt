@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import com.microsoft.applicationinsights.TelemetryClient
+import org.apache.commons.lang3.StringUtils.upperCase
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
@@ -8,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiServi
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 import java.util.UUID
 
@@ -21,6 +23,15 @@ class UserService(
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
 ) {
+
+  fun createUser(user: NewUser): String {
+    val email = EmailHelper.format(user.email)
+    verifyEmailService.validateEmailAddress(email)
+    val userId = UUID.fromString(externalUsersApiService.createUser(user.firstName, user.lastName, email!!, user.groupCodes))
+    val initialNotificationSupportLink = initialNotificationSupportLink(userId)
+    notificationService.externalUserInitialNotification(userId, user.firstName, user.lastName, upperCase(email), email, initialNotificationSupportLink, "ExternalUserCreate")
+    return userId.toString()
+  }
 
   fun enableUserByUserId(userId: UUID) {
     val enabledUser = externalUsersApiService.enableUserById(userId)
@@ -44,7 +55,11 @@ class UserService(
 
     if (externalUsersApiService.hasPassword(userId)) {
       val linkEmailAndUsername = verifyEmailService.requestVerification(user, emailAddressInput)
-      externalUsersApiService.updateUserEmailAddressAndUsername(userId, linkEmailAndUsername.username, linkEmailAndUsername.email)
+      externalUsersApiService.updateUserEmailAddressAndUsername(
+        userId,
+        linkEmailAndUsername.username,
+        linkEmailAndUsername.email,
+      )
       return linkEmailAndUsername.link
     }
 
@@ -56,15 +71,16 @@ class UserService(
     }
 
     val supportLink = initialNotificationSupportLink(userId)
-    val setPasswordLink = notificationService.externalUserEmailAmendInitialNotification(
+    externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail!!)
+    return notificationService.externalUserInitialNotification(
       userId,
-      user,
-      newEmail!!,
+      user.firstName,
+      user.lastName,
       usernameForUpdate,
+      newEmail,
       supportLink,
+      "ExternalUserAmend",
     )
-    externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail)
-    return setPasswordLink
   }
 
   private fun initialNotificationSupportLink(userId: UUID): String {

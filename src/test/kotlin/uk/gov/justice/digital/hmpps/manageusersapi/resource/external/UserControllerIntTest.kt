@@ -160,6 +160,122 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class CreateUser {
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.post().uri("/externalusers/create")
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "email" to "testy.mctester@digital.justice.gov.uk",
+              "firstName" to "Testy",
+              "lastName" to "McTester",
+              "groupCodes" to null,
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.post().uri("/externalusers/create")
+        .headers(setAuthorisation("ITAG_USER_ADM"))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "email" to "testy.mctester@digital.justice.gov.uk",
+              "firstName" to "Testy",
+              "lastName" to "McTester",
+              "groupCodes" to null,
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Fails when email address invalid`() {
+      webTestClient.post().uri("/externalusers/create")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "email" to "testy.mctester.gov.uk",
+              "firstName" to "Testy",
+              "lastName" to "McTester",
+              "groupCodes" to null,
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+            {"status":400,"userMessage":"Validation failure: Validate email failed with reason: format","developerMessage":"Validate email failed with reason: format"}
+          """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `Fails when user or email already exists`() {
+      externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+      externalUsersApiMockServer.stubConflictOnPostTo("/users/user/create")
+
+      webTestClient.post().uri("/externalusers/create")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "email" to "testy.mctester@digital.justice.gov.uk",
+              "firstName" to "Testy",
+              "lastName" to "McTester",
+              "groupCodes" to null,
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectBody()
+        .json(
+          """
+            {"status":409,"userMessage":"User test message","developerMessage":"Developer test message"}
+          """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `Creates new user`() {
+      val userId = UUID.randomUUID()
+      externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+      externalUsersApiMockServer.stubCreateUserSuccess(userId)
+      externalUsersApiMockServer.stubGetUserGroups(userId, false)
+      hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
+      hmppsAuthMockServer.stubResetTokenForUser(userId.toString())
+
+      webTestClient.post().uri("/externalusers/create")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "email" to "testy.mctester@digital.justice.gov.uk",
+              "firstName" to "Testy",
+              "lastName" to "McTester",
+              "groupCodes" to null,
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.OK)
+        .expectBody(String::class.java)
+        .isEqualTo("$userId")
+    }
+  }
+
+  @Nested
   inner class AlterUserEmail {
 
     @Test
