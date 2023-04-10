@@ -9,6 +9,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 
 class UserControllerTest {
@@ -39,7 +43,36 @@ class UserControllerTest {
   inner class CreateLinkedAdminUser {
     @Test
     fun `create Linked DPS Admin user`() {
+      val generalCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("BXI", "Brixton (HMP)"),
+      )
+      val adminCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
+      )
+
+      val generalAccount = UserCaseload(
+        "TEST_USER",
+        false,
+        PrisonUsageType.GENERAL,
+        generalCaseLoads.get(1),
+        generalCaseLoads,
+      )
+      val adminAccount =
+        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
       val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+      whenever(userService.createLinkedUser(createLinkedAdminUserRequest)).thenReturn(
+        PrisonStaffUser(
+          100,
+          "First",
+          "Last",
+          "ACTIVE",
+          "f.l@justice.gov.uk",
+          generalAccount,
+          adminAccount,
+        ),
+      )
       userController.createLinkedAdminUser(createLinkedAdminUserRequest)
       verify(userService).createLinkedUser(createLinkedAdminUserRequest)
     }

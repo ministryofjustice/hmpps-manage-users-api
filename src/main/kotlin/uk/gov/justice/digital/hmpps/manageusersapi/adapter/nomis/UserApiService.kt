@@ -82,7 +82,7 @@ class UserApiService(
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {
     return userWebClientUtils.getWithParams(
       "/users/staff",
-      NomisUserList::class.java,
+      PrisonUserList::class.java,
       mapOf(
         "firstName" to firstName,
         "lastName" to lastName,
@@ -102,7 +102,7 @@ class UserApiService(
   }
 }
 
-class NomisUserList : MutableList<PrisonUserSummary> by ArrayList()
+class PrisonUserList : MutableList<PrisonUserSummary> by ArrayList()
 
 class UserExistsException(username: String) :
   Exception("Unable to create user: username $username already exists")

@@ -624,37 +624,10 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
         }
     }
-  }
-
-  @Nested
-  inner class CreateLinkedAdminUserError {
-    @Test
-    fun `create linked central admin user returns error when general user already has a linked admin account`() {
-      nomisApiMockServer.stubCreateLinkedCentralAdminUserDuplicateConflict()
-      webTestClient.post().uri("/linkedprisonusers/admin")
-        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
-        .body(
-          fromValue(
-            mapOf(
-              "existingUsername" to "TEST_USER",
-              "adminUsername" to "TEST_USER_ADM",
-            ),
-          ),
-        )
-        .exchange()
-        .expectStatus().isEqualTo(CONFLICT)
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody()
-        .jsonPath("status").isEqualTo("409")
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("User already exists: Admin user already exists for this staff member")
-          assertThat(it["developerMessage"] as String).isEqualTo("Admin user already exists for this staff member")
-        }
-    }
 
     @Test
     fun `create linked central admin user returns error when the admin user already exists`() {
-      nomisApiMockServer.stubCreateLinkedCentralAdminUserExistConflict()
+      nomisApiMockServer.stubConflictOnPostTo("/users/link-admin-account/TEST_USER")
       webTestClient.post().uri("/linkedprisonusers/admin")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
@@ -669,16 +642,14 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isEqualTo(CONFLICT)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
-        .jsonPath("status").isEqualTo("409")
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("User already exists: User TEST_USER_ADM already exists")
-          assertThat(it["developerMessage"] as String).isEqualTo("User TEST_USER_ADM already exists")
-        }
+        .jsonPath("status").isEqualTo(CONFLICT.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }
 
     @Test
     fun `create linked central admin user returns error when specified general user is not found`() {
-      nomisApiMockServer.stubCreateLinkedCentralAdminWhenGeneralUserNotFound()
+      nomisApiMockServer.stubNotFoundOnPostTo("/users/link-admin-account/TEST_USER_NOT_FOUND")
       webTestClient.post().uri("/linkedprisonusers/admin")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
@@ -693,17 +664,14 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isEqualTo(NOT_FOUND)
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
-        .jsonPath("status").isEqualTo("404")
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("User not found: Linked User Account TEST_USER_NOT_FOUND not found")
-          assertThat(it["developerMessage"] as String).isEqualTo("Linked User Account TEST_USER_NOT_FOUND not found")
-        }
+        .jsonPath("status").isEqualTo(NOT_FOUND.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }
 
     @Test
-    fun `create linked central admin user passes through error when error thrown from nomisapi`() {
-      nomisApiMockServer.stubCreateLinkedCentralAdminUserWithErrorFail(BAD_REQUEST)
-
+    fun `create linked central admin user call passes through error when error thrown from nomisapi`() {
+      nomisApiMockServer.stubSpecifiedHttpStatusOnPostTo("/users/link-admin-account/TEST_USER", BAD_REQUEST)
       webTestClient.post().uri("/linkedprisonusers/admin")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
         .body(
@@ -717,11 +685,9 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(BAD_REQUEST)
         .expectBody()
-        .jsonPath("status").isEqualTo("400")
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Validation failure: General user name is required")
-          assertThat(it["developerMessage"] as String).isEqualTo("A bigger message")
-        }
+        .jsonPath("status").isEqualTo(BAD_REQUEST.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }
   }
 

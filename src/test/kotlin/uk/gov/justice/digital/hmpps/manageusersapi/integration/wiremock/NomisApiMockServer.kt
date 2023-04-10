@@ -243,47 +243,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubCreateLinkedCentralAdminUserDuplicateConflict() {
+  fun stubNotFoundOnPostTo(url: String) {
     stubFor(
-      post(urlEqualTo("/users/link-admin-account/TEST_USER"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.CONFLICT.value())
-            .withBody(
-              """{
-                "status": ${HttpStatus.CONFLICT.value()},
-                "userMessage": "User already exists: Admin user already exists for this staff member",
-                "developerMessage": "Admin user already exists for this staff member"
-               }
-              """.trimIndent(),
-            ),
-        ),
-    )
-  }
-
-  fun stubCreateLinkedCentralAdminUserExistConflict() {
-    stubFor(
-      post(urlEqualTo("/users/link-admin-account/TEST_USER"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(HttpStatus.CONFLICT.value())
-            .withBody(
-              """{
-                "status": ${HttpStatus.CONFLICT.value()},
-                "userMessage": "User already exists: User TEST_USER_ADM already exists",
-                "developerMessage": "User TEST_USER_ADM already exists"
-               }
-              """.trimIndent(),
-            ),
-        ),
-    )
-  }
-
-  fun stubCreateLinkedCentralAdminWhenGeneralUserNotFound() {
-    stubFor(
-      post(urlEqualTo("/users/link-admin-account/TEST_USER_NOT_FOUND"))
+      post(urlEqualTo(url))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
@@ -291,8 +253,27 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${HttpStatus.NOT_FOUND.value()},
-                "userMessage": "User not found: Linked User Account TEST_USER_NOT_FOUND not found",
-                "developerMessage": "Linked User Account TEST_USER_NOT_FOUND not found"
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubConflictOnPostTo(url: String) {
+    stubFor(
+      post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
                }
               """.trimIndent(),
             ),
@@ -319,10 +300,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         ),
     )
   }
-
-  fun stubCreateLinkedCentralAdminUserWithErrorFail(status: HttpStatus) {
+  fun stubSpecifiedHttpStatusOnPostTo(url: String, status: HttpStatus) {
     stubFor(
-      post(urlEqualTo("/users/link-admin-account/TEST_USER"))
+      post(urlEqualTo(url))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
@@ -330,9 +310,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                 "status": ${status.value()},
-                "errorCode": null,
-                "userMessage": "Validation failure: General user name is required",
-                "developerMessage": "A bigger message"
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
                }
               """.trimIndent(),
             ),

@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -204,7 +204,7 @@ class UserController(
   fun createLinkedAdminUser(
     @RequestBody @Valid
     createLinkedAdminUserRequest: CreateLinkedAdminUserRequest,
-  ) = prisonUserService.createLinkedUser(createLinkedAdminUserRequest)
+  ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedUser(createLinkedAdminUserRequest))
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -371,14 +371,22 @@ data class PrisonStaffUserDto(
   val lastName: String,
   val status: String,
   val primaryEmail: String?,
-  val generalAccount: UserCaseloadDetailDto?,
-  val adminAccount: UserCaseloadDetailDto?,
-)
-
-data class UserCaseloadDetailDto(
-  val username: String,
-  val active: Boolean,
-  val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
-  val activeCaseload: PrisonCaseload?,
-  val caseloads: List<PrisonCaseload>? = listOf(),
-)
+  val generalAccount: UserCaseload?,
+  val adminAccount: UserCaseload?,
+) {
+  companion object {
+    fun fromDomain(prisonStaffUser: PrisonStaffUser): PrisonStaffUserDto {
+      with(prisonStaffUser) {
+        return PrisonStaffUserDto(
+          staffId,
+          firstName,
+          lastName,
+          status,
+          primaryEmail,
+          generalAccount,
+          adminAccount,
+        )
+      }
+    }
+  }
+}

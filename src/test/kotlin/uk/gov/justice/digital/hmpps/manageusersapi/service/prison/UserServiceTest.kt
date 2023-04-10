@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
@@ -217,7 +217,7 @@ class UserServiceTest {
         PrisonCaseload("NWEB", "Nomis-web Application"),
         PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
       )
-      val generalAccount = UserCaseloadDetail(
+      val generalAccount = UserCaseload(
         "TEST_USER",
         false,
         PrisonUsageType.GENERAL,
@@ -225,7 +225,7 @@ class UserServiceTest {
         generalCaseLoads,
       )
       val adminAccount =
-        UserCaseloadDetail("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
+        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
 
       whenever(prisonUserApiService.linkCentralAdminUser(createLinkedAdminUserRequest)).thenReturn(
         PrisonStaffUser(

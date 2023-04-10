@@ -6,11 +6,11 @@ data class PrisonStaffUser(
   val lastName: String,
   val status: String,
   val primaryEmail: String?,
-  val generalAccount: UserCaseloadDetail?,
-  val adminAccount: UserCaseloadDetail?,
+  val generalAccount: UserCaseload?,
+  val adminAccount: UserCaseload?,
 )
 
-data class UserCaseloadDetail(
+data class UserCaseload(
   val username: String,
   val active: Boolean,
   val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
