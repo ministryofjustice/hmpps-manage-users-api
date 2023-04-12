@@ -25,6 +25,13 @@ class UserRolesControllerTest {
   }
 
   @Test
+  fun `add role to a user`() {
+    val userId = UUID.randomUUID()
+    userRolesController.addRoleByUserId(userId, "role1")
+    verify(userRolesService).addRolesByUserId(userId, listOf("role1"))
+  }
+
+  @Test
   fun `remove a user role`() {
     val userId = UUID.randomUUID()
     userRolesController.removeRoleByUserId(userId, "ROLE_TEST")
