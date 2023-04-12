@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -308,6 +310,113 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class CreateLinkedAdminUser {
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong scope`() {
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_ROLE"), scopes = listOf("read")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TESTUSER1",
+              "adminUsername" to "TESTUSER1_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Link a Central Admin user to a General User`() {
+      val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+
+      nomisApiMockServer.stubCreateLinkedCentralAdminUser(createLinkedAdminUserRequest)
+
+      val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(PrisonStaffUserDto::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(prisonStaffUser.staffId).isEqualTo(100L)
+      assertThat(prisonStaffUser.firstName).isEqualTo("First")
+      assertThat(prisonStaffUser.lastName).isEqualTo("Last")
+      assertThat(prisonStaffUser.status).isEqualTo("ACTIVE")
+      assertThat(prisonStaffUser.primaryEmail).isEqualTo("f.l@justice.gov.uk")
+      assertThat(prisonStaffUser.generalAccount?.accountType).isEqualTo(PrisonUsageType.GENERAL)
+      assertThat(prisonStaffUser.adminAccount?.accountType).isEqualTo(PrisonUsageType.ADMIN)
+
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/link-admin-account/${createLinkedAdminUserRequest.existingUsername}"))
+          .withRequestBody(
+            containing(
+              """
+              {"username":"${createLinkedAdminUserRequest.adminUsername}"}
+              """.trimIndent(),
+            ),
+          ),
+      )
+    }
+  }
+
+  @Nested
   inner class CreateUserError {
     @Test
     fun `create central admin user returns error when username already exists`() {
@@ -514,6 +623,71 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it["userMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
           assertThat(it["developerMessage"] as String).isEqualTo("Invalid Email domain: invaliddomain.com with reason: Email domain not valid")
         }
+    }
+
+    @Test
+    fun `create linked central admin user returns error when the admin user already exists`() {
+      nomisApiMockServer.stubConflictOnPostTo("/users/link-admin-account/TEST_USER")
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo(CONFLICT.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
+    }
+
+    @Test
+    fun `create linked central admin user returns error when specified general user is not found`() {
+      nomisApiMockServer.stubNotFoundOnPostTo("/users/link-admin-account/TEST_USER_NOT_FOUND")
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER_NOT_FOUND",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(NOT_FOUND)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo(NOT_FOUND.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
+    }
+
+    @Test
+    fun `create linked central admin user call passes through error when error thrown from nomisapi`() {
+      nomisApiMockServer.stubSpecifiedHttpStatusOnPostTo("/users/link-admin-account/TEST_USER", BAD_REQUEST)
+      webTestClient.post().uri("/linkedprisonusers/admin")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingUsername" to "TEST_USER",
+              "adminUsername" to "TEST_USER_ADM",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(BAD_REQUEST)
+        .expectBody()
+        .jsonPath("status").isEqualTo(BAD_REQUEST.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
     }
   }
 
