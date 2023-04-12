@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
 @Service(value = "nomisUserApiService")
@@ -85,6 +87,17 @@ class UserApiService(
         "firstName" to firstName,
         "lastName" to lastName,
       ),
+    )
+  }
+
+  fun linkCentralAdminUser(centralAdminUser: CreateLinkedAdminUserRequest): PrisonStaffUser {
+    log.debug("Link DPS central admin user - {}", centralAdminUser.adminUsername)
+    return userWebClientUtils.postWithResponse(
+      "/users/link-admin-account/${centralAdminUser.existingUsername}",
+      mapOf(
+        "username" to centralAdminUser.adminUsername,
+      ),
+      PrisonStaffUser::class.java,
     )
   }
 }

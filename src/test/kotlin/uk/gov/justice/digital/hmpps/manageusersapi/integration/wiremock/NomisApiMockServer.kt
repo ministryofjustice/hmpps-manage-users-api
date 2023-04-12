@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -9,6 +10,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
 
 class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -86,6 +88,72 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "active": false,
                 "staffStatus": "ACTIVE"
               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubCreateLinkedCentralAdminUser(request: CreateLinkedAdminUserRequest) {
+    stubFor(
+      post(urlEqualTo("/users/link-admin-account/${request.existingUsername}")).withRequestBody(
+        WireMock.containing(
+          """
+              {"username":"TEST_USER_ADM"}
+          """.trimIndent(),
+        ),
+      )
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+            .withBody(
+              """
+                {
+                    "staffId": 100,
+                    "firstName": "First",
+                    "lastName": "Last",
+                    "status": "ACTIVE",
+                    "primaryEmail": "f.l@justice.gov.uk",
+                    "generalAccount": {
+                        "username": "TESTUSER1",
+                        "active": false,
+                        "accountType": "GENERAL",
+                        "activeCaseload": {
+                            "id": "BXI",
+                            "name": "Brixton (HMP)"
+                        },
+                        "caseloads": [
+                            {
+                                "id": "NWEB",
+                                "name": "Nomis-web Application"
+                            },
+                            {
+                                "id": "BXI",
+                                "name": "Brixton (HMP)"
+                            }
+                        ]
+                    },
+                    "adminAccount": {
+                        "username": "TESTUSER1_ADM",
+                        "active": false,
+                        "accountType": "ADMIN",
+                        "activeCaseload": {
+                            "id": "CADM_I",
+                            "name": "Central Administration Caseload For Hmps"
+                        },
+                        "caseloads": [
+                            {
+                                "id": "NWEB",
+                                "name": "Nomis-web Application"
+                            },
+                            {
+                                "id": "CADM_I",
+                                "name": "Central Administration Caseload For Hmps"
+                            }
+                        ]
+                    }
+                }
               """.trimIndent(),
             ),
         ),
@@ -175,6 +243,44 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubNotFoundOnPostTo(url: String) {
+    stubFor(
+      post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.NOT_FOUND.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.NOT_FOUND.value()},
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubConflictOnPostTo(url: String) {
+    stubFor(
+      post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withBody(
+              """{
+                "status": ${HttpStatus.CONFLICT.value()},
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubCreateCentralAdminUserWithErrorFail(status: HttpStatus) {
     stubFor(
       post(urlEqualTo("/users/admin-account"))
@@ -188,6 +294,24 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "errorCode": null,
                 "userMessage": "Validation failure: First name must consist of alphabetical characters only and a max 35 chars",
                 "developerMessage": "A bigger message"
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+  fun stubSpecifiedHttpStatusOnPostTo(url: String, status: HttpStatus) {
+    stubFor(
+      post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "userMessage": "User test message",
+                "developerMessage": "Developer test message",
                }
               """.trimIndent(),
             ),

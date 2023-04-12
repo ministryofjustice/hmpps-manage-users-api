@@ -22,12 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
+import javax.validation.constraints.Size
 
 @RestController("PrisonUserController")
 @Validated
@@ -145,6 +148,63 @@ class UserController(
     @RequestBody @Valid
     createUserRequest: CreateUserRequest,
   ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
+
+  @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasRole('ROLE_CREATE_USER')")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+    summary = "Link an Admin User to an existing General Account",
+    description = "Link an Admin User to an existing General Account. Requires role ROLE_CREATE_USER",
+    security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Admin User linked to an existing General Account",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(
+              implementation = PrisonStaffUserDto::class,
+            ),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to link an admin user to a general user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to link an admin user to an existing general user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun createLinkedAdminUser(
+    @RequestBody @Valid
+    createLinkedAdminUserRequest: CreateLinkedAdminUserRequest,
+  ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedUser(createLinkedAdminUserRequest))
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -277,8 +337,56 @@ data class NewPrisonUserDto(
   }
 }
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Linking a new admin account to an existing general user")
+data class CreateLinkedAdminUserRequest(
+  @Schema(description = "existingUsername", example = "TESTUSER1", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Username must be between 1 and 30",
+  )
+  @NotBlank
+  val existingUsername: String,
+
+  @Schema(description = "adminUsername", example = "TESTUSER1_ADM", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Username must be between 1 and 30",
+  )
+  @NotBlank
+  val adminUsername: String,
+)
+
 data class AmendEmail(
   @Schema(required = true, description = "Email address", example = "prison.user@someagency.justice.gov.uk")
   @field:NotBlank(message = "Email must not be blank")
   val email: String?,
 )
+
+data class PrisonStaffUserDto(
+  val staffId: Long,
+  val firstName: String,
+  val lastName: String,
+  val status: String,
+  val primaryEmail: String?,
+  val generalAccount: UserCaseload?,
+  val adminAccount: UserCaseload?,
+) {
+  companion object {
+    fun fromDomain(prisonStaffUser: PrisonStaffUser): PrisonStaffUserDto {
+      with(prisonStaffUser) {
+        return PrisonStaffUserDto(
+          staffId,
+          firstName,
+          lastName,
+          status,
+          primaryEmail,
+          generalAccount,
+          adminAccount,
+        )
+      }
+    }
+  }
+}
