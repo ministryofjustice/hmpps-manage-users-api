@@ -125,6 +125,70 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class AddUserRole {
+    private val userId = UUID.randomUUID()
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/externalusers/$userId/roles/ROLE_ONE")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/externalusers/$userId/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `fail`() {
+      externalUsersApiMockServer.stubAddRolesToUserFail(userId.toString(), HttpStatus.BAD_REQUEST)
+      webTestClient.put().uri("/externalusers/$userId/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(HttpStatus.BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("User error message")
+          assertThat(it["developerMessage"] as String).startsWith("Developer error message")
+        }
+    }
+
+    @Test
+    fun `success with role maintain oauth users`() {
+      externalUsersApiMockServer.stubAddRolesToUser(userId.toString())
+      webTestClient.put().uri("/externalusers/$userId/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/$userId/roles"))
+          .withRequestBody(containing("[\"GLOBAL_SEARCH\"]")),
+      )
+    }
+
+    @Test
+    fun `success with role group manager`() {
+      externalUsersApiMockServer.stubAddRolesToUser(userId.toString())
+      webTestClient.put().uri("/externalusers/$userId/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/$userId/roles"))
+          .withRequestBody(containing("[\"GLOBAL_SEARCH\"]")),
+      )
+    }
+  }
+
+  @Nested
   inner class RemoveUserRole {
 
     private val userId = UUID.randomUUID()
