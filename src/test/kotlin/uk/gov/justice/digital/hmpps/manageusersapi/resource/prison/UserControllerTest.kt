@@ -40,9 +40,9 @@ class UserControllerTest {
   }
 
   @Nested
-  inner class CreateLinkedAdminUser {
+  inner class CreateLinkedCentralAdminUser {
     @Test
-    fun `create Linked DPS Admin user`() {
+    fun `create Linked DPS Central Admin user`() {
       val generalCaseLoads = listOf(
         PrisonCaseload("NWEB", "Nomis-web Application"),
         PrisonCaseload("BXI", "Brixton (HMP)"),
@@ -61,8 +61,8 @@ class UserControllerTest {
       )
       val adminAccount =
         UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
-      val createLinkedAdminUserRequest = CreateLinkedAdminUserRequest("TEST_USER", "TEST_USER_ADM")
-      whenever(userService.createLinkedUser(createLinkedAdminUserRequest)).thenReturn(
+      val createLinkedCentralAdminUserRequest = CreateLinkedCentralAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+      whenever(userService.createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)).thenReturn(
         PrisonStaffUser(
           100,
           "First",
@@ -73,8 +73,47 @@ class UserControllerTest {
           adminAccount,
         ),
       )
-      userController.createLinkedAdminUser(createLinkedAdminUserRequest)
-      verify(userService).createLinkedUser(createLinkedAdminUserRequest)
+      userController.createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)
+      verify(userService).createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)
+    }
+  }
+
+  @Nested
+  inner class CreateLinkedLocalAdminUser {
+    @Test
+    fun `create Linked DPS Local Admin user`() {
+      val generalCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("BXI", "Brixton (HMP)"),
+      )
+      val adminCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
+      )
+
+      val generalAccount = UserCaseload(
+        "TEST_USER",
+        false,
+        PrisonUsageType.GENERAL,
+        generalCaseLoads.get(1),
+        generalCaseLoads,
+      )
+      val adminAccount =
+        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
+      val createLinkedLocalAdminUserRequest = CreateLinkedLocalAdminUserRequest("TEST_USER", "TEST_USER_ADM", "MDI")
+      whenever(userService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)).thenReturn(
+        PrisonStaffUser(
+          100,
+          "First",
+          "Last",
+          "ACTIVE",
+          "f.l@justice.gov.uk",
+          generalAccount,
+          adminAccount,
+        ),
+      )
+      userController.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)
+      verify(userService).createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)
     }
   }
 

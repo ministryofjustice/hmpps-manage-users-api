@@ -8,7 +8,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
@@ -52,8 +53,13 @@ class UserService(
   }
 
   @Throws(HmppsValidationException::class)
-  fun createLinkedUser(user: CreateLinkedAdminUserRequest): PrisonStaffUser {
+  fun createLinkedCentralAdminUser(user: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
     return prisonUserApiService.linkCentralAdminUser(user)
+  }
+
+  @Throws(HmppsValidationException::class)
+  fun createLinkedLocalAdminUser(user: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
+    return prisonUserApiService.linkLocalAdminUser(user)
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<EnhancedPrisonUser> {

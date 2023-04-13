@@ -9,7 +9,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
 @Service(value = "nomisUserApiService")
@@ -90,12 +91,24 @@ class UserApiService(
     )
   }
 
-  fun linkCentralAdminUser(centralAdminUser: CreateLinkedAdminUserRequest): PrisonStaffUser {
+  fun linkCentralAdminUser(centralAdminUser: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
     log.debug("Link DPS central admin user - {}", centralAdminUser.adminUsername)
     return userWebClientUtils.postWithResponse(
       "/users/link-admin-account/${centralAdminUser.existingUsername}",
       mapOf(
         "username" to centralAdminUser.adminUsername,
+      ),
+      PrisonStaffUser::class.java,
+    )
+  }
+
+  fun linkLocalAdminUser(localAdminUser: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
+    log.debug("Link DPS Local admin user - {}", localAdminUser.adminUsername)
+    return userWebClientUtils.postWithResponse(
+      "/users/link-local-admin-account/${localAdminUser.existingUsername}",
+      mapOf(
+        "username" to localAdminUser.adminUsername,
+        "localAdminGroup" to localAdminUser.localAdminGroup,
       ),
       PrisonStaffUser::class.java,
     )
