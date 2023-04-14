@@ -17,7 +17,7 @@ class UserApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun createUser(firstName: String, lastName: String, emailAddress: String, groupCodes: Set<String>?) =
+  fun createUser(firstName: String, lastName: String, emailAddress: String, groupCodes: Set<String>?): UUID =
     userWebClientUtils.postWithResponse(
       "/users/user/create",
       mapOf(
@@ -26,7 +26,7 @@ class UserApiService(
         "email" to emailAddress,
         "groupCodes" to groupCodes,
       ),
-      String::class.java,
+      UUID::class.java,
     )
 
   fun updateUserEmailAddressAndUsername(userId: UUID, username: String, email: String) =

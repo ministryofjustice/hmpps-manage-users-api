@@ -24,13 +24,18 @@ class UserService(
   private val telemetryClient: TelemetryClient,
 ) {
 
-  fun createUser(user: NewUser): String {
+  fun createUser(user: NewUser): UUID {
     val email = EmailHelper.format(user.email)
-    verifyEmailService.validateEmailAddress(email)
-    val userId = UUID.fromString(externalUsersApiService.createUser(user.firstName, user.lastName, email!!, user.groupCodes))
+    try {
+      verifyEmailService.validateEmailAddress(email)
+    } catch (v: ValidEmailException) {
+      throw EmailException("email:Email address failed validation")
+    }
+
+    val userId = externalUsersApiService.createUser(user.firstName, user.lastName, email!!, user.groupCodes)
     val initialNotificationSupportLink = initialNotificationSupportLink(userId)
     notificationService.externalUserInitialNotification(userId, user.firstName, user.lastName, upperCase(email), email, initialNotificationSupportLink, "ExternalUserCreate")
-    return userId.toString()
+    return userId
   }
 
   fun enableUserByUserId(userId: UUID) {

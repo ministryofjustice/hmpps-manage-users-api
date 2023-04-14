@@ -1702,8 +1702,8 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
             .withHeader("Content-Type", "application/json")
             .withStatus(OK.value())
             .withBody(
-              """
-                $userId
+              """ 
+                "$userId" 
               """.trimIndent(),
             ),
         ),

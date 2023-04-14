@@ -62,7 +62,7 @@ class UserServiceTest {
 
       assertThatThrownBy {
         userService.createUser(NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1")))
-      }.isInstanceOf(ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
+      }.isInstanceOf(EmailException::class.java).hasMessage("email:Email address failed validation")
 
       verifyNoInteractions(userApiService, notificationService)
     }
@@ -85,7 +85,7 @@ class UserServiceTest {
     fun `should fail when attempt to send email fails`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid.toString()
+      val userId = uuid
       with(newUser) {
         whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
       }
@@ -105,7 +105,7 @@ class UserServiceTest {
     fun `should format email`() {
       val newUser = NewUser("SARAH.o’connor@gov.uk", "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid.toString()
+      val userId = uuid
       with(newUser) {
         whenever(userApiService.createUser(firstName, lastName, "sarah.o'connor@gov.uk", groupCodes)).thenReturn(userId)
 
@@ -127,7 +127,7 @@ class UserServiceTest {
     fun `should generate pecs user group support link`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid.toString()
+      val userId = uuid
       with(newUser) {
         whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
 
@@ -149,7 +149,7 @@ class UserServiceTest {
     fun `should generate non pecs user group support link`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid.toString()
+      val userId = uuid
       with(newUser) {
         whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
 
@@ -171,7 +171,7 @@ class UserServiceTest {
     fun `should return user id`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid.toString()
+      val userId = uuid
       with(newUser) {
         whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
 

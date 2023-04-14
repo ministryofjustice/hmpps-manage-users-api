@@ -215,7 +215,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-            {"status":400,"userMessage":"Validation failure: Validate email failed with reason: format","developerMessage":"Validate email failed with reason: format"}
+            {"status":400,"userMessage":"Validation failure: email:Email address failed validation","developerMessage":"email:Email address failed validation"}
           """.trimIndent(),
         )
     }
@@ -270,8 +270,8 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.OK)
-        .expectBody(String::class.java)
-        .isEqualTo("$userId")
+        .expectBody(UUID::class.java)
+        .isEqualTo(userId)
     }
   }
 
