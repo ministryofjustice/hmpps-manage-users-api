@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailDomain
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.CreateApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailDomainService
 import java.util.UUID
 import javax.validation.Valid
@@ -32,29 +35,8 @@ class EmailDomainController(
     summary = "Get all email domains",
     description = "Get all email domains, role required is ROLE_MAINTAIN_EMAIL_DOMAINS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_EMAIL_DOMAINS")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "All email domains returned",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = EmailDomainDto::class)),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-    ],
   )
+  @StandardApiResponses
   @GetMapping("/email-domains")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domainList(): List<EmailDomainDto> {
@@ -65,34 +47,15 @@ class EmailDomainController(
     summary = "Get email domain details",
     description = "Get email domain details, role required is ROLE_MAINTAIN_EMAIL_DOMAINS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_EMAIL_DOMAINS")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "Email domain details returned",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = EmailDomainDto::class)),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "404",
-        description = "Email domain not found",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-    ],
   )
+  @ApiResponses(
+    ApiResponse(
+      responseCode = "404",
+      description = "Email domain not found",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  @StandardApiResponses
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun domain(@PathVariable id: UUID): EmailDomainDto {
@@ -106,25 +69,13 @@ class EmailDomainController(
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateEmailDomainDto::class))],
     ),
-    responses = [
-      ApiResponse(
-        responseCode = "201",
-        description = "Email domain created",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = EmailDomainDto::class))],
-      ),
+  )
+  @CreateApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "409",
         description = "Email domain already exists",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
         content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
@@ -145,7 +96,10 @@ class EmailDomainController(
     summary = "Delete email domain details",
     description = "Delete email domain details, role required is ROLE_MAINTAIN_EMAIL_DOMAINS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_EMAIL_DOMAINS")],
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Email domain details deleted",
@@ -153,16 +107,6 @@ class EmailDomainController(
       ApiResponse(
         responseCode = "404",
         description = "Email domain not found",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
         content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
