@@ -5,7 +5,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
@@ -53,20 +52,11 @@ class UserService(
     return prisonUserDetails
   }
 
-  @Throws(HmppsValidationException::class)
-  fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
-    return prisonUserApiService.linkCentralAdminUser(linkUserRequest)
-  }
+  fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest) = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
 
-  @Throws(HmppsValidationException::class)
-  fun createLinkedLocalAdminUser(linkUserRequest: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
-    return prisonUserApiService.linkLocalAdminUser(linkUserRequest)
-  }
+  fun createLinkedLocalAdminUser(linkUserRequest: CreateLinkedLocalAdminUserRequest) = prisonUserApiService.linkLocalAdminUser(linkUserRequest)
 
-  @Throws(HmppsValidationException::class)
-  fun createLinkedGeneralUser(linkUserRequest: CreateLinkedGeneralUserRequest): PrisonStaffUser {
-    return prisonUserApiService.linkGeneralUser(linkUserRequest)
-  }
+  fun createLinkedGeneralUser(linkUserRequest: CreateLinkedGeneralUserRequest) = prisonUserApiService.linkGeneralUser(linkUserRequest)
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<EnhancedPrisonUser> {
     val prisonUsers: List<PrisonUserSummary> = prisonUserApiService.findUsersByFirstAndLastName(firstName, lastName)

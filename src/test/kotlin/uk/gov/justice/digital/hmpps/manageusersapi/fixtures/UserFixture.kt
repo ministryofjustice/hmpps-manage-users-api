@@ -1,7 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.fixtures
 
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -52,5 +56,49 @@ class UserFixture {
       enabled = enabled,
       roles = roles,
     )
+
+    fun createPrisonStaffUser(
+      staffId: Long = 100,
+      firstName: String = "First",
+      lastName: String = "Last",
+      status: String = "ACTIVE",
+      primaryEmail: String = "f.l@justice.gov.uk",
+      generalUserName: String = "TEST_USER_GEN",
+      adminUserName: String = "TEST_USER_ADM",
+    ): PrisonStaffUser {
+      val generalCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("BXI", "Brixton (HMP)"),
+      )
+      val adminCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
+      )
+      val generalAccount = UserCaseload(
+        generalUserName,
+        false,
+        PrisonUsageType.GENERAL,
+        generalCaseLoads.get(1),
+        generalCaseLoads,
+      )
+      val adminAccount =
+        UserCaseload(
+          adminUserName,
+          false,
+          PrisonUsageType.ADMIN,
+          adminCaseLoads.get(1),
+          adminCaseLoads,
+        )
+
+      return PrisonStaffUser(
+        staffId = staffId,
+        firstName = firstName,
+        lastName = lastName,
+        status = status,
+        primaryEmail = primaryEmail,
+        generalAccount,
+        adminAccount,
+      )
+    }
   }
 }

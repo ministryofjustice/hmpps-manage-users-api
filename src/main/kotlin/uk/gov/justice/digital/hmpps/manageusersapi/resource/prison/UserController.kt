@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
@@ -158,7 +160,7 @@ class UserController(
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
     responses = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "201",
         description = "Admin User linked to an existing General Account",
         content = [
           io.swagger.v3.oas.annotations.media.Content(
@@ -215,7 +217,7 @@ class UserController(
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
     responses = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "201",
         description = "Local Admin User linked to an existing General Account",
         content = [
           io.swagger.v3.oas.annotations.media.Content(
@@ -272,7 +274,7 @@ class UserController(
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
     responses = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "201",
         description = "General User linked to an existing Admin Account",
         content = [
           io.swagger.v3.oas.annotations.media.Content(
@@ -541,14 +543,16 @@ data class AmendEmail(
   val email: String?,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Prison Staff Information")
 data class PrisonStaffUserDto(
-  val staffId: Long,
-  val firstName: String,
-  val lastName: String,
-  val status: String,
-  val primaryEmail: String?,
-  val generalAccount: UserCaseload?,
-  val adminAccount: UserCaseload?,
+  @Schema(description = "Staff ID", example = "324323", required = true) val staffId: Long,
+  @Schema(description = "First name of the user", example = "John", required = true) val firstName: String,
+  @Schema(description = "Last name of the user", example = "Smith", required = true) val lastName: String,
+  @Schema(description = "Status of staff account", example = "Smith", required = true) val status: String,
+  @Schema(description = "Email addresses of staff", example = "test@test.com", required = false) val primaryEmail: String?,
+  @Schema(description = "General user account for this staff member", required = false) val generalAccount: UserCaseloadDto?,
+  @Schema(description = "Admin user account for this staff member", required = false) val adminAccount: UserCaseloadDto?,
 ) {
   companion object {
     fun fromDomain(prisonStaffUser: PrisonStaffUser): PrisonStaffUserDto {
@@ -559,10 +563,30 @@ data class PrisonStaffUserDto(
           lastName,
           status,
           primaryEmail,
-          generalAccount,
-          adminAccount,
+          generalAccount?.let { UserCaseloadDto.fromDomain(it) },
+          adminAccount?.let { UserCaseloadDto.fromDomain(it) },
         )
       }
     }
+  }
+}
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "User & Caseload Information")
+data class UserCaseloadDto(
+  @Schema(description = "User name", example = "John1", required = true) val username: String,
+  @Schema(description = "Indicates that the user is active", example = "true", required = true) val active: Boolean,
+  @Schema(description = "Type of user account", example = "GENERAL", required = true) val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
+  @Schema(description = "Active Caseload of the user", example = "BXI", required = false) val activeCaseload: PrisonCaseload?,
+  @Schema(description = "Caseloads available for this user", required = false) val caseloads: List<PrisonCaseload>? = listOf(),
+) {
+  companion object {
+    fun fromDomain(userCaseload: UserCaseload) = UserCaseloadDto(
+      userCaseload.username,
+      userCaseload.active,
+      userCaseload.accountType,
+      userCaseload.activeCaseload,
+      userCaseload.caseloads,
+    )
   }
 }

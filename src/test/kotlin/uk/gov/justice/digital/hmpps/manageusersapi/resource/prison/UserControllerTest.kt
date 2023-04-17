@@ -151,7 +151,7 @@ class UserControllerTest {
           adminAccount,
         ),
       )
-      userController.createLinkedGeneralUser(createLinkedGeneralUserRequest)
+      assertThat(userController.createLinkedGeneralUser(createLinkedGeneralUserRequest)).isNotNull
       verify(userService).createLinkedGeneralUser(createLinkedGeneralUserRequest)
     }
   }
