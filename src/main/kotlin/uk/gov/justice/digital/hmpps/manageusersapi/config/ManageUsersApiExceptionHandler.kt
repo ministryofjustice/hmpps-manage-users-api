@@ -23,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ValidEmailException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
 import javax.validation.ValidationException
@@ -102,6 +103,13 @@ class HmppsManageUsersApiExceptionHandler {
 
   @ExceptionHandler(ValidEmailException::class)
   fun handleValidEmailException(e: ValidEmailException): ResponseEntity<ErrorResponse> {
+    log.info("Email validation exception caught: {}", e.message)
+    return ResponseEntity.badRequest()
+      .body(ErrorResponse(status = BAD_REQUEST.value(), userMessage = "Validation failure: ${e.message}", developerMessage = e.message))
+  }
+
+  @ExceptionHandler(EmailException::class)
+  fun handleEmailException(e: EmailException): ResponseEntity<ErrorResponse> {
     log.info("Email validation exception caught: {}", e.message)
     return ResponseEntity.badRequest()
       .body(ErrorResponse(status = BAD_REQUEST.value(), userMessage = "Validation failure: ${e.message}", developerMessage = e.message))
