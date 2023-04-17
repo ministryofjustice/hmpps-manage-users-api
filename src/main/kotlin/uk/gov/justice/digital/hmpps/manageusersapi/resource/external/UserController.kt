@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserService
 import java.util.UUID
@@ -37,24 +40,7 @@ class UserController(
     summary = "Get list of assignable groups.",
     description = "Get list of groups that can be assigned by the current user.",
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-    ],
-  )
+  @AuthenticatedApiResponses
   fun assignableGroups() = userGroupService.getMyAssignableGroups()
 
   @PutMapping("/externalusers/{userId}/enable")
@@ -64,31 +50,12 @@ class UserController(
     summary = "Enable a user.",
     description = "Enable a user.",
   )
+  @FailApiResponses
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
         description = "OK.",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Unable to enable user, the user is not within one of your groups.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -116,21 +83,12 @@ class UserController(
     summary = "Disable a user.",
     description = "Disable a user.",
   )
+  @FailApiResponses
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
         description = "OK.",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -174,41 +132,12 @@ class UserController(
     summary = "Amend a user email address.",
     description = "Amend a user email address.",
   )
+  @FailApiResponses
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
         description = "OK.",
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Bad request e.g. if validation failed or if the email changes are disallowed",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Unable to amend user, the user is not within one of your groups or you don't have ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER roles",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -241,32 +170,9 @@ class UserController(
     summary = "Create user",
     description = "Create user",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Validation failed.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "409",
         description = "User or email already exists.",

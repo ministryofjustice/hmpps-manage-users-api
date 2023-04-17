@@ -19,6 +19,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
@@ -34,22 +36,9 @@ class UserController(
     summary = "User detail.",
     description = "Find user detail by username.",
   )
+  @AuthenticatedApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -80,30 +69,7 @@ class UserController(
     summary = "My User details.",
     description = "Find my user details.",
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = UserDetailsDto::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-    ],
-  )
+  @AuthenticatedApiResponses
   fun myDetails(): User {
     val user = userService.findUserByUsername(authenticationFacade.currentUsername!!)
     return user?.let {
@@ -116,12 +82,9 @@ class UserController(
     summary = "Email address for user",
     description = "Verified email address for user",
   )
+  @AuthenticatedApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
       ApiResponse(
         responseCode = "204",
         description = "No content.  No verified email address found for user",
@@ -158,12 +121,9 @@ class UserController(
     summary = "Email address for current user",
     description = "Verified email address for current user",
   )
+  @AuthenticatedApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
       ApiResponse(
         responseCode = "204",
         description = "No content.  No verified email address found for user",
@@ -181,49 +141,19 @@ class UserController(
     summary = "List of roles for current user.",
     description = "List of roles for current user.",
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-    ],
-  )
+  @AuthenticatedApiResponses
   fun myRoles() = userService.myRoles()
 
   @GetMapping("/users/{username}/roles")
   @Operation(
     summary = "List of roles for user.",
     description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PF_USER_ADMIN or ROLE_PCMS_USER_ADMIN." +
-      "***Change to old endpoint in Auth** 1)  Nomis / Prision user doesn't return additional role in the list:  PRISON " +
+      "***Change to old endpoint in Auth** 1)  Nomis / Prison user doesn't return additional role in the list:  PRISON " +
       "                                         2)  Delius user doesn't return additional role in the list:  PROBATION ",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -250,24 +180,7 @@ class UserController(
     summary = "List of mapped delius roles",
     description = "List of mapped  delius roles",
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-    ],
-  )
+  @AuthenticatedApiResponses
   fun findMappedDeliusRoles(
     @RequestParam(value = "deliusRoles", required = true)
     deliusRoles: List<String>,

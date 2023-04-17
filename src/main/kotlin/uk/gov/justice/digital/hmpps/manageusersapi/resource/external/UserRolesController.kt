@@ -22,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.CreateApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.DeleteApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserRolesService
 import java.util.UUID
 import javax.validation.constraints.NotEmpty
@@ -43,43 +47,8 @@ class UserRolesController(
     summary = "Get list of roles associated with the users account",
     description = "Roles for a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
     security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "User role list",
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Incorrect request to get roles for a user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Incorrect permissions to get roles for this user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-    ],
   )
+  @StandardApiResponses
   fun getUserRoles(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
@@ -93,22 +62,9 @@ class UserRolesController(
     summary = "Remove role from user.",
     description = "Remove role from user.",
   )
+  @DeleteApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "204",
-        description = "Deleted",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -140,22 +96,9 @@ class UserRolesController(
     summary = "Add roles to user.",
     description = "Add role to user, post version taking multiple roles",
   )
+  @CreateApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "204",
-        description = "Added",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -198,31 +141,12 @@ class UserRolesController(
     summary = "Add role to user.",
     description = "Add role to user.",
   )
+  @FailApiResponses
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
         description = "Added.",
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Validation failed.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -270,43 +194,8 @@ class UserRolesController(
     summary = "Get list of roles associated with the users account",
     description = "Roles for a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
     security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "User role list",
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Incorrect request to get roles for a user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Incorrect permissions to get roles for this user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-    ],
   )
+  @StandardApiResponses
   fun getAssignableRoles(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable

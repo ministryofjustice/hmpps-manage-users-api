@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.SyncService
 
 @RestController
@@ -25,22 +26,9 @@ class SyncController(
     summary = "Sync Nomis user email back into Auth",
     description = "Run process to check for differences in email address between Auth and NOMIS and updates Auth if required",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",

@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -21,6 +21,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -43,21 +45,14 @@ class RolesController(
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json")],
     ),
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "201",
         description = "Role Created",
         content = [Content(mediaType = "application/json")],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -76,29 +71,8 @@ class RolesController(
     summary = "Get role details",
     description = "Get role details, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "Role Details Returned",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = RoleDto::class)),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-    ],
   )
+  @StandardApiResponses
   @GetMapping("/roles/{role}")
   fun getRoleDetail(
     @Schema(description = "The Role code of the role.", example = "AUTH_GROUP_MANAGER", required = true)
@@ -111,29 +85,8 @@ class RolesController(
     summary = "Get all roles",
     description = "Get all roles, role required is ROLE_ROLES_ADMIN (to find external roles), ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "All Roles Returned",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = RoleDto::class)),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-    ],
   )
+  @StandardApiResponses
   @GetMapping("/roles")
   fun getRoles(
     @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
@@ -144,29 +97,8 @@ class RolesController(
     summary = "Get all paged roles",
     description = "Get all paged roles, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
-    responses = [
-      ApiResponse(
-        responseCode = "200",
-        description = "All Roles Returned",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = PagedResponse::class)),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-    ],
   )
+  @StandardApiResponses
   @GetMapping("/roles/paged")
   fun getPagedRoles(
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
@@ -185,20 +117,13 @@ class RolesController(
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendmentDto::class))],
     ),
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Role name updated",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "404",
@@ -226,20 +151,13 @@ class RolesController(
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendmentDto::class))],
     ),
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Role description updated",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "404",
@@ -267,20 +185,13 @@ class RolesController(
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendmentDto::class))],
     ),
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Role admin type updated",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_ROLES_ADMIN",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "404",

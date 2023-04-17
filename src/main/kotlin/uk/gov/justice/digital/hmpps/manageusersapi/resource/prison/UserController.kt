@@ -25,6 +25,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import javax.validation.Valid
 import javax.validation.constraints.Email
@@ -44,32 +46,9 @@ class UserController(
     summary = "Amend a prison user email address.",
     description = "Amend a prison user email address.",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Bad request e.g. missing email address.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -99,7 +78,10 @@ class UserController(
     summary = "Create a DPS user",
     description = "Creates a specific DPS user. Requires role ROLE_CREATE_USER",
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Create a DPS user",
@@ -109,36 +91,6 @@ class UserController(
             schema = io.swagger.v3.oas.annotations.media.Schema(
               implementation = NewPrisonUserDto::class,
             ),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Incorrect request to create DPS user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Incorrect permissions to create this user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
           ),
         ],
       ),
@@ -156,7 +108,10 @@ class UserController(
     summary = "Link an Admin User to an existing General Account",
     description = "Link an Admin User to an existing General Account. Requires role ROLE_CREATE_USER",
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Admin User linked to an existing General Account",
@@ -166,36 +121,6 @@ class UserController(
             schema = io.swagger.v3.oas.annotations.media.Schema(
               implementation = PrisonStaffUserDto::class,
             ),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Incorrect request to link an admin user to a general user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Incorrect permissions to link an admin user to an existing general user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
           ),
         ],
       ),
@@ -213,7 +138,10 @@ class UserController(
     summary = "Link a Local Admin User to an existing General Account",
     description = "Link a Local Admin User to an existing General Account. Requires role ROLE_CREATE_USER",
     security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "Local Admin User linked to an existing General Account",
@@ -223,36 +151,6 @@ class UserController(
             schema = io.swagger.v3.oas.annotations.media.Schema(
               implementation = PrisonStaffUserDto::class,
             ),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "400",
-        description = "Incorrect request to link a local admin user to a general user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Incorrect permissions to link a local admin user to an existing general user",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
           ),
         ],
       ),
@@ -269,29 +167,7 @@ class UserController(
     summary = "Find prison users by first and last name.",
     description = "Find prison users by first and last name.",
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_USE_OF_FORCE or ROLE_STAFF_SEARCH",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-    ],
-  )
+  @StandardApiResponses
   fun findUsersByFirstAndLastName(
     @Parameter(
       description = "The first name to match. Case insensitive.",

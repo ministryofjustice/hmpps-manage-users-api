@@ -22,6 +22,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Group
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserAssignableRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -39,7 +41,10 @@ class GroupsController(
     summary = "Get all groups",
     description = "Get all groups, role required is ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS, ROLE_AUTH_GROUP_MANAGER")],
-    responses = [
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
       ApiResponse(
         responseCode = "200",
         description = "All Groups Returned",
@@ -49,16 +54,6 @@ class GroupsController(
             array = ArraySchema(schema = Schema(implementation = UserGroupDto::class)),
           ),
         ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Forbidden, requires an authorisation with role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -72,22 +67,9 @@ class GroupsController(
     description = "return Group Details",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "Group not found.",
@@ -112,22 +94,9 @@ class GroupsController(
     summary = "Child Group detail.",
     description = "get Child Group Details",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "Child Group not found.",
@@ -156,22 +125,9 @@ class GroupsController(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))],
     ),
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "Group not found.",
@@ -205,22 +161,9 @@ class GroupsController(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))],
     ),
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "Child Group not found.",
@@ -254,22 +197,9 @@ class GroupsController(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroupDto::class))],
     ),
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "409",
         description = "Group already exists.",
@@ -299,22 +229,9 @@ class GroupsController(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroupDto::class))],
     ),
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "409",
         description = "Child Group already exists.",
@@ -341,22 +258,9 @@ class GroupsController(
     description = "Delete a Child Group",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "Child Group not found.",
@@ -382,22 +286,9 @@ class GroupsController(
     description = "Delete a Group",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "Group not found.",

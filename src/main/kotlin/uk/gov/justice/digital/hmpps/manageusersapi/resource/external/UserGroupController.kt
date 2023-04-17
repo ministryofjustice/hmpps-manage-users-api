@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.DeleteApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import java.util.UUID
 
@@ -38,22 +41,9 @@ class UserGroupController(
     summary = "Remove group from user.",
     description = "Remove group from user.",
   )
+  @DeleteApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "204",
-        description = "Deleted",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -83,21 +73,12 @@ class UserGroupController(
     summary = "Add group to user.",
     description = "Add group to user.",
   )
+  @FailApiResponses
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
         description = "Added",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -137,22 +118,9 @@ class UserGroupController(
     summary = "Get groups for userId.",
     description = "Get groups for userId.",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",

@@ -3,15 +3,15 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.ANNOTATION_CLASS)
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @FailApiResponses
 @ApiResponses(
   value = [
     ApiResponse(
-      responseCode = "200",
-      description = "OK",
+      responseCode = "201",
+      description = "Created",
     ),
   ],
 )
-annotation class StandardApiResponses
+annotation class CreateApiResponses

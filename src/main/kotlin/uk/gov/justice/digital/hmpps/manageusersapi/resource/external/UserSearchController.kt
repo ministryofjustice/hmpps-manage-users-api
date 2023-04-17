@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserSearchService
 import java.time.LocalDateTime
@@ -89,28 +91,9 @@ class UserSearchController(
     summary = "Search for a user.",
     description = "Search for a user.",
   )
+  @AuthenticatedApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ExternalUserDetailsDto::class),
-          ),
-        ],
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "204",
         description = "No users found.",
@@ -138,22 +121,9 @@ class UserSearchController(
     summary = "Retrieve user details by user id.",
     description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user",
   )
+  @StandardApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "403",
         description = "Unable to view user, either you do not have authority or the user is not within one of your groups.",
@@ -189,22 +159,9 @@ class UserSearchController(
     summary = "User detail.",
     description = "User detail.",
   )
+  @AuthenticatedApiResponses
   @ApiResponses(
     value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
       ApiResponse(
         responseCode = "404",
         description = "User not found.",
@@ -218,7 +175,8 @@ class UserSearchController(
     ],
   )
   fun user(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    @Parameter(description = "The username of the user.", required = true)
+    @PathVariable
     username: String,
   ) = userSearchService.findExternalUserByUsername(username)
 }

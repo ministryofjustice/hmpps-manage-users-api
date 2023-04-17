@@ -1,17 +1,19 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger
 
+import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.ANNOTATION_CLASS)
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @FailApiResponses
 @ApiResponses(
   value = [
     ApiResponse(
-      responseCode = "200",
-      description = "OK",
+      responseCode = "204",
+      description = "Deleted",
+      content = [Content(mediaType = "application/json")],
     ),
   ],
 )
-annotation class StandardApiResponses
+annotation class DeleteApiResponses
