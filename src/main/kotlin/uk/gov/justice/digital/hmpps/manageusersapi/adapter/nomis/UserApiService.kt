@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
@@ -109,6 +110,18 @@ class UserApiService(
       mapOf(
         "username" to localAdminUser.adminUsername,
         "localAdminGroup" to localAdminUser.localAdminGroup,
+      ),
+      PrisonStaffUser::class.java,
+    )
+  }
+
+  fun linkGeneralUser(generalUser: CreateLinkedGeneralUserRequest): PrisonStaffUser {
+    log.debug("Link DPS general user - {}", generalUser.generalUsername)
+    return userWebClientUtils.postWithResponse(
+      "/users/link-general-account/${generalUser.existingAdminUsername}",
+      mapOf(
+        "username" to generalUser.generalUsername,
+        "defaultCaseloadId" to generalUser.defaultCaseloadId,
       ),
       PrisonStaffUser::class.java,
     )

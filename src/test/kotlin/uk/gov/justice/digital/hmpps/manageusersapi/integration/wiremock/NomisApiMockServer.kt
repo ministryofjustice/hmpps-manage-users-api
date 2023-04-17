@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 
 class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
@@ -184,6 +185,72 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "primaryEmail": "f.l@justice.gov.uk",
                     "generalAccount": {
                         "username": "TESTUSER1",
+                        "active": false,
+                        "accountType": "GENERAL",
+                        "activeCaseload": {
+                            "id": "BXI",
+                            "name": "Brixton (HMP)"
+                        },
+                        "caseloads": [
+                            {
+                                "id": "NWEB",
+                                "name": "Nomis-web Application"
+                            },
+                            {
+                                "id": "BXI",
+                                "name": "Brixton (HMP)"
+                            }
+                        ]
+                    },
+                    "adminAccount": {
+                        "username": "TESTUSER1_ADM",
+                        "active": false,
+                        "accountType": "ADMIN",
+                        "activeCaseload": {
+                            "id": "CADM_I",
+                            "name": "Central Administration Caseload For Hmps"
+                        },
+                        "caseloads": [
+                            {
+                                "id": "NWEB",
+                                "name": "Nomis-web Application"
+                            },
+                            {
+                                "id": "CADM_I",
+                                "name": "Central Administration Caseload For Hmps"
+                            }
+                        ]
+                    }
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubCreateLinkedGeneralUser(request: CreateLinkedGeneralUserRequest) {
+    stubFor(
+      post(urlEqualTo("/users/link-general-account/${request.existingAdminUsername}")).withRequestBody(
+        WireMock.containing(
+          """
+          {"username":"TESTUSER1_GEN","defaultCaseloadId":"BXI"}
+          """.trimIndent(),
+        ),
+      )
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(201)
+            .withBody(
+              """
+                {
+                    "staffId": 100,
+                    "firstName": "First",
+                    "lastName": "Last",
+                    "status": "ACTIVE",
+                    "primaryEmail": "f.l@justice.gov.uk",
+                    "generalAccount": {
+                        "username": "TESTUSER1_GEN",
                         "active": false,
                         "accountType": "GENERAL",
                         "activeCaseload": {

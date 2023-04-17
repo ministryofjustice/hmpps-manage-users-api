@@ -118,6 +118,45 @@ class UserControllerTest {
   }
 
   @Nested
+  inner class CreateLinkedGeneralUser {
+    @Test
+    fun `create Linked General user`() {
+      val generalCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("BXI", "Brixton (HMP)"),
+      )
+      val adminCaseLoads = listOf(
+        PrisonCaseload("NWEB", "Nomis-web Application"),
+        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
+      )
+
+      val generalAccount = UserCaseload(
+        "TEST_USER_GEN",
+        false,
+        PrisonUsageType.GENERAL,
+        generalCaseLoads.get(1),
+        generalCaseLoads,
+      )
+      val adminAccount =
+        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
+      val createLinkedGeneralUserRequest = CreateLinkedGeneralUserRequest("TEST_USER_ADM", "TEST_USER_GEN", "BXI")
+      whenever(userService.createLinkedGeneralUser(createLinkedGeneralUserRequest)).thenReturn(
+        PrisonStaffUser(
+          100,
+          "First",
+          "Last",
+          "ACTIVE",
+          "f.l@justice.gov.uk",
+          generalAccount,
+          adminAccount,
+        ),
+      )
+      userController.createLinkedGeneralUser(createLinkedGeneralUserRequest)
+      verify(userService).createLinkedGeneralUser(createLinkedGeneralUserRequest)
+    }
+  }
+
+  @Nested
   inner class FindUsersByFirstAndLastName {
     @Test
     fun `no matches`() {

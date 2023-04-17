@@ -263,6 +263,63 @@ class UserController(
     createLinkedLocalAdminUserRequest: CreateLinkedLocalAdminUserRequest,
   ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest))
 
+  @PostMapping("/linkedprisonusers/general", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasRole('ROLE_CREATE_USER')")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+    summary = "Link a New General User to an existing Admin Account",
+    description = "Link a New General User to an existing Admin Account. Requires role ROLE_CREATE_USER",
+    security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "General User linked to an existing Admin Account",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(
+              implementation = PrisonStaffUserDto::class,
+            ),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to link a general user to an admin user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to link a general user to an existing admin user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun createLinkedGeneralUser(
+    @RequestBody @Valid
+    createLinkedGeneralUserRequest: CreateLinkedGeneralUserRequest,
+  ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedGeneralUser(createLinkedGeneralUserRequest))
+
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
   @Operation(
@@ -445,6 +502,37 @@ data class CreateLinkedLocalAdminUserRequest(
   )
   @NotBlank
   val localAdminGroup: String,
+)
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Linking a new General account to an existing admin user account")
+data class CreateLinkedGeneralUserRequest(
+  @Schema(description = "existing admin username", example = "TESTUSER1_ADM", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Admin Username must be between 1 and 30",
+  )
+  @NotBlank
+  val existingAdminUsername: String,
+
+  @Schema(description = "new general username", example = "TESTUSER1_GEN", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Username must be between 1 and 30",
+  )
+  @NotBlank
+  val generalUsername: String,
+
+  @Schema(description = "Default caseload (a.k.a Prison ID), not required for admin accounts", example = "BXI", required = true)
+  @field:Size(
+    max = 6,
+    min = 3,
+    message = "Caseload must be between 3-6 characters",
+  )
+  @NotBlank
+  val defaultCaseloadId: String,
 )
 
 data class AmendEmail(

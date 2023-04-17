@@ -863,7 +863,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `create linked local admin user call passes through error when error thrown from nomisapi`() {
+    fun `create linked local admin user call passes through error when bad request error thrown from nomisapi`() {
       nomisApiMockServer.stubSpecifiedHttpStatusOnPostTo("/users/link-local-admin-account/TEST_USER", BAD_REQUEST)
       webTestClient.post().uri("/linkedprisonusers/lsa")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -873,6 +873,186 @@ class UserControllerIntTest : IntegrationTestBase() {
               "existingUsername" to "TEST_USER",
               "adminUsername" to "TEST_USER_ADM",
               "localAdminGroup" to "MDI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(BAD_REQUEST)
+        .expectBody()
+        .jsonPath("status").isEqualTo(BAD_REQUEST.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
+    }
+  }
+
+  @Nested
+  inner class CreateLinkedGeneralUser {
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf()))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong scope`() {
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_ROLE"), scopes = listOf("read")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Link a General user to an existing Admin User`() {
+      val createLinkedGeneralRequest = CreateLinkedGeneralUserRequest("TESTUSER1_ADM", "TESTUSER1_GEN", "BXI")
+
+      nomisApiMockServer.stubCreateLinkedGeneralUser(createLinkedGeneralRequest)
+
+      val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(PrisonStaffUserDto::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(prisonStaffUser.staffId).isEqualTo(100L)
+      assertThat(prisonStaffUser.firstName).isEqualTo("First")
+      assertThat(prisonStaffUser.lastName).isEqualTo("Last")
+      assertThat(prisonStaffUser.status).isEqualTo("ACTIVE")
+      assertThat(prisonStaffUser.primaryEmail).isEqualTo("f.l@justice.gov.uk")
+      assertThat(prisonStaffUser.generalAccount?.accountType).isEqualTo(PrisonUsageType.GENERAL)
+      assertThat(prisonStaffUser.adminAccount?.accountType).isEqualTo(PrisonUsageType.ADMIN)
+
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/link-general-account/${createLinkedGeneralRequest.existingAdminUsername}"))
+          .withRequestBody(
+            containing(
+              """
+              {"username":"${createLinkedGeneralRequest.generalUsername}","defaultCaseloadId":"${createLinkedGeneralRequest.defaultCaseloadId}"}
+              """.trimIndent(),
+            ),
+          ),
+      )
+    }
+
+    @Test
+    fun `create linked general user returns error when the general user already exists`() {
+      nomisApiMockServer.stubConflictOnPostTo("/users/link-general-account/TESTUSER1_ADM")
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(CONFLICT)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo(CONFLICT.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
+    }
+
+    @Test
+    fun `create linked general user returns error when specified admin user is not found`() {
+      nomisApiMockServer.stubNotFoundOnPostTo("/users/link-general-account/TESTUSER_ADM_NOT_FOUND")
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER_ADM_NOT_FOUND",
+              "generalUsername" to "TESTUSER_GEN",
+              "defaultCaseloadId" to "BXI",
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isEqualTo(NOT_FOUND)
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("status").isEqualTo(NOT_FOUND.value())
+        .jsonPath("$.userMessage").isEqualTo("User test message")
+        .jsonPath("$.developerMessage").isEqualTo("Developer test message")
+    }
+
+    @Test
+    fun `create linked general user call passes through error when bad request error is thrown from nomisapi`() {
+      nomisApiMockServer.stubSpecifiedHttpStatusOnPostTo("/users/link-general-account/TESTUSER1_ADM", BAD_REQUEST)
+      webTestClient.post().uri("/linkedprisonusers/general")
+        .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
+        .body(
+          fromValue(
+            mapOf(
+              "existingAdminUsername" to "TESTUSER1_ADM",
+              "generalUsername" to "TESTUSER1_GEN",
+              "defaultCaseloadId" to "BXI",
             ),
           ),
         )
