@@ -575,18 +575,29 @@ data class PrisonStaffUserDto(
 @Schema(description = "User & Caseload Information")
 data class UserCaseloadDto(
   @Schema(description = "User name", example = "John1", required = true) val username: String,
-  @Schema(description = "Indicates that the user is active", example = "true", required = true) val active: Boolean,
+  @Schema(description = "Indicates that the user is active or not", example = "true", required = true) val active: Boolean,
   @Schema(description = "Type of user account", example = "GENERAL", required = true) val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
-  @Schema(description = "Active Caseload of the user", example = "BXI", required = false) val activeCaseload: PrisonCaseload?,
-  @Schema(description = "Caseloads available for this user", required = false) val caseloads: List<PrisonCaseload>? = listOf(),
+  @Schema(description = "Active Caseload of the user", example = "BXI", required = false) val activeCaseload: PrisonCaseloadDto?,
+  @Schema(description = "Caseloads available for this user", required = false) val caseloads: List<PrisonCaseloadDto>? = listOf(),
 ) {
   companion object {
     fun fromDomain(userCaseload: UserCaseload) = UserCaseloadDto(
       userCaseload.username,
       userCaseload.active,
       userCaseload.accountType,
-      userCaseload.activeCaseload,
-      userCaseload.caseloads,
+      userCaseload.activeCaseload?.let { PrisonCaseloadDto.fromDomain(it) },
+      userCaseload.caseloads?.map { PrisonCaseloadDto.fromDomain(it) },
     )
+  }
+}
+data class PrisonCaseloadDto(
+  @Schema(description = "ID for the caseload", example = "WWI")
+  val id: String,
+  @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)")
+  val name: String,
+) {
+  companion object {
+    fun fromDomain(pcd: PrisonCaseload) =
+      PrisonCaseloadDto(pcd.id, pcd.name)
   }
 }
