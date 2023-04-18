@@ -7,12 +7,9 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 
 class UserControllerTest {
@@ -43,35 +40,9 @@ class UserControllerTest {
   inner class CreateLinkedCentralAdminUser {
     @Test
     fun `create Linked DPS Central Admin user`() {
-      val generalCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("BXI", "Brixton (HMP)"),
-      )
-      val adminCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
-      )
-
-      val generalAccount = UserCaseload(
-        "TEST_USER",
-        false,
-        PrisonUsageType.GENERAL,
-        generalCaseLoads.get(1),
-        generalCaseLoads,
-      )
-      val adminAccount =
-        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
       val createLinkedCentralAdminUserRequest = CreateLinkedCentralAdminUserRequest("TEST_USER", "TEST_USER_ADM")
       whenever(userService.createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)).thenReturn(
-        PrisonStaffUser(
-          100,
-          "First",
-          "Last",
-          "ACTIVE",
-          "f.l@justice.gov.uk",
-          generalAccount,
-          adminAccount,
-        ),
+        UserFixture.createPrisonStaffUser(),
       )
       userController.createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)
       verify(userService).createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)
@@ -82,35 +53,9 @@ class UserControllerTest {
   inner class CreateLinkedLocalAdminUser {
     @Test
     fun `create Linked DPS Local Admin user`() {
-      val generalCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("BXI", "Brixton (HMP)"),
-      )
-      val adminCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
-      )
-
-      val generalAccount = UserCaseload(
-        "TEST_USER",
-        false,
-        PrisonUsageType.GENERAL,
-        generalCaseLoads.get(1),
-        generalCaseLoads,
-      )
-      val adminAccount =
-        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
       val createLinkedLocalAdminUserRequest = CreateLinkedLocalAdminUserRequest("TEST_USER", "TEST_USER_ADM", "MDI")
       whenever(userService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)).thenReturn(
-        PrisonStaffUser(
-          100,
-          "First",
-          "Last",
-          "ACTIVE",
-          "f.l@justice.gov.uk",
-          generalAccount,
-          adminAccount,
-        ),
+        UserFixture.createPrisonStaffUser(),
       )
       userController.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)
       verify(userService).createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)
@@ -121,35 +66,9 @@ class UserControllerTest {
   inner class CreateLinkedGeneralUser {
     @Test
     fun `create Linked General user`() {
-      val generalCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("BXI", "Brixton (HMP)"),
-      )
-      val adminCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
-      )
-
-      val generalAccount = UserCaseload(
-        "TEST_USER_GEN",
-        false,
-        PrisonUsageType.GENERAL,
-        generalCaseLoads.get(1),
-        generalCaseLoads,
-      )
-      val adminAccount =
-        UserCaseload("TEST_USER_ADM", false, PrisonUsageType.ADMIN, adminCaseLoads.get(1), adminCaseLoads)
       val createLinkedGeneralUserRequest = CreateLinkedGeneralUserRequest("TEST_USER_ADM", "TEST_USER_GEN", "BXI")
       whenever(userService.createLinkedGeneralUser(createLinkedGeneralUserRequest)).thenReturn(
-        PrisonStaffUser(
-          100,
-          "First",
-          "Last",
-          "ACTIVE",
-          "f.l@justice.gov.uk",
-          generalAccount,
-          adminAccount,
-        ),
+        UserFixture.createPrisonStaffUser(),
       )
       assertThat(userController.createLinkedGeneralUser(createLinkedGeneralUserRequest)).isNotNull
       verify(userService).createLinkedGeneralUser(createLinkedGeneralUserRequest)
