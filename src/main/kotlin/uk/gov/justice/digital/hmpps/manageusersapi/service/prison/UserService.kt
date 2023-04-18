@@ -5,10 +5,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
@@ -52,15 +52,11 @@ class UserService(
     return prisonUserDetails
   }
 
-  @Throws(HmppsValidationException::class)
-  fun createLinkedCentralAdminUser(user: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
-    return prisonUserApiService.linkCentralAdminUser(user)
-  }
+  fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest) = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
 
-  @Throws(HmppsValidationException::class)
-  fun createLinkedLocalAdminUser(user: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
-    return prisonUserApiService.linkLocalAdminUser(user)
-  }
+  fun createLinkedLocalAdminUser(linkUserRequest: CreateLinkedLocalAdminUserRequest) = prisonUserApiService.linkLocalAdminUser(linkUserRequest)
+
+  fun createLinkedGeneralUser(linkUserRequest: CreateLinkedGeneralUserRequest) = prisonUserApiService.linkGeneralUser(linkUserRequest)
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<EnhancedPrisonUser> {
     val prisonUsers: List<PrisonUserSummary> = prisonUserApiService.findUsersByFirstAndLastName(firstName, lastName)

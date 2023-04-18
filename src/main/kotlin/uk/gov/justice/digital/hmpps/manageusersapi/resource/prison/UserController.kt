@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
@@ -113,7 +115,7 @@ class UserController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "201",
         description = "Admin User linked to an existing General Account",
         content = [
           io.swagger.v3.oas.annotations.media.Content(
@@ -143,7 +145,7 @@ class UserController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "201",
         description = "Local Admin User linked to an existing General Account",
         content = [
           io.swagger.v3.oas.annotations.media.Content(
@@ -160,6 +162,63 @@ class UserController(
     @RequestBody @Valid
     createLinkedLocalAdminUserRequest: CreateLinkedLocalAdminUserRequest,
   ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest))
+
+  @PostMapping("/linkedprisonusers/general", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasRole('ROLE_CREATE_USER')")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+    summary = "Link a New General User to an existing Admin Account",
+    description = "Link a New General User to an existing Admin Account. Requires role ROLE_CREATE_USER",
+    security = [SecurityRequirement(name = "ROLE_CREATE_USER")],
+    responses = [
+      ApiResponse(
+        responseCode = "201",
+        description = "General User linked to an existing Admin Account",
+        content = [
+          io.swagger.v3.oas.annotations.media.Content(
+            mediaType = "application/json",
+            schema = io.swagger.v3.oas.annotations.media.Schema(
+              implementation = PrisonStaffUserDto::class,
+            ),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to link a general user to an admin user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint, requires a valid OAuth2 token",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to link a general user to an existing admin user",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun createLinkedGeneralUser(
+    @RequestBody @Valid
+    createLinkedGeneralUserRequest: CreateLinkedGeneralUserRequest,
+  ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedGeneralUser(createLinkedGeneralUserRequest))
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -323,20 +382,53 @@ data class CreateLinkedLocalAdminUserRequest(
   val localAdminGroup: String,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Linking a new General account to an existing admin user account")
+data class CreateLinkedGeneralUserRequest(
+  @Schema(description = "existing admin username", example = "TESTUSER1_ADM", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Admin Username must be between 1 and 30",
+  )
+  @NotBlank
+  val existingAdminUsername: String,
+
+  @Schema(description = "new general username", example = "TESTUSER1_GEN", required = true)
+  @field:Size(
+    max = 30,
+    min = 1,
+    message = "Username must be between 1 and 30",
+  )
+  @NotBlank
+  val generalUsername: String,
+
+  @Schema(description = "Default caseload (a.k.a Prison ID), not required for admin accounts", example = "BXI", required = true)
+  @field:Size(
+    max = 6,
+    min = 3,
+    message = "Caseload must be between 3-6 characters",
+  )
+  @NotBlank
+  val defaultCaseloadId: String,
+)
+
 data class AmendEmail(
   @Schema(required = true, description = "Email address", example = "prison.user@someagency.justice.gov.uk")
   @field:NotBlank(message = "Email must not be blank")
   val email: String?,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Prison Staff Information")
 data class PrisonStaffUserDto(
-  val staffId: Long,
-  val firstName: String,
-  val lastName: String,
-  val status: String,
-  val primaryEmail: String?,
-  val generalAccount: UserCaseload?,
-  val adminAccount: UserCaseload?,
+  @Schema(description = "Staff ID", example = "324323", required = true) val staffId: Long,
+  @Schema(description = "First name of the user", example = "John", required = true) val firstName: String,
+  @Schema(description = "Last name of the user", example = "Smith", required = true) val lastName: String,
+  @Schema(description = "Status of staff account", example = "ACTIVE", required = true) val status: String,
+  @Schema(description = "Email addresses of staff", example = "test@test.com", required = false) val primaryEmail: String?,
+  @Schema(description = "General user account for this staff member", required = false) val generalAccount: UserCaseloadDto?,
+  @Schema(description = "Admin user account for this staff member", required = false) val adminAccount: UserCaseloadDto?,
 ) {
   companion object {
     fun fromDomain(prisonStaffUser: PrisonStaffUser): PrisonStaffUserDto {
@@ -347,10 +439,41 @@ data class PrisonStaffUserDto(
           lastName,
           status,
           primaryEmail,
-          generalAccount,
-          adminAccount,
+          generalAccount?.let { UserCaseloadDto.fromDomain(it) },
+          adminAccount?.let { UserCaseloadDto.fromDomain(it) },
         )
       }
     }
+  }
+}
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "User & Caseload Information")
+data class UserCaseloadDto(
+  @Schema(description = "User name", example = "John1", required = true) val username: String,
+  @Schema(description = "Indicates that the user is active or not", example = "true", required = true) val active: Boolean,
+  @Schema(description = "Type of user account", example = "GENERAL", required = true) val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
+  @Schema(description = "Active Caseload of the user", example = "BXI", required = false) val activeCaseload: PrisonCaseloadDto?,
+  @Schema(description = "Caseloads available for this user", required = false) val caseloads: List<PrisonCaseloadDto>? = listOf(),
+) {
+  companion object {
+    fun fromDomain(userCaseload: UserCaseload) = UserCaseloadDto(
+      userCaseload.username,
+      userCaseload.active,
+      userCaseload.accountType,
+      userCaseload.activeCaseload?.let { PrisonCaseloadDto.fromDomain(it) },
+      userCaseload.caseloads?.map { PrisonCaseloadDto.fromDomain(it) },
+    )
+  }
+}
+data class PrisonCaseloadDto(
+  @Schema(description = "ID for the caseload", example = "WWI")
+  val id: String,
+  @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)")
+  val name: String,
+) {
+  companion object {
+    fun fromDomain(pcd: PrisonCaseload) =
+      PrisonCaseloadDto(pcd.id, pcd.name)
   }
 }

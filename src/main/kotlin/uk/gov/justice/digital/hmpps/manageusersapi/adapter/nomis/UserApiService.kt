@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 
@@ -91,28 +92,31 @@ class UserApiService(
     )
   }
 
-  fun linkCentralAdminUser(centralAdminUser: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
-    log.debug("Link DPS central admin user - {}", centralAdminUser.adminUsername)
-    return userWebClientUtils.postWithResponse(
-      "/users/link-admin-account/${centralAdminUser.existingUsername}",
-      mapOf(
-        "username" to centralAdminUser.adminUsername,
-      ),
-      PrisonStaffUser::class.java,
-    )
-  }
+  fun linkCentralAdminUser(centralAdminUser: CreateLinkedCentralAdminUserRequest) = userWebClientUtils.postWithResponse(
+    "/users/link-admin-account/${centralAdminUser.existingUsername}",
+    mapOf(
+      "username" to centralAdminUser.adminUsername,
+    ),
+    PrisonStaffUser::class.java,
+  )
 
-  fun linkLocalAdminUser(localAdminUser: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
-    log.debug("Link DPS Local admin user - {}", localAdminUser.adminUsername)
-    return userWebClientUtils.postWithResponse(
-      "/users/link-local-admin-account/${localAdminUser.existingUsername}",
-      mapOf(
-        "username" to localAdminUser.adminUsername,
-        "localAdminGroup" to localAdminUser.localAdminGroup,
-      ),
-      PrisonStaffUser::class.java,
-    )
-  }
+  fun linkLocalAdminUser(localAdminUser: CreateLinkedLocalAdminUserRequest) = userWebClientUtils.postWithResponse(
+    "/users/link-local-admin-account/${localAdminUser.existingUsername}",
+    mapOf(
+      "username" to localAdminUser.adminUsername,
+      "localAdminGroup" to localAdminUser.localAdminGroup,
+    ),
+    PrisonStaffUser::class.java,
+  )
+
+  fun linkGeneralUser(generalUser: CreateLinkedGeneralUserRequest) = userWebClientUtils.postWithResponse(
+    "/users/link-general-account/${generalUser.existingAdminUsername}",
+    mapOf(
+      "username" to generalUser.generalUsername,
+      "defaultCaseloadId" to generalUser.defaultCaseloadId,
+    ),
+    PrisonStaffUser::class.java,
+  )
 }
 
 class PrisonUserList : MutableList<PrisonUserSummary> by ArrayList()
