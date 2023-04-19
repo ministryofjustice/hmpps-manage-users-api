@@ -296,7 +296,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-            {"status":403,"userMessage":"Access is denied","developerMessage":"Access is denied"}
+            {"status":403,"userMessage":"Access Denied","developerMessage":"Access Denied"}
           """.trimIndent(),
         )
     }
