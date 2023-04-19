@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.5-beta-3"
-  kotlin("plugin.spring") version "1.8.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.6-beta-2"
+  kotlin("plugin.spring") version "1.8.20"
 }
 
 configurations {
@@ -12,9 +12,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.15")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.15")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.15")
+  implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.7.0")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.7.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
   implementation("org.apache.commons:commons-text:1.10.0")
