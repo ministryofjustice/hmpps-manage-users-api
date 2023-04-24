@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.constraints.NotEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -28,7 +29,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiRespo
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserRolesService
 import java.util.UUID
-import javax.validation.constraints.NotEmpty
 
 @RestController("ExternalUserRolesController")
 @Validated
@@ -237,6 +237,9 @@ data class UserRole(
   @Schema(description = "Role Name", example = "Auth Group Manager")
   val roleName: String,
 
-  @Schema(description = "Role Description", example = "Allow Group Manager to administer the account within their groups")
+  @Schema(
+    description = "Role Description",
+    example = "Allow Group Manager to administer the account within their groups",
+  )
   val roleDescription: String? = null,
 )
