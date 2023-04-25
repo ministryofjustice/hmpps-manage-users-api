@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -204,13 +203,45 @@ class UserServiceTest {
   inner class EnableExternalUser {
 
     @Test
-    fun `enable user by userId sends email`() {
+    fun `sends email on success`() {
       val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(userApiService.enableUserById(anyOrNull())).thenReturn(enabledUser)
+      whenever(userApiService.enableUserById(userUUID)).thenReturn(enabledUser)
 
       userService.enableUserByUserId(userUUID)
 
       verify(notificationService).externalUserEnabledNotification(enabledUser)
+    }
+
+    @Test
+    fun `does not send email on failure`() {
+      doThrow(WebClientResponseException::class).whenever(userApiService).enableUserById(userUUID)
+
+      assertThatThrownBy {
+        userService.enableUserByUserId(userUUID)
+      }.isInstanceOf(WebClientResponseException::class.java)
+
+      verifyNoInteractions(notificationService)
+    }
+
+    @Test
+    fun `syncs update with Auth when sync user updates feature enabled`() {
+      givenAuthUserSyncEnabled()
+      val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
+      whenever(userApiService.enableUserById(userUUID)).thenReturn(enabledUser)
+
+      userService.enableUserByUserId(userUUID)
+
+      verify(authApiService).syncUserEnabled(userUUID)
+    }
+
+    @Test
+    fun `does not sync updates with Auth when sync user updates feature disabled`() {
+      val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
+      whenever(userApiService.enableUserById(userUUID)).thenReturn(enabledUser)
+
+      userService.enableUserByUserId(userUUID)
+
+      verifyNoInteractions(authApiService)
     }
   }
 
@@ -218,10 +249,42 @@ class UserServiceTest {
   inner class DisableExternalUser {
 
     @Test
-    fun `disable user by userId sends email`() {
+    fun `sends email on success`() {
       val reason = DeactivateReason("Fired")
       userService.disableUserByUserId(userUUID, reason)
+
       verify(userApiService).disableUserById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), reason)
+    }
+
+    @Test
+    fun `does not send email on failure`() {
+      val reason = DeactivateReason("Fired")
+      doThrow(WebClientResponseException::class).whenever(userApiService).disableUserById(userUUID, reason)
+
+      assertThatThrownBy {
+        userService.disableUserByUserId(userUUID, reason)
+      }.isInstanceOf(WebClientResponseException::class.java)
+
+      verifyNoInteractions(notificationService)
+    }
+
+    @Test
+    fun `syncs update with Auth when sync user updates feature enabled`() {
+      givenAuthUserSyncEnabled()
+      val reason = DeactivateReason("Fired")
+
+      userService.disableUserByUserId(userUUID, reason)
+
+      verify(authApiService).syncUserDisabled(userUUID, "Fired")
+    }
+
+    @Test
+    fun `does not sync updates with Auth when sync user updates feature disabled`() {
+      val reason = DeactivateReason("Fired")
+
+      userService.disableUserByUserId(userUUID, reason)
+
+      verify(authApiService, never()).syncUserDisabled(userUUID, "Fired")
     }
   }
 

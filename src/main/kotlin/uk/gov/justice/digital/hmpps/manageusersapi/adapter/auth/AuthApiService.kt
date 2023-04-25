@@ -74,6 +74,12 @@ class AuthApiService(
   fun syncUserEmailUpdate(username: String, newEmail: String, newUsername: String) =
     serviceWebClientUtils.put("/api/externaluser/sync/$username/email", mapOf("email" to newEmail, "username" to newUsername))
 
+  fun syncUserEnabled(userId: UUID) =
+    serviceWebClientUtils.put("/api/externaluser/sync/$userId/enabled", mapOf("enabled" to true))
+
+  fun syncUserDisabled(userId: UUID, inactiveReason: String) =
+    serviceWebClientUtils.put("/api/externaluser/sync/$userId/enabled", mapOf("enabled" to false, "inactiveReason" to inactiveReason))
+
   fun confirmRecognised(username: String) =
     userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/$username/recognised")
 

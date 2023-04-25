@@ -42,6 +42,10 @@ class UserService(
 
   fun enableUserByUserId(userId: UUID) {
     val enabledUser = externalUsersApiService.enableUserById(userId)
+    if (syncUserUpdates) {
+      authApiService.syncUserEnabled(userId)
+    }
+
     notificationService.externalUserEnabledNotification(enabledUser)
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
@@ -49,8 +53,12 @@ class UserService(
       null,
     )
   }
-  fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
+  fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) {
     externalUsersApiService.disableUserById(userId, deactivateReason)
+    if (syncUserUpdates) {
+      authApiService.syncUserDisabled(userId, deactivateReason.reason)
+    }
+  }
 
   fun amendUserEmailByUserId(
     userId: UUID,
