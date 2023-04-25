@@ -94,9 +94,8 @@ class UserServiceTest {
     fun `should fail when attempt to send email fails`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid
       with(newUser) {
-        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(uuid)
       }
       whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf())
       whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("prison-staff-hub", "service-not-pecs@testing.com"))
@@ -114,9 +113,8 @@ class UserServiceTest {
     fun `should format email`() {
       val newUser = NewUser("SARAH.o’connor@gov.uk", "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid
       with(newUser) {
-        whenever(userApiService.createUser(firstName, lastName, "sarah.o'connor@gov.uk", groupCodes)).thenReturn(userId)
+        whenever(userApiService.createUser(firstName, lastName, "sarah.o'connor@gov.uk", groupCodes)).thenReturn(uuid)
 
         whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf())
         whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
@@ -136,9 +134,8 @@ class UserServiceTest {
     fun `should generate pecs user group support link`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid
       with(newUser) {
-        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(uuid)
 
         whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf(UserGroup("PECS Groups", "PECS Test Group")))
         whenever(authApiService.findServiceByServiceCode("book-a-secure-move-ui")).thenReturn(
@@ -180,9 +177,8 @@ class UserServiceTest {
     fun `should return user id`() {
       val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
       val uuid = UUID.randomUUID()
-      val userId = uuid
       with(newUser) {
-        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(userId)
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(uuid)
 
         whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf(UserGroup("NON PECS Groups", "NON PECS Test Group")))
         whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
@@ -194,7 +190,57 @@ class UserServiceTest {
 
         val actualUserId = userService.createUser(newUser)
 
-        assertEquals(userId, actualUserId)
+        assertEquals(uuid, actualUserId)
+      }
+    }
+
+    @Test
+    fun `should sync user creation with Auth when user update sync enabled`() {
+      givenAuthUserSyncEnabled()
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(uuid)
+
+        whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(listOf(UserGroup("NON PECS Groups", "NON PECS Test Group")))
+        whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
+          createAuthServiceWith(
+            "prison-staff-hub",
+            "service-non-pecs@testing.com",
+          ),
+        )
+
+        userService.createUser(newUser)
+
+        verify(authApiService).syncExternalUserCreate(email, firstName, lastName)
+      }
+    }
+
+    @Test
+    fun `should not sync user creation with Auth when user update sync disabled`() {
+      val newUser = NewUser(emailAddress, "Testy", "McTester", setOf("SITE_1_GROUP_1"))
+      val uuid = UUID.randomUUID()
+      with(newUser) {
+        whenever(userApiService.createUser(firstName, lastName, email, groupCodes)).thenReturn(uuid)
+
+        whenever(userGroupApiService.getUserGroups(uuid, false)).thenReturn(
+          listOf(
+            UserGroup(
+              "NON PECS Groups",
+              "NON PECS Test Group",
+            ),
+          ),
+        )
+        whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(
+          createAuthServiceWith(
+            "prison-staff-hub",
+            "service-non-pecs@testing.com",
+          ),
+        )
+
+        userService.createUser(newUser)
+
+        verify(authApiService, never()).syncExternalUserCreate(email, firstName, lastName)
       }
     }
   }

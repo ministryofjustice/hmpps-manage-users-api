@@ -35,6 +35,9 @@ class UserService(
     }
 
     val userId = externalUsersApiService.createUser(user.firstName, user.lastName, email!!, user.groupCodes)
+    if (syncUserUpdates) {
+      authApiService.syncExternalUserCreate(email, user.firstName, user.lastName)
+    }
     val initialNotificationSupportLink = initialNotificationSupportLink(userId)
     notificationService.externalUserInitialNotification(userId, user.firstName, user.lastName, upperCase(email), email, initialNotificationSupportLink, "ExternalUserCreate")
     return userId

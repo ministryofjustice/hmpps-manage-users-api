@@ -77,6 +77,9 @@ class AuthApiService(
   fun syncUserEnabled(userId: UUID) =
     serviceWebClientUtils.put("/api/externaluser/sync/$userId/enabled", mapOf("enabled" to true))
 
+  fun syncExternalUserCreate(email: String, firstName: String, lastName: String) =
+    serviceWebClientUtils.post("/api/externaluser/sync/create", mapOf("email" to email, "username" to email, "firstName" to firstName, "lastName" to lastName))
+
   fun syncUserDisabled(userId: UUID, inactiveReason: String) =
     serviceWebClientUtils.put("/api/externaluser/sync/$userId/enabled", mapOf("enabled" to false, "inactiveReason" to inactiveReason))
 
