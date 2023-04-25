@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
@@ -260,6 +261,74 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     stubFor(
       put("/auth/api/prisonuser/$username/email")
         .withRequestBody(matchingJsonPath("email", equalTo(newEmailAddress)))
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value()),
+        ),
+    )
+  }
+
+  fun stubSyncDisableUser(userId: String, inactiveReason: String) {
+    stubFor(
+      put("/auth/api/externaluser/sync/$userId/enabled")
+        .withRequestBody(
+          containing(
+            """
+              {"enabled":false,"inactiveReason":"$inactiveReason"}
+            """.trimIndent(),
+          ),
+        )
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value()),
+        ),
+    )
+  }
+
+  fun stubSyncEnableUser(userId: String) {
+    stubFor(
+      put("/auth/api/externaluser/sync/$userId/enabled")
+        .withRequestBody(
+          containing(
+            """
+              {"enabled":true}
+            """.trimIndent(),
+          ),
+        )
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value()),
+        ),
+    )
+  }
+
+  fun stubSyncAlterUserEmail(username: String, newEmail: String, newUsername: String) {
+    stubFor(
+      put("/auth/api/externaluser/sync/$username/email")
+        .withRequestBody(
+          containing(
+            """
+              {"email":"$newEmail","username":"$newUsername"}
+            """.trimIndent(),
+          ),
+        )
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value()),
+        ),
+    )
+  }
+
+  fun stubSyncExternalUserCreate(email: String, firstName: String, lastName: String) {
+    stubFor(
+      post("/auth/api/externaluser/sync/create")
+        .withRequestBody(
+          containing(
+            """
+              {"email":"$email","username":"$email","firstName":"$firstName","lastName":"$lastName"}
+            """.trimIndent(),
+          ),
+        )
         .willReturn(
           aResponse()
             .withStatus(HttpStatus.OK.value()),
