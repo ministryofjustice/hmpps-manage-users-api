@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -40,16 +41,25 @@ class UserServiceTest {
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
 
-  private val userService = UserService(
-    notificationService,
-    userApiService,
-    externalUsersSearchApiService,
-    authApiService,
-    userGroupApiService,
-    verifyEmailService,
-    telemetryClient,
-  )
+  private val syncUserUpdates = false
+
+  private lateinit var userService: UserService
+
   private val userUUID: UUID = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+
+  @BeforeEach
+  fun setUp() {
+    userService = UserService(
+      notificationService,
+      userApiService,
+      externalUsersSearchApiService,
+      authApiService,
+      userGroupApiService,
+      verifyEmailService,
+      telemetryClient,
+      syncUserUpdates,
+    )
+  }
 
   @Nested
   inner class CreateUser {
@@ -254,7 +264,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `user with password - success link returned for`() {
+    fun `user with password - success link returned`() {
       val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
@@ -269,7 +279,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `user with password - email and username updated for`() {
+    fun `user with password - email and username updated`() {
       val externalUser = createExternalUserDetails(userId)
 
       whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
@@ -281,6 +291,37 @@ class UserServiceTest {
       userService.amendUserEmailByUserId(userId, newEmailAddress)
 
       verify(userApiService).updateUserEmailAddressAndUsername(userId, "testing", newEmailAddress)
+    }
+
+    @Test
+    fun `user with password - email and username synced with auth when feature enabled`() {
+      givenAuthUserSyncEnabled()
+      val externalUser = createExternalUserDetails(userId)
+
+      whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
+      whenever(userApiService.hasPassword(userId)).thenReturn(true)
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, "testing"),
+      )
+
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
+
+      verify(authApiService).syncUserEmailUpdate(externalUser.username, newEmailAddress, "testing")
+    }
+
+    @Test
+    fun `user with password - email and username not synced with auth when feature disabled`() {
+      val externalUser = createExternalUserDetails(userId)
+
+      whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
+      whenever(userApiService.hasPassword(userId)).thenReturn(true)
+      whenever(verifyEmailService.requestVerification(eq(externalUser), eq(newEmailAddress))).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, "testing"),
+      )
+
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
+
+      verifyNoInteractions(authApiService)
     }
 
     @Test
@@ -444,6 +485,39 @@ class UserServiceTest {
     }
 
     @Test
+    fun `user without password - email and username synced with Auth when feature enabled`() {
+      givenAuthUserSyncEnabled()
+      val externalUser = createExternalUserDetails(userId, "TESTY@TESTING.COM")
+
+      whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
+      whenever(userApiService.hasPassword(userId)).thenReturn(false)
+      whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
+      whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf())
+      whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
+      whenever(verifyEmailService.confirmUsernameValidForUpdate(newEmailAddress, "TESTY@TESTING.COM")).thenReturn(newEmailAddress)
+
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
+
+      verify(authApiService).syncUserEmailUpdate(externalUser.username, newEmailAddress, newEmailAddress)
+    }
+
+    @Test
+    fun `user without password - email and username not synced with Auth when feature disabled`() {
+      val externalUser = createExternalUserDetails(userId, "TESTY@TESTING.COM")
+
+      whenever(externalUsersSearchApiService.findByUserId(userId)).thenReturn(externalUser)
+      whenever(userApiService.hasPassword(userId)).thenReturn(false)
+      whenever(authApiService.createResetTokenForUser(userId)).thenReturn(token)
+      whenever(userGroupApiService.getUserGroups(userId, false)).thenReturn(listOf())
+      whenever(authApiService.findServiceByServiceCode("prison-staff-hub")).thenReturn(createAuthServiceWith("service-not-pecs@testing.com", "prison-staff-hub"))
+      whenever(verifyEmailService.confirmUsernameValidForUpdate(newEmailAddress, "TESTY@TESTING.COM")).thenReturn(newEmailAddress)
+
+      userService.amendUserEmailByUserId(userId, newEmailAddress)
+
+      verify(authApiService, never()).syncUserEmailUpdate(externalUser.username, newEmailAddress, newEmailAddress)
+    }
+
+    @Test
     fun `user without password - cannot change email to same as existing user`() {
       val externalUser = createExternalUserDetails(userId, "TESTY@TESTING.COM")
 
@@ -455,6 +529,19 @@ class UserServiceTest {
         userService.amendUserEmailByUserId(userId, newEmailAddress)
       }.hasMessage("Validate email failed with reason: duplicate")
     }
+  }
+
+  private fun givenAuthUserSyncEnabled() {
+    userService = UserService(
+      notificationService,
+      userApiService,
+      externalUsersSearchApiService,
+      authApiService,
+      userGroupApiService,
+      verifyEmailService,
+      telemetryClient,
+      true,
+    )
   }
 
   private fun createAuthServiceWith(contact: String, code: String): AuthService {

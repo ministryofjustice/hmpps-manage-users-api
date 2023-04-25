@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.apache.commons.lang3.StringUtils.upperCase
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
@@ -22,6 +23,7 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
+  @Value("\${hmpps-auth.sync-user}") private val syncUserUpdates: Boolean,
 ) {
 
   fun createUser(user: NewUser): UUID {
@@ -65,6 +67,8 @@ class UserService(
         linkEmailAndUsername.username,
         linkEmailAndUsername.email,
       )
+
+      syncUserEmailUpdate(username, linkEmailAndUsername.email, linkEmailAndUsername.username)
       return linkEmailAndUsername.link
     }
 
@@ -77,6 +81,7 @@ class UserService(
 
     val supportLink = initialNotificationSupportLink(userId)
     externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail!!)
+    syncUserEmailUpdate(username, newEmail, usernameForUpdate)
     return notificationService.externalUserInitialNotification(
       userId,
       user.firstName,
@@ -86,6 +91,12 @@ class UserService(
       supportLink,
       "ExternalUserAmend",
     )
+  }
+
+  private fun syncUserEmailUpdate(username: String, newEmail: String, newUsername: String) {
+    if (syncUserUpdates) {
+      authApiService.syncUserEmailUpdate(username, newEmail, newUsername)
+    }
   }
 
   private fun initialNotificationSupportLink(userId: UUID): String {

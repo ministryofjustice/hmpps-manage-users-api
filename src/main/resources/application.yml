@@ -98,6 +98,7 @@ hmpps-auth:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 8s
+  sync-user: false
 
 nomis:
   enabled: false
