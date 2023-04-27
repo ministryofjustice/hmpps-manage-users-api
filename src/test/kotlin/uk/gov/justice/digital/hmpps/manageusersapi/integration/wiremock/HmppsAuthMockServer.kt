@@ -268,9 +268,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubSyncDisableUser(userId: String, inactiveReason: String) {
+  fun stubSyncDisableUser(username: String, inactiveReason: String) {
     stubFor(
-      put("/auth/api/externaluser/sync/$userId/enabled")
+      put("/auth/api/externaluser/sync/$username/enabled")
         .withRequestBody(
           containing(
             """
@@ -285,9 +285,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubSyncEnableUser(userId: String) {
+  fun stubSyncEnableUser(username: String) {
     stubFor(
-      put("/auth/api/externaluser/sync/$userId/enabled")
+      put("/auth/api/externaluser/sync/$username/enabled")
         .withRequestBody(
           containing(
             """

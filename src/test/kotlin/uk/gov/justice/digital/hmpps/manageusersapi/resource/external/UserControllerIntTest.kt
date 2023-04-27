@@ -75,7 +75,8 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun disableUser() {
-      hmppsAuthMockServer.stubSyncDisableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f", "fired")
+      externalUsersApiMockServer.stubGetUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f", "TESTY")
+      hmppsAuthMockServer.stubSyncDisableUser("TESTY", "fired")
       externalUsersApiMockServer.stubPutDisableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
       webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/disable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
@@ -155,7 +156,8 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun enableUser() {
       externalUsersApiMockServer.stubPutEnableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
-      hmppsAuthMockServer.stubSyncEnableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
+      externalUsersApiMockServer.stubGetUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f", "TESTY")
+      hmppsAuthMockServer.stubSyncEnableUser("TESTY")
       webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
