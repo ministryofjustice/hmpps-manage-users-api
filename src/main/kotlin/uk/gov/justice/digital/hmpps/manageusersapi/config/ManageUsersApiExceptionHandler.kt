@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered.LOWEST_PRECEDENCE
 import org.springframework.core.annotation.Order
@@ -26,7 +27,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundExcepti
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.ValidEmailException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.HmppsValidationException
-import javax.validation.ValidationException
 
 @RestControllerAdvice
 @Order(LOWEST_PRECEDENCE)
@@ -154,7 +154,14 @@ class HmppsManageUsersApiExceptionHandler {
     return ResponseEntity
       .status(BAD_REQUEST)
       .contentType(APPLICATION_JSON)
-      .body(ErrorResponse(status = BAD_REQUEST, userMessage = e.message, developerMessage = e.message, errors = e.asErrorList()))
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = e.message,
+          developerMessage = e.message,
+          errors = e.asErrorList(),
+        ),
+      )
   }
 
   private fun MethodArgumentNotValidException.asErrorList(): List<String> =

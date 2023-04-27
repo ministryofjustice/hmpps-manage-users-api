@@ -266,8 +266,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to FORBIDDEN.value(),
-              "developerMessage" to "Access is denied",
-              "userMessage" to "Access is denied",
+              "developerMessage" to "Access Denied",
+              "userMessage" to "Access Denied",
             ),
           )
         }
@@ -521,7 +521,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+      {"userMessage":"Access Denied","developerMessage":"Access Denied"}
           """.trimIndent(),
         )
     }
@@ -624,7 +624,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-     {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+     {"userMessage":"Access Denied","developerMessage":"Access Denied"}
           """.trimIndent(),
         )
     }
@@ -821,7 +821,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+      {"userMessage":"Access Denied","developerMessage":"Access Denied"}
           """.trimIndent(),
         )
     }

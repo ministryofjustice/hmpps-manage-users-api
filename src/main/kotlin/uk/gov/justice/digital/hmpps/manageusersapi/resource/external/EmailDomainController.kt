@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -22,9 +25,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiRespo
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailDomainService
 import java.util.UUID
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
 
 @RestController
 class EmailDomainController(
@@ -67,7 +67,12 @@ class EmailDomainController(
     description = "Create a new email domain, role required is ROLE_MAINTAIN_EMAIL_DOMAINS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_EMAIL_DOMAINS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateEmailDomainDto::class))],
+      content = [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = CreateEmailDomainDto::class),
+        ),
+      ],
     ),
   )
   @CreateApiResponses
@@ -139,7 +144,11 @@ data class EmailDomainDto(
 data class CreateEmailDomainDto(
   @Schema(required = true, description = "Email domain", example = "careuk.com")
   @field:NotBlank(message = "email domain name must be supplied")
-  @field:Size(min = 6, max = 100, message = "email domain name must be between 6 and 100 characters in length (inclusive)")
+  @field:Size(
+    min = 6,
+    max = 100,
+    message = "email domain name must be between 6 and 100 characters in length (inclusive)",
+  )
   val name: String = "",
 
   @Schema(required = false, description = "Email domain description", example = "CAREUK")

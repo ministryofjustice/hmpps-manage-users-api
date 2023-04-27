@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
@@ -24,11 +29,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
 
 @Validated
 @RestController
@@ -115,7 +115,12 @@ class RolesController(
     description = "Amend the role name, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleNameAmendmentDto::class))],
+      content = [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = RoleNameAmendmentDto::class),
+        ),
+      ],
     ),
   )
   @FailApiResponses
@@ -149,7 +154,12 @@ class RolesController(
     description = "Amend the role description, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleDescriptionAmendmentDto::class))],
+      content = [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = RoleDescriptionAmendmentDto::class),
+        ),
+      ],
     ),
   )
   @FailApiResponses
@@ -183,7 +193,12 @@ class RolesController(
     description = "Amend the role admin type, role required is ROLE_ROLES_ADMIN",
     security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = RoleAdminTypeAmendmentDto::class))],
+      content = [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = RoleAdminTypeAmendmentDto::class),
+        ),
+      ],
     ),
   )
   @FailApiResponses

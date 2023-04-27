@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,6 +29,5 @@ class DeliusWebClientConfiguration(appContext: ApplicationContext) :
 }
 
 @Suppress("ConfigurationProperties", "ConfigurationProperties")
-@ConstructorBinding
 @ConfigurationProperties("delius.roles")
 open class DeliusRoleMappings(val mappings: Map<String, List<String>>)

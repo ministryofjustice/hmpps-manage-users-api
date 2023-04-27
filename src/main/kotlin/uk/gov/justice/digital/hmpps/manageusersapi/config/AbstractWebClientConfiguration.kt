@@ -138,7 +138,7 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     private val log = LoggerFactory.getLogger(this::class.java)
   }
   private fun addAuthHeaderFilterFunction(): ExchangeFilterFunction =
-    ExchangeFilterFunction { request: ClientRequest?, next: ExchangeFunction ->
+    ExchangeFilterFunction { request: ClientRequest, next: ExchangeFunction ->
       val filtered = ClientRequest.from(request)
         .header(HttpHeaders.AUTHORIZATION, UserContext.getAuthToken())
         .build()
