@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
@@ -23,6 +24,7 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
+  private val authenticationFacade: AuthenticationFacade,
   @Value("\${hmpps-auth.sync-user}") private val syncUserUpdates: Boolean,
 ) {
 
@@ -44,22 +46,25 @@ class UserService(
   }
 
   fun enableUserByUserId(userId: UUID) {
-    val enabledUser = externalUsersApiService.enableUserById(userId)
+    externalUsersApiService.enableUserById(userId)
+    val user = externalUsersSearchApiService.findByUserId(userId)
+
     if (syncUserUpdates) {
-      authApiService.syncUserEnabled(userId)
+      authApiService.syncUserEnabled(user.username)
     }
 
-    notificationService.externalUserEnabledNotification(enabledUser)
+    notificationService.externalUserEnabledNotification(user)
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
-      mapOf("username" to enabledUser.username, "admin" to enabledUser.admin),
+      mapOf("username" to user.username, "admin" to authenticationFacade.currentUsername),
       null,
     )
   }
   fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) {
     externalUsersApiService.disableUserById(userId, deactivateReason)
     if (syncUserUpdates) {
-      authApiService.syncUserDisabled(userId, deactivateReason.reason)
+      val user = externalUsersSearchApiService.findByUserId(userId)
+      authApiService.syncUserDisabled(user.username, deactivateReason.reason)
     }
   }
 

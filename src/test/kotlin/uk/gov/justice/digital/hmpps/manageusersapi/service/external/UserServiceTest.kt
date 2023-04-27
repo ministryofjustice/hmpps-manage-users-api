@@ -22,9 +22,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
@@ -39,6 +39,7 @@ class UserServiceTest {
   private val userGroupApiService: UserGroupApiService = mock()
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
+  private val authenticationFacade: AuthenticationFacade = mock()
 
   private val syncUserUpdates = false
 
@@ -56,6 +57,7 @@ class UserServiceTest {
       userGroupApiService,
       verifyEmailService,
       telemetryClient,
+      authenticationFacade,
       syncUserUpdates,
     )
   }
@@ -249,13 +251,23 @@ class UserServiceTest {
   inner class EnableExternalUser {
 
     @Test
-    fun `sends email on success`() {
-      val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(userApiService.enableUserById(userUUID)).thenReturn(enabledUser)
+    fun `updates external user on success`() {
+      val externalUser = createExternalUserDetails(userId = userUUID)
+      whenever(externalUsersSearchApiService.findByUserId(userUUID)).thenReturn(externalUser)
 
       userService.enableUserByUserId(userUUID)
 
-      verify(notificationService).externalUserEnabledNotification(enabledUser)
+      verify(userApiService).enableUserById(userUUID)
+    }
+
+    @Test
+    fun `sends email on success`() {
+      val externalUser = createExternalUserDetails(userId = userUUID)
+      whenever(externalUsersSearchApiService.findByUserId(userUUID)).thenReturn(externalUser)
+
+      userService.enableUserByUserId(userUUID)
+
+      verify(notificationService).externalUserEnabledNotification(externalUser)
     }
 
     @Test
@@ -272,18 +284,18 @@ class UserServiceTest {
     @Test
     fun `syncs update with Auth when sync user updates feature enabled`() {
       givenAuthUserSyncEnabled()
-      val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(userApiService.enableUserById(userUUID)).thenReturn(enabledUser)
+      val externalUser = createExternalUserDetails(userId = userUUID)
+      whenever(externalUsersSearchApiService.findByUserId(userUUID)).thenReturn(externalUser)
 
       userService.enableUserByUserId(userUUID)
 
-      verify(authApiService).syncUserEnabled(userUUID)
+      verify(authApiService).syncUserEnabled(externalUser.username)
     }
 
     @Test
     fun `does not sync updates with Auth when sync user updates feature disabled`() {
-      val enabledUser = EnabledExternalUser("CEN_ADM", "firstName", "cadmin@gov.uk", "admin")
-      whenever(userApiService.enableUserById(userUUID)).thenReturn(enabledUser)
+      val externalUser = createExternalUserDetails(userId = userUUID)
+      whenever(externalUsersSearchApiService.findByUserId(userUUID)).thenReturn(externalUser)
 
       userService.enableUserByUserId(userUUID)
 
@@ -295,33 +307,23 @@ class UserServiceTest {
   inner class DisableExternalUser {
 
     @Test
-    fun `sends email on success`() {
+    fun `updates external user on success`() {
       val reason = DeactivateReason("Fired")
       userService.disableUserByUserId(userUUID, reason)
 
-      verify(userApiService).disableUserById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), reason)
-    }
-
-    @Test
-    fun `does not send email on failure`() {
-      val reason = DeactivateReason("Fired")
-      doThrow(WebClientResponseException::class).whenever(userApiService).disableUserById(userUUID, reason)
-
-      assertThatThrownBy {
-        userService.disableUserByUserId(userUUID, reason)
-      }.isInstanceOf(WebClientResponseException::class.java)
-
-      verifyNoInteractions(notificationService)
+      verify(userApiService).disableUserById(userUUID, reason)
     }
 
     @Test
     fun `syncs update with Auth when sync user updates feature enabled`() {
       givenAuthUserSyncEnabled()
       val reason = DeactivateReason("Fired")
+      val externalUser = createExternalUserDetails(userId = userUUID)
+      whenever(externalUsersSearchApiService.findByUserId(userUUID)).thenReturn(externalUser)
 
       userService.disableUserByUserId(userUUID, reason)
 
-      verify(authApiService).syncUserDisabled(userUUID, "Fired")
+      verify(authApiService).syncUserDisabled(externalUser.username, "Fired")
     }
 
     @Test
@@ -330,7 +332,7 @@ class UserServiceTest {
 
       userService.disableUserByUserId(userUUID, reason)
 
-      verify(authApiService, never()).syncUserDisabled(userUUID, "Fired")
+      verifyNoInteractions(authApiService)
     }
   }
 
@@ -649,6 +651,7 @@ class UserServiceTest {
       userGroupApiService,
       verifyEmailService,
       telemetryClient,
+      authenticationFacade,
       true,
     )
   }

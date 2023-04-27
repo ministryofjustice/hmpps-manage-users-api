@@ -74,14 +74,14 @@ class AuthApiService(
   fun syncUserEmailUpdate(username: String, newEmail: String, newUsername: String) =
     serviceWebClientUtils.put("/api/externaluser/sync/$username/email", mapOf("email" to newEmail, "username" to newUsername))
 
-  fun syncUserEnabled(userId: UUID) =
-    serviceWebClientUtils.put("/api/externaluser/sync/$userId/enabled", mapOf("enabled" to true))
+  fun syncUserEnabled(username: String) =
+    serviceWebClientUtils.put("/api/externaluser/sync/$username/enabled", mapOf("enabled" to true))
 
   fun syncExternalUserCreate(email: String, firstName: String, lastName: String) =
     serviceWebClientUtils.post("/api/externaluser/sync/create", mapOf("email" to email, "username" to email, "firstName" to firstName, "lastName" to lastName))
 
-  fun syncUserDisabled(userId: UUID, inactiveReason: String) =
-    serviceWebClientUtils.put("/api/externaluser/sync/$userId/enabled", mapOf("enabled" to false, "inactiveReason" to inactiveReason))
+  fun syncUserDisabled(username: String, inactiveReason: String) =
+    serviceWebClientUtils.put("/api/externaluser/sync/$username/enabled", mapOf("enabled" to false, "inactiveReason" to inactiveReason))
 
   fun confirmRecognised(username: String) =
     userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/$username/recognised")

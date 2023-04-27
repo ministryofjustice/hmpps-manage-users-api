@@ -1,12 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter.email
 
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailType
@@ -48,19 +47,15 @@ class NotificationService(
     emailAdapter.send(initialPasswordTemplateId, parameters, eventPrefix, username, email)
   }
 
-  fun externalUserEnabledNotification(enabledUser: EnabledExternalUser) {
-    enabledUser.email?.let {
-      with(enabledUser) {
-        val parameters = mapOf(
-          "firstName" to firstName,
-          "username" to username,
-          "signinUrl" to authBaseUri,
-        )
+  fun externalUserEnabledNotification(enabledUser: ExternalUser) {
+    with(enabledUser) {
+      val parameters = mapOf(
+        "firstName" to firstName,
+        "username" to username,
+        "signinUrl" to authBaseUri,
+      )
 
-        emailAdapter.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", username, email!!)
-      }
-    } ?: run {
-      log.warn("Notification email not sent for user {}", enabledUser)
+      emailAdapter.send(enableUserTemplateId, parameters, "ExternalUserEnabledEmail", username, email)
     }
   }
 
@@ -108,9 +103,5 @@ class NotificationService(
 
   private fun buildLink(token: String, purpose: String): String {
     return "$authBaseUri/$purpose?token=$token"
-  }
-
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
