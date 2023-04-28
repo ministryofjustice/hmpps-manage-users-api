@@ -7,11 +7,10 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.TokenByEmailTypeRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EnabledExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
@@ -77,48 +76,38 @@ class NotificationServiceTest {
 
   @Nested
   inner class ExternalUserEnabledNotification {
-    @Test
-    fun `Does not send email when email address null`() {
-      val user = EnabledExternalUser(username = "testy", firstName = "testing", email = null, admin = "admin")
-
-      notificationService.externalUserEnabledNotification(user)
-
-      verifyNoInteractions(emailAdapter)
-    }
 
     @Test
-    fun `Sends email when email address present`() {
-      val user =
-        EnabledExternalUser(username = "testy", firstName = "testing", email = "testy@testing.com", admin = "admin")
+    fun `sends email`() {
+      val externalUser = createExternalUserDetails(UUID.randomUUID())
 
-      notificationService.externalUserEnabledNotification(user)
+      notificationService.externalUserEnabledNotification(externalUser)
 
       val expectedParameters = mapOf(
-        "firstName" to "testing",
-        "username" to "testy",
+        "firstName" to externalUser.firstName,
+        "username" to externalUser.username,
         "signinUrl" to authBaseUri,
       )
 
-      verify(emailAdapter).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", user.username, user.email!!)
+      verify(emailAdapter).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", externalUser.username, externalUser.email)
     }
 
     @Test
-    fun `Throws exception thrown by email adapter`() {
-      val user =
-        EnabledExternalUser(username = "testy", firstName = "testing", email = "testy@testing.com", admin = "admin")
+    fun `throws exception thrown by email adapter`() {
+      val externalUser = createExternalUserDetails(UUID.randomUUID())
 
       val expectedParameters = mapOf(
-        "firstName" to "testing",
-        "username" to "testy",
+        "firstName" to externalUser.firstName,
+        "username" to externalUser.username,
         "signinUrl" to authBaseUri,
       )
 
       doAnswer {
         throw NotificationClientException("USER_DUP")
-      }.whenever(emailAdapter).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", user.username, user.email!!)
+      }.whenever(emailAdapter).send(enableUserTemplateId, expectedParameters, "ExternalUserEnabledEmail", externalUser.username, externalUser.email)
 
       Assertions.assertThatExceptionOfType(NotificationClientException::class.java)
-        .isThrownBy { notificationService.externalUserEnabledNotification(user) }
+        .isThrownBy { notificationService.externalUserEnabledNotification(externalUser) }
     }
   }
 

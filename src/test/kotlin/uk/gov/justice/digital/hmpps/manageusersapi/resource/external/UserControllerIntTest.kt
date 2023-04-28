@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import java.util.UUID
 
+@TestPropertySource(properties = ["hmpps-auth.sync-user=true"])
 class UserControllerIntTest : IntegrationTestBase() {
   @Nested
   inner class MyAssignableGroups {
@@ -73,10 +75,12 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun disableUser() {
+      externalUsersApiMockServer.stubGetUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f", "TESTY")
+      hmppsAuthMockServer.stubSyncDisableUser("TESTY", "fired")
       externalUsersApiMockServer.stubPutDisableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
       webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/disable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
-        .body(BodyInserters.fromValue(mapOf("reason" to "bob")))
+        .body(BodyInserters.fromValue(mapOf("reason" to "fired")))
         .exchange()
         .expectStatus().isNoContent
     }
@@ -152,6 +156,8 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun enableUser() {
       externalUsersApiMockServer.stubPutEnableUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f")
+      externalUsersApiMockServer.stubGetUser("2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f", "TESTY")
+      hmppsAuthMockServer.stubSyncEnableUser("TESTY")
       webTestClient.put().uri("/externalusers/2e285ccd-dcfd-4497-9e28-d6e8e10a2d2f/enable")
         .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
@@ -255,6 +261,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubGetUserGroups(userId, false)
       hmppsAuthMockServer.stubServiceDetailsByServiceCode("prison-staff-hub")
       hmppsAuthMockServer.stubResetTokenForUser(userId.toString())
+      hmppsAuthMockServer.stubSyncExternalUserCreate("testy.mctester@digital.justice.gov.uk", "Testy", "McTester")
 
       webTestClient.post().uri("/externalusers/create")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -334,6 +341,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         "bobby.b@digital.justice.gov.uk",
         "EXT_TEST",
       )
+      hmppsAuthMockServer.stubSyncAlterUserEmail("EXT_TEST", "bobby.b@digital.justice.gov.uk", "EXT_TEST")
 
       webTestClient
         .post().uri("/externalusers/67A789DE-7D29-4863-B9C2-F2CE715DC4BC/email")
@@ -350,6 +358,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
+      hmppsAuthMockServer.stubSyncAlterUserEmail("bob@testing.co.uk", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk")
 
       val userMessage = "User not found: Account for username $userName not found"
       val developerMessage = "Account for username $userName not found"
@@ -386,6 +395,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         "bobby.b@digital.justice.gov.uk",
         "bobby.b@digital.justice.gov.uk",
       )
+      hmppsAuthMockServer.stubSyncAlterUserEmail("EXT_TEST@DIGITAL.JUSTICE.GOV.UK", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk")
 
       webTestClient
         .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
@@ -409,6 +419,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         "bobby.b@digital.justice.gov.uk",
         "EXT_TEST",
       )
+      hmppsAuthMockServer.stubSyncAlterUserEmail("EXT_TEST", "bobby.b@digital.justice.gov.uk", "EXT_TEST")
 
       webTestClient
         .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")

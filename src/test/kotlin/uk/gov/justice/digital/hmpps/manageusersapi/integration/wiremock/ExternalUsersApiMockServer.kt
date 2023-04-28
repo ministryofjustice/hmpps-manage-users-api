@@ -697,6 +697,31 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   }
   """.trimIndent()
 
+  fun stubGetUser(userId: String, username: String) {
+    stubFor(
+      get(urlEqualTo("/users/id/$userId"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                 "userId":"$userId",
+                 "username":"$username",
+                 "email":"testy.mctester@testing.com",
+                 "firstName":"Testy",
+                 "lastName":"McTester",
+                 "locked":false,
+                 "enabled":true,
+                 "verified":true,
+                 "lastLoggedIn":"2022-12-14T10:23:04.915132"
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubGetUserRoles(userId: UUID) {
     stubFor(
       get(urlEqualTo("/users/$userId/roles"))
@@ -1270,18 +1295,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
       put("/users/$userId/enable")
         .willReturn(
           aResponse()
-            .withStatus(OK.value())
-            .withBody(
-              """
-                 {
-                    "username": "user.name",
-                    "firstName": "user.firstName",
-                    "admin": "user.name",
-                    "email": "email@ul.com"
-                }
-              """.trimIndent(),
-            )
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json"))),
+            .withStatus(OK.value()),
         ),
     )
   }

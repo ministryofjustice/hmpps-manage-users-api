@@ -2,12 +2,14 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.external
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.apache.commons.lang3.StringUtils.upperCase
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
@@ -22,6 +24,8 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
+  private val authenticationFacade: AuthenticationFacade,
+  @Value("\${hmpps-auth.sync-user}") private val syncUserUpdates: Boolean,
 ) {
 
   fun createUser(user: NewUser): UUID {
@@ -33,22 +37,36 @@ class UserService(
     }
 
     val userId = externalUsersApiService.createUser(user.firstName, user.lastName, email!!, user.groupCodes)
+    if (syncUserUpdates) {
+      authApiService.syncExternalUserCreate(email, user.firstName, user.lastName)
+    }
     val initialNotificationSupportLink = initialNotificationSupportLink(userId)
     notificationService.externalUserInitialNotification(userId, user.firstName, user.lastName, upperCase(email), email, initialNotificationSupportLink, "ExternalUserCreate")
     return userId
   }
 
   fun enableUserByUserId(userId: UUID) {
-    val enabledUser = externalUsersApiService.enableUserById(userId)
-    notificationService.externalUserEnabledNotification(enabledUser)
+    externalUsersApiService.enableUserById(userId)
+    val user = externalUsersSearchApiService.findByUserId(userId)
+
+    if (syncUserUpdates) {
+      authApiService.syncUserEnabled(user.username)
+    }
+
+    notificationService.externalUserEnabledNotification(user)
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
-      mapOf("username" to enabledUser.username, "admin" to enabledUser.admin),
+      mapOf("username" to user.username, "admin" to authenticationFacade.currentUsername),
       null,
     )
   }
-  fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) =
+  fun disableUserByUserId(userId: UUID, deactivateReason: DeactivateReason) {
     externalUsersApiService.disableUserById(userId, deactivateReason)
+    if (syncUserUpdates) {
+      val user = externalUsersSearchApiService.findByUserId(userId)
+      authApiService.syncUserDisabled(user.username, deactivateReason.reason)
+    }
+  }
 
   fun amendUserEmailByUserId(
     userId: UUID,
@@ -65,6 +83,8 @@ class UserService(
         linkEmailAndUsername.username,
         linkEmailAndUsername.email,
       )
+
+      syncUserEmailUpdate(username, linkEmailAndUsername.email, linkEmailAndUsername.username)
       return linkEmailAndUsername.link
     }
 
@@ -77,6 +97,7 @@ class UserService(
 
     val supportLink = initialNotificationSupportLink(userId)
     externalUsersApiService.updateUserEmailAddressAndUsername(userId, usernameForUpdate, newEmail!!)
+    syncUserEmailUpdate(username, newEmail, usernameForUpdate)
     return notificationService.externalUserInitialNotification(
       userId,
       user.firstName,
@@ -86,6 +107,12 @@ class UserService(
       supportLink,
       "ExternalUserAmend",
     )
+  }
+
+  private fun syncUserEmailUpdate(username: String, newEmail: String, newUsername: String) {
+    if (syncUserUpdates) {
+      authApiService.syncUserEmailUpdate(username, newEmail, newUsername)
+    }
   }
 
   private fun initialNotificationSupportLink(userId: UUID): String {
