@@ -88,6 +88,9 @@ application:
   smoketest.enabled: false
 
 hmpps-auth:
+  external:
+    endpoint:
+      url: ${hmpps-auth.endpoint.url}
   endpoint:
     url: ${hmpps-auth.endpoint.url}
     timeout: 1s
