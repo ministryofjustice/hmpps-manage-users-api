@@ -31,7 +31,7 @@ class UserService(
   fun findMasterUser(username: String) =
     externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
-        prisonApiService.findUserByUsername(username)
+        prisonApiService.findUserByUsernameIgnoringErrors(username)
           ?: run {
             authApiService.findAzureUserByUsername(username)
               ?: run {
@@ -53,7 +53,7 @@ class UserService(
 
   fun findRolesByUsername(username: String): List<UserRole>? {
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
-      ?: run { prisonApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
+      ?: run { prisonApiService.findUserByUsernameIgnoringErrors(username)?.roles?.map { UserRole(it) } }
       ?: run { authApiService.findAzureUserByUsername(username)?.roles?.map { UserRole(it.name) } }
       ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name.substring(5)) } } // remove ROLE_
   }

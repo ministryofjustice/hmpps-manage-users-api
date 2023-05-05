@@ -28,7 +28,7 @@ class UserService(
 ) {
 
   fun changeEmail(username: String, newEmailAddress: String): String {
-    val prisonUser = prisonUserApiService.findUserByUsername(username)
+    val prisonUser = prisonUserApiService.findUserByUsernameIgnoringErrors(username)
     prisonUser?.let {
       authApiService.confirmRecognised(username)
       val verifyLinkEmailAndUsername = verifyEmailService.requestVerification(prisonUser, newEmailAddress)
@@ -51,6 +51,8 @@ class UserService(
     notificationService.newPrisonUserNotification(user, "DPSUserCreate")
     return prisonUserDetails
   }
+
+  fun findUserByUserName(username: String) = prisonUserApiService.findUserByUsername(username)
 
   fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest) = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
 

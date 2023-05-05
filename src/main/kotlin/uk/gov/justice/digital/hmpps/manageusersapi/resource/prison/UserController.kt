@@ -103,6 +103,19 @@ class UserController(
     createUserRequest: CreateUserRequest,
   ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
 
+  @GetMapping("/prisonusers/{username}", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
+  @Operation(
+    summary = "Get specified user details",
+    description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+  )
+  @StandardApiResponses
+  fun findUserByUsername(
+    @Parameter(description = "The username of the user.", required = true)
+    @PathVariable
+    username: String,
+  ) = prisonUserService.findUserByUserName(username)?.let { NewPrisonUserDto.fromDomain(it) }
+
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
   @ResponseStatus(HttpStatus.CREATED)
