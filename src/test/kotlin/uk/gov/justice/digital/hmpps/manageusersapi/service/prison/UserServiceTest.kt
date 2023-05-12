@@ -416,7 +416,7 @@ class UserServiceTest {
       whenever(prisonUserApiService.findUserByUsername("NUSER_GEN")).thenReturn(
         UserFixture.createPrisonUserDetails(),
       )
-      assertThat(prisonUserService.findUserByUserName("NUSER_GEN")).isEqualTo(
+      assertThat(prisonUserService.findUserByUsername("NUSER_GEN")).isEqualTo(
         UserFixture.createPrisonUserDetails(),
       )
     }

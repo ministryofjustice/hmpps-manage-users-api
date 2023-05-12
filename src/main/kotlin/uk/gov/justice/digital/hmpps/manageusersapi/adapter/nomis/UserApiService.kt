@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedC
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
@@ -83,8 +84,8 @@ class UserApiService(
 
   fun findUserByUsername(username: String): PrisonUser? {
     if ("@" in username) {
-      log.debug("Nomis not called with username as contained @: {}", username)
-      return null
+      log.error("Nomis not called with username as contained @: {}", username)
+      throw EntityNotFoundException("Prison username $username not found")
     }
     return serviceWebClientUtils.get("/users/${username.uppercase()}", PrisonUser::class.java)
   }

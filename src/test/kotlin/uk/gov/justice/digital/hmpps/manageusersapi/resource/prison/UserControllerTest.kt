@@ -79,11 +79,11 @@ class UserControllerTest {
   inner class FindUserByUsername {
     @Test
     fun `find user by user name`() {
-      whenever(userService.findUserByUserName("NUSER_GEN")).thenReturn(
+      whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(
         UserFixture.createPrisonUserDetails(),
       )
       assertThat(userController.findUserByUsername("NUSER_GEN")).isNotNull
-      verify(userService).findUserByUserName("NUSER_GEN")
+      verify(userService).findUserByUsername("NUSER_GEN")
     }
   }
 

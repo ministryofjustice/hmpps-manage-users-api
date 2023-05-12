@@ -114,7 +114,7 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true)
     @PathVariable
     username: String,
-  ) = prisonUserService.findUserByUserName(username)?.let { NewPrisonUserDto.fromDomain(it) }
+  ) = prisonUserService.findUserByUsername(username)?.let { NewPrisonUserDto.fromDomain(it) }
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
