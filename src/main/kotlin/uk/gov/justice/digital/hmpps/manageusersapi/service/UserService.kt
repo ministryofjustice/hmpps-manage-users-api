@@ -23,12 +23,12 @@ class UserService(
 ) {
   fun findUserByUsername(username: String): GenericUser? {
     return findMasterUser(username)?.toGenericUser()?.apply {
-      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
-      this.uuid = authUserDetails.uuid
+      val authUserId = authApiService.findUserIdByUsernameAndSource(username, this.authSource)
+      this.uuid = authUserId.uuid
     }
   }
 
-  fun findMasterUser(username: String) =
+  private fun findMasterUser(username: String) =
     externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
         prisonApiService.findUserByUsername(username)
@@ -45,8 +45,8 @@ class UserService(
       ?: run {
         findMasterUser(username)?.let { masterUser ->
           val userEmail = masterUser.emailAddress()
-          // save back to auth
-          authApiService.findUserByUsernameAndSource(username, masterUser.authSource)
+          // save back to auth (this just mimics how auth currently works)
+          authApiService.findUserIdByUsernameAndSource(username, masterUser.authSource)
           userEmail
         }
       }

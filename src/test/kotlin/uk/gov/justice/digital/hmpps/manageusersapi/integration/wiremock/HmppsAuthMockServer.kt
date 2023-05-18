@@ -108,7 +108,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubUserByUsernameAndSource(username: String, source: AuthSource, uuid: UUID) {
+  fun stubUserIdByUsernameAndSource(username: String, source: AuthSource, uuid: UUID) {
     stubFor(
       get("/auth/api/user/$username/${source.name}")
         .willReturn(
@@ -117,14 +117,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
               """{
-                "username": "$username",
-                "active": true,
-                "name": "Test User",
-                "authSource": "${source.name}",
-                "staffId": 1,
-                "activeCaseLoadId": "MDI",
-                "userId": "1234",
-                "uuid": "$uuid"
+               "uuid": "$uuid"
               }
               """.trimIndent(),
             ),
