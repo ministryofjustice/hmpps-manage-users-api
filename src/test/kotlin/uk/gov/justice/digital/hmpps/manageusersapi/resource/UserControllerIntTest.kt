@@ -92,7 +92,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "EXT_ADM"
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, uuid)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -119,7 +119,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val uuid = UUID.randomUUID()
       stubUserNotFound(username, external = true)
       nomisApiMockServer.stubFindUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, uuid)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, nomis, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -148,7 +148,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val uuid = UUID.randomUUID()
       stubUserNotFound(username, external = true, nomis = true)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, azuread, uuid)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, azuread, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -175,7 +175,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "deliususer"
       stubUserNotFound(username, external = true, nomis = true)
       deliusApiMockServer.stubGetUser(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, delius, uuid)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, delius, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))
         .exchange()
@@ -204,7 +204,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "AUTH_ADM"
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, uuid)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, uuid)
       webTestClient
         .get().uri("/users/me")
         .headers(
@@ -417,7 +417,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "AUTH_USER"
       hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
       externalUsersApiMockServer.stubUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, UUID.randomUUID())
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, UUID.randomUUID())
 
       webTestClient
         .get().uri("/users/$username/email")
@@ -443,7 +443,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
       stubUserNotFound(username, external = true)
       nomisApiMockServer.stubFindUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, UUID.randomUUID())
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, nomis, UUID.randomUUID())
 
       webTestClient
         .get().uri("/users/$username/email")
@@ -469,7 +469,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=true", NOT_FOUND)
       stubUserNotFound(username, external = true)
       nomisApiMockServer.stubFindUserByUsernameNoEmail(username.uppercase())
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, nomis, UUID.randomUUID())
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, nomis, UUID.randomUUID())
 
       webTestClient
         .get().uri("/users/$username/email?unverified=true")
@@ -493,7 +493,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
       stubUserNotFound(username, external = true, nomis = true)
       deliusApiMockServer.stubGetUser(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, delius, UUID.randomUUID())
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, delius, UUID.randomUUID())
 
       webTestClient
         .get().uri("/users/$username/email")
@@ -518,7 +518,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       hmppsAuthMockServer.stubGetFail("/auth/api/user/$username/authEmail?unverified=false", NOT_FOUND)
       stubUserNotFound(username, external = true, nomis = true)
       hmppsAuthMockServer.stubAzureUserByUsername(username)
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, azuread, UUID.randomUUID())
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, azuread, UUID.randomUUID())
 
       webTestClient
         .get().uri("/users/$username/email")
@@ -628,7 +628,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "EXT_ADM"
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubGetSearchableRoles("/users/username/$username/roles")
-      hmppsAuthMockServer.stubUserByUsernameAndSource(username, auth, uuid)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, uuid)
       webTestClient.get().uri("/users/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()

@@ -68,7 +68,7 @@ class AuthApiService(
   fun findServiceByServiceCode(serviceCode: String) =
     serviceWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
 
-  fun findUserByUsernameAndSource(username: String, source: AuthSource): AuthUser =
+  fun findUserIdByUsernameAndSource(username: String, source: AuthSource): AuthUser =
     serviceWebClientUtils.get("/api/user/$username/$source", AuthUser::class.java)
 
   fun syncUserEmailUpdate(username: String, newEmail: String, newUsername: String) =
