@@ -19,7 +19,13 @@ import java.util.UUID
 
 class UserControllerIntTest : IntegrationTestBase() {
 
-  fun stubUserNotFound(username: String, external: Boolean = true, nomis: Boolean = false, azure: Boolean = false, delius: Boolean = false) {
+  fun stubUserNotFound(
+    username: String,
+    external: Boolean = true,
+    nomis: Boolean = false,
+    azure: Boolean = false,
+    delius: Boolean = false,
+  ) {
     if (external) externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
     if (nomis) nomisApiMockServer.stubGetFail("/users/${username.uppercase()}", NOT_FOUND)
     if (azure) hmppsAuthMockServer.stubGetFail("/auth/api/azureuser/$username", NOT_FOUND)
@@ -673,27 +679,23 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User Me Roles endpoint returns principal user data for auth user`() {
       webTestClient
-        .get().uri("/roles/delius?deliusRoles=TEST_ROLE,TEST_WORKLOAD_MEASUREMENT_ROLE")
+        .get().uri("/roles/delius")
         .headers(setAuthorisation("AUTH_ADM", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBody()
-        .jsonPath("[*].name").value<List<String>> {
-          assertThat(it).contains("ROLE_LICENCE_RO", "ROLE_GLOBAL_SEARCH", "ROLE_WORKLOAD_MEASUREMENT")
-        }
-    }
-
-    @Test
-    fun `User Me Roles endpoint returns principal user data for auth user1`() {
-      webTestClient
-        .get().uri("/roles/delius?deliusRoles=NON_MAPPED_ROLE")
-        .headers(setAuthorisation("AUTH_ADM", listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("[*].name").value<List<String>> {
-          assertThat(it).hasSize(0)
-        }
+        .expectBody().json(
+          """
+                           {
+                              "TEST_ROLE": [
+                                  "ROLE_LICENCE_RO",
+                                  "ROLE_GLOBAL_SEARCH"
+                              ],
+                              "TEST_WORKLOAD_MEASUREMENT_ROLE": [
+                                  "ROLE_WORKLOAD_MEASUREMENT"
+                              ]
+                          }
+                            """,
+        )
     }
 
     @Test
