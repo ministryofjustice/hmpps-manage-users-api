@@ -686,13 +686,15 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody().json(
           """
                            {
-                              "TEST_ROLE": [
-                                  "ROLE_LICENCE_RO",
-                                  "ROLE_GLOBAL_SEARCH"
-                              ],
-                              "TEST_WORKLOAD_MEASUREMENT_ROLE": [
-                                  "ROLE_WORKLOAD_MEASUREMENT"
-                              ]
+                                "TEST_ROLE": 
+                                  [
+                                      "ROLE_LICENCE_RO",
+                                      "ROLE_GLOBAL_SEARCH"
+                                  ],
+                                "TEST_WORKLOAD_MEASUREMENT_ROLE": 
+                                  [
+                                      "ROLE_WORKLOAD_MEASUREMENT"
+                                  ]
                           }
                             """,
         )
