@@ -573,6 +573,16 @@ class UserControllerIntTest : IntegrationTestBase() {
         getRequestedFor(urlEqualTo("/users/$username")),
       )
     }
+    @Test
+    fun `user not searched when username has @`() {
+      val username = "USER@NAME"
+
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.get().uri("/prisonusers/$username")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
 
     @Test
     fun `find user by username`() {
