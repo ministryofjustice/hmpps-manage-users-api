@@ -181,10 +181,7 @@ class UserController(
     description = "List of mapped  delius roles",
   )
   @AuthenticatedApiResponses
-  fun findMappedDeliusRoles(
-    @RequestParam(value = "deliusRoles", required = true)
-    deliusRoles: List<String>,
-  ) = userService.getMappedDeliusRoles(deliusRoles)
+  fun findMappedDeliusRoles() = userService.getAllDeliusRoles()
 }
 
 @Schema(description = "User Role")

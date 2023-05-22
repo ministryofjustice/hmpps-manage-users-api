@@ -43,6 +43,8 @@ class UserApiService(
       roles = userDetails.roles?.let { mapUserRolesToAuthorities(it) },
     )
 
+  fun getAllDeliusRoles() = mappings
+
   fun mapUserRolesToAuthorities(userRoles: List<UserRole>) =
     userRoles.mapNotNull { (name) -> mappings[name] }
       .flatMap { r -> r.map(::UserRole) }

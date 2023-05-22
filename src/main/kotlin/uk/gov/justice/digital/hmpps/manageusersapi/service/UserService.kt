@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole as DeliusMappedRole
 
 @Service
 class UserService(
@@ -58,9 +57,7 @@ class UserService(
       ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name.substring(5)) } } // remove ROLE_
   }
 
-  fun getMappedDeliusRoles(deliusRoles: List<String>): List<DeliusMappedRole>? {
-    return deliusApiService.mapUserRolesToAuthorities(deliusRoles.map { DeliusMappedRole(it) })
-  }
+  fun getAllDeliusRoles() = deliusApiService.getAllDeliusRoles()
 
   fun myRoles() =
     authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
