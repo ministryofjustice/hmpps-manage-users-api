@@ -54,7 +54,7 @@ class UserServiceTest {
     fun `find external user`() {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
-      whenever(authApiService.findUserByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserDetails(uuid))
+      whenever(authApiService.findUserIdByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserId(uuid))
 
       val user = userService.findUserByUsername("external_user")
       assertThat(user!!.username).isEqualTo("external_user")
@@ -67,8 +67,8 @@ class UserServiceTest {
     fun `find nomis user`() {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(createPrisonUserDetails())
-      whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserDetails(uuid))
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
+      whenever(authApiService.findUserIdByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserId(uuid))
 
       val user = userService.findUserByUsername("nuser_gen")
       assertThat(user!!.username).isEqualTo("NUSER_GEN")
@@ -81,9 +81,9 @@ class UserServiceTest {
     fun `find azure user`() {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
-      whenever(authApiService.findUserByUsernameAndSource("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", azuread)).thenReturn((createAuthUserDetails(uuid)))
+      whenever(authApiService.findUserIdByUsernameAndSource("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", azuread)).thenReturn((createAuthUserId(uuid)))
 
       val user = userService.findUserByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
       assertThat(user!!.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
@@ -96,10 +96,10 @@ class UserServiceTest {
     fun `find delius user`() {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
-      whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
+      whenever(authApiService.findUserIdByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserId(uuid)))
 
       val user = userService.findUserByUsername("deliususer")
       assertThat(user!!.username).isEqualTo("DELIUSUSER")
@@ -110,7 +110,7 @@ class UserServiceTest {
     @Test
     fun `user not found`() {
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
 
@@ -136,8 +136,8 @@ class UserServiceTest {
     fun `find user email only stored in external users`() {
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
-      whenever(authApiService.findUserByUsernameAndSource("external_user", auth)).thenReturn(
-        createAuthUserDetails(),
+      whenever(authApiService.findUserIdByUsernameAndSource("external_user", auth)).thenReturn(
+        createAuthUserId(),
       )
 
       val userEmail = userService.findUserEmail("external_user", true)
@@ -152,9 +152,9 @@ class UserServiceTest {
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(createPrisonUserDetails())
-      whenever(authApiService.findUserByUsernameAndSource("nuser_gen", nomis)).thenReturn(
-        createAuthUserDetails(),
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
+      whenever(authApiService.findUserIdByUsernameAndSource("nuser_gen", nomis)).thenReturn(
+        createAuthUserId(),
       )
 
       val userEmail = userService.findUserEmail("nuser_gen", true)
@@ -167,14 +167,14 @@ class UserServiceTest {
     fun `find user email only stored in azure`() {
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
       whenever(
-        authApiService.findUserByUsernameAndSource(
+        authApiService.findUserIdByUsernameAndSource(
           "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
           azuread,
         ),
-      ).thenReturn((createAuthUserDetails()))
+      ).thenReturn((createAuthUserId()))
 
       val userEmail = userService.findUserEmail("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", true)
       assertThat(userEmail!!.username).isEqualTo("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
@@ -186,15 +186,15 @@ class UserServiceTest {
     fun `find user email only stored in delius`() {
       whenever(authApiService.findAuthUserEmail("verified_user", true)).thenReturn(null)
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
       whenever(
-        authApiService.findUserByUsernameAndSource(
+        authApiService.findUserIdByUsernameAndSource(
           "deliususer",
           delius,
         ),
-      ).thenReturn((createAuthUserDetails()))
+      ).thenReturn((createAuthUserId()))
 
       val userEmail = userService.findUserEmail("deliususer", true)
       assertThat(userEmail!!.username).isEqualTo("deliususer")
@@ -205,7 +205,7 @@ class UserServiceTest {
     fun `user not found`() {
       whenever(authApiService.findAuthUserEmail("2E285CED-DCFD-4497-9E22-89E8E10A2A6A", true)).thenReturn(null)
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
 
@@ -220,7 +220,7 @@ class UserServiceTest {
     @Test
     fun `user not found`() {
       whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
 
@@ -233,10 +233,10 @@ class UserServiceTest {
     fun `find roles of delius user`() {
       val uuid = UUID.randomUUID()
       whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(null)
       whenever(deliusUserApiService.findUserByUsername(anyString())).thenReturn(createDeliusUser())
-      whenever(authApiService.findUserByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserDetails(uuid)))
+      whenever(authApiService.findUserIdByUsernameAndSource("deliususer", delius)).thenReturn((createAuthUserId(uuid)))
 
       val userRoleList = userService.findRolesByUsername("deliususer")
       assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "TEST_ROLE")))
@@ -245,7 +245,7 @@ class UserServiceTest {
     @Test
     fun `find roles of azure user`() {
       whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
       whenever(authApiService.findAzureUserByUsername(anyString())).thenReturn(createAzureUser())
 
       val userRoleList = userService.findRolesByUsername("2E285CED-DCFD-4497-9E22-89E8E10A2A6A")
@@ -256,7 +256,7 @@ class UserServiceTest {
     @Test
     fun `find roles of nomis user`() {
       whenever(externalRolesApiService.findRolesByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(createPrisonUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
 
       val userRoleList = userService.findRolesByUsername("nuser_gen")
       assertThat(userRoleList).isEqualTo(listOf(UserRole(roleCode = "ROLE1"), UserRole(roleCode = "ROLE2"), UserRole(roleCode = "ROLE3")))
@@ -337,5 +337,5 @@ class UserServiceTest {
     ),
   )
 
-  fun createAuthUserDetails(uuid: UUID = UUID.randomUUID()) = AuthUser(uuid = uuid)
+  fun createAuthUserId(uuid: UUID = UUID.randomUUID()) = AuthUser(uuid = uuid)
 }

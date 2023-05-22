@@ -56,7 +56,7 @@ class UserServiceTest {
 
     @Test
     fun `should throw exception when prison user not present in prison system`() {
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(userName)).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(null)
 
       assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress) }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -69,7 +69,7 @@ class UserServiceTest {
 
     @Test
     fun `should throw exception when user not recognised by Auth`() {
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(userName)).thenReturn(createPrisonUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createPrisonUserDetails())
       doThrow(RuntimeException("Auth API call failed")).whenever(authApiService).confirmRecognised(userName)
 
       assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress) }
@@ -83,7 +83,7 @@ class UserServiceTest {
     @Test
     fun `should request verification of new email address`() {
       val prisonUser = createPrisonUserDetails()
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(userName)).thenReturn(prisonUser)
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
       )
@@ -96,7 +96,7 @@ class UserServiceTest {
     @Test
     fun `should update email address in Auth`() {
       val prisonUser = createPrisonUserDetails()
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(userName)).thenReturn(prisonUser)
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
       )
@@ -109,7 +109,7 @@ class UserServiceTest {
     @Test
     fun `should respond with verify link`() {
       val prisonUser = createPrisonUserDetails()
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(userName)).thenReturn(prisonUser)
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
       whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
         LinkEmailAndUsername("link", newEmailAddress, userName),
       )
@@ -406,19 +406,6 @@ class UserServiceTest {
             activeCaseLoadId = "MDI",
           ),
         )
-    }
-  }
-
-  @Nested
-  inner class FindPrisonUsersByUserName {
-    @Test
-    fun `find prison user by username`() {
-      whenever(prisonUserApiService.findUserByUsername("NUSER_GEN")).thenReturn(
-        UserFixture.createPrisonUserDetails(),
-      )
-      assertThat(prisonUserService.findUserByUsername("NUSER_GEN")).isEqualTo(
-        UserFixture.createPrisonUserDetails(),
-      )
     }
   }
 }

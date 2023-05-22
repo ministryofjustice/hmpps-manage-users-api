@@ -24,7 +24,7 @@ class SyncServiceTest {
 
     @Test
     fun `no match in Nomis`() {
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(null)
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(null)
 
       assertThatThrownBy { syncService.syncEmailWithNomis("nomis_user") }
         .isInstanceOf(NotFoundException::class.java)
@@ -34,7 +34,7 @@ class SyncServiceTest {
 
     @Test
     fun `don't sync email if null`() {
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(
         PrisonUser(
           "NUSER_GEN",
           "Nomis",
@@ -46,16 +46,16 @@ class SyncServiceTest {
       )
 
       syncService.syncEmailWithNomis("nomis_user")
-      verify(prisonUserApiService).findUserByUsernameIgnoringErrors("nomis_user")
+      verify(prisonUserApiService).findUserByUsername("nomis_user")
       verifyNoInteractions(authApiService)
     }
 
     @Test
     fun `sync email`() {
-      whenever(prisonUserApiService.findUserByUsernameIgnoringErrors(anyString())).thenReturn(createPrisonUserDetails())
+      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
 
       syncService.syncEmailWithNomis("nomis_user")
-      verify(prisonUserApiService).findUserByUsernameIgnoringErrors("nomis_user")
+      verify(prisonUserApiService).findUserByUsername("nomis_user")
       verify(authApiService).syncEmailWithNomis("nomis_user", "nomis.usergen@digital.justice.gov.uk")
     }
   }

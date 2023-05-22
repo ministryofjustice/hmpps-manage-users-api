@@ -22,15 +22,15 @@ class UserService(
 ) {
   fun findUserByUsername(username: String): GenericUser? {
     return findMasterUser(username)?.toGenericUser()?.apply {
-      val authUserDetails = authApiService.findUserByUsernameAndSource(username, this.authSource)
-      this.uuid = authUserDetails.uuid
+      val authUserId = authApiService.findUserIdByUsernameAndSource(username, this.authSource)
+      this.uuid = authUserId.uuid
     }
   }
 
-  fun findMasterUser(username: String) =
+  private fun findMasterUser(username: String) =
     externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {
-        prisonApiService.findUserByUsernameIgnoringErrors(username)
+        prisonApiService.findUserByUsername(username)
           ?: run {
             authApiService.findAzureUserByUsername(username)
               ?: run {
@@ -44,15 +44,15 @@ class UserService(
       ?: run {
         findMasterUser(username)?.let { masterUser ->
           val userEmail = masterUser.emailAddress()
-          // save back to auth
-          authApiService.findUserByUsernameAndSource(username, masterUser.authSource)
+          // save back to auth (this just mimics how auth currently works)
+          authApiService.findUserIdByUsernameAndSource(username, masterUser.authSource)
           userEmail
         }
       }
 
   fun findRolesByUsername(username: String): List<UserRole>? {
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
-      ?: run { prisonApiService.findUserByUsernameIgnoringErrors(username)?.roles?.map { UserRole(it) } }
+      ?: run { prisonApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
       ?: run { authApiService.findAzureUserByUsername(username)?.roles?.map { UserRole(it.name) } }
       ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name.substring(5)) } } // remove ROLE_
   }

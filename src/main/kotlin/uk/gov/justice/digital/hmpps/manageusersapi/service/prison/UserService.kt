@@ -28,7 +28,7 @@ class UserService(
 ) {
 
   fun changeEmail(username: String, newEmailAddress: String): String {
-    val prisonUser = prisonUserApiService.findUserByUsernameIgnoringErrors(username)
+    val prisonUser = prisonUserApiService.findUserByUsername(username)
     prisonUser?.let {
       authApiService.confirmRecognised(username)
       val verifyLinkEmailAndUsername = verifyEmailService.requestVerification(prisonUser, newEmailAddress)

@@ -11,7 +11,7 @@ class SyncService(
   private val prisonUserApiService: UserApiService,
 ) {
   fun syncEmailWithNomis(username: String) =
-    prisonUserApiService.findUserByUsernameIgnoringErrors(username)
+    prisonUserApiService.findUserByUsername(username)
       ?.let { if (it.email != null) authApiService.syncEmailWithNomis(username, it.email) }
       ?: throw NotFoundException("Account for username $username not found")
 }
