@@ -15,7 +15,7 @@ import java.util.UUID
 class NotificationService(
   private val emailAdapter: EmailAdapter,
   private val authService: AuthApiService,
-  @Value("\${hmpps-auth.endpoint.url}") val authBaseUri: String,
+  @Value("\${hmpps-auth.external.endpoint.url}") val authBaseUri: String,
   @Value("\${application.notify.create-initial-password.template}") private val initialPasswordTemplateId: String,
   @Value("\${application.notify.enable-user.template}") private val enableUserTemplateId: String,
   @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
