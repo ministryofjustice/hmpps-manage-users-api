@@ -9,6 +9,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -420,5 +421,15 @@ class UserServiceTest {
         UserFixture.createPrisonUserDetails(),
       )
     }
+  }
+
+  @Test
+  fun `should throw exception when username contains @`() {
+    val username = "SOMEUSER@NAME"
+    doThrow(EntityNotFoundException("Prison username $username not found")).whenever(prisonUserApiService).findUserByUsername(username)
+    assertThatThrownBy { prisonUserService.findUserByUsername(username) }
+      .isInstanceOf(EntityNotFoundException::class.java)
+      .hasMessage("Prison username $username not found")
+    verify(prisonUserApiService, times(1)).findUserByUsername(username)
   }
 }

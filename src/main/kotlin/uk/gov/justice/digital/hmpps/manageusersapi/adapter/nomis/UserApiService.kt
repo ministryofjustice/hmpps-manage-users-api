@@ -82,10 +82,11 @@ class UserApiService(
     return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", PrisonUser::class.java)
   }
 
+  @Throws(EntityNotFoundException::class)
   fun findUserByUsername(username: String): PrisonUser? {
     if ("@" in username) {
       log.error("Nomis not called with username as contained @: {}", username)
-      throw EntityNotFoundException("Prison username $username not found")
+      throw EntityNotFoundException("Prison username $username not allowed")
     }
     return serviceWebClientUtils.get("/users/${username.uppercase()}", PrisonUser::class.java)
   }
