@@ -573,6 +573,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         getRequestedFor(urlEqualTo("/users/$username")),
       )
     }
+
     @Test
     fun `user not searched when username has @`() {
       val username = "USER@NAME"
