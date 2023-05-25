@@ -76,6 +76,18 @@ class UserControllerTest {
   }
 
   @Nested
+  inner class FindUserByUsername {
+    @Test
+    fun `find user by user name`() {
+      whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(
+        UserFixture.createPrisonUserDetails(),
+      )
+      assertThat(userController.findUserByUsername("NUSER_GEN")).isNotNull
+      verify(userService).findUserByUsername("NUSER_GEN")
+    }
+  }
+
+  @Nested
   inner class FindUsersByFirstAndLastName {
     @Test
     fun `no matches`() {

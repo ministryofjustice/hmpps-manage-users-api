@@ -1176,7 +1176,7 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
-  inner class FindUserByUserName {
+  inner class FindUserByUsername {
     private val username = "NUSER_GEN"
 
     @Test
