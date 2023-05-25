@@ -408,4 +408,17 @@ class UserServiceTest {
         )
     }
   }
+
+  @Nested
+  inner class FindPrisonUsersByUsername {
+    @Test
+    fun `find prison user by username`() {
+      whenever(prisonUserApiService.findUserByUsernameWithError("NUSER_GEN")).thenReturn(
+        UserFixture.createPrisonUserDetails(),
+      )
+      assertThat(prisonUserService.findUserByUsername("NUSER_GEN")).isEqualTo(
+        UserFixture.createPrisonUserDetails(),
+      )
+    }
+  }
 }

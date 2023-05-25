@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
@@ -1171,6 +1172,78 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
+    }
+  }
+
+  @Nested
+  inner class FindUserByUsername {
+    private val username = "NUSER_GEN"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/prisonusers/$username")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/prisonusers/$username")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/prisonusers/$username")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `user not found`() {
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.get().uri("/prisonusers/$username")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+
+    @Test
+    fun `user not searched when username has @`() {
+      val username = "USER@NAME"
+
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.get().uri("/prisonusers/$username")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `find user by username`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      val prisonUser = webTestClient.get().uri("/prisonusers/$username")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(NewPrisonUserDto::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(prisonUser.username).isEqualTo(username)
+      assertThat(prisonUser.firstName).isEqualTo("Nomis")
+      assertThat(prisonUser.lastName).isEqualTo("Take")
+      assertThat(prisonUser.primaryEmail).isEqualTo("nomis.usergen@digital.justice.gov.uk")
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/$username")),
+      )
     }
   }
 }
