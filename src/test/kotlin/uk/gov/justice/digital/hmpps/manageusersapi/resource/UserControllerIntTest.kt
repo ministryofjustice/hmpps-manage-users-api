@@ -124,7 +124,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "NUSER_GEN"
       val uuid = UUID.randomUUID()
       stubUserNotFound(username, external = true)
-      nomisApiMockServer.stubFindUserByUsername(username)
+      nomisApiMockServer.stubFindUserBasicDetailsByUsername(username)
       hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, nomis, uuid)
       webTestClient.get().uri("/users/$username")
         .headers(setAuthorisation(roles = listOf()))

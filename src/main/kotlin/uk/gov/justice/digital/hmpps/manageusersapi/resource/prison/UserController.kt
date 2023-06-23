@@ -325,7 +325,7 @@ data class NewPrisonUserDto(
   val username: String,
 
   @Schema(description = "Email Address", example = "test@justice.gov.uk")
-  val primaryEmail: String,
+  val primaryEmail: String?,
 
   @Schema(description = "First name of the user", example = "John")
   val firstName: String,
@@ -336,7 +336,7 @@ data class NewPrisonUserDto(
   companion object {
     fun fromDomain(newPrisonUser: PrisonUser): NewPrisonUserDto {
       with(newPrisonUser) {
-        return NewPrisonUserDto(username, email!!, firstName, lastName)
+        return NewPrisonUserDto(username, email, firstName, lastName)
       }
     }
   }

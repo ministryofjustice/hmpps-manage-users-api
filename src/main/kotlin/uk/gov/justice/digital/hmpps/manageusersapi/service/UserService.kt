@@ -21,11 +21,23 @@ class UserService(
   private val externalRolesApiService: UserRolesApiService,
 ) {
   fun findUserByUsername(username: String): GenericUser? {
-    return findMasterUser(username)?.toGenericUser()?.apply {
+    return findMasterUserBasicDetails(username)?.toGenericUser()?.apply {
       val authUserId = authApiService.findUserIdByUsernameAndSource(username, this.authSource)
       this.uuid = authUserId.uuid
     }
   }
+
+  private fun findMasterUserBasicDetails(username: String) =
+    externalUsersSearchApiService.findUserByUsernameOrNull(username)
+      ?: run {
+        prisonApiService.findUserBasicDetailsByUsername(username)
+          ?: run {
+            authApiService.findAzureUserByUsername(username)
+              ?: run {
+                deliusApiService.findUserByUsername(username)
+              }
+          }
+      }
 
   private fun findMasterUser(username: String) =
     externalUsersSearchApiService.findUserByUsernameOrNull(username)
