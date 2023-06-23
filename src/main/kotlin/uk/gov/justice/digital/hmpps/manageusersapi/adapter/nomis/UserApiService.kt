@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
@@ -80,6 +81,14 @@ class UserApiService(
       return null
     }
     return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", PrisonUser::class.java)
+  }
+
+  fun findUserBasicDetailsByUsername(username: String): PrisonUserBasicDetails? {
+    if ("@" in username) {
+      log.debug("Nomis not called with username as contained @: {}", username)
+      return null
+    }
+    return serviceWebClientUtils.getIgnoreError("/users/basic/${username.uppercase()}", PrisonUserBasicDetails::class.java)
   }
 
   fun findUserByUsernameWithError(username: String): PrisonUser? {

@@ -631,6 +631,28 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         ),
     )
   }
+  fun stubFindUserBasicDetailsByUsername(username: String) {
+    stubFor(
+      get("/users/basic/${username.uppercase()}")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """ {
+                "username": "$username",
+                "staffId": 123456,
+                "firstName": "Nomis",
+                "lastName": "Take",
+                "activeCaseloadId": "MDI",
+                "accountStatus": "OPEN",
+                "primaryEmail": "nomis.usergen@digital.justice.gov.uk",
+                "enabled": true
+               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
 
   fun stubFindUserByUsername(username: String) {
     stubFor(

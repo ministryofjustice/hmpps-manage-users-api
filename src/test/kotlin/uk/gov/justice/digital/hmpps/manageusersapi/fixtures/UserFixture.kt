@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import java.time.LocalDateTime
 import java.util.UUID
@@ -55,6 +56,27 @@ class UserFixture {
       email = email,
       enabled = enabled,
       roles = roles,
+    )
+
+    fun createPrisonUserBasicDetails(
+      username: String = "NUSER_GEN",
+      firstName: String = "Nomis",
+      staffId: Int = 123456,
+      lastName: String = "Take",
+      activeCaseLoadId: String = "MDI",
+      email: String = "nomis.usergen@digital.justice.gov.uk",
+      enabled: Boolean = true,
+      accountStatus: String = "OPEN",
+
+    ) = PrisonUserBasicDetails(
+      username = username,
+      firstName = firstName,
+      staffId = staffId,
+      lastName = lastName,
+      activeCaseLoadId = activeCaseLoadId,
+      email = email,
+      enabled = enabled,
+      accountStatus = accountStatus,
     )
 
     fun createPrisonStaffUser(

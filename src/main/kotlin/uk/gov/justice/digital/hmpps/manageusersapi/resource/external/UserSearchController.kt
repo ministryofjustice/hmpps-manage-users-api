@@ -189,7 +189,7 @@ data class ExternalUserDetailsDto(
   val username: String,
 
   @Schema(description = "Email address", example = "external.user@someagency.justice.gov.uk")
-  val email: String,
+  val email: String?,
 
   @Schema(description = "First name", example = "External")
   val firstName: String,

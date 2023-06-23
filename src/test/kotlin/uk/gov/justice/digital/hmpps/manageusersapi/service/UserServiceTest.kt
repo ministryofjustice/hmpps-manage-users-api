@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
@@ -67,7 +68,7 @@ class UserServiceTest {
     fun `find nomis user`() {
       val uuid = UUID.randomUUID()
       whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
-      whenever(prisonUserApiService.findUserByUsername(anyString())).thenReturn(createPrisonUserDetails())
+      whenever(prisonUserApiService.findUserBasicDetailsByUsername(anyString())).thenReturn(createPrisonUserBasicDetails())
       whenever(authApiService.findUserIdByUsernameAndSource("nuser_gen", nomis)).thenReturn(createAuthUserId(uuid))
 
       val user = userService.findUserByUsername("nuser_gen")
