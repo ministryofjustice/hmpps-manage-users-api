@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
-  kotlin("plugin.spring") version "1.8.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.1"
+  kotlin("plugin.spring") version "1.8.22"
 }
 
 configurations {
@@ -32,7 +32,7 @@ dependencies {
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.26.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
   testImplementation("javax.xml.bind:jaxb-api:2.3.1")
 }
 
