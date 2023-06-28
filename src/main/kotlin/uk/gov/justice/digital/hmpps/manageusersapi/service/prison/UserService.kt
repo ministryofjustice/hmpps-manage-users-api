@@ -63,16 +63,14 @@ class UserService(
   }
 
   private fun sendEmailNotification(userName: String, userType: UserType, user: PrisonStaffUser) {
-    val createUserRequest = user.primaryEmail?.let {
-      CreateUserRequest(
+    user.primaryEmail?.let {
+      val createUserRequest = CreateUserRequest(
         username = userName,
         email = it,
         firstName = user.firstName,
         lastName = user.lastName,
         userType = userType,
       )
-    }
-    if (createUserRequest != null) {
       notificationService.newPrisonUserNotification(createUserRequest, "DPLinkUserCreate")
     }
   }
