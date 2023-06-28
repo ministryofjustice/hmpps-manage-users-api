@@ -20,12 +20,14 @@ import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companio
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_LSA
@@ -209,12 +211,30 @@ class UserServiceTest {
     @Test
     fun `create a DPS central admin user linked to a General account`() {
       val createLinkedCentralAdminUserRequest = CreateLinkedCentralAdminUserRequest("TEST_USER", "TEST_USER_ADM")
+      val prisonStaffUser = UserFixture.createPrisonStaffUser()
+      val createUserRequest = createUserRequest(createLinkedCentralAdminUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
       whenever(prisonUserApiService.linkCentralAdminUser(createLinkedCentralAdminUserRequest)).thenReturn(
-        UserFixture.createPrisonStaffUser(),
+        prisonStaffUser,
       )
       prisonUserService.createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)
       verify(prisonUserApiService).linkCentralAdminUser(createLinkedCentralAdminUserRequest)
+      if (createUserRequest != null) {
+        verify(notificationService).newPrisonUserNotification(createUserRequest, "DPLinkUserCreate")
+      }
     }
+  }
+
+  private fun createUserRequest(adminUser: String, userType: UserType, user: PrisonStaffUser): CreateUserRequest? {
+    val createUserRequest = user.primaryEmail?.let {
+      CreateUserRequest(
+        username = adminUser,
+        email = it,
+        firstName = user.firstName,
+        lastName = user.lastName,
+        userType = userType,
+      )
+    }
+    return createUserRequest
   }
 
   @Nested
@@ -222,11 +242,16 @@ class UserServiceTest {
     @Test
     fun `create a DPS Local admin user linked to a General account`() {
       val createLinkedLocalAdminUserRequest = CreateLinkedLocalAdminUserRequest("TEST_USER", "TEST_USER_ADM", "MDI")
+      val prisonStaffUser = UserFixture.createPrisonStaffUser()
       whenever(prisonUserApiService.linkLocalAdminUser(createLinkedLocalAdminUserRequest)).thenReturn(
-        UserFixture.createPrisonStaffUser(),
+        prisonStaffUser,
       )
+      val createUserRequest = createUserRequest(createLinkedLocalAdminUserRequest.adminUsername, DPS_LSA, prisonStaffUser)
       prisonUserService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)
       verify(prisonUserApiService).linkLocalAdminUser(createLinkedLocalAdminUserRequest)
+      if (createUserRequest != null) {
+        verify(notificationService).newPrisonUserNotification(createUserRequest, "DPLinkUserCreate")
+      }
     }
   }
 
@@ -235,11 +260,16 @@ class UserServiceTest {
     @Test
     fun `create a DPS General user linked to an Admin account`() {
       val createLinkedGeneralUserRequest = CreateLinkedGeneralUserRequest("TEST_USER_ADM", "TEST_USER_GEN", "BXI")
+      val prisonStaffUser = UserFixture.createPrisonStaffUser()
       whenever(prisonUserApiService.linkGeneralUser(createLinkedGeneralUserRequest)).thenReturn(
-        UserFixture.createPrisonStaffUser(),
+        prisonStaffUser,
       )
+      val createUserRequest = createUserRequest(createLinkedGeneralUserRequest.generalUsername, DPS_GEN, prisonStaffUser)
       prisonUserService.createLinkedGeneralUser(createLinkedGeneralUserRequest)
       verify(prisonUserApiService).linkGeneralUser(createLinkedGeneralUserRequest)
+      if (createUserRequest != null) {
+        verify(notificationService).newPrisonUserNotification(createUserRequest, "DPLinkUserCreate")
+      }
     }
   }
 
@@ -414,10 +444,10 @@ class UserServiceTest {
     @Test
     fun `find prison user by username`() {
       whenever(prisonUserApiService.findUserByUsernameWithError("NUSER_GEN")).thenReturn(
-        UserFixture.createPrisonUserDetails(),
+        createPrisonUserDetails(),
       )
       assertThat(prisonUserService.findUserByUsername("NUSER_GEN")).isEqualTo(
-        UserFixture.createPrisonUserDetails(),
+        createPrisonUserDetails(),
       )
     }
   }
