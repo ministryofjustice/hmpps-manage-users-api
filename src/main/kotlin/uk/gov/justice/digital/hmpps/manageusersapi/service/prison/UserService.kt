@@ -5,12 +5,14 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_LSA
@@ -53,11 +55,40 @@ class UserService(
   }
 
   fun findUserByUsername(username: String) = prisonUserApiService.findUserByUsernameWithError(username)
-  fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest) = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
 
-  fun createLinkedLocalAdminUser(linkUserRequest: CreateLinkedLocalAdminUserRequest) = prisonUserApiService.linkLocalAdminUser(linkUserRequest)
+  fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
+    val user = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
+    sendEmailNotification(linkUserRequest.adminUsername, DPS_ADM, user)
+    return user
+  }
 
-  fun createLinkedGeneralUser(linkUserRequest: CreateLinkedGeneralUserRequest) = prisonUserApiService.linkGeneralUser(linkUserRequest)
+  private fun sendEmailNotification(userName: String, userType: UserType, user: PrisonStaffUser) {
+    val createUserRequest = user.primaryEmail?.let {
+      CreateUserRequest(
+        username = userName,
+        email = it,
+        firstName = user.firstName,
+        lastName = user.lastName,
+        userType = userType,
+      )
+    }
+    if (createUserRequest != null) {
+      notificationService.newPrisonUserNotification(createUserRequest, "DPLinkUserCreate")
+    }
+  }
+
+  fun createLinkedLocalAdminUser(linkUserRequest: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
+    val user = prisonUserApiService.linkLocalAdminUser(linkUserRequest)
+    sendEmailNotification(linkUserRequest.adminUsername, DPS_LSA, user)
+    return user
+  }
+
+  fun createLinkedGeneralUser(linkUserRequest: CreateLinkedGeneralUserRequest): PrisonStaffUser {
+    val user = prisonUserApiService.linkGeneralUser(linkUserRequest)
+    sendEmailNotification(linkUserRequest.generalUsername, DPS_GEN, user)
+
+    return user
+  }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<EnhancedPrisonUser> {
     val prisonUsers: List<PrisonUserSummary> = prisonUserApiService.findUsersByFirstAndLastName(firstName, lastName)

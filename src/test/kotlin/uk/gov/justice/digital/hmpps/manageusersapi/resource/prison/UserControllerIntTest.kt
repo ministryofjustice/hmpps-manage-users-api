@@ -604,6 +604,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val createLinkedCentralAdminUserRequest = CreateLinkedCentralAdminUserRequest("TEST_USER", "TEST_USER_ADM")
 
       nomisApiMockServer.stubCreateLinkedCentralAdminUser(createLinkedCentralAdminUserRequest)
+      hmppsAuthMockServer.stubForNewToken()
 
       val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/admin")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
