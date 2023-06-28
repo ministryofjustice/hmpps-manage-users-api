@@ -57,9 +57,9 @@ class UserService(
   fun findUserByUsername(username: String) = prisonUserApiService.findUserByUsernameWithError(username)
 
   fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
-    val user = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
-    sendEmailNotification(linkUserRequest.adminUsername, DPS_ADM, user)
-    return user
+    val prisonStaffUser = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
+    sendEmailNotification(linkUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
+    return prisonStaffUser
   }
 
   private fun sendEmailNotification(userName: String, userType: UserType, user: PrisonStaffUser) {
@@ -78,16 +78,16 @@ class UserService(
   }
 
   fun createLinkedLocalAdminUser(linkUserRequest: CreateLinkedLocalAdminUserRequest): PrisonStaffUser {
-    val user = prisonUserApiService.linkLocalAdminUser(linkUserRequest)
-    sendEmailNotification(linkUserRequest.adminUsername, DPS_LSA, user)
-    return user
+    val prisonStaffUser = prisonUserApiService.linkLocalAdminUser(linkUserRequest)
+    sendEmailNotification(linkUserRequest.adminUsername, DPS_LSA, prisonStaffUser)
+    return prisonStaffUser
   }
 
   fun createLinkedGeneralUser(linkUserRequest: CreateLinkedGeneralUserRequest): PrisonStaffUser {
-    val user = prisonUserApiService.linkGeneralUser(linkUserRequest)
-    sendEmailNotification(linkUserRequest.generalUsername, DPS_GEN, user)
+    val prisonStaffUser = prisonUserApiService.linkGeneralUser(linkUserRequest)
+    sendEmailNotification(linkUserRequest.generalUsername, DPS_GEN, prisonStaffUser)
 
-    return user
+    return prisonStaffUser
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<EnhancedPrisonUser> {
