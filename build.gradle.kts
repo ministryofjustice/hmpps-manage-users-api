@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.2"
-  kotlin("plugin.spring") version "1.8.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.4"
+  kotlin("plugin.spring") version "1.9.0"
 }
 
 configurations {
@@ -20,8 +20,8 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.10.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.2")
   implementation("uk.gov.service.notify:notifications-java-client:4.1.0-RELEASE")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
@@ -30,9 +30,9 @@ dependencies {
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
 
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
   testImplementation("javax.xml.bind:jaxb-api:2.3.1")
 }
 
