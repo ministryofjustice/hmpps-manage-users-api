@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -119,7 +120,9 @@ class UserSearchController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Retrieve user details by user id.",
-    description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user",
+    description = "Retrieve detail by user id. Note that when accessing with Group Manager role the accessor must have a group in common with the user.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @StandardApiResponses
   @ApiResponses(

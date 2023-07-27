@@ -92,7 +92,9 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Child Group detail.",
-    description = "get Child Group Details",
+    description = "Fetches child group details.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
   @StandardApiResponses
   @ApiResponses(
@@ -119,7 +121,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend group name.",
-    description = "AmendGroupName",
+    description = "Amend group name.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))],
@@ -155,7 +158,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend child group name.",
-    description = "Amend a Child Group Name",
+    description = "Amend a Child Group Name.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = GroupAmendmentDto::class))],
@@ -191,7 +195,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create group.",
-    description = "Create a Group",
+    description = "Create a group.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGroupDto::class))],
@@ -223,7 +228,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create child group.",
-    description = "Create a Child Group",
+    description = "Create a Child Group.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
     requestBody = io.swagger.v3.oas.annotations.parameters.RequestBody(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateChildGroupDto::class))],
@@ -255,7 +261,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete child group.",
-    description = "Delete a Child Group",
+    description = "Delete a child group.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
   @StandardApiResponses
@@ -283,7 +290,8 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete group.",
-    description = "Delete a Group",
+    description = "Delete a Group.<br.>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS",
     security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS")],
   )
   @StandardApiResponses

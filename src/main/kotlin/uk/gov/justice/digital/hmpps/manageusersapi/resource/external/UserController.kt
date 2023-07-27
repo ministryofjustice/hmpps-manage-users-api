@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -48,7 +49,8 @@ class UserController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Enable a user.",
-    description = "Enable a user.",
+    description = "Enable a user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @FailApiResponses
   @ApiResponses(
@@ -81,7 +83,8 @@ class UserController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Disable a user.",
-    description = "Disable a user.",
+    description = "Disable a user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @FailApiResponses
   @ApiResponses(
@@ -130,7 +133,8 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Amend a user email address.",
-    description = "Amend a user email address.",
+    description = "Amend a user email address. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @FailApiResponses
   @ApiResponses(
@@ -168,7 +172,8 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Create user",
-    description = "Create user",
+    description = "Create user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @StandardApiResponses
   @ApiResponses(

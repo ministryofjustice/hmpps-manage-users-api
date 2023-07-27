@@ -45,8 +45,8 @@ class UserRolesController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Get list of roles associated with the users account",
-    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
-    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
+    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "AUTH_GROUP_MANAGER")],
   )
   @StandardApiResponses
   fun getUserRoles(
@@ -60,7 +60,8 @@ class UserRolesController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Remove role from user.",
-    description = "Remove role from user.",
+    description = "Remove role from user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @DeleteApiResponses
   @ApiResponses(
@@ -94,7 +95,9 @@ class UserRolesController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add roles to user.",
-    description = "Add role to user, post version taking multiple roles",
+    description = "Add role to user, post version taking multiple roles<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @CreateApiResponses
   @ApiResponses(
@@ -139,7 +142,8 @@ class UserRolesController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add role to user.",
-    description = "Add role to user.",
+    description = "Add role to user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @FailApiResponses
   @ApiResponses(
@@ -192,8 +196,8 @@ class UserRolesController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Get list of roles associated with the users account",
-    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
-    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
+    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
   )
   @StandardApiResponses
   fun getAssignableRoles(

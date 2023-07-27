@@ -1,0 +1,86 @@
+version: '3.1'
+services:
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin_password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=auth-db
+
+  hmpps-auth:
+    image: quay.io/hmpps/hmpps-auth:latest
+    container_name: hmpps-auth
+    depends_on:
+      - auth-db
+      - community-api
+    ports:
+      - '9090:8080'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9090/auth/health']
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev,delius,local-postgres
+      - DELIUS_ENDPOINT_URL=http://community-api:8080
+      - MANAGE_USERS_API_ENDPOINT_URL=http://hmpps-manage-users-api:9091
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth-db
+      - HOSTNAME=hmpps-auth
+
+  community-api:
+    image: quay.io/hmpps/community-api:latest
+    container_name: community-api
+    ports:
+      - '8091:8080'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+
+  hmpps-external-users-api:
+    image: quay.io/hmpps/hmpps-external-users-api:latest
+    container_name: hmpps-external-users-api
+    depends_on:
+      - hmpps-auth
+    ports:
+      - "8088:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev,local-postgres
+      - API_BASE_URL_OAUTH=http://hmpps-auth:8080/auth
+      - SPRING_R2DBC_URL=r2dbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
+      - SPRING_FLYWAY_URL=jdbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
+
+  hmpps-manage-users-api:
+    image: quay.io/hmpps/hmpps-manage-users-api:latest
+    container_name: hmpps-manage-users-api
+    depends_on:
+      - hmpps-external-users-api
+      - community-api
+      - nomis-user-roles-api
+    ports:
+      - "9091:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+      - hmpps-auth_endpoint_url=http://hmpps-auth:8080/auth
+      - external-users_endpoint_url=http://hmpps-external-users-api:8080
+      - nomis_endpoint_url=http://nomis-user-roles-api:8080
+
+  nomis-user-roles-api:
+    image: quay.io/hmpps/nomis-user-roles-api:latest
+    container_name: nomis-user-roles-api
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev

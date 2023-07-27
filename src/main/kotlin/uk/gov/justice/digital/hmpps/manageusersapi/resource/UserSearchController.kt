@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -25,8 +26,11 @@ class UserSearchController(
       Provide the authSources as a list of values with the same name. e.g. ?authSources=nomis&authSources=delius&authSources=auth
       It will return users with the requested auth sources where they have authenticated against the auth service at least once.
       Note: User information held in the auth service may be out of date with the user information held in the source systems as
-      their details will be as they were the last time that they authenticated.
+      their details will be as they were the last time that they authenticated.<br/><br/>
+      
+       Requires role ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN or ROLE_PF_USER_ADMIN
     """,
+    security = [SecurityRequirement(name = "ROLE_INTEL_ADMIN"), SecurityRequirement(name = "ROLE_PF_USER_ADMIN"), SecurityRequirement(name = "ROLE_PCMS_USER_ADMIN")],
   )
   @StandardApiResponses
   @PreAuthorize(
