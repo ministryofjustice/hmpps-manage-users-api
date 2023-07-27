@@ -70,9 +70,10 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
-      - hmpps-auth_endpoint_url=http://hmpps-auth:8080/auth
-      - external-users_endpoint_url=http://hmpps-external-users-api:8080
-      - nomis_endpoint_url=http://nomis-user-roles-api:8080
+      - HMPPS-AUTH_ENDPOINT_URL=http://hmpps-auth:8080/auth
+      - EXTERNAL-USERS_ENDPOINT_URL=http://hmpps-external-users-api:8080
+      - NOMIS_ENDPOINT_URL=http://nomis-user-roles-api:8080
+      - DELIUS_ENDPOINT_URL=http://community-api:8080
 
   nomis-user-roles-api:
     image: quay.io/hmpps/nomis-user-roles-api:latest
