@@ -46,7 +46,8 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @Operation(
     summary = "Amend a prison user email address.",
-    description = "Amend a prison user email address.",
+    description = "Amend a prison user email address. Requires role MAINTAIN_ACCESS_ROLES_ADMIN",
+    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
   )
   @StandardApiResponses
   @ApiResponses(
@@ -108,6 +109,7 @@ class UserController(
   @Operation(
     summary = "Get specified user details",
     description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+    security = [SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT")],
   )
   @StandardApiResponses
   fun findUserByUsername(
@@ -237,7 +239,8 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
   @Operation(
     summary = "Find prison users by first and last name.",
-    description = "Find prison users by first and last name.",
+    description = "Find prison users by first and last name. Requires role ROLE_USE_OF_FORCE or ROLE_STAFF_SEARCH",
+    security = [SecurityRequirement(name = "ROLE_USE_OF_FORCE"), SecurityRequirement(name = "ROLE_STAFF_SEARCH")],
   )
   @StandardApiResponses
   fun findUsersByFirstAndLastName(

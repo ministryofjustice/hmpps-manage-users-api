@@ -27,3 +27,8 @@ will apply ktlint styles to intellij and also add a pre-commit hook to format al
 ### Architecture
 
 Architecture decision records start [here](doc/architecture/decisions/0001-use-adr.md)
+
+### To Run all hmpps-auth related services 
+```
+docker-compose -f docker-compose-full.yml up -d
+```

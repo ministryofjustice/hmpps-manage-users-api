@@ -84,7 +84,7 @@ class RolesController(
   @Operation(
     summary = "Get all roles",
     description = "Get all roles, role required is ROLE_ROLES_ADMIN (to find external roles), ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
-    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES")],
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES")],
   )
   @StandardApiResponses
   @GetMapping("/roles")

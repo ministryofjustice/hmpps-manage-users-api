@@ -92,6 +92,15 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
           """.trimIndent(),
         )
     }
+
+    @Test
+    fun `Should able to access with view role`() {
+      webTestClient
+        .get().uri("externalusers/$userId/groups?children=false")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_VIEW_USER_GROUPS")))
+        .exchange()
+        .expectStatus().isOk
+    }
   }
 
   @Nested
