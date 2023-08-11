@@ -18,11 +18,20 @@ import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.Connection
 import reactor.netty.http.client.HttpClient
+import reactor.netty.resources.ConnectionProvider
 import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
 import java.time.Duration
+import java.time.Duration.ofSeconds
 
 abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, private val clientId: String) {
   private val environment = appContext.environment
+
+  private var provider = ConnectionProvider.builder("custom")
+    .maxConnections(500)
+    .maxIdleTime(ofSeconds(20))
+    .maxLifeTime(ofSeconds(60))
+    .pendingAcquireTimeout(ofSeconds(60))
+    .evictInBackground(ofSeconds(120)).build()
 
   fun getClientRegistration(): ClientRegistration = ClientRegistration.withRegistrationId(clientId)
     .clientName(clientId)
@@ -101,7 +110,7 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     url: @URL String,
     warmup: Boolean,
   ): ClientHttpConnector {
-    val httpClient = HttpClient.create()
+    val httpClient = HttpClient.create(provider)
     if (warmup) httpClient.warmupWithHealthPing(url)
     return ReactorClientHttpConnector(
       httpClient
