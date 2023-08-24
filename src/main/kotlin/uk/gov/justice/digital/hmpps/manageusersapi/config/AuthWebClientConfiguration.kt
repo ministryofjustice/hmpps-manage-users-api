@@ -12,6 +12,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 @Configuration
 class AuthWebClientConfiguration(appContext: ApplicationContext) : AbstractWebClientConfiguration(appContext, "hmpps-auth") {
 
+  private val environment = appContext.environment
+
+  private val maxRetryAttempts = environment.getRequiredProperty("hmpps-auth.max-retry-attempts", Long::class.java)
+
   @Bean("authClientRegistration")
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
 
@@ -27,8 +31,8 @@ class AuthWebClientConfiguration(appContext: ApplicationContext) : AbstractWebCl
   fun authHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
 
   @Bean
-  fun authWebClientUtils(authWebClient: WebClient) = WebClientUtils(authWebClient)
+  fun authWebClientUtils(authWebClient: WebClient) = WebClientUtils(authWebClient, maxRetryAttempts)
 
   @Bean
-  fun authUserWebClientUtils(authUserWebClient: WebClient) = WebClientUtils(authUserWebClient)
+  fun authUserWebClientUtils(authUserWebClient: WebClient) = WebClientUtils(authUserWebClient, maxRetryAttempts)
 }

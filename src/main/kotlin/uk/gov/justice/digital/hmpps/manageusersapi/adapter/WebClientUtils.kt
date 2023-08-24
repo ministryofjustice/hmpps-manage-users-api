@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.adapter
 
+import io.netty.channel.ConnectTimeoutException
+import io.netty.handler.timeout.ReadTimeoutException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
@@ -8,9 +10,14 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.util.UriBuilder
 import reactor.core.publisher.Mono
+import reactor.util.retry.Retry
 import java.net.URI
 
-class WebClientUtils(private val client: WebClient) {
+class WebClientUtils(
+  private val client: WebClient,
+  private val maxRetryAttempts: Long,
+) {
+
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
@@ -20,6 +27,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri(uri)
       .retrieve()
       .toBodilessEntity()
+      .withRetryPolicy()
       .block()
     return true
   }
@@ -29,6 +37,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri(uri)
       .retrieve()
       .bodyToMono(elementClass)
+      .withRetryPolicy()
       .block()!!
 
   fun <T : Any> getIgnoreError(uri: String, elementClass: Class<T>): T? {
@@ -36,6 +45,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri(uri)
       .retrieve()
       .bodyToMono(elementClass)
+      .withRetryPolicy()
       .onErrorResume {
         log.warn("Unable to retrieve details due to {}", it.message)
         Mono.empty()
@@ -48,6 +58,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri(uri)
       .retrieve()
       .bodyToMono(elementClass)
+      .withRetryPolicy()
       .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
       .block()
 
@@ -56,6 +67,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
       .retrieve()
       .bodyToMono(elementClass)
+      .withRetryPolicy()
       .block()!!
 
   fun <T : Any> getWithParams(uri: String, elementClass: ParameterizedTypeReference<T>, queryParams: Map<String, Any?>): T =
@@ -63,6 +75,7 @@ class WebClientUtils(private val client: WebClient) {
       .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
       .retrieve()
       .bodyToMono(elementClass)
+      .withRetryPolicy()
       .block()!!
 
   fun put(uri: String, body: Any) {
@@ -124,6 +137,27 @@ class WebClientUtils(private val client: WebClient) {
     } catch (e: WebClientResponseException) {
       throw if (e.statusCode.equals(status)) newException else e
     }
+
+  private fun <T> Mono<T>.withRetryPolicy(): Mono<T> {
+    return this
+      .retryWhen(
+        Retry.max(maxRetryAttempts)
+          .filter { isTimeoutException(it) }
+          .doBeforeRetry { logRetrySignal(it) },
+      )
+  }
+
+  private fun isTimeoutException(it: Throwable): Boolean {
+    // Timeout for NO_RESPONSE is wrapped in a WebClientRequestException
+    return it is ReadTimeoutException || it is ConnectTimeoutException ||
+      it.cause is ReadTimeoutException || it.cause is ConnectTimeoutException
+  }
+
+  private fun logRetrySignal(retrySignal: Retry.RetrySignal) {
+    val exception = retrySignal.failure()?.cause ?: retrySignal.failure()
+    val message = exception.message ?: exception.javaClass.canonicalName
+    log.debug("Retrying due to {}, totalRetries: {}", message, retrySignal.totalRetries())
+  }
 
   fun delete(uri: String) {
     client.delete()
