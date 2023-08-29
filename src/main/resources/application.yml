@@ -92,7 +92,6 @@ authorization-server:
     endpoint:
       url: http://localhost:8089/oauth2/token
 hmpps-auth:
-  token.endpoint.url: http://localhost:8089/oauth2/token
   external:
     endpoint:
       url: ${hmpps-auth.endpoint.url}
