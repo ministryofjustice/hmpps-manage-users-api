@@ -87,6 +87,11 @@ application:
 
   smoketest.enabled: false
 
+authorization-server:
+  token:
+    endpoint:
+      url: http://localhost:9090/auth/oauth/token
+
 hmpps-auth:
   external:
     endpoint:
