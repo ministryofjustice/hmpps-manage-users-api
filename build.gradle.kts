@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.3.0-beta"
-  kotlin("plugin.spring") version "1.9.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.4.0"
+  kotlin("plugin.spring") version "1.9.10"
 }
 
 configurations {
@@ -13,15 +13,15 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.7.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
   implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.10.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
   implementation("uk.gov.service.notify:notifications-java-client:4.1.0-RELEASE")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
@@ -30,9 +30,9 @@ dependencies {
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.29.0")
   testImplementation("javax.xml.bind:jaxb-api:2.3.1")
 }
 
