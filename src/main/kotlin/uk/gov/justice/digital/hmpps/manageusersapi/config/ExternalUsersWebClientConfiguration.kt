@@ -12,6 +12,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 @Configuration
 class ExternalUsersWebClientConfiguration(appContext: ApplicationContext) : AbstractWebClientConfiguration(appContext, "external-users") {
 
+  private val environment = appContext.environment
+
+  private val maxRetryAttempts = environment.getRequiredProperty("external-users.max-retry-attempts", Long::class.java)
+
   @Bean("externalUsersClientRegistration")
   fun getExternalUsersClientRegistration(): ClientRegistration = getClientRegistration()
 
@@ -26,8 +30,8 @@ class ExternalUsersWebClientConfiguration(appContext: ApplicationContext) : Abst
   fun externalUsersHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
 
   @Bean
-  fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) = WebClientUtils(externalUsersWebClient)
+  fun externalUsersWebClientUtils(externalUsersWebClient: WebClient) = WebClientUtils(externalUsersWebClient, maxRetryAttempts)
 
   @Bean
-  fun externalUsersUserWebClientUtils(externalUsersUserWebClient: WebClient) = WebClientUtils(externalUsersUserWebClient)
+  fun externalUsersUserWebClientUtils(externalUsersUserWebClient: WebClient) = WebClientUtils(externalUsersUserWebClient, maxRetryAttempts)
 }

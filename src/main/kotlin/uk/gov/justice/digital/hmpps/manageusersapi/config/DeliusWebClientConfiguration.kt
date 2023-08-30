@@ -14,6 +14,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 class DeliusWebClientConfiguration(appContext: ApplicationContext) :
   AbstractWebClientConfiguration(appContext, "delius") {
 
+  private val environment = appContext.environment
+
+  private val maxRetryAttempts = environment.getRequiredProperty("delius.max-retry-attempts", Long::class.java)
+
   @Bean("deliusClientRegistration")
   fun getDeliusClientRegistration(): ClientRegistration = getClientRegistration()
 
@@ -25,7 +29,7 @@ class DeliusWebClientConfiguration(appContext: ApplicationContext) :
   fun deliusHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
 
   @Bean
-  fun deliusWebClientUtils(deliusWebClient: WebClient) = WebClientUtils(deliusWebClient)
+  fun deliusWebClientUtils(deliusWebClient: WebClient) = WebClientUtils(deliusWebClient, maxRetryAttempts)
 }
 
 @Suppress("ConfigurationProperties", "ConfigurationProperties")

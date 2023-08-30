@@ -101,6 +101,7 @@ hmpps-auth:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 8s
+  max-retry-attempts: 2
   sync-user: false
 
 nomis:
@@ -111,6 +112,7 @@ nomis:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 5s
+  max-retry-attempts: 2
 
 external-users:
   enabled: false
@@ -120,6 +122,7 @@ external-users:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 5s
+  max-retry-attempts: 2
 
 delius:
   enabled: false
@@ -129,3 +132,4 @@ delius:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 5s
+  max-retry-attempts: 2

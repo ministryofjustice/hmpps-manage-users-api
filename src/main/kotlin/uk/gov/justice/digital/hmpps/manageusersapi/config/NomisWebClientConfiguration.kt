@@ -13,6 +13,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 class NomisWebClientConfiguration(appContext: ApplicationContext) :
   AbstractWebClientConfiguration(appContext, "nomis") {
 
+  private val environment = appContext.environment
+
+  private val maxRetryAttempts = environment.getRequiredProperty("nomis.max-retry-attempts", Long::class.java)
+
   @Bean("nomisClientRegistration")
   fun getNomisClientRegistration(): ClientRegistration = getClientRegistration()
 
@@ -27,8 +31,8 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   fun nomisHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
 
   @Bean
-  fun nomisWebClientUtils(nomisWebClient: WebClient) = WebClientUtils(nomisWebClient)
+  fun nomisWebClientUtils(nomisWebClient: WebClient) = WebClientUtils(nomisWebClient, maxRetryAttempts)
 
   @Bean
-  fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient)
+  fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
 }
