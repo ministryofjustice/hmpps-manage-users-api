@@ -87,6 +87,11 @@ application:
 
   smoketest.enabled: false
 
+authorization-server:
+  token:
+    endpoint:
+      url: http://localhost:8090/auth/oauth/token
+
 hmpps-auth:
   external:
     endpoint:
@@ -96,7 +101,7 @@ hmpps-auth:
     timeout: 1s
   enabled: false
   client:
-    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
+    access-token-uri: ${authorization-server.token.endpoint.url}
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
@@ -107,7 +112,7 @@ hmpps-auth:
 nomis:
   enabled: false
   client:
-    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
+    access-token-uri: ${authorization-server.token.endpoint.url}
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
@@ -117,7 +122,7 @@ nomis:
 external-users:
   enabled: false
   client:
-    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
+    access-token-uri: ${authorization-server.token.endpoint.url}
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
@@ -127,7 +132,7 @@ external-users:
 delius:
   enabled: false
   client:
-    access-token-uri: ${hmpps-auth.endpoint.url}/oauth/token
+    access-token-uri: ${authorization-server.token.endpoint.url}
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
