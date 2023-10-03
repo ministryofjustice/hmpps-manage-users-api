@@ -5,8 +5,6 @@ calculateAuthHostname() {
   # Set the environment-specific hostname for the oauth2 service
   if [[ "$ENV" == "dev" ]]; then
     echo "https://sign-in-dev.hmpps.service.justice.gov.uk"
-  elif [[ "$ENV" == "stage" ]]; then
-    echo "https://sign-in-stage.hmpps.service.justice.gov.uk"
   elif [[ "$ENV" == "preprod" ]]; then
     echo "https://sign-in-preprod.hmpps.service.justice.gov.uk"
   elif [[ "$ENV" == "prod" ]]; then
