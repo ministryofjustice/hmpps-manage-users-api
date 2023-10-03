@@ -4,9 +4,7 @@ calculateNomisUserRolesApiHostname() {
   local ENV=$1
   # Set the environment-specific hostname for the oauth2 service
   if [[ "$ENV" == "dev" ]]; then
-    echo "https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk"
-  elif [[ "$ENV" == "stage" ]]; then
-    echo "https://nomis-user-stage.aks-dev-1.studio-hosting.service.justice.gov.uk"
+    echo "https://nomis-user-roles-api-dev.prison.service.justice.gov.uk"
   elif [[ "$ENV" == "preprod" ]]; then
     echo "https://nomis-user-pp.aks-live-1.studio-hosting.service.justice.gov.uk"
   elif [[ "$ENV" == "prod" ]]; then
