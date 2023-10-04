@@ -20,11 +20,11 @@ generic-service:
     BANNER_DPSMENU:
 
   allowlist:
-    hpa-iis-stage-1: "51.141.12.82/32"
-    hpa-iis-stage-2: "51.141.12.83/32"
-    hpa-iis-stage-3: "51.141.12.84/32"
-    hpa-iis-stage-4: "51.141.12.85/32"
-    hpa-iis-stage-5: "51.140.210.97/32"
+    hpa-iis-stage-1: "51.141.36.127/32"
+    hpa-iis-stage-2: "51.141.34.169/32"
+    hpa-iis-stage-3: "51.141.33.76/32"
+    hpa-iis-stage-4: "51.141.38.101/32"
+    hpa-iis-stage-5: "51.140.210.98/32"
 
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
