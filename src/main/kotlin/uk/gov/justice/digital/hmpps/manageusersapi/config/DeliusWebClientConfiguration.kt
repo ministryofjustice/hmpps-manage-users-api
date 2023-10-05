@@ -22,8 +22,7 @@ class DeliusWebClientConfiguration(appContext: ApplicationContext) :
   fun getDeliusClientRegistration(): ClientRegistration = getClientRegistration()
 
   @Bean
-  fun deliusWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager): WebClient =
-    getWebClient(builder, authorizedClientManager, "/secure")
+  fun deliusWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) = getWebClient(builder, authorizedClientManager)
 
   @Bean
   fun deliusHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)

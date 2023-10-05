@@ -13,7 +13,7 @@ generic-service:
     HMPPS_AUTH_EXTERNAL_ENDPOINT_URL: https://sign-in.hmpps.service.justice.gov.uk/auth
     NOMIS_ENDPOINT_URL: https://nomis-user.aks-live-1.studio-hosting.service.justice.gov.uk
     EXTERNAL_USERS_ENDPOINT_URL: https://external-users-api.hmpps.service.justice.gov.uk
-    DELIUS_ENDPOINT_URL: https://community-api-secure.probation.service.justice.gov.uk
+    DELIUS_ENDPOINT_URL: https://hmpps-auth-and-delius.hmpps.service.justice.gov.uk
     BANNER_ROLES:
     BANNER_EMPTY:
     BANNER_DPSMENU:

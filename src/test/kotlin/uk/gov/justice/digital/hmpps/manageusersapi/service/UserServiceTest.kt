@@ -309,7 +309,7 @@ class UserServiceTest {
       surname = "Smith",
       enabled = true,
       email = "delius.smith@digital.justice.gov.uk",
-      roles = listOf(uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole(name = "ROLE_TEST_ROLE")),
+      roles = listOf("ROLE_TEST_ROLE"),
     )
 
   fun createExternalUser() = ExternalUser(

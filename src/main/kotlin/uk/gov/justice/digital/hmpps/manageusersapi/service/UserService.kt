@@ -66,7 +66,7 @@ class UserService(
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
       ?: run { prisonApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
       ?: run { authApiService.findAzureUserByUsername(username)?.roles?.map { UserRole(it.name) } }
-      ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.name.substring(5)) } } // remove ROLE_
+      ?: run { deliusApiService.findUserByUsername(username)?.roles?.map { UserRole(it.substring(5)) } } // remove ROLE_
   }
 
   fun getAllDeliusRoles() = deliusApiService.getAllDeliusRoles()

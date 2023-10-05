@@ -29,7 +29,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     if (external) externalUsersApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
     if (nomis) nomisApiMockServer.stubGetFail("/users/${username.uppercase()}", NOT_FOUND)
     if (azure) hmppsAuthMockServer.stubGetFail("/auth/api/azureuser/$username", NOT_FOUND)
-    if (delius) deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
+    if (delius) deliusApiMockServer.stubGetFail("/user/$username", NOT_FOUND)
   }
 
   @Nested
@@ -90,7 +90,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNotFound
       nomisApiMockServer.verify(0, getRequestedFor(urlEqualTo("/users/$username")))
       hmppsAuthMockServer.verify(0, getRequestedFor(urlEqualTo("/auth/api/azureuser/$username")))
-      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/secure/users/$username/details")))
+      deliusApiMockServer.verify(0, getRequestedFor(urlEqualTo("/user/$username")))
     }
 
     @Test
@@ -658,7 +658,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val username = "AUTH_ADM"
       externalUsersApiMockServer.stubGetFail("/users/username/$username/roles", NOT_FOUND)
       nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
-      deliusApiMockServer.stubGetFail("/secure/users/$username/details", NOT_FOUND)
+      deliusApiMockServer.stubGetFail("/user/$username", NOT_FOUND)
       webTestClient.get().uri("/users/$username/roles")
         .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()
