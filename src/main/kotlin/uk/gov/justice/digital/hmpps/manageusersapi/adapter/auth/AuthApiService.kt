@@ -92,7 +92,7 @@ class AuthApiService(
   fun updateEmail(username: String, newEmailAddress: String) =
     userWebClientUtils.put("/api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
 
-  fun findUserEmails(usernames: List<String>): List<EmailAddress> = userWebClientUtils.postWithResponse(
+  fun findUserEmails(usernames: List<String>): List<EmailAddress> = serviceWebClientUtils.postWithResponse(
     "/api/prisonuser/email",
     usernames,
     EmailList::class.java,
