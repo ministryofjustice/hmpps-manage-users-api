@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.1"
   kotlin("plugin.spring") version "1.9.10"
 }
 
@@ -25,8 +25,8 @@ dependencies {
   implementation("uk.gov.service.notify:notifications-java-client:4.1.0-RELEASE")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.2")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.2")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("org.wiremock:wiremock:3.2.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
