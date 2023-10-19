@@ -10,6 +10,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
+import java.util.UUID
 
 @Service
 class UserService(
@@ -19,6 +22,7 @@ class UserService(
   private val prisonApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
   private val authenticationFacade: AuthenticationFacade,
   private val externalRolesApiService: UserRolesApiService,
+  private val userGroupsService: UserGroupService,
 ) {
   fun findUserByUsername(username: String): GenericUser? {
     return findMasterUserBasicDetails(username)?.toGenericUser()?.apply {
@@ -26,7 +30,11 @@ class UserService(
       this.uuid = authUserId.uuid
     }
   }
-
+  fun findGroupDetails(username: String): List<UserGroupDto> = this.findUserByUsername(username)?.uuid.let {
+      uuid ->
+    uuid?.let { getUserGroups(it) }
+  } ?: emptyList()
+  private fun getUserGroups(uuid: UUID) = userGroupsService.getUserGroups(uuid, true).map { UserGroupDto.fromDomain(it) }
   private fun findMasterUserBasicDetails(username: String) =
     externalUsersSearchApiService.findUserByUsernameOrNull(username)
       ?: run {

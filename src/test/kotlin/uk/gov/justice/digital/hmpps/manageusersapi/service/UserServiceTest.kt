@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as PrisonUserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole as UserRoleResponse
@@ -39,6 +40,7 @@ class UserServiceTest {
   private val authenticationFacade: AuthenticationFacade = mock()
   private val authentication: Authentication = mock()
   private val externalRolesApiService: UserRolesApiService = mock()
+  private val userGroupsService: UserGroupService = mock()
 
   private val userService = UserService(
     authApiService,
@@ -47,6 +49,7 @@ class UserServiceTest {
     prisonUserApiService,
     authenticationFacade,
     externalRolesApiService,
+    userGroupsService,
   )
 
   @Nested
