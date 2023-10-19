@@ -304,7 +304,7 @@ class UserServiceTest {
       val uuid = UUID.randomUUID()
       var userGroupList = listOf(UserGroup("group_code", "Group name"))
       whenever(userGroupsService.getUserGroups(uuid, true)).thenReturn(userGroupList)
-      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser(uuid))
       whenever(authApiService.findUserIdByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserId(uuid))
       assertThat(userService.findGroupDetails("external_user")).containsOnly(UserGroupDto("group_code", "Group name"))
     }
@@ -347,6 +347,14 @@ class UserServiceTest {
 
   fun createExternalUser() = ExternalUser(
     userId = UUID.randomUUID(),
+    username = "external_user",
+    email = "someemail@hello.com",
+    firstName = "fred",
+    lastName = "Smith",
+  )
+
+  fun createExternalUser(userId: UUID) = ExternalUser(
+    userId = userId,
     username = "external_user",
     email = "someemail@hello.com",
     firstName = "fred",

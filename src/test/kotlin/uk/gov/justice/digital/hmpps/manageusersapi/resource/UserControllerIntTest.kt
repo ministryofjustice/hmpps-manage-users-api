@@ -617,8 +617,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun ` get user groups with children`() {
       val username = "AUTH_ADM"
-      externalUsersApiMockServer.stubUserByUsername(username)
-      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, userId)
+      externalUsersApiMockServer.stubUserByUsername(username, userId)
       externalUsersApiMockServer.stubGetUserGroups(userId, true)
 
       webTestClient

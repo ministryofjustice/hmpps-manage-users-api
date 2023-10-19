@@ -30,9 +30,9 @@ class UserService(
       this.uuid = authUserId.uuid
     }
   }
-  fun findGroupDetails(username: String): List<UserGroupDto> = this.findUserByUsername(username)?.uuid.let {
-      uuid ->
-    uuid?.let { getUserGroups(it) }
+  fun findGroupDetails(username: String): List<UserGroupDto> = externalUsersSearchApiService.findUserByUsernameOrNull(username).let {
+      user ->
+    user?.let { getUserGroups(it.userId) }
   } ?: emptyList()
   private fun getUserGroups(uuid: UUID) = userGroupsService.getUserGroups(uuid, true).map { UserGroupDto.fromDomain(it) }
   private fun findMasterUserBasicDetails(username: String) =
