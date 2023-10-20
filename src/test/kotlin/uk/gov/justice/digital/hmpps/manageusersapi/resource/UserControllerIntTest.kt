@@ -588,6 +588,62 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class MyGroups {
+
+    private val userId: UUID = UUID.fromString("5E3850B9-9D6E-49D7-B8E7-42874D6CEEA8")
+
+    @Test
+    fun `get user groups when no authority`() {
+      webTestClient.get().uri("/users/me/groups")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Users Me groups endpoint returns empty result if user found`() {
+      val username = "basicuser"
+      stubUserNotFound(username, external = true, nomis = true, delius = true)
+      webTestClient
+        .get().uri("/users/me/groups")
+        .headers(
+          setAuthorisation("basicuser"),
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").isEmpty
+    }
+
+    @Test
+    fun ` get user groups with children`() {
+      val username = "AUTH_ADM"
+      externalUsersApiMockServer.stubUserByUsername(username, userId)
+      externalUsersApiMockServer.stubGetUserGroups(userId, true)
+
+      webTestClient
+        .get().uri("/users/me/groups")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+            [
+              {
+                "groupCode": "SITE_1_GROUP_1",
+                "groupName": "Site 1 - Group 1"
+              },
+              {
+                "groupCode": "SITE_2_GROUP_2",
+                "groupName": "Site 2 - Group 2"
+              }
+            ]
+          """.trimIndent(),
+        )
+    }
+  }
+
+  @Nested
   inner class UserRoles {
     @Test
     fun `No roles for for valid azure user`() {

@@ -11,6 +11,7 @@ import java.util.UUID
 @Service
 class UserGroupApiService(
   @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
+  @Qualifier("externalUsersWebClientUtils") val serviceWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -27,7 +28,7 @@ class UserGroupApiService(
   }
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
-    userWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
+    serviceWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
 
   fun getMyAssignableGroups(): List<UserGroup> =
     userWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)

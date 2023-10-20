@@ -26,7 +26,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
+import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as PrisonUserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole as UserRoleResponse
@@ -39,6 +42,7 @@ class UserServiceTest {
   private val authenticationFacade: AuthenticationFacade = mock()
   private val authentication: Authentication = mock()
   private val externalRolesApiService: UserRolesApiService = mock()
+  private val userGroupsService: UserGroupService = mock()
 
   private val userService = UserService(
     authApiService,
@@ -47,6 +51,7 @@ class UserServiceTest {
     prisonUserApiService,
     authenticationFacade,
     externalRolesApiService,
+    userGroupsService,
   )
 
   @Nested
@@ -292,6 +297,34 @@ class UserServiceTest {
     }
   }
 
+  @Nested
+  inner class MyGroups {
+    @Test
+    fun myGroups() {
+      val uuid = UUID.randomUUID()
+      var userGroupList = listOf(UserGroup("group_code", "Group name"))
+      whenever(userGroupsService.getUserGroups(uuid, true)).thenReturn(userGroupList)
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser(uuid))
+      whenever(authApiService.findUserIdByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserId(uuid))
+      assertThat(userService.findGroupDetails("external_user")).containsOnly(UserGroupDto("group_code", "Group name"))
+    }
+
+    @Test
+    fun myGroups_noLocations() {
+      val uuid = UUID.randomUUID()
+      whenever(userGroupsService.getUserGroups(uuid, true)).thenReturn(emptyList())
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(createExternalUser())
+      whenever(authApiService.findUserIdByUsernameAndSource("external_user", auth)).thenReturn(createAuthUserId(uuid))
+      assertThat(userService.findGroupDetails("external_user")).isEmpty()
+    }
+
+    @Test
+    fun invalidUser_noLocations() {
+      whenever(externalUsersApiService.findUserByUsernameOrNull(anyString())).thenReturn(null)
+      var myLocations = userService.findGroupDetails("external_user")
+      assertThat(myLocations).isEmpty()
+    }
+  }
   fun createAzureUser() =
     AzureUser(
       username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
@@ -314,6 +347,14 @@ class UserServiceTest {
 
   fun createExternalUser() = ExternalUser(
     userId = UUID.randomUUID(),
+    username = "external_user",
+    email = "someemail@hello.com",
+    firstName = "fred",
+    lastName = "Smith",
+  )
+
+  fun createExternalUser(userId: UUID) = ExternalUser(
+    userId = userId,
     username = "external_user",
     email = "someemail@hello.com",
     firstName = "fred",

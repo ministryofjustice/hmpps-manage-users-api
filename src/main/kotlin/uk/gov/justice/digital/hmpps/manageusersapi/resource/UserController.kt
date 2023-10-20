@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
@@ -77,6 +78,14 @@ class UserController(
       UserDetailsDto.fromDomain(user)
     } ?: UsernameDto(authenticationFacade.currentUsername!!)
   }
+
+  @GetMapping("/users/me/groups")
+  @Operation(
+    summary = "My Group details.",
+    description = "Find my location/group details. This should be accessed with user token.",
+  )
+  @AuthenticatedApiResponses
+  fun myGroupDetails(): List<UserGroupDto> = userService.findGroupDetails(authenticationFacade.currentUsername!!)
 
   @GetMapping("/users/{username}/email")
   @Operation(
