@@ -12,7 +12,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.DeliusRoleMappings
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole
 
 class UserServiceTest {
 
@@ -44,7 +43,7 @@ class UserServiceTest {
           surname = "Smith",
           email = "TEST@DIGITAL.JUSTICE.GOV.UK",
           enabled = true,
-          roles = listOf(UserRole("NO_ROLES")),
+          roles = listOf("NO_ROLES"),
         ),
       )
       val optionalDetails = deliusService.findUserByUsername("NO_ROLES")
@@ -72,7 +71,7 @@ class UserServiceTest {
           surname = "Smith",
           email = "TEST@DIGITAL.JUSTICE.GOV.UK",
           enabled = true,
-          roles = listOf(UserRole("TEST_ROLE")),
+          roles = listOf("TEST_ROLE"),
         ),
       )
       val optionalDetails = deliusService.findUserByUsername("DeliusSmith")
@@ -84,7 +83,7 @@ class UserServiceTest {
           surname = "Smith",
           email = "test@digital.justice.gov.uk",
           enabled = true,
-          roles = listOf(UserRole("role1"), UserRole("role3")),
+          roles = listOf("role1", "role3"),
         ),
       )
     }
@@ -99,7 +98,7 @@ class UserServiceTest {
           surname = "Smith",
           email = "TEST@DIGITAL.JUSTICE.GOV.UK",
           enabled = true,
-          roles = listOf(UserRole("AROLE")),
+          roles = listOf("AROLE"),
         ),
       )
       val optionalDetails = deliusService.findUserByUsername("deliussmith")
@@ -111,7 +110,7 @@ class UserServiceTest {
           surname = "Smith",
           email = "test@digital.justice.gov.uk",
           enabled = true,
-          roles = listOf(UserRole("role1"), UserRole("role2")),
+          roles = listOf("role1", "role2"),
         ),
       )
     }
@@ -126,7 +125,7 @@ class UserServiceTest {
           surname = "Smith",
           email = "TEST@DIGITAL.JUSTICE.GOV.UK",
           enabled = true,
-          roles = listOf(UserRole("NO_ROLES")),
+          roles = listOf("NO_ROLES"),
         ),
       )
       val optionalDetails = deliusService.findUserByUsername("DELIUS_MIXED_CASE")

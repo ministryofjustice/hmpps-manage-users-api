@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.config.DeliusRoleMappings
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserRole
 
 @Service
 class UserApiService(
@@ -26,26 +25,21 @@ class UserApiService(
       log.debug("Delius not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError(
-      "/users/$username/details",
-      DeliusUser::class.java,
-    )?.let { user -> mapUserDetailsToDeliusUser(user) }
+    return serviceWebClientUtils.getIgnoreError("/user/$username", DeliusUser::class.java)
+      ?.let { user -> mapUserDetailsToDeliusUser(user) }
   }
 
-  private fun mapUserDetailsToDeliusUser(userDetails: DeliusUser): DeliusUser =
-    DeliusUser(
-      username = userDetails.username.uppercase(),
-      userId = userDetails.userId,
-      firstName = userDetails.firstName,
-      surname = userDetails.surname,
-      email = userDetails.email.lowercase(),
-      enabled = userDetails.enabled,
-      roles = userDetails.roles?.let { mapUserRolesToAuthorities(it) },
-    )
+  private fun mapUserDetailsToDeliusUser(userDetails: DeliusUser) = DeliusUser(
+    username = userDetails.username.uppercase(),
+    userId = userDetails.userId,
+    firstName = userDetails.firstName,
+    surname = userDetails.surname,
+    email = userDetails.email.lowercase(),
+    enabled = userDetails.enabled,
+    roles = mapUserRolesToAuthorities(userDetails.roles),
+  )
 
   fun getAllDeliusRoles() = mappings
 
-  fun mapUserRolesToAuthorities(userRoles: List<UserRole>) =
-    userRoles.mapNotNull { (name) -> mappings[name] }
-      .flatMap { r -> r.map(::UserRole) }
+  fun mapUserRolesToAuthorities(userRoles: List<String>) = userRoles.mapNotNull { mappings[it] }.flatten()
 }

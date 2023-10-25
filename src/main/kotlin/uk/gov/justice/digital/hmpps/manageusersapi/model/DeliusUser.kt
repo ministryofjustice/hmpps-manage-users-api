@@ -11,7 +11,7 @@ data class DeliusUser(
   val surname: String,
   val enabled: Boolean = false,
   val email: String,
-  val roles: List<UserRole>? = emptyList(),
+  val roles: List<String> = emptyList(),
 ) : SourceUser {
 
   val name: String
@@ -28,7 +28,7 @@ data class DeliusUser(
       name = name,
       userId = userId,
       uuid = null,
-      roles = roles,
+      roles = roles.map { UserRole(it) },
     )
 
   override fun emailAddress(): EmailAddress =

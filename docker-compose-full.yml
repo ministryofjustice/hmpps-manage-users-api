@@ -16,7 +16,7 @@ services:
     container_name: hmpps-auth
     depends_on:
       - auth-db
-      - community-api
+      - delius
     ports:
       - '9090:8080'
     healthcheck:
@@ -24,14 +24,14 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev,delius,local-postgres
-      - DELIUS_ENDPOINT_URL=http://community-api:8080
+      - DELIUS_ENDPOINT_URL=http://delius:8080
       - MANAGE_USERS_API_ENDPOINT_URL=http://hmpps-manage-users-api:9091
       - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth-db
       - HOSTNAME=hmpps-auth
 
-  community-api:
-    image: quay.io/hmpps/community-api:latest
-    container_name: community-api
+  delius:
+    image: ghcr.io/ministryofjustice/hmpps-probation-integration-services/hmpps-auth-and-delius:latest
+    container_name: delius
     ports:
       - '8091:8080'
     healthcheck:
@@ -61,7 +61,7 @@ services:
     container_name: hmpps-manage-users-api
     depends_on:
       - hmpps-external-users-api
-      - community-api
+      - delius
       - nomis-user-roles-api
     ports:
       - "9091:8080"
@@ -73,7 +73,7 @@ services:
       - HMPPS-AUTH_ENDPOINT_URL=http://hmpps-auth:8080/auth
       - EXTERNAL-USERS_ENDPOINT_URL=http://hmpps-external-users-api:8080
       - NOMIS_ENDPOINT_URL=http://nomis-user-roles-api:8080
-      - DELIUS_ENDPOINT_URL=http://community-api:8080
+      - DELIUS_ENDPOINT_URL=http://delius:8080
 
   nomis-user-roles-api:
     image: quay.io/hmpps/nomis-user-roles-api:latest

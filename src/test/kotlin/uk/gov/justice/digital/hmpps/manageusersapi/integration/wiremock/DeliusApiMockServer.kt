@@ -26,7 +26,7 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetUser(username: String) {
     stubFor(
-      get("/secure/users/$username/details")
+      get("/user/$username")
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
@@ -37,17 +37,7 @@ class DeliusApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "surname": "Smith",
                 "email": "delius.smithy@digital.justice.gov.uk",
                 "enabled": true,
-                "roles": [
-                    {
-                        "name": "APBT001"
-                    },
-                    {
-                        "name": "APBT002"
-                    },
-                    {
-                        "name": "SPGADBT005"
-                    }
-                ],
+                "roles": ["APBT001", "APBT002", "SPGADBT005"],
                 "username": "$username"
               }
               """.trimIndent(),
