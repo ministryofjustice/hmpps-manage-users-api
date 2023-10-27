@@ -17,19 +17,19 @@ class UserSearchApiService(
   @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
   fun findUsersByEmail(email: String): List<ExternalUser>? =
-    userWebClientUtils.getIfPresent("/users?email=$email", UserList::class.java)
+    userWebClientUtils.getIfPresent("/users?email={email}", UserList::class.java, email)
 
   fun findUserByUsername(username: String): ExternalUser =
-    userWebClientUtils.get("/users/$username", ExternalUser::class.java)
+    userWebClientUtils.get("/users/{username}", ExternalUser::class.java, username)
 
   fun findUserByUsernameIfPresent(username: String): ExternalUser? =
-    userWebClientUtils.getIfPresent("/users/$username", ExternalUser::class.java)
+    userWebClientUtils.getIfPresent("/users/{username}", ExternalUser::class.java, username)
 
   fun findByUserId(userId: UUID): ExternalUser =
-    userWebClientUtils.get("/users/id/$userId", ExternalUser::class.java)
+    userWebClientUtils.get("/users/id/{userId}", ExternalUser::class.java, userId)
 
   fun findUserByUsernameOrNull(username: String): ExternalUser? =
-    serviceWebClientUtils.getIgnoreError("/users/$username", ExternalUser::class.java)
+    serviceWebClientUtils.getIgnoreError("/users/{username}", ExternalUser::class.java, username)
 
   fun findUsers(
     name: String?,

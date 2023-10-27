@@ -19,12 +19,12 @@ class UserGroupApiService(
 
   fun deleteGroupByUserId(userId: UUID, group: String) {
     log.debug("Delete group {} for user {}", group, userId)
-    userWebClientUtils.delete("/users/$userId/groups/$group")
+    userWebClientUtils.delete("/users/{userId}/groups/{group}", userId, group)
   }
 
   fun addGroupByUserId(userId: UUID, group: String) {
     log.debug("Adding group {} for user {}", group, userId)
-    userWebClientUtils.put("/users/$userId/groups/$group")
+    userWebClientUtils.put("/users/{userId}/groups/{group}", userId, group)
   }
 
   fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =

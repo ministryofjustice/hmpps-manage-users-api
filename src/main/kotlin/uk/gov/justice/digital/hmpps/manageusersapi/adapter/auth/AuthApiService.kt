@@ -51,46 +51,46 @@ class AuthApiService(
   }
 
   fun createResetTokenForUser(userId: UUID) =
-    serviceWebClientUtils.postWithResponse("/api/token/reset/$userId", String::class.java)
+    serviceWebClientUtils.postWithResponse("/api/token/reset/{userId}", String::class.java, userId)
 
   fun findAuthUserEmail(username: String, unverified: Boolean) =
-    serviceWebClientUtils.getIgnoreError("/api/user/$username/authEmail?unverified=$unverified", EmailAddress::class.java)
+    serviceWebClientUtils.getIgnoreError("/api/user/{username}/authEmail?unverified={unverified}", EmailAddress::class.java, username, unverified)
 
   fun findAzureUserByUsername(username: String): AzureUser? =
     try {
       UUID.fromString(username)
-      serviceWebClientUtils.getIgnoreError("/api/azureuser/$username", AzureUser::class.java)
+      serviceWebClientUtils.getIgnoreError("/api/azureuser/{username}", AzureUser::class.java, username)
     } catch (exception: IllegalArgumentException) {
       log.debug("Auth not called for Azure user as username not valid UUID: {}", username)
       null
     }
 
   fun findServiceByServiceCode(serviceCode: String) =
-    serviceWebClientUtils.get("/api/services/$serviceCode", AuthService::class.java)
+    serviceWebClientUtils.get("/api/services/{serviceCode}", AuthService::class.java, serviceCode)
 
   fun findUserIdByUsernameAndSource(username: String, source: AuthSource): AuthUser =
-    serviceWebClientUtils.get("/api/user/$username/$source", AuthUser::class.java)
+    serviceWebClientUtils.get("/api/user/{username}/{source}", AuthUser::class.java, username, source)
 
   fun syncUserEmailUpdate(username: String, newEmail: String, newUsername: String) =
-    serviceWebClientUtils.put("/api/externaluser/sync/$username/email", mapOf("email" to newEmail, "username" to newUsername))
+    serviceWebClientUtils.putWithBody(mapOf("email" to newEmail, "username" to newUsername), "/api/externaluser/sync/{username}/email", username)
 
   fun syncUserEnabled(username: String) =
-    serviceWebClientUtils.put("/api/externaluser/sync/$username/enabled", mapOf("enabled" to true))
+    serviceWebClientUtils.putWithBody(mapOf("enabled" to true), "/api/externaluser/sync/{username}/enabled", username)
 
   fun syncExternalUserCreate(email: String, firstName: String, lastName: String) =
-    serviceWebClientUtils.post("/api/externaluser/sync/create", mapOf("email" to email, "username" to email, "firstName" to firstName, "lastName" to lastName))
+    serviceWebClientUtils.postWithBody(mapOf("email" to email, "username" to email, "firstName" to firstName, "lastName" to lastName), "/api/externaluser/sync/create")
 
   fun syncUserDisabled(username: String, inactiveReason: String) =
-    serviceWebClientUtils.put("/api/externaluser/sync/$username/enabled", mapOf("enabled" to false, "inactiveReason" to inactiveReason))
+    serviceWebClientUtils.putWithBody(mapOf("enabled" to false, "inactiveReason" to inactiveReason), "/api/externaluser/sync/{username}/enabled", username)
 
   fun confirmRecognised(username: String) =
-    userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/$username/recognised")
+    userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/{username}/recognised", username)
 
   fun syncEmailWithNomis(username: String, nomisEmail: String?) =
-    userWebClientUtils.post("/api/prisonuser/$username/email/sync", mapOf("email" to nomisEmail))
+    userWebClientUtils.postWithBody(mapOf("email" to nomisEmail), "/api/prisonuser/{username}/email/sync", username)
 
   fun updateEmail(username: String, newEmailAddress: String) =
-    userWebClientUtils.put("/api/prisonuser/$username/email", mapOf("email" to newEmailAddress))
+    userWebClientUtils.putWithBody(mapOf("email" to newEmailAddress), "/api/prisonuser/{username}/email", username)
 
   fun findUserEmails(usernames: List<String>): List<EmailAddress> = serviceWebClientUtils.postWithResponse(
     "/api/prisonuser/email",

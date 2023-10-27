@@ -41,7 +41,7 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
     @Test
     fun `should respond with user data returned from external users api`() {
       val email = "auth_test2@digital.justice.gov.uk"
-      externalUsersApiMockServer.stubUsersByEmail(email)
+      externalUsersApiMockServer.stubUsersByEmail("auth_test2%40digital.justice.gov.uk")
 
       webTestClient.get().uri("/externalusers?email=$email")
         .headers(setAuthorisation())

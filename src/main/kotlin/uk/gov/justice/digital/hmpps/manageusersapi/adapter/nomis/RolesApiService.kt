@@ -21,38 +21,41 @@ class RolesApiService(
 
   fun createRole(createRole: CreateRoleDto) {
     log.debug("Create dps role for {} with {}", createRole.roleCode, createRole)
-    return userWebClientUtils.post(
-      "/roles",
+    return userWebClientUtils.postWithBody(
       mapOf(
         "code" to createRole.roleCode,
         "name" to createRole.roleName.nomisRoleName(),
         "adminRoleOnly" to createRole.adminType.adminRoleOnly(),
       ),
+      "/roles",
+
     )
   }
 
   fun updateRoleName(roleCode: String, roleNameAmendment: RoleNameAmendmentDto) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleNameAmendment)
-    userWebClientUtils.put(
-      "/roles/$roleCode",
+    userWebClientUtils.putWithBody(
       mapOf(
         "name" to roleNameAmendment.roleName.nomisRoleName(),
       ),
+      "/roles/{roleCode}",
+      roleCode,
     )
   }
 
   fun updateRoleAdminType(roleCode: String, roleAdminTypeAmendment: RoleAdminTypeAmendmentDto) {
     log.debug("Updating dps role name for {} with {}", roleCode, roleAdminTypeAmendment)
-    userWebClientUtils.put(
-      "/roles/$roleCode",
+    userWebClientUtils.putWithBody(
       mapOf(
         "adminRoleOnly" to roleAdminTypeAmendment.adminType.adminRoleOnly(),
       ),
+      "/roles/{roleCode}",
+      roleCode,
     )
   }
 
   fun getUserRoles(username: String) =
-    userWebClientUtils.get("/users/$username/roles", PrisonUserRole::class.java)
+    userWebClientUtils.get("/users/{username}/roles", PrisonUserRole::class.java, username)
 
   private fun String.nomisRoleName(): String = take(30)
 

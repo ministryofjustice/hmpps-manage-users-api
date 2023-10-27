@@ -80,7 +80,7 @@ class UserApiService(
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError("/users/${username.uppercase()}", PrisonUser::class.java)
+    return serviceWebClientUtils.getIgnoreError("/users/{username}", PrisonUser::class.java, username.uppercase())
   }
 
   fun findUserBasicDetailsByUsername(username: String): PrisonUserBasicDetails? {
@@ -88,7 +88,7 @@ class UserApiService(
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError("/users/basic/${username.uppercase()}", PrisonUserBasicDetails::class.java)
+    return serviceWebClientUtils.getIgnoreError("/users/basic/{username}", PrisonUserBasicDetails::class.java, username.uppercase())
   }
 
   fun findUserByUsernameWithError(username: String): PrisonUser? {
@@ -96,7 +96,7 @@ class UserApiService(
       log.error("Nomis not called with username as contained @: {}", username)
       throw EntityNotFoundException("Prison username $username not allowed")
     }
-    return serviceWebClientUtils.get("/users/${username.uppercase()}", PrisonUser::class.java)
+    return serviceWebClientUtils.get("/users/{username}", PrisonUser::class.java, username.uppercase())
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {
@@ -111,29 +111,32 @@ class UserApiService(
   }
 
   fun linkCentralAdminUser(centralAdminUser: CreateLinkedCentralAdminUserRequest) = userWebClientUtils.postWithResponse(
-    "/users/link-admin-account/${centralAdminUser.existingUsername}",
+    "/users/link-admin-account/{centralAdminUser}",
     mapOf(
       "username" to centralAdminUser.adminUsername,
     ),
     PrisonStaffUser::class.java,
+    centralAdminUser.existingUsername,
   )
 
   fun linkLocalAdminUser(localAdminUser: CreateLinkedLocalAdminUserRequest) = userWebClientUtils.postWithResponse(
-    "/users/link-local-admin-account/${localAdminUser.existingUsername}",
+    "/users/link-local-admin-account/{localAdminUser}",
     mapOf(
       "username" to localAdminUser.adminUsername,
       "localAdminGroup" to localAdminUser.localAdminGroup,
     ),
     PrisonStaffUser::class.java,
+    localAdminUser.existingUsername,
   )
 
   fun linkGeneralUser(generalUser: CreateLinkedGeneralUserRequest) = userWebClientUtils.postWithResponse(
-    "/users/link-general-account/${generalUser.existingAdminUsername}",
+    "/users/link-general-account/{generalUser}",
     mapOf(
       "username" to generalUser.generalUsername,
       "defaultCaseloadId" to generalUser.defaultCaseloadId,
     ),
     PrisonStaffUser::class.java,
+    generalUser.existingAdminUsername,
   )
 }
 
