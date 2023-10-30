@@ -314,7 +314,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("justice.gov.uk", true)
-      externalUsersApiMockServer.stubUserByUsername("auth_user_email_test@justice.gov.uk".uppercase())
+      externalUsersApiMockServer.stubUserByUsername("auth_user_email_test%40justice.gov.uk".uppercase())
 
       webTestClient
         .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
@@ -358,7 +358,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubUserHasPassword("2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F", true)
       hmppsAuthMockServer.stubForTokenByEmailType()
       externalUsersApiMockServer.stubValidateEmailDomain("digital.justice.gov.uk", true)
-      hmppsAuthMockServer.stubSyncAlterUserEmail("bob@testing.co.uk", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk")
+      hmppsAuthMockServer.stubSyncAlterUserEmail("bob%40testing.co.uk", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk")
 
       val userMessage = "User not found: Account for username $userName not found"
       val developerMessage = "Account for username $userName not found"
@@ -395,7 +395,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         "bobby.b@digital.justice.gov.uk",
         "bobby.b@digital.justice.gov.uk",
       )
-      hmppsAuthMockServer.stubSyncAlterUserEmail("EXT_TEST@DIGITAL.JUSTICE.GOV.UK", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk")
+      hmppsAuthMockServer.stubSyncAlterUserEmail("EXT_TEST%40DIGITAL.JUSTICE.GOV.UK", "bobby.b@digital.justice.gov.uk", "bobby.b@digital.justice.gov.uk")
 
       webTestClient
         .post().uri("/externalusers/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")

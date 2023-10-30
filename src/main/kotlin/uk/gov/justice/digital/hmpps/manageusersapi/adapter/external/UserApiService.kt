@@ -29,13 +29,13 @@ class UserApiService(
     )
 
   fun updateUserEmailAddressAndUsername(userId: UUID, username: String, email: String) =
-    userWebClientUtils.put("/users/id/$userId/email", mapOf("username" to username, "email" to email))
+    userWebClientUtils.putWithBody(mapOf("username" to username, "email" to email), "/users/id/{userId}/email", userId)
 
-  fun hasPassword(userId: UUID) = userWebClientUtils.get("/users/id/$userId/password/present", Boolean::class.java)
+  fun hasPassword(userId: UUID) = userWebClientUtils.get("/users/id/{userId}/password/present", Boolean::class.java, userId)
 
   fun enableUserById(userId: UUID) =
-    userWebClientUtils.put("/users/$userId/enable")
+    userWebClientUtils.put("/users/{userId}/enable", userId)
 
   fun disableUserById(userId: UUID, deactivateReason: DeactivateReason) =
-    userWebClientUtils.put("/users/$userId/disable", deactivateReason)
+    userWebClientUtils.putWithBody(deactivateReason, "/users/{userId}/disable", userId)
 }

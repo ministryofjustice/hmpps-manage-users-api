@@ -25,7 +25,7 @@ class UserApiService(
       log.debug("Delius not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError("/user/$username", DeliusUser::class.java)
+    return serviceWebClientUtils.getIgnoreError("/user/{username}", DeliusUser::class.java, username)
       ?.let { user -> mapUserDetailsToDeliusUser(user) }
   }
 

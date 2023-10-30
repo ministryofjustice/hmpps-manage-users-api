@@ -22,9 +22,9 @@ class WebClientUtils(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getWithEmptyResponseSucceeds(uri: String): Boolean {
+  fun getWithEmptyResponseSucceeds(uri: String, vararg uriVariables: Any?): Boolean {
     client.get()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .toBodilessEntity()
       .withRetryPolicy()
@@ -32,17 +32,17 @@ class WebClientUtils(
     return true
   }
 
-  fun <T : Any> get(uri: String, elementClass: Class<T>): T =
+  fun <T : Any> get(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T =
     client.get()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .bodyToMono(elementClass)
       .withRetryPolicy()
       .block()!!
 
-  fun <T : Any> getIgnoreError(uri: String, elementClass: Class<T>): T? {
+  fun <T : Any> getIgnoreError(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T? {
     return client.get()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .bodyToMono(elementClass)
       .withRetryPolicy()
@@ -53,9 +53,9 @@ class WebClientUtils(
       .block()
   }
 
-  fun <T : Any> getIfPresent(uri: String, elementClass: Class<T>): T? =
+  fun <T : Any> getIfPresent(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T? =
     client.get()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .bodyToMono(elementClass)
       .withRetryPolicy()
@@ -78,18 +78,18 @@ class WebClientUtils(
       .withRetryPolicy()
       .block()!!
 
-  fun put(uri: String, body: Any) {
+  fun putWithBody(body: Any, uri: String, vararg uriVariables: Any?) {
     client.put()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .bodyValue(body)
       .retrieve()
       .toBodilessEntity()
       .block()
   }
 
-  fun put(uri: String) {
+  fun put(uri: String, vararg uriVariables: Any?) {
     client.put()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .toBodilessEntity()
       .block()
@@ -102,26 +102,26 @@ class WebClientUtils(
       .bodyToMono(elementClass)
       .block()!!
 
-  fun post(uri: String, body: Any) {
+  fun postWithBody(body: Any, uri: String, vararg uriVariables: Any?) {
     client.post()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .bodyValue(body)
       .retrieve()
       .toBodilessEntity()
       .block()
   }
 
-  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>): T =
+  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>, vararg uriVariables: Any?): T =
     client.post()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .bodyValue(body)
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
 
-  fun <T : Any> postWithResponse(uri: String, elementClass: Class<T>): T =
+  fun <T : Any> postWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T =
     client.post()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
@@ -159,9 +159,9 @@ class WebClientUtils(
     log.debug("Retrying due to {}, totalRetries: {}", message, retrySignal.totalRetries())
   }
 
-  fun delete(uri: String) {
+  fun delete(uri: String, vararg uriVariables: Any?) {
     client.delete()
-      .uri(uri)
+      .uri(uri, *uriVariables)
       .retrieve()
       .toBodilessEntity()
       .block()

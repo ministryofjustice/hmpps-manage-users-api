@@ -48,32 +48,33 @@ class RolesApiService(
   )
 
   fun getRoleDetail(roleCode: String): Role =
-    userWebClientUtils.get("/roles/$roleCode", Role::class.java)
+    userWebClientUtils.get("/roles/{roleCode}", Role::class.java, roleCode)
 
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    userWebClientUtils.put("/roles/$roleCode", roleAmendment)
+    userWebClientUtils.putWithBody(roleAmendment, "/roles/{roleCode}", roleCode)
   }
 
   fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendmentDto) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    userWebClientUtils.put("/roles/$roleCode/description", roleAmendment)
+    userWebClientUtils.putWithBody(roleAmendment, "/roles/{roleCode}/description", roleCode)
   }
 
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
-    userWebClientUtils.put("/roles/$roleCode/admintype", mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()))
+    userWebClientUtils.putWithBody(mapOf("adminType" to roleAmendment.adminType.addDpsAdmTypeIfRequiredAsList()), "/roles/{roleCode}/admintype", roleCode)
   }
 
   fun createRole(createRole: CreateRoleDto) {
-    userWebClientUtils.post(
-      "/roles",
+    userWebClientUtils.postWithBody(
       mapOf(
         "roleCode" to createRole.roleCode,
         "roleName" to createRole.roleName,
         "roleDescription" to createRole.roleDescription,
         "adminType" to createRole.adminType.addDpsAdmTypeIfRequiredAsList(),
       ),
+      "/roles",
+
     )
   }
 }

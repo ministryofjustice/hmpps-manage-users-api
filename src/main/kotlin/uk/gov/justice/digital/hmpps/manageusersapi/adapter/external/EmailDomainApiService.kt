@@ -15,12 +15,12 @@ class EmailDomainApiService(
 
   fun domainList(): List<EmailDomain> = userWebClientUtils.get("/email-domains", EmailDomainList::class.java)
 
-  fun domain(id: UUID) = userWebClientUtils.get("/email-domains/$id", EmailDomain::class.java)
+  fun domain(id: UUID) = userWebClientUtils.get("/email-domains/{id}", EmailDomain::class.java, id)
 
   fun addEmailDomain(emailDomain: CreateEmailDomainDto) =
     userWebClientUtils.postWithResponse("/email-domains", emailDomain, EmailDomain::class.java)
 
-  fun deleteEmailDomain(id: UUID) = userWebClientUtils.delete("/email-domains/$id")
+  fun deleteEmailDomain(id: UUID) = userWebClientUtils.delete("/email-domains/{id}", id)
 }
 
 class EmailDomainList : MutableList<EmailDomain> by ArrayList()

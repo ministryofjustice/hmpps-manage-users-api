@@ -17,26 +17,26 @@ class UserRolesApiService(
   }
 
   fun getUserRoles(userId: UUID): List<UserRole> =
-    userWebClientUtils.get("/users/$userId/roles", UserRoleList::class.java)
+    userWebClientUtils.get("/users/{userId}/roles", UserRoleList::class.java, userId)
 
   fun addRolesByUserId(userId: UUID, roleCodes: List<String>) {
     log.debug("Adding roles {} for user {}", roleCodes, userId)
-    userWebClientUtils.post("/users/$userId/roles", roleCodes)
+    userWebClientUtils.postWithBody(roleCodes, "/users/{userId}/roles", userId)
   }
 
   fun deleteRoleByUserId(userId: UUID, role: String) {
     log.debug("Delete role {} for user {}", role, userId)
-    userWebClientUtils.delete("/users/$userId/roles/$role")
+    userWebClientUtils.delete("/users/{userId}/roles/{role}", userId, role)
   }
 
   fun getAssignableRoles(userId: UUID) =
-    userWebClientUtils.get("/users/$userId/assignable-roles", UserRoleList::class.java)
+    userWebClientUtils.get("/users/{userId}/assignable-roles", UserRoleList::class.java, userId)
 
   fun getAllSearchableRoles() =
     userWebClientUtils.get("/users/me/searchable-roles", UserRoleList::class.java)
 
   fun findRolesByUsernameOrNull(userName: String): List<UserRole>? =
-    userWebClientUtils.getIgnoreError("/users/username/$userName/roles", UserRoleList::class.java)
+    userWebClientUtils.getIgnoreError("/users/username/{userName}/roles", UserRoleList::class.java, userName)
 }
 
 class UserRoleList : MutableList<UserRole> by ArrayList()

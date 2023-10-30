@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.anyVararg
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.same
 import org.mockito.kotlin.whenever
@@ -35,7 +36,7 @@ class UserServiceTest {
 
     @Test
     fun `deliusUserByUsername test role mappings no roles granted`() {
-      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java))).thenReturn(
+      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java), anyVararg())).thenReturn(
         DeliusUser(
           username = "no_roles",
           userId = "2500077027",
@@ -63,7 +64,7 @@ class UserServiceTest {
 
     @Test
     fun `deliusUserByUsername test role mappings`() {
-      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java))).thenReturn(
+      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java), anyVararg())).thenReturn(
         DeliusUser(
           username = "deliussmith",
           userId = "2500077027",
@@ -90,7 +91,7 @@ class UserServiceTest {
 
     @Test
     fun `deliusUserByUsername test username returned is upper cased`() {
-      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java))).thenReturn(
+      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java), anyVararg())).thenReturn(
         DeliusUser(
           username = "deliussmith",
           userId = "2500077027",
@@ -117,7 +118,7 @@ class UserServiceTest {
 
     @Test
     fun `deliusUserByUsername test email returned is lower cased`() {
-      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java))).thenReturn(
+      whenever(webClient.getIgnoreError(anyOrNull(), same(DeliusUser::class.java), anyVararg())).thenReturn(
         DeliusUser(
           username = "DELIUS_mixed_Case",
           userId = "2500077027",
