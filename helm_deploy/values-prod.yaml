@@ -24,7 +24,6 @@ generic-service:
     hpa-iis-prod-3: 51.141.12.84/32
     hpa-iis-prod-4: 51.141.12.85/32
     hpa-iis-prod-5: 51.140.210.97/32
-    groups: []
 
 # CloudPlatform AlertManager receiver to route promethues alerts to slack
 generic-prometheus-alerts:
