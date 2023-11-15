@@ -53,6 +53,21 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[1].roleName")
         .isEqualTo("Auth Group Manager that has more than 30 characters in the role name")
     }
+
+    @Test
+    fun `get user roles with MAINTAIN_IMS_USERS role`() {
+      val userId = UUID.randomUUID()
+      externalUsersApiMockServer.stubGetUserRoles(userId)
+
+      webTestClient.get().uri("/externalusers/$userId/roles")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[0].roleName").isEqualTo("Audit viewer")
+        .jsonPath("$[1].roleName")
+        .isEqualTo("Auth Group Manager that has more than 30 characters in the role name")
+    }
   }
 
   @Nested
@@ -105,6 +120,21 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/$userId/roles"))
           .withRequestBody(containing("[\"GLOBAL_SEARCH\",\"LICENCE_RO\"]")),
+      )
+    }
+
+    @Test
+    fun `success with role maintain IMS users`() {
+      externalUsersApiMockServer.stubAddRolesToUser(userId.toString())
+      webTestClient.post().uri("/externalusers/$userId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .body(BodyInserters.fromValue(listOf("IMS_USER")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/$userId/roles"))
+          .withRequestBody(containing("[\"IMS_USER\"]")),
       )
     }
 
@@ -170,6 +200,20 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/$userId/roles"))
           .withRequestBody(containing("[\"GLOBAL_SEARCH\"]")),
+      )
+    }
+
+    @Test
+    fun `success with role maintain IMS users`() {
+      externalUsersApiMockServer.stubAddRolesToUser(userId.toString())
+      webTestClient.put().uri("/externalusers/$userId/roles/IMS_USER")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      externalUsersApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/$userId/roles"))
+          .withRequestBody(containing("[\"IMS_USER\"]")),
       )
     }
 
@@ -254,6 +298,15 @@ class UserRolesControllerIntTest : IntegrationTestBase() {
       externalUsersApiMockServer.stubDeleteRoleFromUser(userId.toString(), role)
       webTestClient.delete().uri("/externalusers/$userId/roles/$role")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `success with role maintain IMS users`() {
+      externalUsersApiMockServer.stubDeleteRoleFromUser(userId.toString(), role)
+      webTestClient.delete().uri("/externalusers/$userId/roles/$role")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
         .exchange()
         .expectStatus().isNoContent
     }
