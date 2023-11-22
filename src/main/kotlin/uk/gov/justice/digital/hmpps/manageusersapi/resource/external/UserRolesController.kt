@@ -40,13 +40,18 @@ class UserRolesController(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @GetMapping("{userId}/roles")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Get list of roles associated with the users account",
-    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-    security = [SecurityRequirement(name = "MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "AUTH_GROUP_MANAGER")],
+    description = "Roles for a specific user.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS, ROLE_AUTH_GROUP_MANAGER or ROLE_MAINTAIN_IMS_USERS",
+    security = [
+      SecurityRequirement(name = "MAINTAIN_OAUTH_USERS"),
+      SecurityRequirement(name = "AUTH_GROUP_MANAGER"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_IMS_USERS"),
+    ],
   )
   @StandardApiResponses
   fun getUserRoles(
@@ -57,11 +62,16 @@ class UserRolesController(
 
   @DeleteMapping("{userId}/roles/{role}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @Operation(
     summary = "Remove role from user.",
-    description = "Remove role from user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
+    description = "Remove role from user.<br/>" +
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS , ROLE_AUTH_GROUP_MANAGER or ROLE_MAINTAIN_IMS_USERS",
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"),
+      SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_IMS_USERS"),
+    ],
   )
   @DeleteApiResponses
   @ApiResponses(
@@ -92,12 +102,16 @@ class UserRolesController(
 
   @PostMapping("/{userId}/roles")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @Operation(
     summary = "Add roles to user.",
     description = "Add role to user, post version taking multiple roles<br/>" +
-      "Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
+      "Requires role ROLE_MAINTAIN_OAUTH_USERS, ROLE_AUTH_GROUP_MANAGER or ROLE_MAINTAIN_IMS_USERS",
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"),
+      SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_IMS_USERS"),
+    ],
   )
   @CreateApiResponses
   @ApiResponses(
@@ -139,11 +153,15 @@ class UserRolesController(
 
   @PutMapping("/{userId}/roles/{role}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @Operation(
     summary = "Add role to user.",
-    description = "Add role to user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
+    description = "Add role to user. Requires role ROLE_MAINTAIN_OAUTH_USERS, ROLE_AUTH_GROUP_MANAGER or ROLE_MAINTAIN_IMS_USERS",
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"),
+      SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_IMS_USERS"),
+    ],
   )
   @FailApiResponses
   @ApiResponses(
@@ -191,13 +209,17 @@ class UserRolesController(
     role: String,
   ) = userRolesService.addRolesByUserId(userId, listOf(role))
 
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @GetMapping("/{userId}/assignable-roles")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Get list of roles associated with the users account",
-    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"), SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER")],
+    description = "Roles for a specific user. Requires role ROLE_MAINTAIN_OAUTH_USERS, ROLE_AUTH_GROUP_MANAGER, ROLE_MAINTAIN_IMS_USERS",
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_OAUTH_USERS"),
+      SecurityRequirement(name = "ROLE_AUTH_GROUP_MANAGER"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_IMS_USERS"),
+    ],
   )
   @StandardApiResponses
   fun getAssignableRoles(
