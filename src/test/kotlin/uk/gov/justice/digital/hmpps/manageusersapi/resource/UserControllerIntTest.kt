@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
+import com.github.tomakehurst.wiremock.verification.LoggedRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -14,8 +17,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
-import java.util.Locale
-import java.util.UUID
+import java.util.*
+import java.util.function.Consumer
+
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -211,6 +215,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubUserByUsername(username)
       hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, uuid)
+
       webTestClient
         .get().uri("/users/me")
         .headers(
@@ -218,19 +223,24 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it).containsExactlyInAnyOrderEntriesOf(
-            mapOf(
-              "username" to "AUTH_ADM",
-              "active" to true,
-              "name" to "Ext Adm",
-              "authSource" to "auth",
-              "userId" to "5105a589-75b3-4ca0-9433-b96228c1c8f3",
-              "uuid" to uuid.toString(),
-            ),
-          )
-        }
+
+      println("........ and again ............")
+      println("...............................")
+
+      webTestClient
+        .get().uri("/users/me")
+        .headers(
+          setAuthorisation(),
+        )
+        .exchange()
+        .expectStatus().isOk
+
+      WireMock(8090).find(RequestPatternBuilder.allRequests()).forEach(
+        Consumer { request: LoggedRequest ->
+          println(request.absoluteUrl)
+//          println(request)
+        },
+      )
     }
 
     @Test

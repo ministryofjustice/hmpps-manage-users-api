@@ -29,7 +29,8 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
             .withBody(
               """{
                     "token_type": "bearer",
-                    "access_token": "ABCDE"
+                    "access_token": "ABCDE",
+                    "expires_in": 3600
                 }
               """.trimIndent(),
             ),
