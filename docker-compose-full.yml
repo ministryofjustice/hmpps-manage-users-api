@@ -28,6 +28,7 @@ services:
       - MANAGE_USERS_API_ENDPOINT_URL=http://hmpps-manage-users-api:9091
       - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth-db
       - HOSTNAME=hmpps-auth
+      - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
 
   delius:
     image: ghcr.io/ministryofjustice/hmpps-probation-integration-services/hmpps-auth-and-delius:latest
