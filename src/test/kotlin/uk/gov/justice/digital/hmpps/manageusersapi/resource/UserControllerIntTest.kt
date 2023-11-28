@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
 import java.util.Locale
 import java.util.UUID
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.none
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -236,12 +237,12 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Users Me endpoint returns user data if not user`() {
       val username = "basicuser"
-      stubUserNotFound(username, external = true, nomis = true, delius = true)
+//      stubUserNotFound(username, external = true, nomis = true, delius = true)
 
       webTestClient
         .get().uri("/users/me")
         .headers(
-          setAuthorisation("basicuser"),
+          setAuthorisation("basicuser", authSource = none),
         )
         .exchange()
         .expectStatus().isOk

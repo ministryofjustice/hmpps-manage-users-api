@@ -73,7 +73,7 @@ class UserController(
   )
   @AuthenticatedApiResponses
   fun myDetails(): User {
-    val user = userService.findUserByUsername(authenticationFacade.currentUsername!!)
+    val user = userService.findUserByUsernameWithAuthSource(authenticationFacade.currentUsername!!)
     return user?.let {
       UserDetailsDto.fromDomain(user)
     } ?: UsernameDto(authenticationFacade.currentUsername!!)

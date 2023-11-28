@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.DeliusAp
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.ExternalUsersApiMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.HmppsAuthMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.NomisApiMockServer
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -63,6 +64,7 @@ abstract class IntegrationTestBase {
     user: String = "AUTH_ADM",
     roles: List<String> = listOf(),
     scopes: List<String> = listOf(),
+    authSource: AuthSource = AuthSource.auth
   ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisation(user, roles, scopes)
 
   fun readFile(file: String): String = this.javaClass.getResource(file).readText()
