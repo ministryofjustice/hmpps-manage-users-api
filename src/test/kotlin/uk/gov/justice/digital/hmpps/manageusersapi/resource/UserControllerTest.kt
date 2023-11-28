@@ -61,10 +61,10 @@ class UserControllerTest {
       uuid = UUID.randomUUID(),
     )
     whenever(authenticationFacade.currentUsername).thenReturn("me")
-    whenever(userService.findUserByUsername("me")).thenReturn(userDetails)
+    whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(userDetails)
 
     val user = userController.myDetails()
-    verify(userService).findUserByUsername("me")
+    verify(userService).findUserByUsernameWithAuthSource("me")
     assertThat(user).isEqualTo(UserDetailsDto.fromDomain(userDetails))
   }
 
@@ -72,11 +72,11 @@ class UserControllerTest {
   fun `find my details for basic user`() {
     whenever(authenticationFacade.currentUsername).thenReturn("me")
     val userDetails = UsernameDto("me")
-    whenever(userService.findUserByUsername("me")).thenReturn(null)
+    whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(null)
 
     val user = userController.myDetails()
 
-    verify(userService).findUserByUsername("me")
+    verify(userService).findUserByUsernameWithAuthSource("me")
     assertThat(user).isEqualTo(userDetails)
   }
 
