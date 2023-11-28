@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import java.util.Arrays
 import java.util.stream.Collectors
 
@@ -28,6 +29,12 @@ class AuthenticationFacade {
       }
       return username
     }
+
+  val authSource: AuthSource
+    get() {
+      return AuthSource.valueOf((authentication as AuthAwareAuthenticationToken).token.claims["auth_source"] as String)
+    }
+
   private val userPrincipal: Any?
     get() {
       val auth = authentication

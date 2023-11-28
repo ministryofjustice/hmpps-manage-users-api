@@ -6,7 +6,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthAwareAuthenticationToken
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
@@ -34,25 +33,16 @@ class UserService(
   }
 
   fun findUserByUsernameWithAuthSource(username: String): GenericUser? {
-    val authSource = findAuthSource()
-    val foundUser = when (authSource) {
+    return when (authenticationFacade.authSource) {
       AuthSource.auth -> externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toGenericUser()
       AuthSource.nomis -> prisonApiService.findUserBasicDetailsByUsername(username)?.toGenericUser()
       AuthSource.azuread -> authApiService.findAzureUserByUsername(username)?.toGenericUser()
       AuthSource.delius -> deliusApiService.findUserByUsername(username)?.toGenericUser()
       AuthSource.none -> null
-    }
-
-    foundUser?.apply {
+    }?.apply {
       val authUserId = authApiService.findUserIdByUsernameAndSource(username, authSource)
       this.uuid = authUserId.uuid
     }
-
-    return foundUser
-  }
-
-  private fun findAuthSource(): AuthSource {
-    return AuthSource.valueOf((authenticationFacade.authentication as AuthAwareAuthenticationToken).token.claims["auth_source"] as String)
   }
 
   fun findGroupDetails(username: String): List<UserGroupDto> = externalUsersSearchApiService.findUserByUsernameOrNull(username).let {
