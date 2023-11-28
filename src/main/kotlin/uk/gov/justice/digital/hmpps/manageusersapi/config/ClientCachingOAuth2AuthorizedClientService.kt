@@ -23,10 +23,7 @@ class ClientCachingOAuth2AuthorizedClientService(private val clientRegistrationR
 
   override fun saveAuthorizedClient(authorizedClient: OAuth2AuthorizedClient, principal: Authentication) {
     authorizedClients[
-      OAuth2AuthorizedClientId(
-        authorizedClient.clientRegistration.registrationId,
-        SINGLE_PRINCIPAL,
-      ),
+      OAuth2AuthorizedClientId(authorizedClient.clientRegistration.registrationId, SINGLE_PRINCIPAL),
     ] = authorizedClient
   }
 
