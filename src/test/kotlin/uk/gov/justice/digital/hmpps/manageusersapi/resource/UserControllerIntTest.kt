@@ -207,7 +207,7 @@ class UserControllerIntTest : IntegrationTestBase() {
   @Nested
   inner class MyDetails {
     @Test
-    fun `Users Me endpoint returns user data`() {
+    fun `Users Me endpoint returns user data for external user`() {
       val username = "AUTH_ADM"
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubUserByUsername(username)
@@ -235,10 +235,37 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Users Me endpoint returns user data if not user`() {
-      val username = "basicuser"
-//      stubUserNotFound(username, external = true, nomis = true, delius = true)
+    fun `Users Me endpoint returns user data for nomis user`() {
+      val username = "AUTH_ADM"
+      val uuid = UUID.randomUUID()
+      nomisApiMockServer.stubFindUserBasicDetailsByUsername(username)
+      hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, nomis, uuid)
+      webTestClient
+        .get().uri("/users/me")
+        .headers(
+          setAuthorisation(authSource = nomis),
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "username" to username,
+              "active" to true,
+              "name" to "Nomis Take",
+              "authSource" to "nomis",
+              "userId" to "123456",
+              "staffId" to 123456,
+              "activeCaseLoadId" to "MDI",
+              "uuid" to uuid.toString(),
+            ),
+          )
+        }
+    }
 
+    @Test
+    fun `Users Me endpoint returns user name if no user`() {
       webTestClient
         .get().uri("/users/me")
         .headers(
