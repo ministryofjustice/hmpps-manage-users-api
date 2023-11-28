@@ -7,13 +7,13 @@ import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPublicKey
 import java.time.Duration
 import java.util.Date
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 
 @Component
 class JwtAuthHelper {
@@ -32,14 +32,14 @@ class JwtAuthHelper {
     user: String = "hmpps-manage-users",
     roles: List<String> = listOf(),
     scopes: List<String> = listOf(),
-    authSource: AuthSource = AuthSource.auth
+    authSource: AuthSource = AuthSource.auth,
   ): (HttpHeaders) -> Unit {
     val token = createJwt(
       subject = user,
       scope = scopes,
       expiryTime = Duration.ofHours(1L),
       roles = roles,
-      authSource = authSource
+      authSource = authSource,
     )
     return { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
   }
@@ -50,7 +50,7 @@ class JwtAuthHelper {
     roles: List<String>? = listOf(),
     expiryTime: Duration = Duration.ofHours(1),
     jwtId: String = UUID.randomUUID().toString(),
-    authSource: AuthSource = AuthSource.auth
+    authSource: AuthSource = AuthSource.auth,
   ): String =
     mutableMapOf<String, Any>()
       .also { subject?.let { subject -> it["user_name"] = subject } }

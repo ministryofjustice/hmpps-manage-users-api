@@ -6,15 +6,15 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthAwareAuthenticationToken
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthAwareAuthenticationToken
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 
 @Service
 class UserService(
@@ -35,13 +35,13 @@ class UserService(
 
   fun findUserByUsernameWithAuthSource(username: String): GenericUser? {
     val authSource = findAuthSource()
-    val foundUser =  when(authSource) {
-        AuthSource.auth -> externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toGenericUser()
-        AuthSource.nomis -> prisonApiService.findUserBasicDetailsByUsername(username)?.toGenericUser()
-        AuthSource.azuread -> authApiService.findAzureUserByUsername(username)?.toGenericUser()
-        AuthSource.delius -> deliusApiService.findUserByUsername(username)?.toGenericUser()
-        AuthSource.none -> null
-      }
+    val foundUser = when (authSource) {
+      AuthSource.auth -> externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toGenericUser()
+      AuthSource.nomis -> prisonApiService.findUserBasicDetailsByUsername(username)?.toGenericUser()
+      AuthSource.azuread -> authApiService.findAzureUserByUsername(username)?.toGenericUser()
+      AuthSource.delius -> deliusApiService.findUserByUsername(username)?.toGenericUser()
+      AuthSource.none -> null
+    }
 
     foundUser?.apply {
       val authUserId = authApiService.findUserIdByUsernameAndSource(username, authSource)

@@ -14,9 +14,9 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.delius
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.nomis
+import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.none
 import java.util.Locale
 import java.util.UUID
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.none
 
 class UserControllerIntTest : IntegrationTestBase() {
 
