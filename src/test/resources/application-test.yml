@@ -21,11 +21,6 @@ hmpps-auth:
     client-id: hmpps-manage-users-api
     client-secret: clientsecret
 
-authorization-server:
-  token:
-    endpoint:
-      url: http://localhost:8090/auth/oauth/token
-
 nomis:
   enabled: false
   endpoint:
