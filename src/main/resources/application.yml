@@ -90,7 +90,7 @@ application:
 authorization-server:
   token:
     endpoint:
-      url: http://localhost:9090/auth/oauth/token
+      url: http://localhost:8090/auth/oauth/token
 
 hmpps-auth:
   external:
