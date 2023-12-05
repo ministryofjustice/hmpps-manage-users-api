@@ -69,6 +69,7 @@ generic-service:
   allowlist:
     groups:
       - internal
+      - unilink_staff
 
 generic-prometheus-alerts:
   targetApplication: hmpps-manage-users-api
