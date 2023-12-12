@@ -1,0 +1,97 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPattern": "/delius/user?email=.*",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "userId": 1234567890,
+            "username": "deliususer",
+            "firstName": "Delius",
+            "surname": "User",
+            "email": "delius.user@example.com",
+            "enabled": true,
+            "roles": [
+              "APBT001",
+              "APBT002",
+              "SPGADBT005"
+            ]
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPattern": "/delius/user/deliususer",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "userId": 1234567890,
+          "username": "deliususer",
+          "firstName": "Delius",
+          "surname": "User",
+          "email": "delius.user@example.com",
+          "enabled": true,
+          "roles": [
+            "APBT001",
+            "APBT002",
+            "SPGADBT005"
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPattern": "/delius/authenticate",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{\"username\":\"deliususer\",\"password\":\"deliususer\"}"
+          }
+        ]
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "request": {
+        "urlPattern": "/delius/authenticate",
+        "method": "POST"
+      },
+      "response": {
+        "status": 401
+      }
+    },
+    {
+      "request": {
+        "urlPattern": "/delius/user/deliususer/password",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "request": {
+        "urlPattern": "/delius/health.*",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200
+      }
+    }
+  ]
+}
