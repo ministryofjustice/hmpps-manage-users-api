@@ -16,30 +16,28 @@ services:
     container_name: hmpps-auth
     depends_on:
       - auth-db
-      - delius
+      - wiremock
     ports:
       - '9090:8080'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9090/auth/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/auth/health']
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev,delius,local-postgres
-      - DELIUS_ENDPOINT_URL=http://delius:8080
-      - MANAGE_USERS_API_ENDPOINT_URL=http://hmpps-manage-users-api:9091
+      - DELIUS_ENDPOINT_URL=http://wiremock:8080/delius
+      - MANAGE_USERS_API_ENDPOINT_URL=http://hmpps-manage-users-api:8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth-db
       - HOSTNAME=hmpps-auth
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
 
-  delius:
-    image: ghcr.io/ministryofjustice/hmpps-probation-integration-services/hmpps-auth-and-delius:latest
-    container_name: delius
+  wiremock:
+    image: wiremock/wiremock:3x-alpine
+    command:
+      - --local-response-templating
     ports:
-      - '8091:8080'
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
-    environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
+      - "8091:8080"
+    volumes:
+      - ./wiremock:/home/wiremock
 
   hmpps-external-users-api:
     image: quay.io/hmpps/hmpps-external-users-api:latest
@@ -62,7 +60,7 @@ services:
     container_name: hmpps-manage-users-api
     depends_on:
       - hmpps-external-users-api
-      - delius
+      - wiremock
       - nomis-user-roles-api
     ports:
       - "9091:8080"
@@ -72,9 +70,10 @@ services:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
       - HMPPS-AUTH_ENDPOINT_URL=http://hmpps-auth:8080/auth
+      - AUTHORIZATION_SERVER_TOKEN_ENDPOINT_URL=http://hmpps-auth:8080/auth/oauth/token
       - EXTERNAL-USERS_ENDPOINT_URL=http://hmpps-external-users-api:8080
       - NOMIS_ENDPOINT_URL=http://nomis-user-roles-api:8080
-      - DELIUS_ENDPOINT_URL=http://delius:8080
+      - DELIUS_ENDPOINT_URL=http://wiremock:8080/delius
 
   nomis-user-roles-api:
     image: quay.io/hmpps/nomis-user-roles-api:latest
