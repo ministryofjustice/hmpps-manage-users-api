@@ -29,6 +29,13 @@ will apply ktlint styles to intellij and also add a pre-commit hook to format al
 Architecture decision records start [here](doc/architecture/decisions/0001-use-adr.md)
 
 ### To Run all hmpps-auth related services 
+#### To Remove existing images
 ```
-docker-compose -f docker-compose-full.yml up -d
+docker-compose stop && docker-compose -f docker-compose-full.yml down --rmi all
 ```
+#### To run all services in docker-compose-full.yml
+```
+docker-compose pull &&  docker-compose -f docker-compose-full.yml up -d
+```
+
+#### Delius is configured as a mock service and responses are at 'wiremock/mappings/delius.json'

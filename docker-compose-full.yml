@@ -23,15 +23,16 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:8080/auth/health']
     environment:
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev,delius,local-postgres
+      - SPRING_PROFILES_ACTIVE=dev,delius,local-postgres,manage-users-api,nomis
       - DELIUS_ENDPOINT_URL=http://wiremock:8080/delius
       - MANAGE_USERS_API_ENDPOINT_URL=http://hmpps-manage-users-api:8080
+      - NOMIS_ENDPOINT_URL=http://nomis-user-roles-api:8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth-db
       - HOSTNAME=hmpps-auth
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
 
   wiremock:
-    image: wiremock/wiremock:3x-alpine
+    image: wiremock/wiremock:latest
     command:
       - --local-response-templating
     ports:
@@ -59,6 +60,7 @@ services:
     image: quay.io/hmpps/hmpps-manage-users-api:latest
     container_name: hmpps-manage-users-api
     depends_on:
+      - hmpps-auth
       - hmpps-external-users-api
       - wiremock
       - nomis-user-roles-api
@@ -74,14 +76,18 @@ services:
       - EXTERNAL-USERS_ENDPOINT_URL=http://hmpps-external-users-api:8080
       - NOMIS_ENDPOINT_URL=http://nomis-user-roles-api:8080
       - DELIUS_ENDPOINT_URL=http://wiremock:8080/delius
+      - AUTHORIZATION-SERVER_TOKEN_ENDPOINT_URL=http://hmpps-auth:8080/auth/oauth/token
+      - LOGGING_LEVEL_ROOT=INFO
 
   nomis-user-roles-api:
     image: quay.io/hmpps/nomis-user-roles-api:latest
     container_name: nomis-user-roles-api
     ports:
-      - "8081:8080"
+      - "8082:8080"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
+      - API_BASE_URL_OAUTH=http://hmpps-auth:8080/auth
+      - LOGGING_LEVEL_ROOT=INFO
