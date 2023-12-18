@@ -58,21 +58,12 @@
         "method": "POST",
         "bodyPatterns": [
           {
-            "equalToJson": "{\"username\":\"deliususer\",\"password\":\"deliususer\"}"
+            "equalToJson": "{\"username\":\"DELIUSUSER\",\"password\":\"deliususer\"}"
           }
         ]
       },
       "response": {
         "status": 200
-      }
-    },
-    {
-      "request": {
-        "urlPattern": "/delius/authenticate",
-        "method": "POST"
-      },
-      "response": {
-        "status": 401
       }
     },
     {
