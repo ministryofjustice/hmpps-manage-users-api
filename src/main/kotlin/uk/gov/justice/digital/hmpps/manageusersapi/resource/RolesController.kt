@@ -66,11 +66,11 @@ class RolesController(
     rolesService.createRole(createRole)
   }
 
-  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")
   @Operation(
     summary = "Get role details",
     description = "Get role details, role required is ROLE_ROLES_ADMIN",
-    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_VIEW_ADMINISTRABLE_USER_ROLES")],
   )
   @StandardApiResponses
   @GetMapping("/roles/{role}")
@@ -80,11 +80,11 @@ class RolesController(
     role: String,
   ): RoleDto = RoleDto.fromDomain(rolesService.getRoleDetail(role))
 
-  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")
   @Operation(
     summary = "Get all roles",
     description = "Get all roles, role required is ROLE_ROLES_ADMIN (to find external roles), ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
-    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES")],
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "ROLE_VIEW_ADMINISTRABLE_USER_ROLES")],
   )
   @StandardApiResponses
   @GetMapping("/roles")
@@ -92,11 +92,11 @@ class RolesController(
     @RequestParam(value = "adminTypes", required = false) adminTypes: List<AdminType>?,
   ): List<RoleDto> = rolesService.getRoles(adminTypes).map { RoleDto.fromDomain(it) }
 
-  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")
   @Operation(
     summary = "Get all paged roles",
     description = "Get all paged roles, role required is ROLE_ROLES_ADMIN",
-    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN")],
+    security = [SecurityRequirement(name = "ROLE_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_VIEW_ADMINISTRABLE_USER_ROLES")],
   )
   @StandardApiResponses
   @GetMapping("/roles/paged")
