@@ -70,14 +70,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
     environment:
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
-      - HMPPS-AUTH_ENDPOINT_URL=http://hmpps-auth:8080/auth
-      - AUTHORIZATION_SERVER_TOKEN_ENDPOINT_URL=http://hmpps-auth:8080/auth/oauth/token
-      - EXTERNAL-USERS_ENDPOINT_URL=http://hmpps-external-users-api:8080
-      - NOMIS_ENDPOINT_URL=http://nomis-user-roles-api:8080
-      - DELIUS_ENDPOINT_URL=http://wiremock:8080/delius
-      - AUTHORIZATION-SERVER_TOKEN_ENDPOINT_URL=http://hmpps-auth:8080/auth/oauth/token
-      - LOGGING_LEVEL_ROOT=INFO
+      - SPRING_PROFILES_ACTIVE=dev,local-docker
 
   nomis-user-roles-api:
     image: quay.io/hmpps/nomis-user-roles-api:latest

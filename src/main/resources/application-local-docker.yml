@@ -1,0 +1,52 @@
+
+authorization-server:
+  token:
+    endpoint:
+      url: http://hmpps-auth:8080/auth/oauth/token
+
+hmpps-auth:
+  external:
+    endpoint:
+      url: http://hmpps-auth:8080/auth
+  endpoint:
+    url: http://hmpps-auth:8080/auth
+  enabled: true
+  client:
+    client-id: hmpps-manage-users-api
+    client-secret: clientsecret
+
+nomis:
+  endpoint:
+    url: http://nomis-user-roles-api:8080
+    timeout: 1s
+  client:
+    client-id: manage-users-api-nomis-client
+    client-secret: clientsecret
+
+external-users:
+  endpoint:
+    url: http://hmpps-external-users-api:8080
+    timeout: 1s
+  client:
+    client-id: manage-users-api-ext-users-client
+    client-secret: clientsecret
+
+delius:
+  endpoint:
+    url: http://wiremock:8080/delius
+    timeout: 1s
+  client:
+    client-id: manage-users-api-delius-client
+    client-secret: clientsecret
+  roles:
+    mappings:
+      TEST_ROLE:
+        - 'ROLE_LICENCE_RO'
+        - 'ROLE_GLOBAL_SEARCH'
+      TEST_WORKLOAD_MEASUREMENT_ROLE:
+        - 'ROLE_WORKLOAD_MEASUREMENT'
+      TEST_MANAGE_A_WORKFORCE_ALLOCATE_ROLE:
+        - 'ROLE_MANAGE_A_WORKFORCE_ALLOCATE'
+logging:
+  level:
+    root: INFO
