@@ -1,0 +1,32 @@
+
+authorization-server:
+  token:
+    endpoint:
+      url: http://hmpps-auth:8080/auth/oauth/token
+
+hmpps-auth:
+  external:
+    endpoint:
+      url: http://hmpps-auth:8080/auth
+  endpoint:
+    url: http://hmpps-auth:8080/auth
+  enabled: true
+
+
+nomis:
+  endpoint:
+    url: http://nomis-user-roles-api:8080
+
+
+external-users:
+  endpoint:
+    url: http://hmpps-external-users-api:8080
+
+
+delius:
+  endpoint:
+    url: http://wiremock:8080/delius
+
+logging:
+  level:
+    root: INFO
