@@ -4,7 +4,7 @@
 [![Docker Repository on Quay](https://quay.io/repository/hmpps/hmpps-manage-users-api/status "Docker Repository on Quay")](https://quay.io/repository/hmpps/hmpps-manage-users-api)
 [![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://manage-users-api.hmpps.service.justice.gov.uk/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config)
 
-A Spring Boot JSON API to manage the users. Backend services for https://github.com/ministryofjustice/manage-hmpps-auth-accounts
+A Spring Boot JSON API to manage the users. Backend services for https://github.com/ministryofjustice/hmpps-manage-users
 
 ### Building
 
