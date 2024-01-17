@@ -34,9 +34,12 @@ data class PrisonRole(
 )
 
 enum class PrisonRoleType {
-  APP, INST, COMM
+  APP,
+  INST,
+  COMM,
 }
 
 enum class PrisonUsageType {
-  GENERAL, ADMIN
+  GENERAL,
+  ADMIN,
 }
