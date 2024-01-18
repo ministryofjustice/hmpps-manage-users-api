@@ -26,5 +26,7 @@ class UserSearchService(
 }
 
 enum class Status {
-  ACTIVE, INACTIVE, ALL
+  ACTIVE,
+  INACTIVE,
+  ALL,
 }

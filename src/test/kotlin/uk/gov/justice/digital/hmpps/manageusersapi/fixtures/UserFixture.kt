@@ -46,7 +46,6 @@ class UserFixture {
       email: String = "nomis.usergen@digital.justice.gov.uk",
       enabled: Boolean = true,
       roles: List<String> = listOf("ROLE1", "ROLE2", "ROLE3"),
-
     ) = PrisonUser(
       username = username,
       firstName = firstName,
@@ -67,7 +66,6 @@ class UserFixture {
       email: String = "nomis.usergen@digital.justice.gov.uk",
       enabled: Boolean = true,
       accountStatus: String = "OPEN",
-
     ) = PrisonUserBasicDetails(
       username = username,
       firstName = firstName,

@@ -117,11 +117,14 @@ data class RoleDetail(
 }
 
 enum class RoleType {
-  APP, INST, COMM
+  APP,
+  INST,
+  COMM,
 }
 
 enum class UsageType {
-  GENERAL, ADMIN;
+  GENERAL,
+  ADMIN,
 }
 
 data class PrisonCaseload(
