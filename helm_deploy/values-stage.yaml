@@ -1,0 +1,33 @@
+# Per environment values which override defaults in hmpps-manage-users-api/values.yaml
+
+generic-service:
+  replicaCount: 2
+
+  ingress:
+    host: manage-users-api-stage.hmpps.service.justice.gov.uk
+
+  env:
+    SPRING_PROFILES_ACTIVE: "logstash,external-users"
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+    HMPPS_AUTH_ENDPOINT_URL: https://sign-in-stage.hmpps.service.justice.gov.uk/auth
+    AUTHORIZATION_SERVER_TOKEN_ENDPOINT_URL: http://hmpps-authorization-server-stage.hmpps.service.justice.gov.uk
+    HMPPS_AUTH_EXTERNAL_ENDPOINT_URL: https://sign-in-stage.hmpps.service.justice.gov.uk/auth
+    NOMIS_ENDPOINT_URL:
+    EXTERNAL_USERS_ENDPOINT_URL: https://external-users-api-stage.hmpps.service.justice.gov.uk
+    DELIUS_ENDPOINT_URL:
+    BANNER_ROLES:
+    BANNER_EMPTY:
+    BANNER_DPSMENU:
+
+
+  allowlist:
+    hpa-iis-stage-1: 51.141.36.127/32
+    hpa-iis-stage-2: 51.141.34.169/32
+    hpa-iis-stage-3: 51.141.33.76/32
+    hpa-iis-stage-4: 51.141.38.101/32
+    hpa-iis-stage-5: 51.140.210.98/32
+
+# CloudPlatform AlertManager receiver to route promethues alerts to slack
+# See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
+generic-prometheus-alerts:
+  alertSeverity: hmpps_tech_non_prod
