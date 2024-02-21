@@ -791,4 +791,65 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isUnauthorized
     }
   }
+
+  @Nested
+  inner class MyCaseloads {
+
+    private val userId: UUID = UUID.fromString("5E3850B9-9D6E-49D7-B8E7-42874D6CEEA8")
+
+    @Test
+    fun `get caseloads when no authority`() {
+      webTestClient.get().uri("/users/me/caseloads")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Caseload endpoint returns empty result if user found`() {
+      val username = "basicuser"
+      stubUserNotFound(username, external = true, nomis = true, delius = true)
+      webTestClient
+        .get().uri("/users/me/caseloads")
+        .headers(
+          setAuthorisation("basicuser"),
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").isEmpty
+    }
+
+    @Test
+    fun ` get user caseloads`() {
+      val username = "AUTH_ADM"
+      externalUsersApiMockServer.stubUserByUsername(username, userId)
+      nomisApiMockServer.stubFindUserCaseloads(username)
+
+      webTestClient
+        .get().uri("/users/me/caseloads")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+            {
+               "username": "$username",
+               "active": true,
+               "accountType": "GENERAL",
+               "activeCaseload": {
+                 "id": "WWI",
+                 "name": "WANDSWORTH (HMP)"
+               },
+               "caseloads": [
+                 {
+                   "id": "WWI",
+                   "name": "WANDSWORTH (HMP)"
+                 }
+               ]
+             }
+          """.trimIndent(), true,
+        )
+    }
+  }
 }

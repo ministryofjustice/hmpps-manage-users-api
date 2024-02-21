@@ -8,11 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorDetail
@@ -20,6 +22,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
@@ -195,6 +198,18 @@ class UserController(
   )
   @AuthenticatedApiResponses
   fun findMappedDeliusRoles() = userService.getAllDeliusRoles()
+
+  @GetMapping("/users/me/caseloads")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Get list of caseloads associated with the current user",
+    description = "Caseloads for the current user",
+  )
+  fun getMyCaseloads(): UserCaseloadDetail {
+    authenticationFacade.currentUsername?.run {
+      return userService.getCaseloads(this)
+    } ?: throw NotFoundException("No user in context")
+  }
 }
 
 @Schema(description = "User Role")
