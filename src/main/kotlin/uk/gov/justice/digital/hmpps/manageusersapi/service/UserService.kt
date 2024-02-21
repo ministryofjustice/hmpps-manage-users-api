@@ -6,10 +6,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
@@ -24,6 +26,7 @@ class UserService(
   private val authenticationFacade: AuthenticationFacade,
   private val externalRolesApiService: UserRolesApiService,
   private val userGroupsService: UserGroupService,
+  private val nomisRolesApiService: RolesApiService,
 ) {
   fun findUserByUsername(username: String): GenericUser? {
     return findMasterUserBasicDetails(username)?.toGenericUser()?.apply {
@@ -97,6 +100,10 @@ class UserService(
   fun myRoles() =
     authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
       .map { ExternalUserRole(it!!.authority.substring(5)) }
+
+  fun getCaseloads(): UserCaseloadDetail {
+    return nomisRolesApiService.getCaseloads()
+  }
 }
 
 @Schema(description = "User Role")

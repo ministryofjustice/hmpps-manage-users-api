@@ -689,6 +689,34 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubFindUserCaseloads(username: String) {
+    stubFor(
+      get("/me/caseloads")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """  {
+                     "username": "$username",
+                     "active": true,
+                     "accountType": "GENERAL",
+                     "activeCaseload": {
+                       "id": "WWI",
+                       "name": "WANDSWORTH (HMP)"
+                     },
+                     "caseloads": [
+                       {
+                         "id": "WWI",
+                         "name": "WANDSWORTH (HMP)"
+                       }
+                     ]
+                   }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubFindUsersByFirstAndLastName(firstName: String, lastName: String) {
     stubFor(
       get("/users/staff?firstName=$firstName&lastName=$lastName")
