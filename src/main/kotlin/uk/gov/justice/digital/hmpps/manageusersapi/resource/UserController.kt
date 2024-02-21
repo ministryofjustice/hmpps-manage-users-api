@@ -207,7 +207,7 @@ class UserController(
   )
   fun getMyCaseloads(): UserCaseloadDetail {
     authenticationFacade.currentUsername?.run {
-      return userService.getCaseloads(this)
+      return userService.getCaseloads()
     } ?: throw NotFoundException("No user in context")
   }
 }
