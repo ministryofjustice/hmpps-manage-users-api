@@ -848,7 +848,8 @@ class UserControllerIntTest : IntegrationTestBase() {
                  }
                ]
              }
-          """.trimIndent(), true,
+          """.trimIndent(),
+          true,
         )
     }
   }
