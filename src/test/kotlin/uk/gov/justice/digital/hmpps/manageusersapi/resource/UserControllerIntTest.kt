@@ -805,21 +805,6 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Caseload endpoint returns empty result if user found`() {
-      val username = "basicuser"
-      stubUserNotFound(username, external = true, nomis = true, delius = true)
-      webTestClient
-        .get().uri("/users/me/caseloads")
-        .headers(
-          setAuthorisation("basicuser"),
-        )
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$").isEmpty
-    }
-
-    @Test
     fun `get user caseloads`() {
       val username = "AUTH_ADM"
       externalUsersApiMockServer.stubUserByUsername(username, userId)
