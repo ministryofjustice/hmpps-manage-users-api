@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
@@ -56,6 +57,9 @@ class RolesApiService(
 
   fun getUserRoles(username: String) =
     userWebClientUtils.get("/users/{username}/roles", PrisonUserRole::class.java, username)
+
+  fun getCaseloads() =
+    userWebClientUtils.get("/me/caseloads", UserCaseloadDetail::class.java)
 
   private fun String.nomisRoleName(): String = take(30)
 
