@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
@@ -26,9 +27,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DeliusUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as PrisonUserApiService
@@ -43,6 +47,7 @@ class UserServiceTest {
   private val authentication: Authentication = mock()
   private val externalRolesApiService: UserRolesApiService = mock()
   private val userGroupsService: UserGroupService = mock()
+  private val nomisRolesApiService: RolesApiService = mock()
 
   private val userService = UserService(
     authApiService,
@@ -52,6 +57,7 @@ class UserServiceTest {
     authenticationFacade,
     externalRolesApiService,
     userGroupsService,
+    nomisRolesApiService,
   )
 
   @Nested
@@ -325,6 +331,16 @@ class UserServiceTest {
       assertThat(myLocations).isEmpty()
     }
   }
+
+  @Nested
+  inner class MyCaseloads {
+    @Test
+    fun myCaseloads() {
+      whenever(nomisRolesApiService.getCaseloads()).thenReturn(createdUserCaseloadDetail())
+      assertThat(userService.getCaseloads()).isEqualTo(createdUserCaseloadDetail())
+    }
+  }
+
   fun createAzureUser() =
     AzureUser(
       username = "2E285CED-DCFD-4497-9E22-89E8E10A2A6A",
@@ -380,4 +396,12 @@ class UserServiceTest {
   )
 
   fun createAuthUserId(uuid: UUID = UUID.randomUUID()) = AuthUser(uuid = uuid)
+
+  fun createdUserCaseloadDetail() = UserCaseloadDetail(
+    username = "the username",
+    active = true,
+    accountType = UsageType.GENERAL,
+    activeCaseload = PrisonCaseload(id = "WWI", name = "WANDSWORTH (HMP)"),
+    caseloads = listOf(PrisonCaseload(id = "WWI", name = "WANDSWORTH (HMP)")),
+  )
 }
