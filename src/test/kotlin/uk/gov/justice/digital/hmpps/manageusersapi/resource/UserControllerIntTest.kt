@@ -806,7 +806,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `get user caseloads`() {
-      val username = "AUTH_ADM"
+      val username = "NUSER_GEN"
       externalUsersApiMockServer.stubUserByUsername(username, userId)
       nomisApiMockServer.stubFindUserCaseloads(username)
 
