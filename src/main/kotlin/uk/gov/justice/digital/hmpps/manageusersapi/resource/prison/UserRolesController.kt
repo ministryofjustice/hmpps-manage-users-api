@@ -19,7 +19,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as PrisonCaseloadDomain
 
 @RestController("PrisonUserRolesController")
 @Validated
@@ -125,18 +124,6 @@ enum class RoleType {
 enum class UsageType {
   GENERAL,
   ADMIN,
-}
-
-data class PrisonCaseload(
-  @Schema(description = "identify for caseload", example = "WWI")
-  val id: String,
-  @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)")
-  val name: String,
-) {
-  companion object {
-    fun fromDomain(pcd: PrisonCaseloadDomain) =
-      PrisonCaseload(pcd.id, pcd.name)
-  }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
