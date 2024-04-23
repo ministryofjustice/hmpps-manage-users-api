@@ -39,6 +39,20 @@ class UserService(
     } ?: throw EntityNotFoundException("Prison username $username not found")
   }
 
+  fun enableUser(username: String) {
+    val prisonUser = prisonUserApiService.findUserByUsername(username)
+    prisonUser?.let {
+      prisonUserApiService.enableUserByUserId(username)
+    } ?: throw EntityNotFoundException("Prison username $username not found")
+  }
+
+  fun disableUser(username: String) {
+    val prisonUser = prisonUserApiService.findUserByUsername(username)
+    prisonUser?.let {
+      prisonUserApiService.disableUserByUserId(username)
+    } ?: throw EntityNotFoundException("Prison username $username not found")
+  }
+
   @Throws(HmppsValidationException::class)
   fun createUser(user: CreateUserRequest): PrisonUser {
     if (!verifyEmailDomainService.isValidEmailDomain(user.email.substringAfter('@'))) {

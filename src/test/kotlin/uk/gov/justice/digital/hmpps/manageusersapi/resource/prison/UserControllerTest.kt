@@ -151,4 +151,30 @@ class UserControllerTest {
         )
     }
   }
+
+  @Nested
+  inner class EnableUser {
+    @Test
+    fun `enable user service is called`() {
+      whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(createPrisonUserDetails())
+      doNothing().whenever(userService).enableUser("NUSER_GEN")
+
+      userController.enableUser("NUSER_GEN")
+
+      verify(userService).enableUser("NUSER_GEN")
+    }
+  }
+
+  @Nested
+  inner class DisableUser {
+    @Test
+    fun `enable user service is called`() {
+      whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(createPrisonUserDetails())
+      doNothing().whenever(userService).disableUser("NUSER_GEN")
+
+      userController.disableUser("NUSER_GEN")
+
+      verify(userService).disableUser("NUSER_GEN")
+    }
+  }
 }

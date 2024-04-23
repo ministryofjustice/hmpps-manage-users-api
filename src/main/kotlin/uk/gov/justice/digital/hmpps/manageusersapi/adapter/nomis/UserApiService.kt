@@ -138,6 +138,16 @@ class UserApiService(
     PrisonStaffUser::class.java,
     generalUser.existingAdminUsername,
   )
+
+  fun enableUserByUserId(username: String) = userWebClientUtils.put(
+    "/users/{username}/unlock-user",
+    username,
+  )
+
+  fun disableUserByUserId(username: String) = userWebClientUtils.put(
+    "/users/{username}/lock-user",
+    username,
+  )
 }
 
 class PrisonUserList : MutableList<PrisonUserSummary> by ArrayList()
