@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 
 @Service(value = "nomisRolesApiService")
 class RolesApiService(
@@ -60,6 +61,10 @@ class RolesApiService(
 
   fun getCaseloads() =
     userWebClientUtils.get("/me/caseloads", UserCaseloadDetail::class.java)
+
+  fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null) = userWebClientUtils.postWithResponse(
+    "/users/{username}/roles?caseloadId={caseloadId}", roles, UserRoleDetail::class.java, username, caseloadId,
+  )
 
   private fun String.nomisRoleName(): String = take(30)
 

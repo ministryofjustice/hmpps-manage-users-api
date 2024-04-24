@@ -2,18 +2,19 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.model.DPS_CASELOAD
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
@@ -44,6 +45,73 @@ class UserRolesController(
   ): UserRoleDetail {
     return UserRoleDetail.fromDomain(userRolesService.getUserRoles(username))
   }
+
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @PostMapping("/{username}/roles")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+    summary = "Add a role to the specified user account, all roles will be added to DPS caseload unless specified",
+    description = "Adds a role to a user, user must have caseload (if specified). Default caseload is DPS caseload (NWEB).  Cannot add an existing role to the same user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
+    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
+    responses = [
+      ApiResponse(
+        responseCode = "201",
+        description = "User information with role details",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to add a role to a user account",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to add a role to this account",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun addRoles(
+    @Schema(
+      description = "Username of the account to add roles",
+      example = "TEST_USER2",
+      required = true,
+    )
+    @PathVariable
+    @Size(max = 30, min = 1, message = "Username must be between 1 and 30 characters")
+    username: String,
+    @Schema(description = "Caseload Id", example = "NWEB", required = false, defaultValue = "NWEB")
+    @RequestParam(required = false, defaultValue = "NWEB")
+    @Size(
+      max = 6,
+      min = 3,
+      message = "Caseload must be between 3-6 characters",
+    )
+    caseloadId: String = DPS_CASELOAD,
+    @Schema(description = "Role Codes", required = true)
+    @RequestBody
+    @Valid
+    roleCodes: List<String>,
+  ): UserRoleDetail = userRolesService.addRolesToUser(username, roleCodes, caseloadId)
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
