@@ -7,6 +7,11 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CaseloadRoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload as PrisonCaseloadResource
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.RoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -75,6 +80,28 @@ class UserFixture {
       email = email,
       enabled = enabled,
       accountStatus = accountStatus,
+    )
+
+
+    fun createPrisonUserRoleDetails(
+      username: String = "NUSER_GEN",
+      active: Boolean = true,
+      accountType: UsageType = UsageType.GENERAL,
+    ) = UserRoleDetail (
+      username = username,
+      active = active,
+      accountType = accountType,
+      activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+      dpsRoles = listOf(),
+      nomisRoles = listOf(
+        CaseloadRoleDetail(
+          uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+          listOf(
+            RoleDetail("ROLE1", "Role 1"),
+            RoleDetail("ROLE2", "Role 2"),
+          ),
+        ),
+      ),
     )
 
     fun createPrisonStaffUser(

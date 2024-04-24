@@ -451,4 +451,58 @@ class UserServiceTest {
       )
     }
   }
+
+  @Nested
+  inner class EnablePrisonUser {
+    @Test
+    fun `updates prison user on success`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+
+      doNothing().whenever(prisonUserApiService).enableUserByUserId(prisonuser.username)
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(prisonuser)
+
+      prisonUserService.enableUser(prisonuser.username)
+
+      // verify prisonUserApiService.enableUserByUserId is called
+      verify(prisonUserApiService).enableUserByUserId(prisonuser.username)
+    }
+
+    @Test
+    fun `throws error if prison user doesn't exist`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(null)
+
+      // verify that the exception is thrown
+      assertThatThrownBy { prisonUserService.enableUser(prisonuser.username) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prison username ${prisonuser.username} not found")
+    }
+  }
+
+  @Nested
+  inner class DisablePrisonUser {
+    @Test
+    fun `updates prison user on success`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+
+      doNothing().whenever(prisonUserApiService).disableUserByUserId(prisonuser.username)
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(prisonuser)
+
+      prisonUserService.disableUser(prisonuser.username)
+
+      // verify prisonUserApiService.enableUserByUserId is called
+      verify(prisonUserApiService).disableUserByUserId(prisonuser.username)
+    }
+
+    @Test
+    fun `throws error if prison user doesn't exist`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(null)
+
+      // verify that the exception is thrown
+      assertThatThrownBy { prisonUserService.disableUser(prisonuser.username) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prison username ${prisonuser.username} not found")
+    }
+  }
 }

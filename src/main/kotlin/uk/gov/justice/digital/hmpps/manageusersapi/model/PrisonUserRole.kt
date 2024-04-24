@@ -2,6 +2,9 @@ package uk.gov.justice.digital.hmpps.manageusersapi.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
 
+const val DPS_CASELOAD = "NWEB"
+const val CENTRAL_ADMIN_CASELOAD = "CADM_I"
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PrisonUserRole(
   val username: String,

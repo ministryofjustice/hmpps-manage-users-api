@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.RolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
@@ -13,6 +13,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRoleType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Role
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CaseloadRoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.RoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService as PrisonRolesApiService
 
 class UserRolesServiceTest {
@@ -98,6 +102,22 @@ class UserRolesServiceTest {
     assertThat(userRoles.dpsRoles[1].name).isEqualTo("Maintain access roles that has more than 30 characters in the role name")
   }
 
+  @Nested
+  inner class CreatePrisonUserRoles {
+    @Test
+    fun `calls addRolesToUser api`() {
+      val prisonUserRoleDetail = createPrisonUserRoleDetails()
+      whenever(prisonRolesApiService.addRolesToUser(any(), any(), any())).thenReturn(prisonUserRoleDetail)
+
+      val details = userRolesService.addRolesToUser(prisonUserRoleDetail.username, listOf("ROLE_3", "ROLE_4"), "NWEB")
+
+      verify(prisonRolesApiService).addRolesToUser(prisonUserRoleDetail.username, listOf("ROLE_3", "ROLE_4"), "NWEB")
+      assertThat(details).isEqualTo(prisonUserRoleDetail)
+    }
+  }
+    }
+  }
+
   private fun createUserRoleDetails() =
     PrisonUserRole(
       username = "bob",
@@ -121,4 +141,25 @@ class UserRolesServiceTest {
       ),
       nomisRoles = listOf(),
     )
+
+  private fun createPrisonUserRoleDetails(
+    username: String = "NUSER_GEN",
+    active: Boolean = true,
+    accountType: UsageType = UsageType.GENERAL,
+  ) = UserRoleDetail (
+    username = username,
+    active = active,
+    accountType = accountType,
+    activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+    dpsRoles = listOf(),
+    nomisRoles = listOf(
+      CaseloadRoleDetail(
+        uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+        listOf(
+          RoleDetail("ROLE1", "Role 1"),
+          RoleDetail("ROLE2", "Role 2"),
+        ),
+      ),
+    ),
+  )
 }
