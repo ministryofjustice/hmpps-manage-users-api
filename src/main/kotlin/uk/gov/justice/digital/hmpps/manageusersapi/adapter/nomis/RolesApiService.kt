@@ -66,6 +66,11 @@ class RolesApiService(
     "/users/{username}/roles?caseloadId={caseloadId}", roles, UserRoleDetail::class.java, username, caseloadId,
   )
 
+  fun removeRoleFromUser(username: String, role: String, caseloadId: String? = null):UserRoleDetail =
+    userWebClientUtils.deleteWithResponse(
+      "/users/{username}/roles/{role}?caseloadId={caseloadId}", UserRoleDetail::class.java, username, role, caseloadId,
+    )
+
   private fun String.nomisRoleName(): String = take(30)
 
   private fun Set<AdminType>.adminRoleOnly(): Boolean = (AdminType.DPS_LSA !in this)

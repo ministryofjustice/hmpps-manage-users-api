@@ -30,4 +30,7 @@ class UserRolesService(
   fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null): UserRoleDetail {
     return prisonRolesApiService.addRolesToUser(username, roles, caseloadId)
   }
+  fun removeRoleFromUser(username: String, role: String, caseloadId: String? = null): UserRoleDetail {
+    return prisonRolesApiService.removeRoleFromUser(username, role, caseloadId)
+  }
 }

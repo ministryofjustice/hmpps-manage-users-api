@@ -112,6 +112,73 @@ class UserRolesController(
     @Valid
     roleCodes: List<String>,
   ): UserRoleDetail = userRolesService.addRolesToUser(username, roleCodes, caseloadId)
+
+
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @DeleteMapping("/{username}/roles/{roleCode}")
+  @Operation(
+    summary = "Remove a role from a user",
+    description = "The user must already have the role to be removed. Default role caseload is a DPS role unless specified. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
+    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "User information with role details",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to remove a role from a user account",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to remove a role this user account",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun removeRoleFromUser(
+    @Schema(
+      description = "Username of the account to remove role",
+      example = "TEST_USER2",
+      required = true,
+    )
+    @PathVariable
+    @Size(max = 30, min = 1, message = "Username must be between 1 and 30")
+    username: String,
+    @Schema(description = "Role Code", example = "GLOBAL_SEARCH", required = true)
+    @PathVariable
+    @Size(max = 30, min = 1, message = "Role code must be between 1 and 30")
+    roleCode: String,
+    @Schema(description = "Caseload Id", example = "NWEB", required = false, defaultValue = "NWEB")
+    @RequestParam(required = false, defaultValue = "NWEB")
+    @Size(
+      max = 6,
+      min = 3,
+      message = "Caseload must be between 3-6 characters",
+    )
+    caseloadId: String = DPS_CASELOAD,
+  ): UserRoleDetail = userRolesService.removeRoleFromUser(username, roleCode, caseloadId)
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

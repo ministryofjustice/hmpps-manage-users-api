@@ -115,6 +115,18 @@ class UserRolesServiceTest {
       assertThat(details).isEqualTo(prisonUserRoleDetail)
     }
   }
+
+  @Nested
+  inner class RemovePrisonUserRole {
+    @Test
+    fun `calls removeRoleFromUser api`() {
+      val prisonUserRoleDetail = createPrisonUserRoleDetails()
+      whenever(prisonRolesApiService.removeRoleFromUser(any(), any(), any())).thenReturn(prisonUserRoleDetail)
+
+      val details = userRolesService.removeRoleFromUser(prisonUserRoleDetail.username, "role 1", "NWEB")
+
+      verify(prisonRolesApiService).removeRoleFromUser(prisonUserRoleDetail.username, "role 1", "NWEB")
+      assertThat(details).isEqualTo(prisonUserRoleDetail)
     }
   }
 

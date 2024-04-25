@@ -41,6 +41,17 @@ class UserRolesControllerTest {
     assertThat(userRoles).isEqualTo(details)
   }
 
+  @Test
+  fun `remove user roles`() {
+    val details = createPrisonUserRoleDetails()
+    whenever(userRolesService.removeRoleFromUser(any(), any(), any())).thenReturn(details)
+
+    val userRoles = userRolesController.removeRoleFromUser("SOME_USER","role_1", "NWEB")
+
+    verify(userRolesService).removeRoleFromUser("SOME_USER", "role_1", "NWEB")
+    assertThat(userRoles).isEqualTo(details)
+  }
+
   private fun verifyContentMatches(actualUserRoles: UserRoleDetail) {
     val expectedRoles = createPrisonUserRole()
     with(expectedRoles) {
