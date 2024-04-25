@@ -1,12 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.fixtures
 
-import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
-import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.*
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CaseloadRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload as PrisonCaseloadResource
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.RoleDetail
@@ -87,11 +81,14 @@ class UserFixture {
       username: String = "NUSER_GEN",
       active: Boolean = true,
       accountType: UsageType = UsageType.GENERAL,
-    ) = UserRoleDetail (
+    ) = UserRoleDetail(
       username = username,
       active = active,
       accountType = accountType,
-      activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+      activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload(
+        "MDI",
+        "Moorland (HMP)",
+      ),
       dpsRoles = listOf(),
       nomisRoles = listOf(
         CaseloadRoleDetail(
@@ -147,5 +144,27 @@ class UserFixture {
         adminAccount,
       )
     }
+
+    fun createPrisonUserCaseloadDetails(
+      username: String = "NUSER_GEN",
+      active: Boolean = true,
+      accountType: UsageType = UsageType.GENERAL,
+    ) = UserCaseloadDetail(
+      username = username,
+      active = active,
+      accountType = accountType,
+      activeCaseload = PrisonCaseload(id = "NWEB", name = "National Web"),
+      caseloads = listOf(
+        PrisonCaseload(
+          id = "NWEB",
+          name = "National Web",
+        ),
+        PrisonCaseload(
+          id = "LEI",
+          name = "Leeds",
+        ),
+      ),
+    )
   }
+
 }

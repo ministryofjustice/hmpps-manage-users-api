@@ -5,12 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.CreateRoleDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleAdminTypeAmendmentDto
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.RoleNameAmendmentDto
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 
 @Service(value = "nomisCaseloadsApiService")
 class CaseloadsApiService(
@@ -20,6 +16,15 @@ class CaseloadsApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getUserCaseloads(username:String) =
+  fun getUserCaseloads(username: String) =
     userWebClientUtils.get("/users/{username}/caseloads", UserCaseloadDetail::class.java, username)
+
+  fun addUserCaseloads(username: String, caseloads: List<String>): UserCaseloadDetail = userWebClientUtils.postWithResponse(
+    "/users/{username}/caseloads", caseloads, UserCaseloadDetail::class.java, username,
+  )
+
+  fun removeCaseloadFromUser(username: String, caseloadId: String):UserCaseloadDetail =
+    userWebClientUtils.deleteWithResponse(
+      "/users/{username}/caseloads/{caseloadId}", UserCaseloadDetail::class.java, username, caseloadId,
+    )
 }
