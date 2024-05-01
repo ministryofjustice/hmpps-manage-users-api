@@ -88,7 +88,11 @@ class UserApiService(
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    return serviceWebClientUtils.getIgnoreError("/users/basic/{username}", PrisonUserBasicDetails::class.java, username.uppercase())
+    return serviceWebClientUtils.getIgnoreError(
+      "/users/basic/{username}",
+      PrisonUserBasicDetails::class.java,
+      username.uppercase(),
+    )
   }
 
   fun findUserByUsernameWithError(username: String): PrisonUser? {
@@ -147,6 +151,54 @@ class UserApiService(
   fun disableUserByUserId(username: String) = userWebClientUtils.put(
     "/users/{username}/lock-user",
     username,
+  )
+
+  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter):PagedResponse<PrisonUserSummary> = userWebClientUtils.getWithParams(
+    "/users",
+    object : ParameterizedTypeReference<PagedResponse<PrisonUserSummary>>() {},
+    mapOf(
+      "page" to pageRequest.pageNumber,
+      "size" to pageRequest.pageSize,
+      "sort" to pageRequest.sort,
+      "nameFilter" to filter.name,
+      "status" to filter.status,
+      "activeCaseload" to filter.activeCaseloadId,
+      "caseload" to filter.caseloadId,
+      "accessRole" to filter.roleCodes.joinToString(","),
+      "nomisRole" to filter.nomisRoleCode,
+      "inclusiveRoles" to filter.inclusiveRoles,
+      "showOnlyLSAs" to filter.showOnlyLSAs,
+    ),
+  )
+
+  fun downloadUsersByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
+    "/users/download",
+    object : ParameterizedTypeReference<List<PrisonUserSummary>>() {},
+    mapOf(
+      "nameFilter" to filter.name,
+      "status" to filter.status,
+      "activeCaseload" to filter.activeCaseloadId,
+      "caseload" to filter.caseloadId,
+      "accessRole" to filter.roleCodes.joinToString(","),
+      "nomisRole" to filter.nomisRoleCode,
+      "inclusiveRoles" to filter.inclusiveRoles,
+      "showOnlyLSAs" to filter.showOnlyLSAs,
+    ),
+  )
+
+  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
+    "/users/download/admins",
+    object : ParameterizedTypeReference<List<PrisonAdminUserSummary>>() {},
+    mapOf(
+      "nameFilter" to filter.name,
+      "status" to filter.status,
+      "activeCaseloadId" to filter.activeCaseloadId,
+      "caseloadId" to filter.caseloadId,
+      "roleCodes" to filter.roleCodes.joinToString(","),
+      "nomisRoleCode" to filter.nomisRoleCode,
+      "inclusiveRoles" to filter.inclusiveRoles,
+      "showOnlyLSAs" to filter.showOnlyLSAs,
+    ),
   )
 }
 

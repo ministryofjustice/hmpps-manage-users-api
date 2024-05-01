@@ -1,13 +1,14 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.*
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
+import uk.gov.justice.digital.hmpps.nomisuserrolesapi.data.filter.PrisonUserFilter
 
 @Service("PrisonUserService")
 class UserService(
@@ -124,6 +126,18 @@ class UserService(
       }
     }
     return listOf()
+  }
+
+  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSummary> {
+    return prisonUserApiService.findUsersByFilter(pageRequest, filter)
+  }
+
+  fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserSummary> {
+    return prisonUserApiService.downloadUsersByFilter(filter)
+  }
+
+  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter): List<PrisonAdminUserSummary> {
+    return prisonUserApiService.downloadPrisonAdminsByFilter(filter)
   }
 }
 

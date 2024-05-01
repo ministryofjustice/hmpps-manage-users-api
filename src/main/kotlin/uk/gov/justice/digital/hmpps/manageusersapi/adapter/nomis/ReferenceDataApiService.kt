@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.*
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload
 
 @Service(value = "nomisReferenceDataService")
 class ReferenceDataApiService(

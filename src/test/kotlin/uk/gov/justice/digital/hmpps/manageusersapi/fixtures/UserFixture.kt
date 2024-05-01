@@ -77,6 +77,52 @@ class UserFixture {
     )
 
 
+    fun createPrisonUserSummary(
+      username: String = "NUSER_GEN",
+      firstName: String = "Nomis",
+      staffId: String = "123456",
+      lastName: String = "Take",
+      activeCaseLoad: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      email: String = "nomis.usergen@digital.justice.gov.uk",
+      active: Boolean = true,
+    ) = PrisonUserSummary(
+      username = username,
+      staffId = staffId,
+      firstName = firstName,
+      lastName = lastName,
+      active = active,
+      activeCaseload = activeCaseLoad,
+      email = email,
+    )
+
+    fun createPrisonAdminUserSummary(
+      username: String = "NUSER_GEN",
+      staffId: Long = 123456,
+      firstName: String = "Nomis",
+      lastName: String = "Take",
+      active: Boolean = true,
+      status: PrisonAccountStatus = PrisonAccountStatus.OPEN,
+      locked: Boolean = false,
+      expired: Boolean = false,
+      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      dpsRoleCount: Int = 2,
+      email: String = "nomis.take@example.com"
+    ) = PrisonAdminUserSummary(
+      username = username,
+      staffId = staffId,
+      firstName = firstName,
+      lastName = lastName,
+      active = active,
+      status = status,
+      locked = locked,
+      expired = expired,
+      activeCaseload = activeCaseload,
+      dpsRoleCount = dpsRoleCount,
+      email = email,
+      groups = listOf(),
+      staffStatus = "ACTIVE",
+    )
+
     fun createPrisonUserRoleDetails(
       username: String = "NUSER_GEN",
       active: Boolean = true,
