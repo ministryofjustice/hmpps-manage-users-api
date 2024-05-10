@@ -3,18 +3,26 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
+import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.mapNonNull
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.nomisuserrolesapi.data.filter.PrisonUserFilter
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
@@ -153,52 +161,39 @@ class UserApiService(
     username,
   )
 
-  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter):PagedResponse<PrisonUserSummary> = userWebClientUtils.getWithParams(
+  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = userWebClientUtils.getWithParams(
     "/users",
-    object : ParameterizedTypeReference<PagedResponse<PrisonUserSummary>>() {},
-    mapOf(
-      "page" to pageRequest.pageNumber,
-      "size" to pageRequest.pageSize,
-      "sort" to pageRequest.sort,
-      "nameFilter" to filter.name,
-      "status" to filter.status,
-      "activeCaseload" to filter.activeCaseloadId,
-      "caseload" to filter.caseloadId,
-      "accessRole" to filter.roleCodes.joinToString(","),
-      "nomisRole" to filter.nomisRoleCode,
-      "inclusiveRoles" to filter.inclusiveRoles,
-      "showOnlyLSAs" to filter.showOnlyLSAs,
-    ),
+    object : ParameterizedTypeReference<PagedResponse<PrisonUserSearchSummary>>() {},
+    mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),
   )
 
   fun downloadUsersByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
     "/users/download",
     object : ParameterizedTypeReference<List<PrisonUserSummary>>() {},
-    mapOf(
-      "nameFilter" to filter.name,
-      "status" to filter.status,
-      "activeCaseload" to filter.activeCaseloadId,
-      "caseload" to filter.caseloadId,
-      "accessRole" to filter.roleCodes.joinToString(","),
-      "nomisRole" to filter.nomisRoleCode,
-      "inclusiveRoles" to filter.inclusiveRoles,
-      "showOnlyLSAs" to filter.showOnlyLSAs,
-    ),
+    mapPrisonUserFilterToMap(filter),
   )
 
   fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
     "/users/download/admins",
     object : ParameterizedTypeReference<List<PrisonAdminUserSummary>>() {},
-    mapOf(
-      "nameFilter" to filter.name,
-      "status" to filter.status,
-      "activeCaseloadId" to filter.activeCaseloadId,
-      "caseloadId" to filter.caseloadId,
-      "roleCodes" to filter.roleCodes.joinToString(","),
-      "nomisRoleCode" to filter.nomisRoleCode,
-      "inclusiveRoles" to filter.inclusiveRoles,
-      "showOnlyLSAs" to filter.showOnlyLSAs,
-    ),
+    mapPrisonUserFilterToMap(filter),
+  )
+
+  fun mapPrisonUserFilterToMap(filter: PrisonUserFilter): Map<String, Any?> = mapNonNull(
+    "nameFilter" to filter.name,
+    "status" to if (filter.status == UserStatus.ALL) null else filter.status,
+    "activeCaseload" to filter.activeCaseloadId,
+    "caseload" to filter.caseloadId,
+    "accessRole" to if (filter.roleCodes.isEmpty()) null else filter.roleCodes.joinToString(","),
+    "nomisRole" to filter.nomisRoleCode,
+    "inclusiveRoles" to if (filter.inclusiveRoles == true) true else null,
+    "showOnlyLSAs" to if (filter.showOnlyLSAs == true) true else null,
+  )
+
+  fun mapPageRequest(pageRequest: Pageable): Map<String, Any?> = mapNonNull(
+    "page" to pageRequest.pageNumber,
+    "size" to pageRequest.pageSize,
+    "sort" to pageRequest.sort.map { it.property + "," + it.direction }.toList(),
   )
 }
 

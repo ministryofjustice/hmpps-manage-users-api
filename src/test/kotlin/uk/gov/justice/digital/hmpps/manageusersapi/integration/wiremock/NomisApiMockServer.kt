@@ -434,6 +434,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         ),
     )
   }
+
   fun stubSpecifiedHttpStatusOnPostTo(url: String, status: HttpStatus) {
     stubFor(
       post(urlEqualTo(url))
@@ -631,6 +632,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         ),
     )
   }
+
   fun stubFindUserBasicDetailsByUsername(username: String) {
     stubFor(
       get("/users/basic/${username.uppercase()}")
@@ -767,6 +769,141 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubFindUsersByFilter(url: String, status: HttpStatus) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(status.value())
+            .withBody(
+              """ 
+                {
+                "content": [
+                  {
+                      "username": "IMS_ADMIN_LOCAL",
+                      "staffId": 67,
+                      "firstName": "Ims",
+                      "lastName": "Admin",
+                      "active": true,
+                      "status": "OPEN",
+                      "locked": false,
+                      "expired": false,
+                      "activeCaseload": {
+                          "id": "BAI",
+                          "name": "Belmarsh (HMP)"
+                      },
+                      "dpsRoleCount": 1,
+                      "email": null,
+                      "staffStatus": "ACTIVE"
+                  }
+                ],
+                "pageable": {
+                    "pageNumber": 0,
+                    "pageSize": 10,
+                    "sort": {
+                        "empty": false,
+                        "sorted": true,
+                        "unsorted": false
+                    },
+                    "offset": 0,
+                    "paged": true,
+                    "unpaged": false
+                },
+                "last": false,
+                "totalElements": 69,
+                "totalPages": 7,
+                "size": 10,
+                "number": 0,
+                "sort": {
+                    "empty": false,
+                    "sorted": true,
+                    "unsorted": false
+                },
+                "first": true,
+                "numberOfElements": 10,
+                "empty": false
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubDownloadUsersByFilter(url: String, status: HttpStatus) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(status.value())
+            .withBody(
+              """ 
+                [
+                  {
+                    "username": "IMS_ADMIN_LOCAL",
+                    "staffId": 67,
+                    "firstName": "Ims",
+                    "lastName": "Admin",
+                    "active": true,
+                    "status": "OPEN",
+                    "locked": false,
+                    "expired": false,
+                    "activeCaseload": {
+                        "id": "BAI",
+                        "name": "Belmarsh (HMP)"
+                    },
+                    "dpsRoleCount": 1,
+                    "email": null,
+                    "staffStatus": "ACTIVE"
+                  }
+                ]
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubDownloadAdminUsersByFilter(url: String, status: HttpStatus) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(status.value())
+            .withBody(
+              """ 
+                [
+                  {
+                    "username": "IMS_ADMIN_LOCAL",
+                    "staffId": 67,
+                    "firstName": "Ims",
+                    "lastName": "Admin",
+                    "active": true,
+                    "status": "OPEN",
+                    "locked": false,
+                    "expired": false,
+                    "activeCaseload": {
+                        "id": "BAI",
+                        "name": "Belmarsh (HMP)"
+                    },
+                    "dpsRoleCount": 1,
+                    "email": null,
+                    "staffStatus": "ACTIVE",
+                    "groups": [
+                      {
+                          "id": "BXI",
+                          "name": "Brixton (HMP)"
+                      }
+                    ]
+                  }
+                ]
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubGetWithEmptyReturn(url: String, status: HttpStatus) {
     stubFor(
       get(url)
@@ -792,6 +929,46 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "errorCode": null,
                 "userMessage": "Nomis User message for GET failed",
                 "developerMessage": "Developer Nomis user message for GET failed"
+              }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubPutFail(url: String, status: HttpStatus) {
+    stubFor(
+      put(url)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Nomis User message for PUT failed",
+                "developerMessage": "Developer Nomis user message for PUT failed"
+              }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubPut(url: String, status: HttpStatus) {
+    stubFor(
+      put(url)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(status.value())
+            .withBody(
+              """{
+                "status": ${status.value()},
+                "errorCode": null,
+                "userMessage": "Nomis User message for PUT failed",
+                "developerMessage": "Developer Nomis user message for PUT failed"
               }
               """.trimIndent(),
             ),

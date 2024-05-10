@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -643,7 +645,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(0)?.id ?: String).isEqualTo("NWEB")
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(0)?.name ?: String).isEqualTo("Nomis-web Application")
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(1)?.id ?: String).isEqualTo("CADM_I")
-      assertThat(prisonStaffUser.adminAccount?.caseloads?.get(1)?.name ?: String).isEqualTo("Central Administration Caseload For Hmps")
+      assertThat(
+        prisonStaffUser.adminAccount?.caseloads?.get(1)?.name ?: String,
+      ).isEqualTo("Central Administration Caseload For Hmps")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/link-admin-account/${createLinkedCentralAdminUserRequest.existingUsername}"))
@@ -836,7 +840,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(0)?.id ?: String).isEqualTo("NWEB")
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(0)?.name ?: String).isEqualTo("Nomis-web Application")
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(1)?.id ?: String).isEqualTo("CADM_I")
-      assertThat(prisonStaffUser.adminAccount?.caseloads?.get(1)?.name ?: String).isEqualTo("Central Administration Caseload For Hmps")
+      assertThat(
+        prisonStaffUser.adminAccount?.caseloads?.get(1)?.name ?: String,
+      ).isEqualTo("Central Administration Caseload For Hmps")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/link-local-admin-account/${createLinkedLsaRequest.existingUsername}"))
@@ -1032,7 +1038,9 @@ class UserControllerIntTest : IntegrationTestBase() {
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(0)?.id ?: String).isEqualTo("NWEB")
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(0)?.name ?: String).isEqualTo("Nomis-web Application")
       assertThat(prisonStaffUser.adminAccount?.caseloads?.get(1)?.id ?: String).isEqualTo("CADM_I")
-      assertThat(prisonStaffUser.adminAccount?.caseloads?.get(1)?.name ?: String).isEqualTo("Central Administration Caseload For Hmps")
+      assertThat(
+        prisonStaffUser.adminAccount?.caseloads?.get(1)?.name ?: String,
+      ).isEqualTo("Central Administration Caseload For Hmps")
 
       nomisApiMockServer.verify(
         postRequestedFor(urlEqualTo("/users/link-general-account/${createLinkedGeneralRequest.existingAdminUsername}"))
@@ -1244,6 +1252,248 @@ class UserControllerIntTest : IntegrationTestBase() {
 
       nomisApiMockServer.verify(
         getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+  }
+
+  @Nested
+  inner class EnableUser {
+    private val username = "NUSER_GEN"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/prisonusers/$username/enable-user")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/prisonusers/$username/enable-user")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.put().uri("/prisonusers/$username/enable-user")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `user not found`() {
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.put().uri("/prisonusers/$username/enable-user")
+        .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_NOMIS_USER_ACCOUNT")))
+        .exchange()
+        .expectStatus().isNotFound
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+
+    @Test
+    fun `enable user calls unlock-user endpoint`() {
+      nomisApiMockServer.stubFindUserByUsernameNoEmail(username)
+      nomisApiMockServer.stubPut("/users/$username/unlock-user", OK)
+      webTestClient.put().uri("/prisonusers/$username/enable-user")
+        .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_NOMIS_USER_ACCOUNT")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/users/$username/unlock-user")),
+      )
+    }
+  }
+
+  @Nested
+  inner class DisableUser {
+    private val username = "NUSER_GEN"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.put().uri("/prisonusers/$username/disable-user")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.put().uri("/prisonusers/$username/disable-user")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.put().uri("/prisonusers/$username/disable-user")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `user not found`() {
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.put().uri("/prisonusers/$username/disable-user")
+        .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_NOMIS_USER_ACCOUNT")))
+        .exchange()
+        .expectStatus().isNotFound
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+
+    @Test
+    fun `disable user calls lock-user endpoint`() {
+      nomisApiMockServer.stubFindUserByUsernameNoEmail(username)
+      nomisApiMockServer.stubPut("/users/$username/lock-user", OK)
+      webTestClient.put().uri("/prisonusers/$username/disable-user")
+        .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_NOMIS_USER_ACCOUNT")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        putRequestedFor(urlEqualTo("/users/$username/lock-user")),
+      )
+    }
+  }
+
+  @Nested
+  inner class FindUsersByFilter {
+    private val localUri =
+      "/prisonusers/search?nameFilter=admin"
+    private val nomisUri =
+      "/users?nameFilter=admin&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri(localUri)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `findUsersWithFilter calls find-users endpoint`() {
+      nomisApiMockServer.stubFindUsersByFilter(nomisUri, OK)
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo(nomisUri)),
+      )
+    }
+  }
+
+  @Nested
+  inner class DownloadUsersByFilter {
+    private val localUri =
+      "/prisonusers/download?nameFilter=admin"
+    private val nomisUri =
+      "/users/download?nameFilter=admin"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri(localUri)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `downloadUsersWithFilter calls download-users endpoint`() {
+      nomisApiMockServer.stubDownloadUsersByFilter(nomisUri, OK)
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo(nomisUri)),
+      )
+    }
+  }
+
+  @Nested
+  inner class DownloadAdminUsersByFilter {
+    private val localUri =
+      "/prisonusers/download/admins?nameFilter=admin"
+    private val nomisUri =
+      "/users/download/admins?nameFilter=admin"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri(localUri)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `downloadUsersWithFilter calls download-users endpoint`() {
+      nomisApiMockServer.stubDownloadAdminUsersByFilter(nomisUri, OK)
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo(nomisUri)),
       )
     }
   }

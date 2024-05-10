@@ -4,12 +4,16 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -181,16 +185,15 @@ class UserControllerTest {
     }
   }
 
-
   @Nested
   inner class FindUsersByFilter {
     @Test
     fun `calls prisonUserService`() {
-      val sort =  PageSort(true, false, true)
+      val sort = PageSort(true, false, true)
       val response = PagedResponse(
         content = listOf(
-          PrisonUserSummary("user1", "1", "John", "Doe", true, null, "john.doe@example.com"),
-          PrisonUserSummary("user2", "2", "Jane", "Doe", false, null, "jane.doe@example.com")
+          createPrisonUserSearchSummary(username = "user1"),
+          createPrisonUserSearchSummary(username = "user2"),
         ),
         pageable = PageDetails(sort, 10, 1, 2, true, true),
         totalElements = 2,
@@ -201,7 +204,7 @@ class UserControllerTest {
         numberOfElements = 2,
         size = 2,
         number = 0,
-        empty = false
+        empty = false,
       )
       whenever(userService.findUsersByFilter(any(), any())).thenReturn(response)
 
@@ -232,10 +235,12 @@ class UserControllerTest {
   inner class DownloadPrisonAdminsByFilter {
     @Test
     fun `calls prisonUserService`() {
-      whenever(userService.downloadPrisonAdminsByFilter(any())).thenReturn(listOf(
-        UserFixture.createPrisonAdminUserSummary(username = "user1"),
-        UserFixture.createPrisonAdminUserSummary(username = "user2"),
-      ))
+      whenever(userService.downloadPrisonAdminsByFilter(any())).thenReturn(
+        listOf(
+          UserFixture.createPrisonAdminUserSummary(username = "user1"),
+          UserFixture.createPrisonAdminUserSummary(username = "user2"),
+        ),
+      )
 
       userService.downloadPrisonAdminsByFilter(PrisonUserFilter())
 
