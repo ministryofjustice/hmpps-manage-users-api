@@ -3,13 +3,16 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.CaseloadsApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserCaseloadDetails
 
 class UserCaseloadsServiceTest {
-  private val prisonCaseloadsApiService: CaseloadsApiService   = mock()
-   private val userCaseloadsService = UserCaseloadService(prisonCaseloadsApiService)
+  private val prisonCaseloadsApiService: CaseloadsApiService = mock()
+  private val userCaseloadsService = UserCaseloadService(prisonCaseloadsApiService)
 
   @Test
   fun `gets user caseloads`() {
@@ -43,5 +46,4 @@ class UserCaseloadsServiceTest {
     verify(prisonCaseloadsApiService).removeCaseloadFromUser("NUSER_GEN", "LEI")
     assertThat(caseloads).isEqualTo(userCaseloads)
   }
-
 }

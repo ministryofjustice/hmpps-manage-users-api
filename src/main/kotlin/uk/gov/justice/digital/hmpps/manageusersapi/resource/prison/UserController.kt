@@ -276,6 +276,7 @@ class UserController(
   private val prisonUserService: UserService,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
+
   @PostMapping("/prisonusers/{username}/email")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @Operation(
@@ -299,10 +300,8 @@ class UserController(
     ],
   )
   fun amendUserEmail(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable
-    username: String,
-    @Valid @RequestBody
-    amendEmail: AmendEmail,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Valid @RequestBody amendEmail: AmendEmail,
   ): String? {
     val link = prisonUserService.changeEmail(username, amendEmail.email!!)
     return if (smokeTestEnabled) link else ""
@@ -334,8 +333,7 @@ class UserController(
     ],
   )
   fun createUser(
-    @RequestBody @Valid
-    createUserRequest: CreateUserRequest,
+    @RequestBody @Valid createUserRequest: CreateUserRequest,
   ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
 
   @GetMapping("/prisonusers/{username}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -343,13 +341,16 @@ class UserController(
   @Operation(
     summary = "Get specified user details",
     description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MANAGE_NOMIS_USER_ACCOUNT",
-    security = [SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT")],
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
+      SecurityRequirement(
+        name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+      ),
+    ],
   )
   @StandardApiResponses
   fun findUserByUsername(
-    @Parameter(description = "The username of the user.", required = true)
-    @PathVariable
-    username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ) = prisonUserService.findUserByUsername(username)?.let { NewPrisonUserDto.fromDomain(it) }
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -378,8 +379,7 @@ class UserController(
     ],
   )
   fun createLinkedCentralAdminUser(
-    @RequestBody @Valid
-    createLinkedCentralAdminUserRequest: CreateLinkedCentralAdminUserRequest,
+    @RequestBody @Valid createLinkedCentralAdminUserRequest: CreateLinkedCentralAdminUserRequest,
   ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedCentralAdminUser(createLinkedCentralAdminUserRequest))
 
   @PostMapping("/linkedprisonusers/lsa", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -408,8 +408,7 @@ class UserController(
     ],
   )
   fun createLinkedLocalAdminUser(
-    @RequestBody @Valid
-    createLinkedLocalAdminUserRequest: CreateLinkedLocalAdminUserRequest,
+    @RequestBody @Valid createLinkedLocalAdminUserRequest: CreateLinkedLocalAdminUserRequest,
   ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest))
 
   @PostMapping("/linkedprisonusers/general", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -465,8 +464,7 @@ class UserController(
     ],
   )
   fun createLinkedGeneralUser(
-    @RequestBody @Valid
-    createLinkedGeneralUserRequest: CreateLinkedGeneralUserRequest,
+    @RequestBody @Valid createLinkedGeneralUserRequest: CreateLinkedGeneralUserRequest,
   ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedGeneralUser(createLinkedGeneralUserRequest))
 
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -581,29 +579,25 @@ class UserController(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "DPS User creation")
 data class CreateUserRequest(
-  @Schema(description = "Username", example = "TEST_USER", required = true)
-  @NotBlank
-  val username: String,
+  @Schema(description = "Username", example = "TEST_USER", required = true) @NotBlank val username: String,
 
-  @Schema(description = "Email Address", example = "test@justice.gov.uk", required = true)
-  @field:Email(message = "Not a valid email address")
-  @NotBlank
-  val email: String,
+  @Schema(
+    description = "Email Address",
+    example = "test@justice.gov.uk",
+    required = true,
+  ) @field:Email(message = "Not a valid email address") @NotBlank val email: String,
 
-  @Schema(description = "First name of the user", example = "John", required = true)
-  @NotBlank
-  val firstName: String,
+  @Schema(description = "First name of the user", example = "John", required = true) @NotBlank val firstName: String,
 
-  @Schema(description = "Last name of the user", example = "Smith", required = true)
-  @NotBlank
-  val lastName: String,
+  @Schema(description = "Last name of the user", example = "Smith", required = true) @NotBlank val lastName: String,
 
-  @Schema(description = "The type of user", example = "DPS_LSA", required = true)
-  @NotBlank
-  val userType: UserType,
+  @Schema(description = "The type of user", example = "DPS_LSA", required = true) @NotBlank val userType: UserType,
 
-  @Schema(description = "Default caseload (a.k.a Prison ID)", example = "BXI", required = false)
-  val defaultCaseloadId: String? = null,
+  @Schema(
+    description = "Default caseload (a.k.a Prison ID)",
+    example = "BXI",
+    required = false,
+  ) val defaultCaseloadId: String? = null,
 )
 
 enum class UserType {
@@ -613,37 +607,25 @@ enum class UserType {
 }
 
 data class PrisonUserDto(
-  @Schema(required = true, example = "RO_USER_TEST")
-  val username: String,
-  @Schema(required = true, example = "1234564789")
-  val staffId: Long?,
-  @Schema(required = false, example = "ryanorton@justice.gov.uk")
-  val email: String?,
-  @Schema(required = true, example = "true")
-  val verified: Boolean,
-  @Schema(required = true, example = "Ryan")
-  val firstName: String,
-  @Schema(required = true, example = "Orton")
-  val lastName: String,
-  @Schema(required = true, example = "Ryan Orton")
-  val name: String,
-  @Schema(required = false, example = "MDI")
-  val activeCaseLoadId: String?,
+  @Schema(required = true, example = "RO_USER_TEST") val username: String,
+  @Schema(required = true, example = "1234564789") val staffId: Long?,
+  @Schema(required = false, example = "ryanorton@justice.gov.uk") val email: String?,
+  @Schema(required = true, example = "true") val verified: Boolean,
+  @Schema(required = true, example = "Ryan") val firstName: String,
+  @Schema(required = true, example = "Orton") val lastName: String,
+  @Schema(required = true, example = "Ryan Orton") val name: String,
+  @Schema(required = false, example = "MDI") val activeCaseLoadId: String?,
 )
 
 @Schema(description = "Prison User Created Details")
 data class NewPrisonUserDto(
-  @Schema(description = "Username", example = "TEST_USER")
-  val username: String,
+  @Schema(description = "Username", example = "TEST_USER") val username: String,
 
-  @Schema(description = "Email Address", example = "test@justice.gov.uk")
-  val primaryEmail: String?,
+  @Schema(description = "Email Address", example = "test@justice.gov.uk") val primaryEmail: String?,
 
-  @Schema(description = "First name of the user", example = "John")
-  val firstName: String,
+  @Schema(description = "First name of the user", example = "John") val firstName: String,
 
-  @Schema(description = "Last name of the user", example = "Smith")
-  val lastName: String,
+  @Schema(description = "Last name of the user", example = "Smith") val lastName: String,
 ) {
   companion object {
     fun fromDomain(newPrisonUser: PrisonUser): NewPrisonUserDto {
@@ -657,91 +639,77 @@ data class NewPrisonUserDto(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Linking a new Central admin account to an existing general user")
 data class CreateLinkedCentralAdminUserRequest(
-  @Schema(description = "existingUsername", example = "TESTUSER1", required = true)
-  @field:Size(
+  @Schema(description = "existingUsername", example = "TESTUSER1", required = true) @field:Size(
     max = 30,
     min = 1,
     message = "Username must be between 1 and 30",
-  )
-  @NotBlank
-  val existingUsername: String,
+  ) @NotBlank val existingUsername: String,
 
-  @Schema(description = "adminUsername", example = "TESTUSER1_ADM", required = true)
-  @field:Size(
+  @Schema(description = "adminUsername", example = "TESTUSER1_ADM", required = true) @field:Size(
     max = 30,
     min = 1,
     message = "Username must be between 1 and 30",
-  )
-  @NotBlank
-  val adminUsername: String,
+  ) @NotBlank val adminUsername: String,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Linking a new Local admin account to an existing general user")
 data class CreateLinkedLocalAdminUserRequest(
-  @Schema(description = "existingUsername", example = "TESTUSER1", required = true)
-  @field:Size(
+  @Schema(description = "existingUsername", example = "TESTUSER1", required = true) @field:Size(
     max = 30,
     min = 1,
     message = "Username must be between 1 and 30",
-  )
-  @NotBlank
-  val existingUsername: String,
+  ) @NotBlank val existingUsername: String,
 
-  @Schema(description = "adminUsername", example = "TESTUSER1_ADM", required = true)
-  @field:Size(
+  @Schema(description = "adminUsername", example = "TESTUSER1_ADM", required = true) @field:Size(
     max = 30,
     min = 1,
     message = "Username must be between 1 and 30",
-  )
-  @NotBlank
-  val adminUsername: String,
+  ) @NotBlank val adminUsername: String,
 
-  @Schema(description = "Default local admin group (prison) to manage users", example = "MDI", required = true)
-  @field:Size(
+  @Schema(
+    description = "Default local admin group (prison) to manage users",
+    example = "MDI",
+    required = true,
+  ) @field:Size(
     max = 6,
     min = 3,
     message = "Admin group must be between 3-6 characters",
-  )
-  @NotBlank
-  val localAdminGroup: String,
+  ) @NotBlank val localAdminGroup: String,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Linking a new General account to an existing admin user account")
 data class CreateLinkedGeneralUserRequest(
-  @Schema(description = "existing admin username", example = "TESTUSER1_ADM", required = true)
-  @field:Size(
+  @Schema(description = "existing admin username", example = "TESTUSER1_ADM", required = true) @field:Size(
     max = 30,
     min = 1,
     message = "Admin Username must be between 1 and 30",
-  )
-  @NotBlank
-  val existingAdminUsername: String,
+  ) @NotBlank val existingAdminUsername: String,
 
-  @Schema(description = "new general username", example = "TESTUSER1_GEN", required = true)
-  @field:Size(
+  @Schema(description = "new general username", example = "TESTUSER1_GEN", required = true) @field:Size(
     max = 30,
     min = 1,
     message = "Username must be between 1 and 30",
-  )
-  @NotBlank
-  val generalUsername: String,
+  ) @NotBlank val generalUsername: String,
 
-  @Schema(description = "Default caseload (a.k.a Prison ID), not required for admin accounts", example = "BXI", required = true)
-  @field:Size(
+  @Schema(
+    description = "Default caseload (a.k.a Prison ID), not required for admin accounts",
+    example = "BXI",
+    required = true,
+  ) @field:Size(
     max = 6,
     min = 3,
     message = "Caseload must be between 3-6 characters",
-  )
-  @NotBlank
-  val defaultCaseloadId: String,
+  ) @NotBlank val defaultCaseloadId: String,
 )
 
 data class AmendEmail(
-  @Schema(required = true, description = "Email address", example = "prison.user@someagency.justice.gov.uk")
-  @field:NotBlank(message = "Email must not be blank")
-  val email: String?,
+  @Schema(
+    required = true,
+    description = "Email address",
+    example = "prison.user@someagency.justice.gov.uk",
+  ) @field:NotBlank(message = "Email must not be blank") val email: String?,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -751,9 +719,19 @@ data class PrisonStaffUserDto(
   @Schema(description = "First name of the user", example = "John", required = true) val firstName: String,
   @Schema(description = "Last name of the user", example = "Smith", required = true) val lastName: String,
   @Schema(description = "Status of staff account", example = "ACTIVE", required = true) val status: String,
-  @Schema(description = "Email addresses of staff", example = "test@test.com", required = false) val primaryEmail: String?,
-  @Schema(description = "General user account for this staff member", required = false) val generalAccount: UserCaseloadDto?,
-  @Schema(description = "Admin user account for this staff member", required = false) val adminAccount: UserCaseloadDto?,
+  @Schema(
+    description = "Email addresses of staff",
+    example = "test@test.com",
+    required = false,
+  ) val primaryEmail: String?,
+  @Schema(
+    description = "General user account for this staff member",
+    required = false,
+  ) val generalAccount: UserCaseloadDto?,
+  @Schema(
+    description = "Admin user account for this staff member",
+    required = false,
+  ) val adminAccount: UserCaseloadDto?,
 ) {
   companion object {
     fun fromDomain(prisonStaffUser: PrisonStaffUser): PrisonStaffUserDto {
@@ -776,10 +754,25 @@ data class PrisonStaffUserDto(
 @Schema(description = "User & Caseload Information")
 data class UserCaseloadDto(
   @Schema(description = "User name", example = "John1", required = true) val username: String,
-  @Schema(description = "Indicates that the user is active or not", example = "true", required = true) val active: Boolean,
-  @Schema(description = "Type of user account", example = "GENERAL", required = true) val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
-  @Schema(description = "Active Caseload of the user", example = "BXI", required = false) val activeCaseload: PrisonCaseloadDto?,
-  @Schema(description = "Caseloads available for this user", required = false) val caseloads: List<PrisonCaseloadDto>? = listOf(),
+  @Schema(
+    description = "Indicates that the user is active or not",
+    example = "true",
+    required = true,
+  ) val active: Boolean,
+  @Schema(
+    description = "Type of user account",
+    example = "GENERAL",
+    required = true,
+  ) val accountType: PrisonUsageType = PrisonUsageType.GENERAL,
+  @Schema(
+    description = "Active Caseload of the user",
+    example = "BXI",
+    required = false,
+  ) val activeCaseload: PrisonCaseloadDto?,
+  @Schema(
+    description = "Caseloads available for this user",
+    required = false,
+  ) val caseloads: List<PrisonCaseloadDto>? = listOf(),
 ) {
   companion object {
     fun fromDomain(userCaseload: UserCaseload) = UserCaseloadDto(
@@ -791,15 +784,13 @@ data class UserCaseloadDto(
     )
   }
 }
+
 data class PrisonCaseloadDto(
-  @Schema(description = "ID for the caseload", example = "WWI")
-  val id: String,
-  @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)")
-  val name: String,
+  @Schema(description = "ID for the caseload", example = "WWI") val id: String,
+  @Schema(description = "name of caseload, typically prison name", example = "WANDSWORTH (HMP)") val name: String,
 ) {
   companion object {
-    fun fromDomain(pcd: PrisonCaseload) =
-      PrisonCaseloadDto(pcd.id, pcd.name)
+    fun fromDomain(pcd: PrisonCaseload) = PrisonCaseloadDto(pcd.id, pcd.name)
   }
 }
 

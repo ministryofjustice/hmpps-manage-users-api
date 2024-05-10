@@ -1,3 +1,4 @@
+
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import io.swagger.v3.oas.annotations.Operation

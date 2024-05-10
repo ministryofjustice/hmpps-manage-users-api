@@ -20,8 +20,14 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.model.*
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
+import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -38,7 +44,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.LinkEmailAnd
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
 import uk.gov.justice.digital.hmpps.nomisuserrolesapi.data.filter.PrisonUserFilter
-import java.awt.print.Pageable
 
 class UserServiceTest {
 
@@ -216,7 +221,8 @@ class UserServiceTest {
     fun `create a DPS central admin user linked to a General account`() {
       val createLinkedCentralAdminUserRequest = CreateLinkedCentralAdminUserRequest("TEST_USER", "TEST_USER_ADM")
       val prisonStaffUser = UserFixture.createPrisonStaffUser()
-      val createUserRequest = createUserRequest(createLinkedCentralAdminUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
+      val createUserRequest =
+        createUserRequest(createLinkedCentralAdminUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
       whenever(prisonUserApiService.linkCentralAdminUser(createLinkedCentralAdminUserRequest)).thenReturn(
         prisonStaffUser,
       )
@@ -515,28 +521,28 @@ class UserServiceTest {
   inner class FindUsersByFilter {
     @Test
     fun `calls prisonUserApiService`() {
-      val sort =  PageSort(true, false, true)
+      val sort = PageSort(true, false, true)
       val response = PagedResponse(
-          content = listOf(
-            PrisonUserSummary("user1", "1", "John", "Doe", true, null, "john.doe@example.com"),
-            PrisonUserSummary("user2", "2", "Jane", "Doe", false, null, "jane.doe@example.com")
-          ),
-          pageable = PageDetails(sort, 10, 1, 2, true, true),
-          totalElements = 2,
-          totalPages = 1,
-          last = true,
-          first = true,
-          sort = sort,
-          numberOfElements = 2,
-          size = 2,
-          number = 0,
-          empty = false
-        )
+        content = listOf(
+          createPrisonUserSearchSummary(username = "user1"),
+          createPrisonUserSearchSummary(username = "user2"),
+        ),
+        pageable = PageDetails(sort, 10, 1, 2, true, true),
+        totalElements = 2,
+        totalPages = 1,
+        last = true,
+        first = true,
+        sort = sort,
+        numberOfElements = 2,
+        size = 2,
+        number = 0,
+        empty = false,
+      )
       whenever(prisonUserApiService.findUsersByFilter(any(), any())).thenReturn(response)
 
-      prisonUserService.findUsersByFilter(PageRequest.of(0, 10),PrisonUserFilter())
+      prisonUserService.findUsersByFilter(PageRequest.of(0, 10), PrisonUserFilter())
 
-      verify(prisonUserApiService).findUsersByFilter(PageRequest.of(0, 10),PrisonUserFilter())
+      verify(prisonUserApiService).findUsersByFilter(PageRequest.of(0, 10), PrisonUserFilter())
     }
   }
 
@@ -561,10 +567,12 @@ class UserServiceTest {
   inner class DownloadPrisonAdminsByFilter {
     @Test
     fun `calls prisonUserApiService`() {
-      whenever(prisonUserApiService.downloadPrisonAdminsByFilter(any())).thenReturn(listOf(
-        createPrisonAdminUserSummary(username = "user1"),
-        createPrisonAdminUserSummary(username = "user2"),
-      ))
+      whenever(prisonUserApiService.downloadPrisonAdminsByFilter(any())).thenReturn(
+        listOf(
+          createPrisonAdminUserSummary(username = "user1"),
+          createPrisonAdminUserSummary(username = "user2"),
+        ),
+      )
 
       prisonUserService.downloadPrisonAdminsByFilter(PrisonUserFilter())
 
@@ -572,4 +580,3 @@ class UserServiceTest {
     }
   }
 }
-
