@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -601,34 +603,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(
-              """{
-                  "username": "BOB",
-                  "active": true,
-                  "accountType": "ADMIN",
-                  "activeCaseload": {
-                  "id": "CADM_I",
-                  "name": "Central Administration Caseload For Hmps"
-                  },
-                  "dpsRoles": [
-                    {
-                      "code": "AUDIT_VIEWER",
-                      "name": "Audit viewer",
-                      "sequence": 1,
-                      "type": "APP",
-                      "adminRoleOnly": true
-                    },
-                    {
-                      "code": "AUTH_GROUP_MANAGER",
-                      "name": "Auth Group Manager that has mo",
-                      "sequence": 1,
-                      "type": "APP",
-                      "adminRoleOnly": true
-                    }
-                  ]
-                }
-              """.trimIndent(),
-            ),
+            .withBody(getUserRoleDetailResponse()),
         ),
     )
   }
@@ -864,6 +839,31 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubPostUserRoles(username: String, body: String) {
+    stubFor(
+      post("/users/$username/roles?caseloadId=NWEB")
+        .withRequestBody(containing(body))
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(getUserRoleDetailResponse()),
+        ),
+    )
+  }
+
+  fun stubDeleteUserRole(username: String, roleCode: String) {
+    stubFor(
+      delete("/users/$username/roles/$roleCode?caseloadId=NWEB")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(getUserRoleDetailResponse()),
+        ),
+    )
+  }
+
   fun stubDownloadAdminUsersByFilter(url: String, status: HttpStatus) {
     stubFor(
       get(url)
@@ -904,6 +904,27 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetCaseloads(url: String) {
+    stubFor(
+      get(url)
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(HttpStatus.OK.value())
+            .withBody(
+              """ 
+                [
+                  {
+                    "id": "BXI",
+                    "name": "Brixton (HMP)"
+                  }
+                ]
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubGetWithEmptyReturn(url: String, status: HttpStatus) {
     stubFor(
       get(url)
@@ -936,7 +957,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubPutFail(url: String, status: HttpStatus) {
+  fun stubPut(url: String, status: HttpStatus) {
     stubFor(
       put(url)
         .willReturn(
@@ -956,23 +977,33 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubPut(url: String, status: HttpStatus) {
-    stubFor(
-      put(url)
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(status.value())
-            .withBody(
-              """{
-                "status": ${status.value()},
-                "errorCode": null,
-                "userMessage": "Nomis User message for PUT failed",
-                "developerMessage": "Developer Nomis user message for PUT failed"
-              }
-              """.trimIndent(),
-            ),
-        ),
-    )
+  private fun getUserRoleDetailResponse(): String {
+    return """
+      {
+        "username": "BOB",
+        "active": true,
+        "accountType": "ADMIN",
+        "activeCaseload": {
+        "id": "CADM_I",
+        "name": "Central Administration Caseload For Hmps"
+        },
+        "dpsRoles": [
+          {
+            "code": "AUDIT_VIEWER",
+            "name": "Audit viewer",
+            "sequence": 1,
+            "type": "APP",
+            "adminRoleOnly": true
+          },
+          {
+            "code": "AUTH_GROUP_MANAGER",
+            "name": "Auth Group Manager that has mo",
+            "sequence": 1,
+            "type": "APP",
+            "adminRoleOnly": true
+          }
+        ]
+      }
+    """.trimIndent()
   }
 }
