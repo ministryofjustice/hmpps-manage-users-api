@@ -575,6 +575,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetUserCaseloads(username: String) {
+    stubFor(
+      get("/users/$username/caseloads")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              getUserCaseloadDetail(username),
+            ),
+        ),
+    )
+  }
+
   fun stubPutRole(roleCode: String) {
     stubFor(
       put("/roles/$roleCode")
@@ -925,6 +938,35 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubPostUserCaseloads(username: String, body: String) {
+    stubFor(
+      post("/users/$username/caseloads")
+        .withRequestBody(containing(body))
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              getUserCaseloadDetail(username),
+            ),
+        ),
+    )
+  }
+
+  fun stubDeleteUserCaseloads(username: String, caseloadId: String) {
+    stubFor(
+      delete("/users/$username/caseloads/$caseloadId")
+        .willReturn(
+          aResponse()
+            .withStatus(HttpStatus.OK.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              getUserCaseloadDetail(username),
+            ),
+        ),
+    )
+  }
+
   fun stubGetWithEmptyReturn(url: String, status: HttpStatus) {
     stubFor(
       get(url)
@@ -1003,6 +1045,26 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
             "adminRoleOnly": true
           }
         ]
+      }
+    """.trimIndent()
+  }
+
+  private fun getUserCaseloadDetail(username: String): String {
+    return """ 
+      {
+        "username": "$username",
+        "active": true,
+        "accountType": "GENERAL",
+        "activeCaseload": {
+           "id": "WWI",
+           "name": "WANDSWORTH (HMP)"
+          },
+          "caseloads": [
+           {
+             "id": "WWI",
+             "name": "WANDSWORTH (HMP)"
+           }
+          ]
       }
     """.trimIndent()
   }
