@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -43,7 +44,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundExcepti
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.LinkEmailAndUsername
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailDomainService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.VerifyEmailService
-import uk.gov.justice.digital.hmpps.nomisuserrolesapi.data.filter.PrisonUserFilter
 
 class UserServiceTest {
 

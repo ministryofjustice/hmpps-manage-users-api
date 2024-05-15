@@ -5,9 +5,6 @@ enum class PrisonAccountStatus(
   val isExpired: Boolean,
   val isLocked: Boolean,
   val isGracePeriod: Boolean,
-  /**
-   * whether the user has locked themselves out by getting password incorrect in c-nomis
-   */
   val isUserLocked: Boolean,
 ) {
   OPEN(0, "OPEN", false, false, false, false),

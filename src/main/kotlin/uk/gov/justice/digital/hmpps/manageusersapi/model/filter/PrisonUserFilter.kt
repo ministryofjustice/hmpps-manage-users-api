@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.nomisuserrolesapi.data.filter
+package uk.gov.justice.digital.hmpps.manageusersapi.model.filter
 
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserStatus
 
