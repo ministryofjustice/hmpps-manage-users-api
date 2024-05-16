@@ -4,12 +4,20 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 
 class UserControllerTest {
@@ -108,19 +116,18 @@ class UserControllerTest {
       )
       whenever(userService.findUsersByFirstAndLastName(anyString(), anyString())).thenReturn(listOf(user))
 
-      assertThat(userController.findUsersByFirstAndLastName("first", "last"))
-        .containsExactly(
-          PrisonUserDto(
-            username = "username",
-            staffId = 123456789,
-            verified = true,
-            email = "user@justice.gov.uk",
-            firstName = "First",
-            lastName = "Last",
-            name = "First Last",
-            activeCaseLoadId = "MDI",
-          ),
-        )
+      assertThat(userController.findUsersByFirstAndLastName("first", "last")).containsExactly(
+        PrisonUserDto(
+          username = "username",
+          staffId = 123456789,
+          verified = true,
+          email = "user@justice.gov.uk",
+          firstName = "First",
+          lastName = "Last",
+          name = "First Last",
+          activeCaseLoadId = "MDI",
+        ),
+      )
     }
 
     @Test
@@ -149,6 +156,95 @@ class UserControllerTest {
             activeCaseLoadId = null,
           ),
         )
+    }
+  }
+
+  @Nested
+  inner class EnableUser {
+    @Test
+    fun `enable user service is called`() {
+      whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(createPrisonUserDetails())
+      doNothing().whenever(userService).enableUser("NUSER_GEN")
+
+      userController.enableUser("NUSER_GEN")
+
+      verify(userService).enableUser("NUSER_GEN")
+    }
+  }
+
+  @Nested
+  inner class DisableUser {
+    @Test
+    fun `enable user service is called`() {
+      whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(createPrisonUserDetails())
+      doNothing().whenever(userService).disableUser("NUSER_GEN")
+
+      userController.disableUser("NUSER_GEN")
+
+      verify(userService).disableUser("NUSER_GEN")
+    }
+  }
+
+  @Nested
+  inner class FindUsersByFilter {
+    @Test
+    fun `calls prisonUserService`() {
+      val sort = PageSort(true, false, true)
+      val response = PagedResponse(
+        content = listOf(
+          createPrisonUserSearchSummary(username = "user1"),
+          createPrisonUserSearchSummary(username = "user2"),
+        ),
+        pageable = PageDetails(sort, 10, 1, 2, true, true),
+        totalElements = 2,
+        totalPages = 1,
+        last = true,
+        first = true,
+        sort = sort,
+        numberOfElements = 2,
+        size = 2,
+        number = 0,
+        empty = false,
+      )
+      whenever(userService.findUsersByFilter(any(), any())).thenReturn(response)
+
+      userService.findUsersByFilter(PageRequest.of(0, 10), PrisonUserFilter())
+
+      verify(userService).findUsersByFilter(PageRequest.of(0, 10), PrisonUserFilter())
+    }
+  }
+
+  @Nested
+  inner class DownloadUsersByFilter {
+    @Test
+    fun `calls prisonUserService`() {
+      whenever(userService.downloadUsersByFilter(any())).thenReturn(
+        listOf(
+          UserFixture.createPrisonUserSummary(username = "user1"),
+          UserFixture.createPrisonUserSummary(username = "user2"),
+        ),
+      )
+
+      userService.downloadUsersByFilter(PrisonUserFilter())
+
+      verify(userService).downloadUsersByFilter(PrisonUserFilter())
+    }
+  }
+
+  @Nested
+  inner class DownloadPrisonAdminsByFilter {
+    @Test
+    fun `calls prisonUserService`() {
+      whenever(userService.downloadPrisonAdminsByFilter(any())).thenReturn(
+        listOf(
+          UserFixture.createPrisonAdminUserSummary(username = "user1"),
+          UserFixture.createPrisonAdminUserSummary(username = "user2"),
+        ),
+      )
+
+      userService.downloadPrisonAdminsByFilter(PrisonUserFilter())
+
+      verify(userService).downloadPrisonAdminsByFilter(PrisonUserFilter())
     }
   }
 }

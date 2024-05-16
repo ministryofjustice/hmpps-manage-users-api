@@ -1,13 +1,18 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
@@ -36,6 +41,20 @@ class UserService(
       val verifyLinkEmailAndUsername = verifyEmailService.requestVerification(prisonUser, newEmailAddress)
       authApiService.updateEmail(username, verifyLinkEmailAndUsername.email)
       return verifyLinkEmailAndUsername.link
+    } ?: throw EntityNotFoundException("Prison username $username not found")
+  }
+
+  fun enableUser(username: String) {
+    val prisonUser = prisonUserApiService.findUserByUsername(username)
+    prisonUser?.let {
+      prisonUserApiService.enableUserByUserId(username)
+    } ?: throw EntityNotFoundException("Prison username $username not found")
+  }
+
+  fun disableUser(username: String) {
+    val prisonUser = prisonUserApiService.findUserByUsername(username)
+    prisonUser?.let {
+      prisonUserApiService.disableUserByUserId(username)
     } ?: throw EntityNotFoundException("Prison username $username not found")
   }
 
@@ -110,6 +129,18 @@ class UserService(
       }
     }
     return listOf()
+  }
+
+  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
+    return prisonUserApiService.findUsersByFilter(pageRequest, filter)
+  }
+
+  fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserSummary> {
+    return prisonUserApiService.downloadUsersByFilter(filter)
+  }
+
+  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter): List<PrisonAdminUserSummary> {
+    return prisonUserApiService.downloadPrisonAdminsByFilter(filter)
   }
 }
 

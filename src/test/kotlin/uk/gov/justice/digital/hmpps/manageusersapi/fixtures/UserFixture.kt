@@ -1,12 +1,21 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.fixtures
 
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAccountStatus
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
+import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CaseloadRoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.RoleDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -77,6 +86,103 @@ class UserFixture {
       accountStatus = accountStatus,
     )
 
+    fun createPrisonUserSummary(
+      username: String = "NUSER_GEN",
+      firstName: String = "Nomis",
+      staffId: String = "123456",
+      lastName: String = "Take",
+      activeCaseLoad: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      email: String = "nomis.usergen@digital.justice.gov.uk",
+      active: Boolean = true,
+    ) = PrisonUserSummary(
+      username = username,
+      staffId = staffId,
+      firstName = firstName,
+      lastName = lastName,
+      active = active,
+      activeCaseload = activeCaseLoad,
+      email = email,
+    )
+
+    fun createPrisonUserSearchSummary(
+      username: String = "NUSER_GEN",
+      staffId: Int = 123456,
+      firstName: String = "Nomis",
+      lastName: String = "Take",
+      active: Boolean = true,
+      status: String = "ACTIVE",
+      locked: Boolean = false,
+      expired: Boolean = false,
+      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      dpsRoleCount: Int = 2,
+      email: String = "",
+    ) = PrisonUserSearchSummary(
+      username = username,
+      staffId = staffId,
+      firstName = firstName,
+      lastName = lastName,
+      active = active,
+      status = status,
+      locked = locked,
+      expired = expired,
+      activeCaseload = activeCaseload,
+      dpsRoleCount = dpsRoleCount,
+      email = email,
+      staffStatus = "ACTIVE",
+    )
+
+    fun createPrisonAdminUserSummary(
+      username: String = "NUSER_GEN",
+      staffId: Long = 123456,
+      firstName: String = "Nomis",
+      lastName: String = "Take",
+      active: Boolean = true,
+      status: PrisonAccountStatus = PrisonAccountStatus.OPEN,
+      locked: Boolean = false,
+      expired: Boolean = false,
+      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      dpsRoleCount: Int = 2,
+      email: String = "nomis.take@example.com",
+    ) = PrisonAdminUserSummary(
+      username = username,
+      staffId = staffId,
+      firstName = firstName,
+      lastName = lastName,
+      active = active,
+      status = status,
+      locked = locked,
+      expired = expired,
+      activeCaseload = activeCaseload,
+      dpsRoleCount = dpsRoleCount,
+      email = email,
+      groups = listOf(),
+      staffStatus = "ACTIVE",
+    )
+
+    fun createPrisonUserRoleDetails(
+      username: String = "NUSER_GEN",
+      active: Boolean = true,
+      accountType: UsageType = UsageType.GENERAL,
+    ) = UserRoleDetail(
+      username = username,
+      active = active,
+      accountType = accountType,
+      activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload(
+        "MDI",
+        "Moorland (HMP)",
+      ),
+      dpsRoles = listOf(),
+      nomisRoles = listOf(
+        CaseloadRoleDetail(
+          uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+          listOf(
+            RoleDetail("ROLE1", "Role 1"),
+            RoleDetail("ROLE2", "Role 2"),
+          ),
+        ),
+      ),
+    )
+
     fun createPrisonStaffUser(
       staffId: Long = 100,
       firstName: String = "First",
@@ -120,5 +226,26 @@ class UserFixture {
         adminAccount,
       )
     }
+
+    fun createPrisonUserCaseloadDetails(
+      username: String = "NUSER_GEN",
+      active: Boolean = true,
+      accountType: UsageType = UsageType.GENERAL,
+    ) = UserCaseloadDetail(
+      username = username,
+      active = active,
+      accountType = accountType,
+      activeCaseload = PrisonCaseload(id = "NWEB", name = "National Web"),
+      caseloads = listOf(
+        PrisonCaseload(
+          id = "NWEB",
+          name = "National Web",
+        ),
+        PrisonCaseload(
+          id = "LEI",
+          name = "Leeds",
+        ),
+      ),
+    )
   }
 }

@@ -6,23 +6,32 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
@@ -212,7 +221,8 @@ class UserServiceTest {
     fun `create a DPS central admin user linked to a General account`() {
       val createLinkedCentralAdminUserRequest = CreateLinkedCentralAdminUserRequest("TEST_USER", "TEST_USER_ADM")
       val prisonStaffUser = UserFixture.createPrisonStaffUser()
-      val createUserRequest = createUserRequest(createLinkedCentralAdminUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
+      val createUserRequest =
+        createUserRequest(createLinkedCentralAdminUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
       whenever(prisonUserApiService.linkCentralAdminUser(createLinkedCentralAdminUserRequest)).thenReturn(
         prisonStaffUser,
       )
@@ -246,7 +256,8 @@ class UserServiceTest {
       whenever(prisonUserApiService.linkLocalAdminUser(createLinkedLocalAdminUserRequest)).thenReturn(
         prisonStaffUser,
       )
-      val createUserRequest = createUserRequest(createLinkedLocalAdminUserRequest.adminUsername, DPS_LSA, prisonStaffUser)
+      val createUserRequest =
+        createUserRequest(createLinkedLocalAdminUserRequest.adminUsername, DPS_LSA, prisonStaffUser)
       prisonUserService.createLinkedLocalAdminUser(createLinkedLocalAdminUserRequest)
       verify(prisonUserApiService).linkLocalAdminUser(createLinkedLocalAdminUserRequest)
       if (createUserRequest != null) {
@@ -264,7 +275,8 @@ class UserServiceTest {
       whenever(prisonUserApiService.linkGeneralUser(createLinkedGeneralUserRequest)).thenReturn(
         prisonStaffUser,
       )
-      val createUserRequest = createUserRequest(createLinkedGeneralUserRequest.generalUsername, DPS_GEN, prisonStaffUser)
+      val createUserRequest =
+        createUserRequest(createLinkedGeneralUserRequest.generalUsername, DPS_GEN, prisonStaffUser)
       prisonUserService.createLinkedGeneralUser(createLinkedGeneralUserRequest)
       verify(prisonUserApiService).linkGeneralUser(createLinkedGeneralUserRequest)
       if (createUserRequest != null) {
@@ -364,7 +376,6 @@ class UserServiceTest {
             firstName = "F2",
             lastName = "l2",
             activeCaseLoadId = null,
-
           ),
           EnhancedPrisonUser(
             username = "U3",
@@ -449,6 +460,123 @@ class UserServiceTest {
       assertThat(prisonUserService.findUserByUsername("NUSER_GEN")).isEqualTo(
         createPrisonUserDetails(),
       )
+    }
+  }
+
+  @Nested
+  inner class EnablePrisonUser {
+    @Test
+    fun `updates prison user on success`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+
+      doNothing().whenever(prisonUserApiService).enableUserByUserId(prisonuser.username)
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(prisonuser)
+
+      prisonUserService.enableUser(prisonuser.username)
+
+      // verify prisonUserApiService.enableUserByUserId is called
+      verify(prisonUserApiService).enableUserByUserId(prisonuser.username)
+    }
+
+    @Test
+    fun `throws error if prison user doesn't exist`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(null)
+
+      // verify that the exception is thrown
+      assertThatThrownBy { prisonUserService.enableUser(prisonuser.username) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prison username ${prisonuser.username} not found")
+    }
+  }
+
+  @Nested
+  inner class DisablePrisonUser {
+    @Test
+    fun `updates prison user on success`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+
+      doNothing().whenever(prisonUserApiService).disableUserByUserId(prisonuser.username)
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(prisonuser)
+
+      prisonUserService.disableUser(prisonuser.username)
+
+      // verify prisonUserApiService.enableUserByUserId is called
+      verify(prisonUserApiService).disableUserByUserId(prisonuser.username)
+    }
+
+    @Test
+    fun `throws error if prison user doesn't exist`() {
+      val prisonuser = UserFixture.createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(null)
+
+      // verify that the exception is thrown
+      assertThatThrownBy { prisonUserService.disableUser(prisonuser.username) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prison username ${prisonuser.username} not found")
+    }
+  }
+
+  @Nested
+  inner class FindUsersByFilter {
+    @Test
+    fun `calls prisonUserApiService`() {
+      val sort = PageSort(true, false, true)
+      val response = PagedResponse(
+        content = listOf(
+          createPrisonUserSearchSummary(username = "user1"),
+          createPrisonUserSearchSummary(username = "user2"),
+        ),
+        pageable = PageDetails(sort, 10, 1, 2, true, true),
+        totalElements = 2,
+        totalPages = 1,
+        last = true,
+        first = true,
+        sort = sort,
+        numberOfElements = 2,
+        size = 2,
+        number = 0,
+        empty = false,
+      )
+      whenever(prisonUserApiService.findUsersByFilter(any(), any())).thenReturn(response)
+
+      prisonUserService.findUsersByFilter(PageRequest.of(0, 10), PrisonUserFilter())
+
+      verify(prisonUserApiService).findUsersByFilter(PageRequest.of(0, 10), PrisonUserFilter())
+    }
+  }
+
+  @Nested
+  inner class DownloadUsersByFilter {
+    @Test
+    fun `calls prisonUserApiService`() {
+      whenever(prisonUserApiService.downloadUsersByFilter(any())).thenReturn(
+        listOf(
+          createPrisonUserSummary(username = "user1"),
+          createPrisonUserSummary(username = "user2"),
+        ),
+      )
+
+      prisonUserService.downloadUsersByFilter(PrisonUserFilter())
+
+      verify(prisonUserApiService).downloadUsersByFilter(PrisonUserFilter())
+    }
+  }
+
+  @Nested
+  inner class DownloadPrisonAdminsByFilter {
+    @Test
+    fun `calls prisonUserApiService`() {
+      whenever(prisonUserApiService.downloadPrisonAdminsByFilter(any())).thenReturn(
+        listOf(
+          createPrisonAdminUserSummary(username = "user1"),
+          createPrisonAdminUserSummary(username = "user2"),
+        ),
+      )
+
+      prisonUserService.downloadPrisonAdminsByFilter(PrisonUserFilter())
+
+      verify(prisonUserApiService).downloadPrisonAdminsByFilter(PrisonUserFilter())
     }
   }
 }

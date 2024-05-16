@@ -2,9 +2,11 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserRoleDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonRole
@@ -26,6 +28,28 @@ class UserRolesControllerTest {
     verify(userRolesService).getUserRoles("SOME_USER")
     assertThat(userRoles).isEqualTo(UserRoleDetail.fromDomain(createPrisonUserRole()))
     verifyContentMatches(userRoles)
+  }
+
+  @Test
+  fun `add user roles`() {
+    val details = createPrisonUserRoleDetails()
+    whenever(userRolesService.addRolesToUser(any(), any(), any())).thenReturn(details)
+
+    val userRoles = userRolesController.addRoles("SOME_USER", "NWEB", listOf("role1", "role2"))
+
+    verify(userRolesService).addRolesToUser("SOME_USER", listOf("role1", "role2"), "NWEB")
+    assertThat(userRoles).isEqualTo(details)
+  }
+
+  @Test
+  fun `remove user roles`() {
+    val details = createPrisonUserRoleDetails()
+    whenever(userRolesService.removeRoleFromUser(any(), any(), any())).thenReturn(details)
+
+    val userRoles = userRolesController.removeRoleFromUser("SOME_USER", "role_1", "NWEB")
+
+    verify(userRolesService).removeRoleFromUser("SOME_USER", "role_1", "NWEB")
+    assertThat(userRoles).isEqualTo(details)
   }
 
   private fun verifyContentMatches(actualUserRoles: UserRoleDetail) {

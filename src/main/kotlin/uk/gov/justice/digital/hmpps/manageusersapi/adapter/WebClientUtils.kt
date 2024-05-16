@@ -167,6 +167,13 @@ class WebClientUtils(
       .block()
   }
 
+  fun <T : Any> deleteWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T =
+    client.delete()
+      .uri(uri, *uriVariables)
+      .retrieve()
+      .bodyToMono(elementClass)
+      .block()!!
+
   private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
     path(path)
     queryParams.forEach { (key, value) ->
