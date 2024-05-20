@@ -6,7 +6,7 @@ calculateNomisUserRolesApiHostname() {
   if [[ "$ENV" == "dev" ]]; then
     echo "https://nomis-user-roles-api-dev.prison.service.justice.gov.uk"
   elif [[ "$ENV" == "preprod" ]]; then
-    echo "https://nomis-user-pp.aks-live-1.studio-hosting.service.justice.gov.uk"
+    echo "https://nomis-user-roles-api-preprod.prison.service.justice.gov.uk"
   elif [[ "$ENV" == "prod" ]]; then
     echo "https://nomis-user.aks-live-1.studio-hosting.service.justice.gov.uk"
   elif [[ "$ENV" =~ localhost* ]]; then
