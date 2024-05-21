@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
@@ -64,6 +65,26 @@ class UserFixture {
       email = email,
       enabled = enabled,
       roles = roles,
+    )
+
+    fun createPrisonUserFullDetails() = PrisonUserDetails(
+      username = "NUSER_GEN",
+      firstName = "Nomis",
+      staffId = 123456,
+      lastName = "Take",
+      activeCaseloadId = "MDI",
+      accountStatus = PrisonAccountStatus.OPEN,
+      accountType = UsageType.GENERAL,
+      primaryEmail = "bob@example.com",
+      dpsRoleCodes = listOf("ROLE1", "ROLE2", "ROLE3"),
+      administratorOfUserGroups = listOf(),
+      accountNonLocked = true,
+      credentialsNonExpired = true,
+      enabled = true,
+      admin = false,
+      active = true,
+      staffStatus = "ACTIVE",
+      lastLogonDate = LocalDateTime.now(),
     )
 
     fun createPrisonUserBasicDetails(

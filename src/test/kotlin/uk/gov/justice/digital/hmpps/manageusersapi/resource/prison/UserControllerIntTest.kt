@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -1249,6 +1250,79 @@ class UserControllerIntTest : IntegrationTestBase() {
       assertThat(prisonUser.firstName).isEqualTo("Nomis")
       assertThat(prisonUser.lastName).isEqualTo("Take")
       assertThat(prisonUser.primaryEmail).isEqualTo("nomis.usergen@digital.justice.gov.uk")
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+  }
+
+  @Nested
+  inner class FindUserDetailsByUsername {
+    private val username = "NUSER_GEN"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/prisonusers/$username/details")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/prisonusers/$username/details")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/prisonusers/$username/details")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `user not found`() {
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.get().uri("/prisonusers/$username/details")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+
+    @Test
+    fun `user not searched when username has @`() {
+      val username = "USER@NAME"
+
+      nomisApiMockServer.stubGetFail("/users/$username", NOT_FOUND)
+      webTestClient.get().uri("/prisonusers/$username/details")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `find user by username`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      val prisonUserDetails = webTestClient.get().uri("/prisonusers/$username/details")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(PrisonUserDetails::class.java)
+        .returnResult().responseBody!!
+
+      assertThat(prisonUserDetails.username).isEqualTo(username)
+      assertThat(prisonUserDetails.firstName).isEqualTo("Nomis")
+      assertThat(prisonUserDetails.lastName).isEqualTo("Take")
+      assertThat(prisonUserDetails.primaryEmail).isEqualTo("nomis.usergen@digital.justice.gov.uk")
+      assertThat(prisonUserDetails.active).isEqualTo(true)
 
       nomisApiMockServer.verify(
         getRequestedFor(urlEqualTo("/users/$username")),

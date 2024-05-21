@@ -13,15 +13,16 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
+import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
 
 @Service(value = "nomisUserApiService")
@@ -111,6 +112,14 @@ class UserApiService(
     return serviceWebClientUtils.get("/users/{username}", PrisonUser::class.java, username.uppercase())
   }
 
+  fun findUserDetailsByUsername(username: String): PrisonUserDetails? {
+    if ("@" in username) {
+      log.error("Nomis not called with username as contained @: {}", username)
+      throw EntityNotFoundException("Prison username $username not allowed")
+    }
+    return serviceWebClientUtils.get("/users/{username}", PrisonUserDetails::class.java, username.uppercase())
+  }
+
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {
     return userWebClientUtils.getWithParams(
       "/users/staff",
@@ -181,10 +190,10 @@ class UserApiService(
 
   fun mapPrisonUserFilterToMap(filter: PrisonUserFilter): Map<String, Any?> = mapNonNull(
     "nameFilter" to filter.name,
-    "status" to if (filter.status == UserStatus.ALL) null else filter.status,
+    "status" to if (filter.status == PrisonUserStatus.ALL) null else filter.status,
     "activeCaseload" to filter.activeCaseloadId,
     "caseload" to filter.caseloadId,
-    "accessRole" to if (filter.roleCodes.isEmpty()) null else filter.roleCodes.joinToString(","),
+    "accessRoles" to if (filter.roleCodes.isEmpty()) null else filter.roleCodes.joinToString(","),
     "nomisRole" to filter.nomisRoleCode,
     "inclusiveRoles" to if (filter.inclusiveRoles == true) true else null,
     "showOnlyLSAs" to if (filter.showOnlyLSAs == true) true else null,
