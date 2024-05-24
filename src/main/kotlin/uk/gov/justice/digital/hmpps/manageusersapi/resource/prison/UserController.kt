@@ -354,7 +354,6 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ) = prisonUserService.findUserByUsername(username)?.let { NewPrisonUserDto.fromDomain(it) }
 
-
   @GetMapping("/prisonusers/{username}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
   @Operation(
