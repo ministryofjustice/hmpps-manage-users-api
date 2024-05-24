@@ -41,6 +41,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
+import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
@@ -96,7 +97,7 @@ class UserSearchController(
       description = "Limit to active / inactive / show all users",
       example = "INACTIVE",
     )
-    status: UserStatus = UserStatus.ACTIVE,
+    status: PrisonUserStatus = PrisonUserStatus.ACTIVE,
     @Parameter(
       description = "Filter results by user's currently active caseload i.e. the one they have currently selected",
       example = "MDI",
@@ -162,7 +163,7 @@ class UserSearchController(
       description = "Limit to active / inactive / show all users",
       example = "INACTIVE",
     )
-    status: UserStatus = UserStatus.ACTIVE,
+    status: PrisonUserStatus = PrisonUserStatus.ACTIVE,
     @Parameter(
       description = "Filter results by user's currently active caseload i.e. the one they have currently selected",
       example = "MDI",
@@ -227,7 +228,7 @@ class UserSearchController(
       description = "Limit to active / inactive / show all users",
       example = "INACTIVE",
     )
-    status: UserStatus = UserStatus.ACTIVE,
+    status: PrisonUserStatus = PrisonUserStatus.ACTIVE,
     @Parameter(
       description = "Filter results by user's currently active caseload i.e. the one they have currently selected",
       example = "MDI",
@@ -352,6 +353,45 @@ class UserController(
   fun findUserByUsername(
     @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ) = prisonUserService.findUserByUsername(username)?.let { NewPrisonUserDto.fromDomain(it) }
+
+  @GetMapping("/prisonusers/{username}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
+  @Operation(
+    summary = "Get specified user details",
+    description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+    security = [
+      SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"),
+      SecurityRequirement(
+        name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+      ),
+    ],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "User Information Returned",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect request to get user information",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Incorrect permissions to get a user",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  fun getUserDetails(
+    @Schema(description = "Username", example = "testuser1", required = true)
+    @PathVariable
+    username: String,
+  ) = prisonUserService.findUserDetailsByUsername(username)
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")

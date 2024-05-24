@@ -75,6 +75,8 @@ class UserService(
 
   fun findUserByUsername(username: String) = prisonUserApiService.findUserByUsernameWithError(username)
 
+  fun findUserDetailsByUsername(username: String) = prisonUserApiService.findUserDetailsByUsername(username)
+
   fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
     val prisonStaffUser = prisonUserApiService.linkCentralAdminUser(linkUserRequest)
     sendEmailNotification(linkUserRequest.adminUsername, DPS_ADM, prisonStaffUser)
