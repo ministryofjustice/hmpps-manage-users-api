@@ -6,7 +6,7 @@ data class PrisonUserSearchSummary(
   val firstName: String,
   val lastName: String,
   val active: Boolean,
-  val status: String,
+  val status: String?,
   val locked: Boolean,
   val expired: Boolean,
   val activeCaseload: PrisonCaseload?,
