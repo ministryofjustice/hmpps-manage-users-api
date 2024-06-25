@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.config
 
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesRegistrationAdapter
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
@@ -19,11 +19,15 @@ class OAuth2ClientConfiguration {
    * Constructs a ClientRegistrationRepository with registrations from beans (Delius) and Spring configuration (Azure OIDC)
    */
   @Bean
-  fun clientRegistrationRepository(properties: Optional<OAuth2ClientProperties>, registrationBeans: Optional<List<ClientRegistration>>): ClientRegistrationRepository? {
+  fun clientRegistrationRepository(
+    properties: Optional<OAuth2ClientProperties>,
+    registrationBeans: Optional<List<ClientRegistration>>,
+  ): ClientRegistrationRepository? {
+    val clientMapper = OAuth2ClientPropertiesMapper(properties.get())
     val registrations = ArrayList<ClientRegistration>()
 
     if (properties.isPresent) {
-      registrations.addAll(OAuth2ClientPropertiesRegistrationAdapter.getClientRegistrations(properties.get()).values)
+      registrations.addAll(clientMapper.asClientRegistrations().values)
     }
 
     if (registrationBeans.isPresent) {
