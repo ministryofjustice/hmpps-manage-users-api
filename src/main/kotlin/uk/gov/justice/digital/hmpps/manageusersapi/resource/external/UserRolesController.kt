@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.external
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -222,25 +221,12 @@ class UserRolesController(
       SecurityRequirement(name = "ROLE_MAINTAIN_IMS_USERS"),
     ],
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = UserRole::class)),
-          ),
-        ],
-      ),
-    ],
-  )
+  @StandardApiResponses
   fun getAssignableRoles(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
     userId: UUID,
-  ) = userRolesService.getAssignableRoles(userId)
+  ): List<UserRole> = userRolesService.getAssignableRoles(userId)
 
   @GetMapping("/me/searchable-roles")
   @Operation(
@@ -252,12 +238,6 @@ class UserRolesController(
       ApiResponse(
         responseCode = "200",
         description = "OK",
-        content = [
-          Content(
-            mediaType = "application/json",
-            array = ArraySchema(schema = Schema(implementation = UserRole::class)),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -271,8 +251,7 @@ class UserRolesController(
       ),
     ],
   )
-  fun searchableRoles() =
-    userRolesService.getAllSearchableRoles()
+  fun searchableRoles(): List<UserRole> = userRolesService.getAllSearchableRoles()
 }
 
 @Schema(description = "User Role Details")
