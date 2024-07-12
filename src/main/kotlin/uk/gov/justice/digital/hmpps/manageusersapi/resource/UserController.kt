@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -107,7 +106,7 @@ class UserController(
             mediaType = "application/json",
             schema = Schema(implementation = EmailAddressDto::class),
           ),
-        ]
+        ],
       ),
       ApiResponse(
         responseCode = "404",

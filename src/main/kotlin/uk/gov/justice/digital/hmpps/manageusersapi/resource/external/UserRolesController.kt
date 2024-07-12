@@ -233,8 +233,8 @@ class UserRolesController(
             array = ArraySchema(schema = Schema(implementation = UserRole::class)),
           ),
         ],
-      )
-    ]
+      ),
+    ],
   )
   fun getAssignableRoles(
     @Parameter(description = "The userId of the user.", required = true)
