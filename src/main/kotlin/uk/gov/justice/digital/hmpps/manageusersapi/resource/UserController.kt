@@ -100,7 +100,13 @@ class UserController(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "No content.  No verified email address found for user",
+        description = "The user's email address",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = EmailAddressDto::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",

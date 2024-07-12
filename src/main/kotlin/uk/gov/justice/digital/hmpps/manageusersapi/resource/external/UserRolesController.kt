@@ -226,7 +226,7 @@ class UserRolesController(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
     userId: UUID,
-  ) = userRolesService.getAssignableRoles(userId)
+  ): List<UserRole> = userRolesService.getAssignableRoles(userId)
 
   @GetMapping("/me/searchable-roles")
   @Operation(
@@ -251,8 +251,7 @@ class UserRolesController(
       ),
     ],
   )
-  fun searchableRoles() =
-    userRolesService.getAllSearchableRoles()
+  fun searchableRoles(): List<UserRole> = userRolesService.getAllSearchableRoles()
 }
 
 @Schema(description = "User Role Details")
