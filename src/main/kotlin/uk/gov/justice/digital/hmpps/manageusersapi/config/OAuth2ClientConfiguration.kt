@@ -23,11 +23,10 @@ class OAuth2ClientConfiguration {
     properties: Optional<OAuth2ClientProperties>,
     registrationBeans: Optional<List<ClientRegistration>>,
   ): ClientRegistrationRepository? {
-    val clientMapper = OAuth2ClientPropertiesMapper(properties.get())
     val registrations = ArrayList<ClientRegistration>()
 
     if (properties.isPresent) {
-      registrations.addAll(clientMapper.asClientRegistrations().values)
+      registrations.addAll(OAuth2ClientPropertiesMapper(properties.get()).asClientRegistrations().values)
     }
 
     if (registrationBeans.isPresent) {
