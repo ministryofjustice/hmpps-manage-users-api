@@ -1487,9 +1487,9 @@ class UserControllerIntTest : IntegrationTestBase() {
   @Nested
   inner class FindUsersByCaseloadAndRole {
     private val localUri =
-      "/prisonusers/find-by-caseload-and-role?activeCaseload=BXI&nomisRole=123"
+      "/prisonusers/find-by-caseload-and-role?activeCaseload=BXI&roleCode=ADD_SENSITIVE_CASE_NOTES"
     private val nomisUri =
-      "/users?activeCaseload=BXI&nomisRole=123&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
+      "/users?activeCaseload=BXI&accessRoles=ADD_SENSITIVE_CASE_NOTES&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
 
     @Test
     fun `access forbidden when no authority`() {
@@ -1530,9 +1530,9 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `findUsersByCaseloadAndRole calls find-users endpoint with status`() {
       val localUri =
-        "/prisonusers/find-by-caseload-and-role?activeCaseload=BXI&nomisRole=123&status=ACTIVE"
+        "/prisonusers/find-by-caseload-and-role?activeCaseload=BXI&roleCode=ADD_SENSITIVE_CASE_NOTES&status=ACTIVE"
       val nomisUri =
-        "/users?status=ACTIVE&activeCaseload=BXI&nomisRole=123&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
+        "/users?status=ACTIVE&activeCaseload=BXI&accessRoles=ADD_SENSITIVE_CASE_NOTES&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
 
       nomisApiMockServer.stubFindUsersByFilter(nomisUri, OK)
       webTestClient.get().uri(localUri)
@@ -1554,7 +1554,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `findUsersByCaseloadAndRole fails if nomisRole not defined`() {
+    fun `findUsersByCaseloadAndRole fails if roleCode not defined`() {
       webTestClient.get().uri("/prisonusers/find-by-caseload-and-role?activeCaseload=BXI")
         .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
         .exchange()

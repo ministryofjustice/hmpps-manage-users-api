@@ -163,12 +163,12 @@ class UserSearchController(
     )
     @RequestParam(value = "activeCaseload", required = true)
     activeCaseload: String,
-    @RequestParam(value = "nomisRole", required = true)
+    @RequestParam(value = "roleCode", required = true)
     @Parameter(
-      description = "Filter will match users that have the NOMIS role specified",
-      example = "201",
+      description = "Filter will match users that have the DPS role specified",
+      example = "ADD_SENSITIVE_CASE_NOTES",
     )
-    nomisRole: String,
+    roleCode: String,
     @RequestParam(value = "status", required = false, defaultValue = "ALL")
     @Parameter(
       description = "Limit to active / inactive / show all users",
@@ -180,7 +180,7 @@ class UserSearchController(
     PrisonUserFilter(
       status = status,
       activeCaseloadId = activeCaseload,
-      nomisRoleCode = nomisRole,
+      roleCodes = listOf(roleCode),
     ),
   )
 
