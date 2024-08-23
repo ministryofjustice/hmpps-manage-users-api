@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.3"
-  kotlin("plugin.spring") version "2.0.10"
+  kotlin("plugin.spring") version "2.0.20"
 }
 
 configurations {
@@ -17,8 +17,8 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
   implementation("org.apache.commons:commons-text:1.12.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.11.0")
