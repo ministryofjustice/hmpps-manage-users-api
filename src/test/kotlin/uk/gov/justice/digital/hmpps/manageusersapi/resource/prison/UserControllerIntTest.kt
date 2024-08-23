@@ -1485,6 +1485,84 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class FindUsersByCaseloadAndRole {
+    private val localUri =
+      "/prisonusers/find-by-caseload-and-role?activeCaseload=BXI&roleCode=ADD_SENSITIVE_CASE_NOTES"
+    private val nomisUri =
+      "/users?activeCaseload=BXI&accessRoles=ADD_SENSITIVE_CASE_NOTES&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri(localUri)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `findUsersByCaseloadAndRole calls find-users endpoint`() {
+      nomisApiMockServer.stubFindUsersByFilter(nomisUri, OK)
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo(nomisUri)),
+      )
+    }
+
+    @Test
+    fun `findUsersByCaseloadAndRole calls find-users endpoint with status`() {
+      val localUri =
+        "/prisonusers/find-by-caseload-and-role?activeCaseload=BXI&roleCode=ADD_SENSITIVE_CASE_NOTES&status=ACTIVE"
+      val nomisUri =
+        "/users?status=ACTIVE&activeCaseload=BXI&accessRoles=ADD_SENSITIVE_CASE_NOTES&page=0&size=10&sort=lastName,ASC&sort=firstName,ASC"
+
+      nomisApiMockServer.stubFindUsersByFilter(nomisUri, OK)
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo(nomisUri)),
+      )
+    }
+
+    @Test
+    fun `findUsersByCaseloadAndRole fails if activeCaseload not defined`() {
+      webTestClient.get().uri("/prisonusers/find-by-caseload-and-role?nomisRole=123")
+        .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `findUsersByCaseloadAndRole fails if roleCode not defined`() {
+      webTestClient.get().uri("/prisonusers/find-by-caseload-and-role?activeCaseload=BXI")
+        .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+  }
+
+  @Nested
   inner class DownloadUsersByFilter {
     private val localUri =
       "/prisonusers/download?nameFilter=admin"

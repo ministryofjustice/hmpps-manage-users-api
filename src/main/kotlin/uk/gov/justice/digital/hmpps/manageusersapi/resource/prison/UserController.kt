@@ -137,6 +137,53 @@ class UserSearchController(
     ),
   )
 
+  @PreAuthorize("hasRole('USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO')")
+  @GetMapping("/prisonusers/find-by-caseload-and-role")
+  @Operation(
+    summary = "Get all users filtered by active caseload and role",
+    description = "Requires role USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO<br/>Get all users with active caseload and nomis role.<br/> This search does not limit by user token.",
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Pageable list of user summaries",
+      ),
+      ApiResponse(
+        responseCode = "400",
+        description = "Incorrect filter supplied",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  fun getUsersByCaseloadAndRole(
+    @PageableDefault(sort = ["lastName", "firstName"], direction = Sort.Direction.ASC)
+    pageRequest: Pageable,
+    @Parameter(
+      description = "Filter results by user's currently active caseload i.e. the one they have currently selected",
+      example = "MDI",
+    )
+    @RequestParam(value = "activeCaseload", required = true)
+    activeCaseload: String,
+    @RequestParam(value = "roleCode", required = true)
+    @Parameter(
+      description = "Filter will match users that have the DPS role specified",
+      example = "ADD_SENSITIVE_CASE_NOTES",
+    )
+    roleCode: String,
+    @RequestParam(value = "status", required = false, defaultValue = "ALL")
+    @Parameter(
+      description = "Limit to active / inactive / show all users",
+      example = "INACTIVE",
+    )
+    status: PrisonUserStatus = PrisonUserStatus.ACTIVE,
+  ): PagedResponse<PrisonUserSearchSummary> = prisonUserService.findUsersByFilter(
+    pageRequest,
+    PrisonUserFilter(
+      status = status,
+      activeCaseloadId = activeCaseload,
+      roleCodes = listOf(roleCode),
+    ),
+  )
+
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
   @GetMapping("/prisonusers/download")
   fun downloadUsersByFilters(
