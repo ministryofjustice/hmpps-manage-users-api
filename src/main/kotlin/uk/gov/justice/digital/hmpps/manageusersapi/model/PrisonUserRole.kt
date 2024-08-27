@@ -40,6 +40,7 @@ enum class PrisonRoleType {
   APP,
   INST,
   COMM,
+  SHG,
 }
 
 enum class PrisonUsageType {

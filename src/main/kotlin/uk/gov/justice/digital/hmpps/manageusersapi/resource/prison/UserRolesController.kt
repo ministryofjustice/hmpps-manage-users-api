@@ -261,6 +261,7 @@ enum class RoleType {
   APP,
   INST,
   COMM,
+  SHG,
 }
 
 enum class UsageType {
