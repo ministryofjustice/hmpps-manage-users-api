@@ -137,6 +137,10 @@ class UserService(
     return prisonUserApiService.findUsersByFilter(pageRequest, filter)
   }
 
+  fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
+    return prisonUserApiService.findUsersByCaseloadAndRole(pageRequest, filter)
+  }
+
   fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserSummary> {
     return prisonUserApiService.downloadUsersByFilter(filter)
   }

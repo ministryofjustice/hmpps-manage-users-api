@@ -176,6 +176,12 @@ class UserApiService(
     mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),
   )
 
+  fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = serviceWebClientUtils.getWithParams(
+    "/users",
+    object : ParameterizedTypeReference<PagedResponse<PrisonUserSearchSummary>>() {},
+    mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),
+  )
+
   fun downloadUsersByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
     "/users/download",
     object : ParameterizedTypeReference<List<PrisonUserSummary>>() {},

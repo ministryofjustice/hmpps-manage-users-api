@@ -175,7 +175,7 @@ class UserSearchController(
       example = "INACTIVE",
     )
     status: PrisonUserStatus = PrisonUserStatus.ACTIVE,
-  ): PagedResponse<PrisonUserSearchSummary> = prisonUserService.findUsersByFilter(
+  ): PagedResponse<PrisonUserSearchSummary> = prisonUserService.findUsersByCaseloadAndRole(
     pageRequest,
     PrisonUserFilter(
       status = status,
