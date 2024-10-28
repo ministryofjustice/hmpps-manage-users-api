@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.6"
-  kotlin("plugin.spring") version "2.0.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.8"
+  kotlin("plugin.spring") version "2.0.21"
 }
 
 configurations {
@@ -24,13 +24,13 @@ dependencies {
   implementation("com.google.code.gson:gson:2.11.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
-  implementation("uk.gov.service.notify:notifications-java-client:5.2.0-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-  testImplementation("org.wiremock:wiremock-standalone:3.9.1")
+  testImplementation("org.wiremock:wiremock-standalone:3.9.2")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 
