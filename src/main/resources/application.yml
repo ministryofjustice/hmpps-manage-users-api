@@ -138,3 +138,6 @@ delius:
   health.timeout: 1s
   endpoint.timeout: 5s
   max-retry-attempts: 2
+
+hmpps:
+  myRolesEndpointIsEnabled: false

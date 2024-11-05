@@ -35,7 +35,7 @@ import java.util.UUID
 class UserController(
   private val userService: UserService,
   private val authenticationFacade: AuthenticationFacade,
-  @Value("\${hmpps.enableMyRolesEndpoint}") private val myRolesEndpointIsEnabled: Boolean,
+  @Value("\${hmpps.myRolesEndpointIsEnabled}") private val myRolesEndpointIsEnabled: Boolean,
 ) {
 
   @GetMapping("/users/{username}")
