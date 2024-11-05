@@ -63,7 +63,7 @@ class UserControllerTest {
       auth,
       userId = UUID.randomUUID().toString(),
       uuid = UUID.randomUUID(),
-      activeCaseLoadId = activeCaseLoadId
+      activeCaseLoadId = activeCaseLoadId,
     )
     whenever(authenticationFacade.currentUsername).thenReturn("me")
     whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(userDetails)
@@ -86,22 +86,25 @@ class UserControllerTest {
       auth,
       userId = userId,
       uuid = uuid,
-      activeCaseLoadId = "something not null"
+      activeCaseLoadId = "something not null",
     )
     whenever(authenticationFacade.currentUsername).thenReturn("me")
     whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(userDetails)
 
     val user = userController.myDetails()
     verify(userService).findUserByUsernameWithAuthSource("me")
-    assertThat(user).isEqualTo(UserDetailsDto("username",
-      true,
-      "Any User",
-      auth,
-      userId = userId,
-      uuid = uuid,
-      activeCaseLoadId = null
+    assertThat(user).isEqualTo(
+      UserDetailsDto(
+        "username",
+        true,
+        "Any User",
+        auth,
+        userId = userId,
+        uuid = uuid,
+        activeCaseLoadId = null,
 
-    ))
+      ),
+    )
   }
 
   @Test
