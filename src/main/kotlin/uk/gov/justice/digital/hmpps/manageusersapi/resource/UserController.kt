@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -34,6 +35,7 @@ import java.util.UUID
 class UserController(
   private val userService: UserService,
   private val authenticationFacade: AuthenticationFacade,
+  @Value("\${hmpps.enableMyRolesEndpoint}") private val enableMyRolesEndpoint: Boolean,
 ) {
 
   @GetMapping("/users/{username}")
@@ -155,13 +157,22 @@ class UserController(
     unverified: Boolean = false,
   ): ResponseEntity<*> = getUserEmail(authenticationFacade.currentUsername!!, unverified = unverified)
 
+  @Deprecated("This endpoint is deprecated and will be removed soon. Use /auth/api/user/me instead.")
   @GetMapping("/users/me/roles")
   @Operation(
     summary = "List of roles for current user.",
     description = "List of roles for current user.",
   )
   @AuthenticatedApiResponses
-  fun myRoles() = userService.myRoles()
+  fun myRoles(): ResponseEntity<Any> {
+    return if (enableMyRolesEndpoint) {
+      ResponseEntity.ok(userService.myRoles())
+    } else {
+      ResponseEntity.status(HttpStatus.GONE)
+        .body("This endpoint is deprecated and will be removed soon. Use /auth/api/user/me instead.")
+    }
+  }
+
 
   @GetMapping("/users/{username}/roles")
   @Operation(
