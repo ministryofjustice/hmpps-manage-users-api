@@ -58,4 +58,4 @@ delius:
         - 'ROLE_MANAGE_A_WORKFORCE_ALLOCATE'
 
 hmpps:
-  myRolesEndpointIsEnabled: true
+  activeCaseloadIdFlagEnabled: true

@@ -35,7 +35,7 @@ import java.util.UUID
 class UserController(
   private val userService: UserService,
   private val authenticationFacade: AuthenticationFacade,
-  @Value("\${hmpps.myRolesEndpointIsEnabled}") private val myRolesEndpointIsEnabled: Boolean,
+  @Value("\${hmpps.activeCaseloadIdFlagEnabled}") private val activeCaseloadIdFlagEnabled: Boolean,
 ) {
 
   @GetMapping("/users/{username}")
@@ -65,7 +65,7 @@ class UserController(
   ): UserDetailsDto {
     val user = userService.findUserByUsername(username)
     return if (user != null) {
-      UserDetailsDto.fromDomain(user)
+      UserDetailsDto.fromDomain(user, true)
     } else {
       throw NotFoundException("Account for username $username not found")
     }
@@ -80,7 +80,7 @@ class UserController(
   fun myDetails(): User {
     val user = userService.findUserByUsernameWithAuthSource(authenticationFacade.currentUsername!!)
     return user?.let {
-      UserDetailsDto.fromDomain(user)
+      UserDetailsDto.fromDomain(user, activeCaseloadIdFlagEnabled)
     } ?: UsernameDto(authenticationFacade.currentUsername!!)
   }
 
@@ -157,21 +157,13 @@ class UserController(
     unverified: Boolean = false,
   ): ResponseEntity<*> = getUserEmail(authenticationFacade.currentUsername!!, unverified = unverified)
 
-  @Deprecated("This endpoint is deprecated and will be removed soon. Use /auth/api/user/me instead.")
   @GetMapping("/users/me/roles")
   @Operation(
     summary = "List of roles for current user.",
     description = "List of roles for current user.",
   )
   @AuthenticatedApiResponses
-  fun myRoles(): ResponseEntity<Any> {
-    return if (myRolesEndpointIsEnabled) {
-      ResponseEntity.ok(userService.myRoles())
-    } else {
-      ResponseEntity.status(HttpStatus.GONE)
-        .body("This endpoint is deprecated and will be removed soon. Use /auth/api/user/me instead.")
-    }
-  }
+  fun myRoles() = userService.myRoles()
 
   @GetMapping("/users/{username}/roles")
   @Operation(
@@ -289,7 +281,7 @@ data class UserDetailsDto(
 ) : User {
 
   companion object {
-    fun fromDomain(user: GenericUser): UserDetailsDto {
+    fun fromDomain(user: GenericUser, activeCaseloadEndpointIdFlagEnabled: Boolean): UserDetailsDto {
       with(user) {
         return UserDetailsDto(
           username,
@@ -297,7 +289,7 @@ data class UserDetailsDto(
           name,
           authSource,
           staffId,
-          activeCaseLoadId,
+          if (activeCaseloadEndpointIdFlagEnabled) activeCaseLoadId else null,
           userId,
           uuid,
         )

@@ -78,4 +78,4 @@ generic-prometheus-alerts:
   targetApplication: hmpps-manage-users-api
 
 hmpps:
-  myRolesEndpointIsEnabled: true
+  activeCaseloadIdFlagEnabled: true

@@ -140,4 +140,4 @@ delius:
   max-retry-attempts: 2
 
 hmpps:
-  myRolesEndpointIsEnabled: false
+  activeCaseloadIdFlagEnabled: false
