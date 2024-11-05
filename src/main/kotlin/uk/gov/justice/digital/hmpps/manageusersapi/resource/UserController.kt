@@ -173,7 +173,6 @@ class UserController(
     }
   }
 
-
   @GetMapping("/users/{username}/roles")
   @Operation(
     summary = "List of roles for user",
