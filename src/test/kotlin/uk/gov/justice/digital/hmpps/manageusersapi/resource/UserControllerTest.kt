@@ -21,7 +21,8 @@ class UserControllerTest {
 
   private val userService: UserService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
-  private val userController = UserController(userService, authenticationFacade)
+  private val myRolesEndpointIsEnabled = true
+  private val userController = UserController(userService, authenticationFacade, myRolesEndpointIsEnabled)
 
   @Test
   fun `find user by username`() {
