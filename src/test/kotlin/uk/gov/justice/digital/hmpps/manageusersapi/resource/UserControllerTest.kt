@@ -9,10 +9,12 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
+import uk.gov.justice.digital.hmpps.manageusersapi.service.ExternalUserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
 import java.util.UUID
@@ -22,7 +24,7 @@ class UserControllerTest {
   private val userService: UserService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val myRolesEndpointIsEnabled = true
-  private val userController = UserController(userService, authenticationFacade, myRolesEndpointIsEnabled)
+  private var userController = UserController(userService, authenticationFacade, myRolesEndpointIsEnabled)
 
   @Test
   fun `find user by username`() {
@@ -176,6 +178,29 @@ class UserControllerTest {
       val responseEntity = userController.myEmail()
       assertThat(responseEntity.statusCodeValue).isEqualTo(200)
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", true))
+    }
+  }
+
+  @Nested
+  inner class MyRoles {
+    @Test
+    fun myRolesWhenEndpointIsEnabled() {
+      val externalUserRoles = listOf(ExternalUserRole("ROLE_SOMETHING"))
+      whenever(userService.myRoles()).thenReturn(externalUserRoles)
+
+      val responseEntity = userController.myRoles()
+
+      assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+      assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(externalUserRoles)
+    }
+    @Test
+    fun myRolesWhenEndpointIsDisabled() {
+      userController = UserController(userService, authenticationFacade, false)
+
+      val responseEntity = userController.myRoles()
+
+      assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.GONE)
+      assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo("This endpoint is deprecated and will be removed soon. Use /auth/api/user/me instead.")
     }
   }
 }
