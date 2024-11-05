@@ -193,6 +193,7 @@ class UserControllerTest {
       assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(externalUserRoles)
     }
+
     @Test
     fun myRolesWhenEndpointIsDisabled() {
       userController = UserController(userService, authenticationFacade, false)
