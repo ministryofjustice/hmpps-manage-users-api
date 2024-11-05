@@ -78,4 +78,4 @@ generic-prometheus-alerts:
   targetApplication: hmpps-manage-users-api
 
 hmpps:
-  enableMyRolesEndpoint: true
+  myRolesEndpointIsEnabled: true

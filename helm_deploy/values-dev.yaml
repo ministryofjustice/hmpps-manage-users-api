@@ -32,4 +32,4 @@ generic-prometheus-alerts:
   alertSeverity: hmpps_tech_non_prod
 
 hmpps:
-  enableMyRolesEndpoint: false
+  myRolesEndpointIsEnabled: false

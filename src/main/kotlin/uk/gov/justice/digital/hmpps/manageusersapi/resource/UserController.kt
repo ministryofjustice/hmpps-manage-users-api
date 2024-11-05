@@ -35,7 +35,7 @@ import java.util.UUID
 class UserController(
   private val userService: UserService,
   private val authenticationFacade: AuthenticationFacade,
-  @Value("\${hmpps.enableMyRolesEndpoint}") private val enableMyRolesEndpoint: Boolean,
+  @Value("\${hmpps.enableMyRolesEndpoint}") private val myRolesEndpointIsEnabled: Boolean,
 ) {
 
   @GetMapping("/users/{username}")
@@ -165,7 +165,7 @@ class UserController(
   )
   @AuthenticatedApiResponses
   fun myRoles(): ResponseEntity<Any> {
-    return if (enableMyRolesEndpoint) {
+    return if (myRolesEndpointIsEnabled) {
       ResponseEntity.ok(userService.myRoles())
     } else {
       ResponseEntity.status(HttpStatus.GONE)
