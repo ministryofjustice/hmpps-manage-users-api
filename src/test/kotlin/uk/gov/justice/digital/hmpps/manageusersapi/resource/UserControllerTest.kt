@@ -52,7 +52,10 @@ class UserControllerTest {
   }
 
   @Test
-  fun `find my details`() {
+  fun `find my details when activeCaseloadIdFlagEnabled is set to true`() {
+    userController = UserController(userService, authenticationFacade, true)
+
+    val activeCaseLoadId = "some active caseload ID"
     val userDetails = GenericUser(
       "username",
       true,
@@ -60,6 +63,7 @@ class UserControllerTest {
       auth,
       userId = UUID.randomUUID().toString(),
       uuid = UUID.randomUUID(),
+      activeCaseLoadId = activeCaseLoadId
     )
     whenever(authenticationFacade.currentUsername).thenReturn("me")
     whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(userDetails)
@@ -67,6 +71,37 @@ class UserControllerTest {
     val user = userController.myDetails()
     verify(userService).findUserByUsernameWithAuthSource("me")
     assertThat(user).isEqualTo(UserDetailsDto.fromDomain(userDetails, activeCaseloadIdFlagEnabled))
+  }
+
+  @Test
+  fun `find my details when activeCaseloadIdFlagEnabled is set to false`() {
+    userController = UserController(userService, authenticationFacade, false)
+
+    val userId = UUID.randomUUID().toString()
+    val uuid = UUID.randomUUID()
+    val userDetails = GenericUser(
+      "username",
+      true,
+      "Any User",
+      auth,
+      userId = userId,
+      uuid = uuid,
+      activeCaseLoadId = "something not null"
+    )
+    whenever(authenticationFacade.currentUsername).thenReturn("me")
+    whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(userDetails)
+
+    val user = userController.myDetails()
+    verify(userService).findUserByUsernameWithAuthSource("me")
+    assertThat(user).isEqualTo(UserDetailsDto("username",
+      true,
+      "Any User",
+      auth,
+      userId = userId,
+      uuid = uuid,
+      activeCaseLoadId = null
+
+    ))
   }
 
   @Test
