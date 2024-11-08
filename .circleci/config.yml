@@ -59,7 +59,7 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - HAAR-2960
           requires:
             - validate
             - build_docker
