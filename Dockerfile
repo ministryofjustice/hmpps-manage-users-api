@@ -15,7 +15,11 @@ ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
 
 RUN apt-get update && \
     apt-get -y upgrade --no-install-recommends && \
-    apt-get install -y --no-install-recommends tzdata && \
+    apt-get install -y --no-install-recommends \
+        tzdata \
+        curl=7.81.0-1ubuntu1.18 \
+        libcurl4=7.81.0-1ubuntu1.18 \
+        openssl=3.0.2-0ubuntu1.18 && \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London
