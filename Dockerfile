@@ -15,8 +15,8 @@ ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
 
 RUN apt-get update && \
     apt-get -y upgrade --no-install-recommends && \
-    apt-get remove -y wget gcc libkrb5-3 && \
-    # apt-get remove -y wget gcc gcc-12-base libgcc-s1 libstdc++6 libgcrypt20 libk5crypto3 libkrb5-3 libkrb5support0 \
+    apt-get remove -y wget gcc libkrb5support0 && \
+    # apt-get remove -y wget gcc gcc-12-base libgcc-s1 libstdc++6 libgcrypt20 libk5crypto3 libkrb5-3 \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London
