@@ -20,7 +20,7 @@ RUN apt-get update && \
         curl=7.81.0-1ubuntu1.18 \
         libcurl4=7.81.0-1ubuntu1.18 \
         openssl=3.0.2-0ubuntu1.18 && \
-    apt-get remove -y wget || true && \
+    apt-get remove -y wget gcc gcc-12-base || true && \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London
