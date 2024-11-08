@@ -15,7 +15,7 @@ ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
 
 RUN apt-get update && \
     apt-get -y upgrade --no-install-recommends && \
-    apt-get remove -y wget gcc gcc-12-base && \
+    apt-get remove -y wget gcc libgcc-s1 && \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London
