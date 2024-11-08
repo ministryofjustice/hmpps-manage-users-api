@@ -14,7 +14,8 @@ ARG BUILD_NUMBER
 ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
 
 RUN apt-get update && \
-    apt-get -y upgrade && \
+    apt-get -y upgrade --no-install-recommends && \
+    apt-get install -y --no-install-recommends tzdata && \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London

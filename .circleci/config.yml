@@ -48,7 +48,7 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - HAAR-2960
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
