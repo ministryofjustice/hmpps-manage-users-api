@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.9"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.0"
   kotlin("plugin.spring") version "2.0.21"
 }
 
@@ -15,7 +15,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
