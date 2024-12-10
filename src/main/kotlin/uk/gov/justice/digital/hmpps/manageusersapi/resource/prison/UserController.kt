@@ -175,14 +175,31 @@ class UserSearchController(
       example = "INACTIVE",
     )
     status: PrisonUserStatus = PrisonUserStatus.ACTIVE,
-  ): PagedResponse<PrisonUserSearchSummary> = prisonUserService.findUsersByCaseloadAndRole(
-    pageRequest,
-    PrisonUserFilter(
-      status = status,
-      activeCaseloadId = activeCaseload,
-      roleCodes = listOf(roleCode),
-    ),
-  )
+    @RequestParam(value = "activeCaseloadOnly", required = false, defaultValue = "true")
+    @Parameter(
+      description = "If 'activeCaseloadOnly' is provided and True search for users with the target caseloadId " +
+        "irrespective of whether it is currently active or not. The default behaviour is to search for users where the " +
+        "target caseloadId is currently active.",
+    )
+    activeCaseloadOnly: Boolean = true,
+  ): PagedResponse<PrisonUserSearchSummary> {
+    val filter = if (activeCaseloadOnly) {
+      // Filter for users with caseload currently active
+      PrisonUserFilter(
+        status = status,
+        activeCaseloadId = activeCaseload,
+        roleCodes = listOf(roleCode),
+      )
+    } else {
+      // Filter for users with caseload irrespective of active status
+      PrisonUserFilter(
+        status = status,
+        caseloadId = activeCaseload,
+        roleCodes = listOf(roleCode),
+      )
+    }
+    return prisonUserService.findUsersByCaseloadAndRole(pageRequest, filter)
+  }
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
   @GetMapping("/prisonusers/download")
