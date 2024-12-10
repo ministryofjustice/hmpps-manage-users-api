@@ -5,10 +5,12 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.delete
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -917,6 +919,52 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubUsersByRoleAndActiveCaseload(roles: List<String>, caseload: String) {
+    stubFor(
+      get(
+        urlPathEqualTo("/users"),
+      )
+        .withQueryParam("status", equalTo("ACTIVE"))
+        .withQueryParam("activeCaseload", equalTo(caseload))
+        .withQueryParam("accessRoles", equalTo(roles.joinToString(",")))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              usersByRoleAndCaseloadJson(
+                firstName = "Maggie",
+                lastName = "Simpson",
+                caseload = caseload,
+              ),
+            ),
+        ),
+    )
+  }
+
+  fun stubUsersByRoleAndCaseload(roles: List<String>, caseload: String) {
+    stubFor(
+      get(
+        urlPathEqualTo("/users"),
+      )
+        .withQueryParam("status", equalTo("ACTIVE"))
+        .withQueryParam("caseload", equalTo(caseload))
+        .withQueryParam("accessRoles", equalTo(roles.joinToString(",")))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              usersByRoleAndCaseloadJson(
+                firstName = "Homer",
+                lastName = "Simpson",
+                caseload = caseload,
+              ),
+            ),
+        ),
+    )
+  }
+
   fun stubGetCaseloads(url: String) {
     stubFor(
       get(url)
@@ -1066,6 +1114,56 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
            }
           ]
       }
+    """.trimIndent()
+  }
+
+  private fun usersByRoleAndCaseloadJson(firstName: String, lastName: String, caseload: String): String {
+    return """
+            {
+              "content": [
+                {
+                  "username": "$firstName.$lastName",
+                  "staffId": 100.0,
+                  "firstName": "$firstName",
+                  "lastName": "$lastName",
+                  "active": true,
+                  "status": "ACTIVE",
+                  "locked": false,
+                  "expired": false,
+                  "activeCaseload": {
+                    "id": "$caseload",
+                    "name": "$caseload (HMP)"
+                  },
+                  "dpsRoleCount": 0.0,
+                  "staffStatus": "ACTIVE"
+                }
+              ],
+              "pageable": {
+                "pageNumber": 0.0,
+                "pageSize": 10.0,
+                "sort": {
+                  "empty": false,
+                  "sorted": true,
+                  "unsorted": false
+                },
+                "offset": 0.0,
+                "unpaged": false,
+                "paged": true
+              },
+              "last": true,
+              "totalPages": 1.0,
+              "totalElements": 1.0,
+              "first": true,
+              "size": 10.0,
+              "number": 0.0,
+              "sort": {
+                "empty": false,
+                "sorted": true,
+                "unsorted": false
+              },
+              "numberOfElements": 1.0,
+              "empty": false
+            }
     """.trimIndent()
   }
 }

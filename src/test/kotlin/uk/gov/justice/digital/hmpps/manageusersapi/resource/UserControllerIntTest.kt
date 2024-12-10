@@ -1,14 +1,19 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
@@ -837,5 +842,150 @@ class UserControllerIntTest : IntegrationTestBase() {
           true,
         )
     }
+  }
+
+  @Nested
+  inner class FindByCaseloadAndRole {
+
+    @BeforeEach
+    internal fun setup() {
+      nomisApiMockServer.resetAll()
+    }
+
+    @Test
+    fun `should return only users matching active caseload`() {
+      val status = "ACTIVE"
+      val roles = listOf("ADD_SENSITIVE_CASE_NOTES")
+      val caseload = "MDI"
+      nomisApiMockServer.stubUsersByRoleAndActiveCaseload(roles, caseload)
+
+      webTestClient
+        .get()
+        .uri { builder ->
+          builder.path("/prisonusers/find-by-caseload-and-role")
+            .queryParam("status", status)
+            .queryParam("activeCaseload", caseload)
+            .queryParam("roleCode", roles.joinToString(","))
+            .queryParam("activeCaseloadOnly", true)
+            .build()
+        }
+        .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .assertUserByRoleAndCaseloadResponse(
+          firstName = "Maggie",
+          lastName = "Simpson",
+          caseload = caseload,
+        )
+
+      nomisApiMockServer.verify(
+        1,
+        getRequestedFor(urlPathEqualTo("/users"))
+          .withHeader("Authorization", matching("Bearer .+"))
+          .withQueryParam("status", equalTo("ACTIVE"))
+          .withQueryParam("activeCaseload", equalTo(caseload))
+          .withQueryParam("accessRoles", equalTo(roles.joinToString(",")))
+          .withoutQueryParam("caseload"),
+      )
+    }
+  }
+
+  @Test
+  fun `should default to users with active caseload when 'activeCaseloadOnly' param is not specified`() {
+    val status = "ACTIVE"
+    val roles = listOf("ADD_SENSITIVE_CASE_NOTES")
+    val caseload = "MDI"
+    nomisApiMockServer.stubUsersByRoleAndActiveCaseload(roles, caseload)
+
+    webTestClient
+      .get()
+      .uri { builder ->
+        builder.path("/prisonusers/find-by-caseload-and-role")
+          .queryParam("status", status)
+          .queryParam("activeCaseload", caseload)
+          .queryParam("roleCode", roles.joinToString(","))
+          .build()
+      }
+      .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .assertUserByRoleAndCaseloadResponse(
+        firstName = "Maggie",
+        lastName = "Simpson",
+        caseload = caseload,
+      )
+
+    nomisApiMockServer.verify(
+      1,
+      getRequestedFor(urlPathEqualTo("/users"))
+        .withHeader("Authorization", matching("Bearer .+"))
+        .withQueryParam("status", equalTo("ACTIVE"))
+        .withQueryParam("activeCaseload", equalTo(caseload))
+        .withQueryParam("accessRoles", equalTo(roles.joinToString(",")))
+        .withoutQueryParam("caseload"),
+    )
+  }
+
+  @Test
+  fun `should return any user with the specified caseload irrespective of it being their currently active caseload`() {
+    val status = "ACTIVE"
+    val roles = listOf("ADD_SENSITIVE_CASE_NOTES")
+    val caseload = "MDI"
+    nomisApiMockServer.stubUsersByRoleAndCaseload(roles, caseload)
+
+    webTestClient
+      .get()
+      .uri { builder ->
+        builder.path("/prisonusers/find-by-caseload-and-role")
+          .queryParam("status", status)
+          .queryParam("activeCaseload", caseload)
+          .queryParam("roleCode", roles.joinToString(","))
+          .queryParam("activeCaseloadOnly", false)
+          .build()
+      }
+      .headers(setAuthorisation(roles = listOf("ROLE_USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .assertUserByRoleAndCaseloadResponse(
+        firstName = "Homer",
+        lastName = "Simpson",
+        caseload = caseload,
+      )
+
+    nomisApiMockServer.verify(
+      1,
+      getRequestedFor(urlPathEqualTo("/users"))
+        .withHeader("Authorization", matching("Bearer .+"))
+        .withQueryParam("status", equalTo("ACTIVE"))
+        .withQueryParam("caseload", equalTo(caseload))
+        .withQueryParam("accessRoles", equalTo(roles.joinToString(",")))
+        .withoutQueryParam("activeCaseload"),
+    )
+  }
+
+  internal fun WebTestClient.BodyContentSpec.assertUserByRoleAndCaseloadResponse(
+    firstName: String,
+    lastName: String,
+    caseload: String,
+  ) {
+    this.jsonPath("$.totalPages").isEqualTo(1)
+      .jsonPath("$.totalElements").isEqualTo(1)
+      .jsonPath("$.numberOfElements").isEqualTo(1)
+      .jsonPath("$.empty").isEqualTo(false)
+      .jsonPath("$.content[0].username").isEqualTo("$firstName.$lastName")
+      .jsonPath("$.content[0].staffId").isEqualTo(100)
+      .jsonPath("$.content[0].firstName").isEqualTo(firstName)
+      .jsonPath("$.content[0].lastName").isEqualTo(lastName)
+      .jsonPath("$.content[0].active").isEqualTo(true)
+      .jsonPath("$.content[0].status").isEqualTo("ACTIVE")
+      .jsonPath("$.content[0].locked").isEqualTo(false)
+      .jsonPath("$.content[0].expired").isEqualTo(false)
+      .jsonPath("$.content[0].activeCaseload.id").isEqualTo(caseload)
+      .jsonPath("$.content[0].activeCaseload.name").isEqualTo("$caseload (HMP)")
+      .jsonPath("$.content[0].dpsRoleCount").isEqualTo(0)
+      .jsonPath("$.content[0].staffStatus").isEqualTo("ACTIVE")
   }
 }
