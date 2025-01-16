@@ -27,7 +27,7 @@ hmpps-auth:
 nomis:
   endpoint:
     url: http://localhost:8082
-    timeout: 1s
+    timeout: 3m
   client:
     client-id: manage-users-api-nomis-client
     client-secret: clientsecret
