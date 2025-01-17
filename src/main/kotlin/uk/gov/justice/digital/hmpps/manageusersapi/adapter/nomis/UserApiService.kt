@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundExcepti
 class UserApiService(
   @Qualifier("nomisWebClientUtils") val serviceWebClientUtils: WebClientUtils,
   @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,
+  @Qualifier("nomisUserDownloadWebClientUtils") val userDownloadWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -182,13 +183,13 @@ class UserApiService(
     mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),
   )
 
-  fun downloadUsersByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
+  fun downloadUsersByFilter(filter: PrisonUserFilter) = userDownloadWebClientUtils.getWithParams(
     "/users/download",
     object : ParameterizedTypeReference<List<PrisonUserSummary>>() {},
     mapPrisonUserFilterToMap(filter),
   )
 
-  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter) = userWebClientUtils.getWithParams(
+  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter) = userDownloadWebClientUtils.getWithParams(
     "/users/download/admins",
     object : ParameterizedTypeReference<List<PrisonAdminUserSummary>>() {},
     mapPrisonUserFilterToMap(filter),

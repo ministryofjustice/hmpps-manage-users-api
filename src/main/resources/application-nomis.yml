@@ -1,2 +1,5 @@
 nomis:
   enabled: true
+
+nomis-user-download:
+  enabled: true

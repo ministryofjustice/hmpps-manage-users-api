@@ -116,6 +116,16 @@ nomis:
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
+  endpoint.timeout: 5s
+  max-retry-attempts: 2
+
+nomis-user-download:
+  enabled: false
+  client:
+    access-token-uri: ${authorization-server.token.endpoint.url}
+    authentication-scheme: header
+    client-authentication-scheme: header
+  health.timeout: 1s
   endpoint.timeout: 3m
   max-retry-attempts: 2
 
