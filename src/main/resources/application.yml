@@ -117,6 +117,7 @@ nomis:
     client-authentication-scheme: header
   health.timeout: 1s
   endpoint.timeout: 5s
+  endpoint.extended-timeout: 30s
   max-retry-attempts: 2
 
 external-users:

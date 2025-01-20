@@ -87,6 +87,27 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
       .build()
   }
 
+  fun getWebClientExtendedTimeoutWithCurrentUserToken(
+    builder: WebClient.Builder,
+    prefix: String = "",
+  ): WebClient {
+    val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.extended-timeout", Duration::class.java)
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
+
+    return builder
+      .baseUrl("${endpointUrl}$prefix")
+      .filter(addAuthHeaderFilterFunction())
+      .clientConnector(
+        getClientConnectorWithTimeouts(
+          apiTimeout,
+          apiTimeout,
+          endpointUrl,
+          environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
+        ),
+      )
+      .build()
+  }
+
   fun getHealthWebClient(builder: WebClient.Builder): WebClient {
     val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
     val healthTimeout = environment.getRequiredProperty("$clientId.health.timeout", Duration::class.java)
