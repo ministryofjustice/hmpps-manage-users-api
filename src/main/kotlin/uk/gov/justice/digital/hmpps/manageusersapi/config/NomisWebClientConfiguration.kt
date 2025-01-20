@@ -40,5 +40,5 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
 
   @Bean
-  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
+  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserExtendedTimeoutWebClient: WebClient) = WebClientUtils(nomisUserExtendedTimeoutWebClient, maxRetryAttempts)
 }
