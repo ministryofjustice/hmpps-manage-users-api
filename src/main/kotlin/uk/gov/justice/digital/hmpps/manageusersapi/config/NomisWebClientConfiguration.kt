@@ -28,6 +28,9 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   fun nomisUserWebClient(builder: Builder) = getWebClientWithCurrentUserToken(builder)
 
   @Bean
+  fun nomisUserExtendedTimeoutWebClient(builder: Builder) = getExtendedTimeoutWebClientWithCurrentUserToken(builder)
+
+  @Bean
   fun nomisHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)
 
   @Bean
@@ -35,4 +38,7 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
 
   @Bean
   fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
+
+  @Bean
+  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
 }
