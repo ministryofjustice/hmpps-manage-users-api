@@ -31,15 +31,7 @@ nomis:
   endpoint:
     url: http://localhost:8093
     timeout: 1s
-  client:
-    client-id: manage-users-api-nomis-client
-    client-secret: clientsecret
-
-nomis-user-download:
-  enabled: false
-  endpoint:
-    url: http://localhost:8093
-    timeout: 3m
+    extended-timeout: 3m
   client:
     client-id: manage-users-api-nomis-client
     client-secret: clientsecret

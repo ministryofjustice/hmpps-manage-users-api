@@ -13,7 +13,6 @@ generic-service:
     AUTHORIZATION_SERVER_TOKEN_ENDPOINT_URL: http://hmpps-auth.hmpps-auth-stage.svc.cluster.local/auth/oauth/token
     HMPPS_AUTH_EXTERNAL_ENDPOINT_URL: https://sign-in-stage.hmpps.service.justice.gov.uk/auth
     NOMIS_ENDPOINT_URL: https://nomis-user-roles-api-stage.prison.service.justice.gov.uk
-    NOMIS_USER_DOWNLOAD_ENDPOINT_URL: https://nomis-user-roles-api-stage.prison.service.justice.gov.uk
     EXTERNAL_USERS_ENDPOINT_URL: https://external-users-api-stage.hmpps.service.justice.gov.uk
     DELIUS_ENDPOINT_URL: https://hmpps-auth-and-delius-stage.hmpps.service.justice.gov.uk
     BANNER_ROLES:

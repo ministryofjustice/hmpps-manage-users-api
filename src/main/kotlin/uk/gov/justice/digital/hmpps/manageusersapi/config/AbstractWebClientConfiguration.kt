@@ -69,23 +69,20 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
   fun getWebClientWithCurrentUserToken(
     builder: WebClient.Builder,
     prefix: String = "",
-  ): WebClient {
-    val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java)
-    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
+  ): WebClient = getWebClientWithCurrentUserTokenAndTimeout(
+    builder,
+    prefix,
+    environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java),
+  )
 
-    return builder
-      .baseUrl("${endpointUrl}$prefix")
-      .filter(addAuthHeaderFilterFunction())
-      .clientConnector(
-        getClientConnectorWithTimeouts(
-          apiTimeout,
-          apiTimeout,
-          endpointUrl,
-          environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
-        ),
-      )
-      .build()
-  }
+  fun getExtendedTimeoutWebClientWithCurrentUserToken(
+    builder: WebClient.Builder,
+    prefix: String = "",
+  ): WebClient = getWebClientWithCurrentUserTokenAndTimeout(
+    builder,
+    prefix,
+    environment.getRequiredProperty("$clientId.endpoint.extended-timeout", Duration::class.java),
+  )
 
   fun getHealthWebClient(builder: WebClient.Builder): WebClient {
     val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
@@ -97,6 +94,27 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
         getClientConnectorWithTimeouts(
           healthTimeout,
           healthTimeout,
+          endpointUrl,
+          environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
+        ),
+      )
+      .build()
+  }
+
+  fun getWebClientWithCurrentUserTokenAndTimeout(
+    builder: WebClient.Builder,
+    prefix: String = "",
+    apiTimeout: Duration,
+  ): WebClient {
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
+
+    return builder
+      .baseUrl("${endpointUrl}$prefix")
+      .filter(addAuthHeaderFilterFunction())
+      .clientConnector(
+        getClientConnectorWithTimeouts(
+          apiTimeout,
+          apiTimeout,
           endpointUrl,
           environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
         ),

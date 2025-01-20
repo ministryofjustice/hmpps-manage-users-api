@@ -16,9 +16,6 @@ nomis:
   endpoint:
     url: http://nomis-user-roles-api:8080
 
-nomis-user-download:
-  endpoint:
-    url: http://nomis-user-roles-api:8080
 
 external-users:
   endpoint:
