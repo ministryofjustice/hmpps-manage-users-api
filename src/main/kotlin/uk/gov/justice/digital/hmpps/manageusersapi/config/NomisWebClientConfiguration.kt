@@ -16,6 +16,8 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   private val environment = appContext.environment
 
   private val maxRetryAttempts = environment.getRequiredProperty("nomis.max-retry-attempts", Long::class.java)
+  private val extendedTimeoutMaxRetryAttempts =
+    environment.getRequiredProperty("nomis.extended-timeout-max-retry-attempts", Long::class.java)
 
   @Bean("nomisClientRegistration")
   fun getNomisClientRegistration(): ClientRegistration = getClientRegistration()
@@ -40,5 +42,6 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
 
   @Bean
-  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserExtendedTimeoutWebClient: WebClient) = WebClientUtils(nomisUserExtendedTimeoutWebClient, maxRetryAttempts)
+  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserExtendedTimeoutWebClient: WebClient) =
+    WebClientUtils(nomisUserExtendedTimeoutWebClient, extendedTimeoutMaxRetryAttempts)
 }

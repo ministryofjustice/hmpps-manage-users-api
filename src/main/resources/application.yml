@@ -120,6 +120,7 @@ nomis:
     timeout: 5s
     extended-timeout: 3m
   max-retry-attempts: 2
+  extended-timeout-max-retry-attempts: 0
 
 external-users:
   enabled: false
