@@ -27,11 +27,9 @@ class UserGroupApiService(
     userWebClientUtils.put("/users/{userId}/groups/{group}", userId, group)
   }
 
-  fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> =
-    serviceWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
+  fun getUserGroups(userId: UUID, children: Boolean): List<UserGroup> = serviceWebClientUtils.getWithParams("/users/$userId/groups", GroupList::class.java, mapOf("children" to children))
 
-  fun getMyAssignableGroups(): List<UserGroup> =
-    userWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
+  fun getMyAssignableGroups(): List<UserGroup> = userWebClientUtils.get("/users/me/assignable-groups", GroupList::class.java)
 }
 
 class GroupList : MutableList<UserGroup> by ArrayList()

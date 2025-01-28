@@ -81,9 +81,7 @@ class UserCaseloadsController(
       min = 1,
       message = "username must be between 1 and 30",
     ) username: String,
-  ): ResponseEntity<UserCaseloadDetail> {
-    return ResponseEntity.ok(userCaseloadService.getUserCaseloads(username))
-  }
+  ): ResponseEntity<UserCaseloadDetail> = ResponseEntity.ok(userCaseloadService.getUserCaseloads(username))
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @PostMapping("/{username}/caseloads")
@@ -140,9 +138,7 @@ class UserCaseloadsController(
     username: String,
     @RequestBody @Valid
     caseloadIds: List<String>,
-  ): UserCaseloadDetail {
-    return userCaseloadService.addUserCaseloads(username, caseloadIds)
-  }
+  ): UserCaseloadDetail = userCaseloadService.addUserCaseloads(username, caseloadIds)
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @DeleteMapping("/{username}/caseloads/{caseloadId}")
@@ -200,9 +196,7 @@ class UserCaseloadsController(
     @PathVariable
     @Size(max = 6, min = 3, message = "Caseload must be between 3 and 6")
     caseloadId: String,
-  ): UserCaseloadDetail {
-    return userCaseloadService.removeCaseloadFromUser(username, caseloadId)
-  }
+  ): UserCaseloadDetail = userCaseloadService.removeCaseloadFromUser(username, caseloadId)
 }
 
 data class PrisonCaseload(

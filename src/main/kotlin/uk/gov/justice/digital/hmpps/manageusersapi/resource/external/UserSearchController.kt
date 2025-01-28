@@ -78,14 +78,13 @@ class UserSearchController(
     status: Status,
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
     @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
-  ) =
-    userSearchService.findUsers(
-      name,
-      roles,
-      groups,
-      PageRequest.of(page, size),
-      status,
-    )
+  ) = userSearchService.findUsers(
+    name,
+    roles,
+    groups,
+    PageRequest.of(page, size),
+    status,
+  )
 
   @GetMapping
   @Operation(
@@ -152,9 +151,7 @@ class UserSearchController(
   fun userById(
     @Parameter(description = "The id of the user.", required = true) @PathVariable
     userId: UUID,
-  ): ExternalUserDetailsDto {
-    return ExternalUserDetailsDto.fromDomain(userSearchService.findExternalUserById(userId))
-  }
+  ): ExternalUserDetailsDto = ExternalUserDetailsDto.fromDomain(userSearchService.findExternalUserById(userId))
 
   @GetMapping("/{username}")
   @ResponseStatus(HttpStatus.OK)

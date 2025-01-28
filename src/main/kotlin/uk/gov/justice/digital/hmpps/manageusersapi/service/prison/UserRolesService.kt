@@ -27,10 +27,6 @@ class UserRolesService(
     return roleDetails.map { it.copy(name = authRoleMap[it.code] ?: it.name) }.sortedBy { it.name }
   }
 
-  fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null): UserRoleDetail {
-    return prisonRolesApiService.addRolesToUser(username, roles, caseloadId)
-  }
-  fun removeRoleFromUser(username: String, role: String, caseloadId: String? = null): UserRoleDetail {
-    return prisonRolesApiService.removeRoleFromUser(username, role, caseloadId)
-  }
+  fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null): UserRoleDetail = prisonRolesApiService.addRolesToUser(username, roles, caseloadId)
+  fun removeRoleFromUser(username: String, role: String, caseloadId: String? = null): UserRoleDetail = prisonRolesApiService.removeRoleFromUser(username, role, caseloadId)
 }

@@ -191,10 +191,8 @@ class UserController(
   fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String,
-  ): List<UserRole> {
-    return userService.findRolesByUsername(username)
-      ?: throw NotFoundException("Account for username $username not found")
-  }
+  ): List<UserRole> = userService.findRolesByUsername(username)
+    ?: throw NotFoundException("Account for username $username not found")
 
   @GetMapping("/roles/delius")
   @Operation(

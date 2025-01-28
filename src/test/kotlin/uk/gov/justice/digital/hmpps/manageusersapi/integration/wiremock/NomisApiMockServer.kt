@@ -1067,8 +1067,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  private fun getUserRoleDetailResponse(): String {
-    return """
+  private fun getUserRoleDetailResponse(): String = """
       {
         "username": "BOB",
         "active": true,
@@ -1094,11 +1093,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
           }
         ]
       }
-    """.trimIndent()
-  }
+  """.trimIndent()
 
-  private fun getUserCaseloadDetail(username: String): String {
-    return """ 
+  private fun getUserCaseloadDetail(username: String): String = """ 
       {
         "username": "$username",
         "active": true,
@@ -1114,11 +1111,9 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
            }
           ]
       }
-    """.trimIndent()
-  }
+  """.trimIndent()
 
-  private fun usersByRoleAndCaseloadJson(firstName: String, lastName: String, caseload: String): String {
-    return """
+  private fun usersByRoleAndCaseloadJson(firstName: String, lastName: String, caseload: String): String = """
             {
               "content": [
                 {
@@ -1164,6 +1159,5 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
               "numberOfElements": 1.0,
               "empty": false
             }
-    """.trimIndent()
-  }
+  """.trimIndent()
 }

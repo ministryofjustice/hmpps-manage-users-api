@@ -121,16 +121,14 @@ class UserApiService(
     return serviceWebClientUtils.get("/users/{username}", PrisonUserDetails::class.java, username.uppercase())
   }
 
-  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> {
-    return userWebClientUtils.getWithParams(
-      "/users/staff",
-      PrisonUserList::class.java,
-      mapOf(
-        "firstName" to firstName,
-        "lastName" to lastName,
-      ),
-    )
-  }
+  fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> = userWebClientUtils.getWithParams(
+    "/users/staff",
+    PrisonUserList::class.java,
+    mapOf(
+      "firstName" to firstName,
+      "lastName" to lastName,
+    ),
+  )
 
   fun linkCentralAdminUser(centralAdminUser: CreateLinkedCentralAdminUserRequest) = userWebClientUtils.postWithResponse(
     "/users/link-admin-account/{centralAdminUser}",
@@ -215,5 +213,4 @@ class UserApiService(
 
 class PrisonUserList : MutableList<PrisonUserSummary> by ArrayList()
 
-class UserExistsException(username: String) :
-  Exception("Unable to create user: username $username already exists")
+class UserExistsException(username: String) : Exception("Unable to create user: username $username already exists")

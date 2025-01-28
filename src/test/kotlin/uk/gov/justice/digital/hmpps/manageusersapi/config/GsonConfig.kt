@@ -18,19 +18,15 @@ import java.time.format.DateTimeFormatter
 class GsonConfig {
 
   @Bean
-  fun gson(): Gson {
-    return GsonBuilder().setPrettyPrinting()
-      .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
-      .create()
-  }
+  fun gson(): Gson = GsonBuilder().setPrettyPrinting()
+    .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
+    .create()
 
-  internal class LocalDateAdapter : JsonSerializer<LocalDate?>, JsonDeserializer<LocalDate?> {
-    override fun serialize(src: LocalDate?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
-      return JsonPrimitive(src?.format(DateTimeFormatter.ISO_LOCAL_DATE))
-    }
+  internal class LocalDateAdapter :
+    JsonSerializer<LocalDate?>,
+    JsonDeserializer<LocalDate?> {
+    override fun serialize(src: LocalDate?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement = JsonPrimitive(src?.format(DateTimeFormatter.ISO_LOCAL_DATE))
 
-    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): LocalDate? {
-      return LocalDate.parse(json?.asJsonPrimitive?.asString)
-    }
+    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): LocalDate? = LocalDate.parse(json?.asJsonPrimitive?.asString)
   }
 }

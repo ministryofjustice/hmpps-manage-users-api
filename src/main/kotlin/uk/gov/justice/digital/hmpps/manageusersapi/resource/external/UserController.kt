@@ -193,9 +193,7 @@ class UserController(
   fun createUserByEmail(
     @Parameter(description = "Details of the user to be created.", required = true) @RequestBody
     user: NewUser,
-  ): ResponseEntity<Any> {
-    return ResponseEntity.ok(userService.createUser(user))
-  }
+  ): ResponseEntity<Any> = ResponseEntity.ok(userService.createUser(user))
 }
 
 data class NewUser(

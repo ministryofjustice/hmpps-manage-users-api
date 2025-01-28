@@ -15,20 +15,19 @@ data class ExternalUser(
   val verified: Boolean = false,
   val lastLoggedIn: LocalDateTime? = null,
   val inactiveReason: String? = null,
-) : SourceUser, UserIdentity {
+) : SourceUser,
+  UserIdentity {
 
-  override fun toGenericUser(): GenericUser =
-    GenericUser(
-      username = username,
-      active = enabled,
-      authSource = auth,
-      name = "$firstName $lastName",
-      userId = userId.toString(),
-      uuid = userId,
-    )
+  override fun toGenericUser(): GenericUser = GenericUser(
+    username = username,
+    active = enabled,
+    authSource = auth,
+    name = "$firstName $lastName",
+    userId = userId.toString(),
+    uuid = userId,
+  )
 
-  override fun emailAddress(): EmailAddress =
-    EmailAddress(username, email, verified)
+  override fun emailAddress(): EmailAddress = EmailAddress(username, email, verified)
 
   override val authSource: AuthSource
     get() = auth

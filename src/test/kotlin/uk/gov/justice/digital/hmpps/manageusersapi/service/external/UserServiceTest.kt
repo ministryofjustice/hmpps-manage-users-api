@@ -656,7 +656,5 @@ class UserServiceTest {
     )
   }
 
-  private fun createAuthServiceWith(contact: String, code: String): AuthService {
-    return AuthService(code, "name", "desc", contact, "url")
-  }
+  private fun createAuthServiceWith(contact: String, code: String): AuthService = AuthService(code, "name", "desc", contact, "url")
 }

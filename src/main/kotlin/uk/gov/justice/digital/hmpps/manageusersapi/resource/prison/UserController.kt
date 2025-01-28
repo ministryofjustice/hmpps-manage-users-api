@@ -331,8 +331,7 @@ class UserSearchController(
     ),
   )
 
-  fun localAdministratorUsernameWhenNotCentralAdministrator(): String? =
-    if (AuthenticationFacade.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")) null else authenticationFacade.currentUsername
+  fun localAdministratorUsernameWhenNotCentralAdministrator(): String? = if (AuthenticationFacade.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")) null else authenticationFacade.currentUsername
 }
 
 @RestController("PrisonUserController")

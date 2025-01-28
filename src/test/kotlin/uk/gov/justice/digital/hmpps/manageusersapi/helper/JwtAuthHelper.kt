@@ -51,20 +51,19 @@ class JwtAuthHelper {
     expiryTime: Duration = Duration.ofHours(1),
     jwtId: String = UUID.randomUUID().toString(),
     authSource: AuthSource = AuthSource.auth,
-  ): String =
-    mutableMapOf<String, Any>()
-      .also { subject?.let { subject -> it["user_name"] = subject } }
-      .also { it["client_id"] = "hmpps-manage-users" }
-      .also { it["auth_source"] = authSource.name }
-      .also { roles?.let { roles -> it["authorities"] = roles } }
-      .also { scope?.let { scope -> it["scope"] = scope } }
-      .let {
-        Jwts.builder()
-          .setId(jwtId)
-          .setSubject(subject)
-          .addClaims(it.toMap())
-          .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-          .signWith(SignatureAlgorithm.RS256, keyPair.private)
-          .compact()
-      }
+  ): String = mutableMapOf<String, Any>()
+    .also { subject?.let { subject -> it["user_name"] = subject } }
+    .also { it["client_id"] = "hmpps-manage-users" }
+    .also { it["auth_source"] = authSource.name }
+    .also { roles?.let { roles -> it["authorities"] = roles } }
+    .also { scope?.let { scope -> it["scope"] = scope } }
+    .let {
+      Jwts.builder()
+        .setId(jwtId)
+        .setSubject(subject)
+        .addClaims(it.toMap())
+        .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+        .signWith(SignatureAlgorithm.RS256, keyPair.private)
+        .compact()
+    }
 }

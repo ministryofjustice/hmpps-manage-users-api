@@ -11,8 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient.Builder
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 
 @Configuration
-class DeliusWebClientConfiguration(appContext: ApplicationContext) :
-  AbstractWebClientConfiguration(appContext, "delius") {
+class DeliusWebClientConfiguration(appContext: ApplicationContext) : AbstractWebClientConfiguration(appContext, "delius") {
 
   private val environment = appContext.environment
 

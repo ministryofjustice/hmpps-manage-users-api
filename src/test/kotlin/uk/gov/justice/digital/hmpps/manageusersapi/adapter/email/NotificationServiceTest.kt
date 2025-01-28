@@ -194,16 +194,14 @@ class NotificationServiceTest {
     }
   }
 
-  private fun buildExternalUser(userId: UUID): ExternalUser {
-    return ExternalUser(
-      userId = userId,
-      "testy",
-      "testy@testing.com",
-      "testy",
-      "McTest",
-      locked = false,
-      enabled = true,
-      verified = true,
-    )
-  }
+  private fun buildExternalUser(userId: UUID): ExternalUser = ExternalUser(
+    userId = userId,
+    "testy",
+    "testy@testing.com",
+    "testy",
+    "McTest",
+    locked = false,
+    enabled = true,
+    verified = true,
+  )
 }

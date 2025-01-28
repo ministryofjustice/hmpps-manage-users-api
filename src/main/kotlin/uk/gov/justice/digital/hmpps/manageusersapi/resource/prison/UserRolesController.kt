@@ -50,9 +50,7 @@ class UserRolesController(
     @PathVariable
     @Size(max = 30, min = 1, message = "username must be between 1 and 30")
     username: String,
-  ): UserRoleDetail {
-    return UserRoleDetail.fromDomain(userRolesService.getUserRoles(username))
-  }
+  ): UserRoleDetail = UserRoleDetail.fromDomain(userRolesService.getUserRoles(username))
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
   @PostMapping("/{username}/roles")
@@ -276,7 +274,6 @@ data class CaseloadRoleDetail(
   @Schema(description = "NOMIS Roles assigned to this user", required = false) val roles: List<RoleDetail> = listOf(),
 ) {
   companion object {
-    fun fromDomain(pcr: PrisonCaseloadRole) =
-      CaseloadRoleDetail(PrisonCaseload.fromDomain(pcr.caseload), pcr.roles.map { RoleDetail.fromDomain(it) })
+    fun fromDomain(pcr: PrisonCaseloadRole) = CaseloadRoleDetail(PrisonCaseload.fromDomain(pcr.caseload), pcr.roles.map { RoleDetail.fromDomain(it) })
   }
 }

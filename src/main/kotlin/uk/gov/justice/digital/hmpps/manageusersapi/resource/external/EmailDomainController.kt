@@ -39,9 +39,7 @@ class EmailDomainController(
   @StandardApiResponses
   @GetMapping("/email-domains")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun domainList(): List<EmailDomainDto> {
-    return emailDomainService.domainList().map { EmailDomainDto.fromDomain(it) }
-  }
+  fun domainList(): List<EmailDomainDto> = emailDomainService.domainList().map { EmailDomainDto.fromDomain(it) }
 
   @Operation(
     summary = "Get email domain details",
@@ -58,9 +56,7 @@ class EmailDomainController(
   @StandardApiResponses
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun domain(@PathVariable id: UUID): EmailDomainDto {
-    return EmailDomainDto.fromDomain(emailDomainService.domain(id))
-  }
+  fun domain(@PathVariable id: UUID): EmailDomainDto = EmailDomainDto.fromDomain(emailDomainService.domain(id))
 
   @Operation(
     summary = "Create email domain",
@@ -93,9 +89,7 @@ class EmailDomainController(
     @RequestBody
     @Valid
     emailDomain: CreateEmailDomainDto,
-  ): EmailDomainDto {
-    return EmailDomainDto.fromDomain(emailDomainService.addEmailDomain(emailDomain))
-  }
+  ): EmailDomainDto = EmailDomainDto.fromDomain(emailDomainService.addEmailDomain(emailDomain))
 
   @Operation(
     summary = "Delete email domain details",
@@ -132,12 +126,11 @@ data class EmailDomainDto(
   val description: String,
 ) {
   companion object {
-    fun fromDomain(emailDomain: EmailDomain) =
-      EmailDomainDto(
-        emailDomain.id,
-        emailDomain.domain,
-        emailDomain.description,
-      )
+    fun fromDomain(emailDomain: EmailDomain) = EmailDomainDto(
+      emailDomain.id,
+      emailDomain.domain,
+      emailDomain.description,
+    )
   }
 }
 

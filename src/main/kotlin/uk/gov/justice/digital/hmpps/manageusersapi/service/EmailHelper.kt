@@ -7,6 +7,5 @@ import org.apache.commons.lang3.StringUtils.trim
 object EmailHelper {
 
   @JvmStatic
-  fun format(emailInput: String?): String? =
-    replaceChars(lowerCase(trim(emailInput)), '’', '\'')
+  fun format(emailInput: String?): String? = replaceChars(lowerCase(trim(emailInput)), '’', '\'')
 }

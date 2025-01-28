@@ -15,9 +15,7 @@ class ReferenceDataApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getCaseloads(): CaseloadList {
-    return serviceWebClientUtils.get("/reference-data/caseloads", CaseloadList::class.java)
-  }
+  fun getCaseloads(): CaseloadList = serviceWebClientUtils.get("/reference-data/caseloads", CaseloadList::class.java)
 }
 
 class CaseloadList : MutableList<PrisonCaseload> by ArrayList()
