@@ -132,29 +132,28 @@ class UserRolesServiceTest {
     }
   }
 
-  private fun createUserRoleDetails() =
-    PrisonUserRole(
-      username = "bob",
-      active = true,
-      activeCaseload = PrisonCaseload(id = "CADM_I", name = "Central Administration Caseload For Hmps"),
-      dpsRoles = listOf(
-        PrisonRole(
-          code = "OMIC_ADMIN",
-          name = "Key-worker allocator",
-          sequence = 1,
-          type = PrisonRoleType.APP,
-          adminRoleOnly = false,
-        ),
-        PrisonRole(
-          code = "MAINTAIN_ACCESS_ROLES",
-          name = "Maintain DPS user roles",
-          sequence = 1,
-          type = PrisonRoleType.APP,
-          adminRoleOnly = false,
-        ),
+  private fun createUserRoleDetails() = PrisonUserRole(
+    username = "bob",
+    active = true,
+    activeCaseload = PrisonCaseload(id = "CADM_I", name = "Central Administration Caseload For Hmps"),
+    dpsRoles = listOf(
+      PrisonRole(
+        code = "OMIC_ADMIN",
+        name = "Key-worker allocator",
+        sequence = 1,
+        type = PrisonRoleType.APP,
+        adminRoleOnly = false,
       ),
-      nomisRoles = listOf(),
-    )
+      PrisonRole(
+        code = "MAINTAIN_ACCESS_ROLES",
+        name = "Maintain DPS user roles",
+        sequence = 1,
+        type = PrisonRoleType.APP,
+        adminRoleOnly = false,
+      ),
+    ),
+    nomisRoles = listOf(),
+  )
 
   private fun createPrisonUserRoleDetails(
     username: String = "NUSER_GEN",

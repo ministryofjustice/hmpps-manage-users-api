@@ -46,10 +46,8 @@ class UserGroupServiceTest {
     assertThat(userGroupService.getMyAssignableGroups()).isEqualTo(myGroups)
   }
 
-  private fun givenAListOfGroups(): List<UserGroup> {
-    return listOf(
-      UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
-      UserGroup(groupCode = "GROUP_CHILD", groupName = "Child Group"),
-    )
-  }
+  private fun givenAListOfGroups(): List<UserGroup> = listOf(
+    UserGroup(groupCode = "GROUP_ONE", groupName = "First Group"),
+    UserGroup(groupCode = "GROUP_CHILD", groupName = "Child Group"),
+  )
 }

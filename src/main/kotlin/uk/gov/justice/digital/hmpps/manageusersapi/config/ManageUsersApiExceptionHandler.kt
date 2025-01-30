@@ -85,12 +85,10 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(EntityNotFoundException::class)
-  fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> {
-    return ResponseEntity
-      .status(NOT_FOUND)
-      .contentType(APPLICATION_JSON)
-      .body(ErrorResponse(status = NOT_FOUND.value(), developerMessage = e.message))
-  }
+  fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .contentType(APPLICATION_JSON)
+    .body(ErrorResponse(status = NOT_FOUND.value(), developerMessage = e.message))
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
@@ -164,8 +162,7 @@ class HmppsManageUsersApiExceptionHandler {
       )
   }
 
-  private fun MethodArgumentNotValidException.asErrorList(): List<String> =
-    this.allErrors.mapNotNull { it.defaultMessage }
+  private fun MethodArgumentNotValidException.asErrorList(): List<String> = this.allErrors.mapNotNull { it.defaultMessage }
 
   @ExceptionHandler(MissingServletRequestParameterException::class)
   fun handleValidationException(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> {

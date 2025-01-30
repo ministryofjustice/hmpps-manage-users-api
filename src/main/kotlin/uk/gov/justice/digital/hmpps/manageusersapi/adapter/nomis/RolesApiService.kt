@@ -55,29 +55,25 @@ class RolesApiService(
     )
   }
 
-  fun getUserRoles(username: String) =
-    userWebClientUtils.get("/users/{username}/roles", PrisonUserRole::class.java, username)
+  fun getUserRoles(username: String) = userWebClientUtils.get("/users/{username}/roles", PrisonUserRole::class.java, username)
 
-  fun getCaseloads() =
-    userWebClientUtils.get("/me/caseloads", UserCaseloadDetail::class.java)
+  fun getCaseloads() = userWebClientUtils.get("/me/caseloads", UserCaseloadDetail::class.java)
 
-  fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null) =
-    userWebClientUtils.postWithResponse(
-      "/users/{username}/roles?caseloadId={caseloadId}",
-      roles,
-      UserRoleDetail::class.java,
-      username,
-      caseloadId,
-    )
+  fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null) = userWebClientUtils.postWithResponse(
+    "/users/{username}/roles?caseloadId={caseloadId}",
+    roles,
+    UserRoleDetail::class.java,
+    username,
+    caseloadId,
+  )
 
-  fun removeRoleFromUser(username: String, role: String, caseloadId: String? = null): UserRoleDetail =
-    userWebClientUtils.deleteWithResponse(
-      "/users/{username}/roles/{role}?caseloadId={caseloadId}",
-      UserRoleDetail::class.java,
-      username,
-      role,
-      caseloadId,
-    )
+  fun removeRoleFromUser(username: String, role: String, caseloadId: String? = null): UserRoleDetail = userWebClientUtils.deleteWithResponse(
+    "/users/{username}/roles/{role}?caseloadId={caseloadId}",
+    UserRoleDetail::class.java,
+    username,
+    role,
+    caseloadId,
+  )
 
   private fun String.nomisRoleName(): String = take(30)
 

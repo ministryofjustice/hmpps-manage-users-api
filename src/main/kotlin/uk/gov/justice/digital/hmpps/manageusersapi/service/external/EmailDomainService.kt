@@ -10,17 +10,11 @@ import java.util.UUID
 class EmailDomainService(
   private val emailDomainApiService: EmailDomainApiService,
 ) {
-  fun domainList(): List<EmailDomain> {
-    return emailDomainApiService.domainList()
-  }
+  fun domainList(): List<EmailDomain> = emailDomainApiService.domainList()
 
-  fun domain(id: UUID): EmailDomain {
-    return emailDomainApiService.domain(id)
-  }
+  fun domain(id: UUID): EmailDomain = emailDomainApiService.domain(id)
 
-  fun addEmailDomain(emailDomain: CreateEmailDomainDto): EmailDomain {
-    return emailDomainApiService.addEmailDomain(emailDomain)
-  }
+  fun addEmailDomain(emailDomain: CreateEmailDomainDto): EmailDomain = emailDomainApiService.addEmailDomain(emailDomain)
 
   fun deleteEmailDomain(id: UUID) {
     emailDomainApiService.deleteEmailDomain(id)

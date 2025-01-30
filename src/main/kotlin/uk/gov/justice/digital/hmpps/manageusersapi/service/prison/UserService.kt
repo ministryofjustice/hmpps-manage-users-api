@@ -133,22 +133,13 @@ class UserService(
     return listOf()
   }
 
-  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
-    return prisonUserApiService.findUsersByFilter(pageRequest, filter)
-  }
+  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = prisonUserApiService.findUsersByFilter(pageRequest, filter)
 
-  fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
-    return prisonUserApiService.findUsersByCaseloadAndRole(pageRequest, filter)
-  }
+  fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = prisonUserApiService.findUsersByCaseloadAndRole(pageRequest, filter)
 
-  fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserSummary> {
-    return prisonUserApiService.downloadUsersByFilter(filter)
-  }
+  fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserSummary> = prisonUserApiService.downloadUsersByFilter(filter)
 
-  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter): List<PrisonAdminUserSummary> {
-    return prisonUserApiService.downloadPrisonAdminsByFilter(filter)
-  }
+  fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter): List<PrisonAdminUserSummary> = prisonUserApiService.downloadPrisonAdminsByFilter(filter)
 }
 
-class HmppsValidationException(emailDomain: String, errorCode: String) :
-  Exception("Invalid Email domain: $emailDomain with reason: $errorCode")
+class HmppsValidationException(emailDomain: String, errorCode: String) : Exception("Invalid Email domain: $emailDomain with reason: $errorCode")

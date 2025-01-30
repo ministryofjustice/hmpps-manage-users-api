@@ -12,7 +12,8 @@ data class PrisonUser(
   @JsonProperty("primaryEmail") val email: String?,
   private val enabled: Boolean = false,
   @JsonProperty("dpsRoleCodes") val roles: List<String> = emptyList(),
-) : SourceUser, UserIdentity {
+) : SourceUser,
+  UserIdentity {
   val userId = staffId
 
   val name: String
@@ -21,18 +22,16 @@ data class PrisonUser(
   override val authSource: AuthSource
     get() = nomis
 
-  override fun toGenericUser(): GenericUser =
-    GenericUser(
-      username = username,
-      active = enabled,
-      authSource = nomis,
-      userId = userId.toString(),
-      name = name,
-      uuid = null,
-      staffId = userId.toLong(),
-      activeCaseLoadId = activeCaseLoadId,
-    )
+  override fun toGenericUser(): GenericUser = GenericUser(
+    username = username,
+    active = enabled,
+    authSource = nomis,
+    userId = userId.toString(),
+    name = name,
+    uuid = null,
+    staffId = userId.toLong(),
+    activeCaseLoadId = activeCaseLoadId,
+  )
 
-  override fun emailAddress(): EmailAddress =
-    EmailAddress(username, email, !email.isNullOrEmpty())
+  override fun emailAddress(): EmailAddress = EmailAddress(username, email, !email.isNullOrEmpty())
 }

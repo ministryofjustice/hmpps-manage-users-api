@@ -20,14 +20,11 @@ class GroupsApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getGroups(): List<UserGroup> =
-    userWebClientUtils.get("/groups", GroupList::class.java)
+  fun getGroups(): List<UserGroup> = userWebClientUtils.get("/groups", GroupList::class.java)
 
-  fun getGroupDetail(group: String): Group =
-    userWebClientUtils.get("/groups/{group}", Group::class.java, group)
+  fun getGroupDetail(group: String): Group = userWebClientUtils.get("/groups/{group}", Group::class.java, group)
 
-  fun getChildGroupDetail(group: String): ChildGroup =
-    userWebClientUtils.get("/groups/child/{group}", ChildGroup::class.java, group)
+  fun getChildGroupDetail(group: String): ChildGroup = userWebClientUtils.get("/groups/child/{group}", ChildGroup::class.java, group)
 
   fun updateGroup(group: String, groupAmendment: GroupAmendmentDto) {
     log.debug("Updating group details for {} with {}", group, groupAmendment)

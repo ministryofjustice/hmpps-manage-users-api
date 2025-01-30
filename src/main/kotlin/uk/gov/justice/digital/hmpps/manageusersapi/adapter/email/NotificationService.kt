@@ -97,11 +97,7 @@ class NotificationService(
     return verifyLink
   }
 
-  private fun buildInitialPasswordLink(token: String): String {
-    return buildLink(token, "initial-password")
-  }
+  private fun buildInitialPasswordLink(token: String): String = buildLink(token, "initial-password")
 
-  private fun buildLink(token: String, purpose: String): String {
-    return "$authBaseUri/$purpose?token=$token"
-  }
+  private fun buildLink(token: String, purpose: String): String = "$authBaseUri/$purpose?token=$token"
 }

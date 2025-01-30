@@ -26,7 +26,8 @@ data class PrisonUserDetails(
   @Schema(description = "User is active flag", required = true) val active: Boolean?,
   @Schema(description = "Staff Status", example = "ACTIVE", required = false) val staffStatus: String?,
   @Schema(description = "Last logon date", example = "2023-01-01T12:13:14.123", required = false) val lastLogonDate: LocalDateTime?,
-) : SourceUser, UserIdentity {
+) : SourceUser,
+  UserIdentity {
   val userId = staffId
 
   val name: String
@@ -35,17 +36,16 @@ data class PrisonUserDetails(
   override val authSource: AuthSource
     get() = nomis
 
-  override fun toGenericUser(): GenericUser =
-    GenericUser(
-      username = username,
-      active = enabled,
-      authSource = nomis,
-      userId = userId.toString(),
-      name = name,
-      uuid = null,
-      staffId = userId.toLong(),
-      activeCaseLoadId = activeCaseloadId,
-    )
+  override fun toGenericUser(): GenericUser = GenericUser(
+    username = username,
+    active = enabled,
+    authSource = nomis,
+    userId = userId.toString(),
+    name = name,
+    uuid = null,
+    staffId = userId.toLong(),
+    activeCaseLoadId = activeCaseloadId,
+  )
 
   override fun emailAddress(): EmailAddress = EmailAddress(username, primaryEmail, !primaryEmail.isNullOrEmpty())
 }

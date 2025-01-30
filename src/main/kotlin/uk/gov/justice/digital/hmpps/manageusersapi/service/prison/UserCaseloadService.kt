@@ -9,13 +9,9 @@ class UserCaseloadService(
   val caseloadsApiService: CaseloadsApiService,
 ) {
 
-  fun getUserCaseloads(username: String): UserCaseloadDetail {
-    return caseloadsApiService.getUserCaseloads(username)
-  }
+  fun getUserCaseloads(username: String): UserCaseloadDetail = caseloadsApiService.getUserCaseloads(username)
 
-  fun addUserCaseloads(username: String, caseloads: List<String>): UserCaseloadDetail =
-    caseloadsApiService.addUserCaseloads(username, caseloads)
+  fun addUserCaseloads(username: String, caseloads: List<String>): UserCaseloadDetail = caseloadsApiService.addUserCaseloads(username, caseloads)
 
-  fun removeCaseloadFromUser(username: String, caseloadId: String): UserCaseloadDetail =
-    caseloadsApiService.removeCaseloadFromUser(username, caseloadId)
+  fun removeCaseloadFromUser(username: String, caseloadId: String): UserCaseloadDetail = caseloadsApiService.removeCaseloadFromUser(username, caseloadId)
 }

@@ -20,12 +20,10 @@ class AuthWebClientConfiguration(appContext: ApplicationContext) : AbstractWebCl
   fun getAuthClientRegistration(): ClientRegistration = getClientRegistration()
 
   @Bean
-  fun authWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager): WebClient =
-    getWebClient(builder, authorizedClientManager)
+  fun authWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager): WebClient = getWebClient(builder, authorizedClientManager)
 
   @Bean
-  fun authUserWebClient(builder: Builder) =
-    getWebClientWithCurrentUserToken(builder)
+  fun authUserWebClient(builder: Builder) = getWebClientWithCurrentUserToken(builder)
 
   @Bean
   fun authHealthWebClient(builder: Builder): WebClient = getHealthWebClient(builder)

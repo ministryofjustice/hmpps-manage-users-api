@@ -49,8 +49,7 @@ class RolesService(
     externalRolesApiService.updateRoleName(roleCode, roleAmendment)
   }
 
-  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendmentDto) =
-    externalRolesApiService.updateRoleDescription(roleCode, roleAmendment)
+  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendmentDto) = externalRolesApiService.updateRoleDescription(roleCode, roleAmendment)
 
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) {
     val originalRole = externalRolesApiService.getRoleDetail(roleCode)
@@ -72,9 +71,12 @@ class RolesService(
   private fun Role.isDPSRole(): Boolean = adminType.asAdminTypes().hasDPSAdminType()
   private fun Collection<AdminType>.hasDPSAdminType(): Boolean = (DPS_ADM in this) or (DPS_LSA in this)
 
-  private fun Role.isDpsRoleAdminTypeChanging(updatedAdminType: Set<AdminType>): Boolean =
-    DPS_LSA !in adminType.asAdminTypes() && DPS_ADM in adminType.asAdminTypes() && DPS_LSA in updatedAdminType ||
-      DPS_LSA in adminType.asAdminTypes() && DPS_LSA !in updatedAdminType && DPS_ADM in updatedAdminType
+  private fun Role.isDpsRoleAdminTypeChanging(updatedAdminType: Set<AdminType>): Boolean = DPS_LSA !in adminType.asAdminTypes() &&
+    DPS_ADM in adminType.asAdminTypes() &&
+    DPS_LSA in updatedAdminType ||
+    DPS_LSA in adminType.asAdminTypes() &&
+    DPS_LSA !in updatedAdminType &&
+    DPS_ADM in updatedAdminType
 }
 
 fun List<AdminTypeReturn>.asAdminTypes() = map { AdminType.valueOf(it.adminTypeCode) }

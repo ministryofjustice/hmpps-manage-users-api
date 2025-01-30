@@ -15,22 +15,19 @@ class CaseloadsApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getUserCaseloads(username: String) =
-    userWebClientUtils.get("/users/{username}/caseloads", UserCaseloadDetail::class.java, username)
+  fun getUserCaseloads(username: String) = userWebClientUtils.get("/users/{username}/caseloads", UserCaseloadDetail::class.java, username)
 
-  fun addUserCaseloads(username: String, caseloads: List<String>): UserCaseloadDetail =
-    userWebClientUtils.postWithResponse(
-      "/users/{username}/caseloads",
-      caseloads,
-      UserCaseloadDetail::class.java,
-      username,
-    )
+  fun addUserCaseloads(username: String, caseloads: List<String>): UserCaseloadDetail = userWebClientUtils.postWithResponse(
+    "/users/{username}/caseloads",
+    caseloads,
+    UserCaseloadDetail::class.java,
+    username,
+  )
 
-  fun removeCaseloadFromUser(username: String, caseloadId: String): UserCaseloadDetail =
-    userWebClientUtils.deleteWithResponse(
-      "/users/{username}/caseloads/{caseloadId}",
-      UserCaseloadDetail::class.java,
-      username,
-      caseloadId,
-    )
+  fun removeCaseloadFromUser(username: String, caseloadId: String): UserCaseloadDetail = userWebClientUtils.deleteWithResponse(
+    "/users/{username}/caseloads/{caseloadId}",
+    UserCaseloadDetail::class.java,
+    username,
+    caseloadId,
+  )
 }

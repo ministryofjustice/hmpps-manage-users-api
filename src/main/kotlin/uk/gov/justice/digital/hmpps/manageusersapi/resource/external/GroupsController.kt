@@ -325,11 +325,10 @@ data class ChildGroupDetailsDto(
   val groupName: String,
 ) {
   companion object {
-    fun fromDomain(childGroupDetails: ChildGroup) =
-      ChildGroupDetailsDto(
-        childGroupDetails.groupCode,
-        childGroupDetails.groupName,
-      )
+    fun fromDomain(childGroupDetails: ChildGroup) = ChildGroupDetailsDto(
+      childGroupDetails.groupCode,
+      childGroupDetails.groupName,
+    )
   }
 }
 
@@ -353,12 +352,11 @@ data class UserAssignableRoleDto(
   val automatic: Boolean,
 ) {
   companion object {
-    fun fromDomain(userAssignableRole: UserAssignableRole) =
-      UserAssignableRoleDto(
-        userAssignableRole.roleCode,
-        userAssignableRole.roleName,
-        userAssignableRole.automatic,
-      )
+    fun fromDomain(userAssignableRole: UserAssignableRole) = UserAssignableRoleDto(
+      userAssignableRole.roleCode,
+      userAssignableRole.roleName,
+      userAssignableRole.automatic,
+    )
   }
 }
 
@@ -371,8 +369,7 @@ data class UserGroupDto(
   val groupName: String,
 ) {
   companion object {
-    fun fromDomain(userGroup: UserGroup) =
-      UserGroupDto(userGroup.groupCode, userGroup.groupName)
+    fun fromDomain(userGroup: UserGroup) = UserGroupDto(userGroup.groupCode, userGroup.groupName)
   }
 }
 

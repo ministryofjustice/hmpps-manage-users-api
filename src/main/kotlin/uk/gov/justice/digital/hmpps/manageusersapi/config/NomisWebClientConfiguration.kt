@@ -10,8 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient.Builder
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 
 @Configuration
-class NomisWebClientConfiguration(appContext: ApplicationContext) :
-  AbstractWebClientConfiguration(appContext, "nomis") {
+class NomisWebClientConfiguration(appContext: ApplicationContext) : AbstractWebClientConfiguration(appContext, "nomis") {
 
   private val environment = appContext.environment
 
@@ -23,8 +22,7 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   fun getNomisClientRegistration(): ClientRegistration = getClientRegistration()
 
   @Bean
-  fun nomisWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) =
-    getWebClient(builder, authorizedClientManager)
+  fun nomisWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) = getWebClient(builder, authorizedClientManager)
 
   @Bean
   fun nomisUserWebClient(builder: Builder) = getWebClientWithCurrentUserToken(builder)
@@ -42,6 +40,5 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
   fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)
 
   @Bean
-  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserExtendedTimeoutWebClient: WebClient) =
-    WebClientUtils(nomisUserExtendedTimeoutWebClient, extendedTimeoutMaxRetryAttempts)
+  fun nomisUserExtendedTimeoutWebClientUtils(nomisUserExtendedTimeoutWebClient: WebClient) = WebClientUtils(nomisUserExtendedTimeoutWebClient, extendedTimeoutMaxRetryAttempts)
 }

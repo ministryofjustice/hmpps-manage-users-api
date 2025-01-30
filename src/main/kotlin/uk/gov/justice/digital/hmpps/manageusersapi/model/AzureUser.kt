@@ -13,16 +13,14 @@ data class AzureUser(
   override val authSource: AuthSource
     get() = azuread
 
-  override fun toGenericUser(): GenericUser =
-    GenericUser(
-      username = username,
-      active = enabled,
-      authSource = azuread,
-      name = "$firstName $lastName",
-      userId = email,
-      uuid = null,
-    )
+  override fun toGenericUser(): GenericUser = GenericUser(
+    username = username,
+    active = enabled,
+    authSource = azuread,
+    name = "$firstName $lastName",
+    userId = email,
+    uuid = null,
+  )
 
-  override fun emailAddress(): EmailAddress =
-    EmailAddress(username, email, true)
+  override fun emailAddress(): EmailAddress = EmailAddress(username, email, true)
 }

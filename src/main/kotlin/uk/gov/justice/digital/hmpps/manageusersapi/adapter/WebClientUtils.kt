@@ -32,51 +32,45 @@ class WebClientUtils(
     return true
   }
 
-  fun <T : Any> get(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T =
-    client.get()
-      .uri(uri, *uriVariables)
-      .retrieve()
-      .bodyToMono(elementClass)
-      .withRetryPolicy()
-      .block()!!
+  fun <T : Any> get(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T = client.get()
+    .uri(uri, *uriVariables)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .withRetryPolicy()
+    .block()!!
 
-  fun <T : Any> getIgnoreError(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T? {
-    return client.get()
-      .uri(uri, *uriVariables)
-      .retrieve()
-      .bodyToMono(elementClass)
-      .withRetryPolicy()
-      .onErrorResume {
-        log.warn("Unable to retrieve details due to {}", it.message)
-        Mono.empty()
-      }
-      .block()
-  }
+  fun <T : Any> getIgnoreError(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T? = client.get()
+    .uri(uri, *uriVariables)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .withRetryPolicy()
+    .onErrorResume {
+      log.warn("Unable to retrieve details due to {}", it.message)
+      Mono.empty()
+    }
+    .block()
 
-  fun <T : Any> getIfPresent(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T? =
-    client.get()
-      .uri(uri, *uriVariables)
-      .retrieve()
-      .bodyToMono(elementClass)
-      .withRetryPolicy()
-      .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
-      .block()
+  fun <T : Any> getIfPresent(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T? = client.get()
+    .uri(uri, *uriVariables)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .withRetryPolicy()
+    .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
+    .block()
 
-  fun <T : Any> getWithParams(uri: String, elementClass: Class<T>, queryParams: Map<String, Any?>): T =
-    client.get()
-      .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
-      .retrieve()
-      .bodyToMono(elementClass)
-      .withRetryPolicy()
-      .block()!!
+  fun <T : Any> getWithParams(uri: String, elementClass: Class<T>, queryParams: Map<String, Any?>): T = client.get()
+    .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
+    .retrieve()
+    .bodyToMono(elementClass)
+    .withRetryPolicy()
+    .block()!!
 
-  fun <T : Any> getWithParams(uri: String, elementClass: ParameterizedTypeReference<T>, queryParams: Map<String, Any?>): T =
-    client.get()
-      .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
-      .retrieve()
-      .bodyToMono(elementClass)
-      .withRetryPolicy()
-      .block()!!
+  fun <T : Any> getWithParams(uri: String, elementClass: ParameterizedTypeReference<T>, queryParams: Map<String, Any?>): T = client.get()
+    .uri { uriBuilder -> uriBuilder.buildURI(uri, queryParams) }
+    .retrieve()
+    .bodyToMono(elementClass)
+    .withRetryPolicy()
+    .block()!!
 
   fun putWithBody(body: Any, uri: String, vararg uriVariables: Any?) {
     client.put()
@@ -95,12 +89,11 @@ class WebClientUtils(
       .block()
   }
 
-  fun <T : Any> putWithResponse(uri: String, elementClass: Class<T>): T =
-    client.put()
-      .uri(uri)
-      .retrieve()
-      .bodyToMono(elementClass)
-      .block()!!
+  fun <T : Any> putWithResponse(uri: String, elementClass: Class<T>): T = client.put()
+    .uri(uri)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .block()!!
 
   fun postWithBody(body: Any, uri: String, vararg uriVariables: Any?) {
     client.post()
@@ -111,46 +104,43 @@ class WebClientUtils(
       .block()
   }
 
-  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>, vararg uriVariables: Any?): T =
+  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>, vararg uriVariables: Any?): T = client.post()
+    .uri(uri, *uriVariables)
+    .bodyValue(body)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .block()!!
+
+  fun <T : Any> postWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T = client.post()
+    .uri(uri, *uriVariables)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .block()!!
+
+  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>, status: HttpStatus, newException: Exception): T = try {
     client.post()
-      .uri(uri, *uriVariables)
+      .uri(uri)
       .bodyValue(body)
       .retrieve()
       .bodyToMono(elementClass)
       .block()!!
-
-  fun <T : Any> postWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T =
-    client.post()
-      .uri(uri, *uriVariables)
-      .retrieve()
-      .bodyToMono(elementClass)
-      .block()!!
-
-  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: Class<T>, status: HttpStatus, newException: Exception): T =
-    try {
-      client.post()
-        .uri(uri)
-        .bodyValue(body)
-        .retrieve()
-        .bodyToMono(elementClass)
-        .block()!!
-    } catch (e: WebClientResponseException) {
-      throw if (e.statusCode.equals(status)) newException else e
-    }
-
-  private fun <T> Mono<T>.withRetryPolicy(): Mono<T> {
-    return this
-      .retryWhen(
-        Retry.max(maxRetryAttempts)
-          .filter { isTimeoutException(it) }
-          .doBeforeRetry { logRetrySignal(it) },
-      )
+  } catch (e: WebClientResponseException) {
+    throw if (e.statusCode.equals(status)) newException else e
   }
+
+  private fun <T> Mono<T>.withRetryPolicy(): Mono<T> = this
+    .retryWhen(
+      Retry.max(maxRetryAttempts)
+        .filter { isTimeoutException(it) }
+        .doBeforeRetry { logRetrySignal(it) },
+    )
 
   private fun isTimeoutException(it: Throwable): Boolean {
     // Timeout for NO_RESPONSE is wrapped in a WebClientRequestException
-    return it is ReadTimeoutException || it is ConnectTimeoutException ||
-      it.cause is ReadTimeoutException || it.cause is ConnectTimeoutException
+    return it is ReadTimeoutException ||
+      it is ConnectTimeoutException ||
+      it.cause is ReadTimeoutException ||
+      it.cause is ConnectTimeoutException
   }
 
   private fun logRetrySignal(retrySignal: Retry.RetrySignal) {
@@ -167,12 +157,11 @@ class WebClientUtils(
       .block()
   }
 
-  fun <T : Any> deleteWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T =
-    client.delete()
-      .uri(uri, *uriVariables)
-      .retrieve()
-      .bodyToMono(elementClass)
-      .block()!!
+  fun <T : Any> deleteWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T = client.delete()
+    .uri(uri, *uriVariables)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .block()!!
 
   private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
     path(path)

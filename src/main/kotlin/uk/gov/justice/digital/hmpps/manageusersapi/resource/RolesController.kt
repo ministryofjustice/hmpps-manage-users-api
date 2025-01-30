@@ -265,8 +265,7 @@ data class CreateRoleDto(
 ) {
   companion object {
     private const val ROLE_PREFIX = "ROLE_"
-    fun removeRolePrefixIfNecessary(role: String): String =
-      if (role.startsWith(ROLE_PREFIX, ignoreCase = true)) role.substring(ROLE_PREFIX.length) else role
+    fun removeRolePrefixIfNecessary(role: String): String = if (role.startsWith(ROLE_PREFIX, ignoreCase = true)) role.substring(ROLE_PREFIX.length) else role
   }
 
   init {
@@ -293,10 +292,9 @@ data class RoleDto(
   val adminType: List<AdminTypeReturn>,
 ) {
   companion object {
-    fun fromDomain(role: Role): RoleDto =
-      with(role) {
-        return RoleDto(roleCode, roleName, roleDescription, adminType)
-      }
+    fun fromDomain(role: Role): RoleDto = with(role) {
+      return RoleDto(roleCode, roleName, roleDescription, adminType)
+    }
   }
 }
 

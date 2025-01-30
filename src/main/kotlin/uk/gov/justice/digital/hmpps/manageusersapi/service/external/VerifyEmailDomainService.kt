@@ -8,6 +8,5 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.VerifyEmailD
 @Transactional(readOnly = true)
 class VerifyEmailDomainService(val verifyEmailDomainApiService: VerifyEmailDomainApiService) {
 
-  fun isValidEmailDomain(emailDomain: String): Boolean =
-    verifyEmailDomainApiService.validateEmailDomain(emailDomain)
+  fun isValidEmailDomain(emailDomain: String): Boolean = verifyEmailDomainApiService.validateEmailDomain(emailDomain)
 }

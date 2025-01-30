@@ -24,8 +24,7 @@ class RolesApiService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getRoles(adminTypes: List<AdminType>?): List<Role> =
-    userWebClientUtils.getWithParams("/roles", RoleList::class.java, mapOf("adminTypes" to adminTypes as Any?))
+  fun getRoles(adminTypes: List<AdminType>?): List<Role> = userWebClientUtils.getWithParams("/roles", RoleList::class.java, mapOf("adminTypes" to adminTypes as Any?))
 
   fun getPagedRoles(
     page: Int,
@@ -36,7 +35,7 @@ class RolesApiService(
     adminTypes: List<AdminType>?,
   ) = userWebClientUtils.getWithParams(
     "/roles/paged",
-    object : ParameterizedTypeReference<PagedResponse<RoleDto>> () {},
+    object : ParameterizedTypeReference<PagedResponse<RoleDto>>() {},
     mapOf(
       "page" to page,
       "size" to size,
@@ -47,8 +46,7 @@ class RolesApiService(
     ),
   )
 
-  fun getRoleDetail(roleCode: String): Role =
-    userWebClientUtils.get("/roles/{roleCode}", Role::class.java, roleCode)
+  fun getRoleDetail(roleCode: String): Role = userWebClientUtils.get("/roles/{roleCode}", Role::class.java, roleCode)
 
   fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     log.debug("Updating role for {} with {}", roleCode, roleAmendment)
@@ -79,7 +77,6 @@ class RolesApiService(
   }
 }
 
-private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() =
-  (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
+private fun Set<AdminType>.addDpsAdmTypeIfRequiredAsList() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).map { it.adminTypeCode }
 
 class RoleList : MutableList<Role> by ArrayList()
