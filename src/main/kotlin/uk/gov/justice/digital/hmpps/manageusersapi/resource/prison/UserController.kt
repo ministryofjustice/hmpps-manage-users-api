@@ -54,7 +54,7 @@ class UserSearchController(
   private val authenticationFacade: AuthenticationFacade,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
-  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES') or hasRole('ROLE_MANAGE_USERS__SEARCH_PRISON_USER__RO')")
   @GetMapping("/prisonusers/search")
   @Operation(
     summary = "Get all users filtered as specified",
