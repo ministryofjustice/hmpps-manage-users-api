@@ -31,7 +31,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as Priso
 class UserCaseloadsController(
   private val userCaseloadService: UserCaseloadService,
 ) {
-  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES' or hasRole('ROLE_USER_PERMISSIONS__RO')")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES') or hasRole('ROLE_USER_PERMISSIONS__RO')")
   @GetMapping("/{username}/caseloads")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
