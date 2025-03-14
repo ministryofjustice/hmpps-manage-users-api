@@ -166,7 +166,7 @@ class UserController(
   @GetMapping("/users/{username}/roles")
   @Operation(
     summary = "List of roles for user",
-    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PF_USER_ADMIN or ROLE_PCMS_USER_ADMIN.<br/><br/>" +
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_USER_PERMISSIONS__RO or ROLE_INTEL_ADMIN or ROLE_PF_USER_ADMIN or ROLE_PCMS_USER_ADMIN.<br/><br/>" +
       "**Change to old endpoint in Auth** <br/> 1)  Nomis / Prison user doesn't return additional role in the list:  PRISON <br/>" +
       "                                         2)  Delius user doesn't return additional role in the list:  PROBATION",
     security = [SecurityRequirement(name = "ROLE_INTEL_ADMIN"), SecurityRequirement(name = "ROLE_PF_USER_ADMIN"), SecurityRequirement(name = "ROLE_PCMS_USER_ADMIN")],

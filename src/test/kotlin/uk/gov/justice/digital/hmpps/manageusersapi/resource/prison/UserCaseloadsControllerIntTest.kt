@@ -36,11 +36,17 @@ class UserCaseloadsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun ` get user caseloads`() {
+    fun `get user caseloads`() {
       nomisApiMockServer.stubGetUserCaseloads("bob")
 
+      for (role in listOf("ROLE_USER_PERMISSIONS__RO", "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_MAINTAIN_ACCESS_ROLES")) {
+        checkAccessByRole(role)
+      }
+    }
+
+    private fun checkAccessByRole(role: String) {
       webTestClient.get().uri("/prisonusers/bob/caseloads")
-        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .headers(setAuthorisation(roles = listOf(role)))
         .exchange()
         .expectStatus().isOk
         .expectBody()

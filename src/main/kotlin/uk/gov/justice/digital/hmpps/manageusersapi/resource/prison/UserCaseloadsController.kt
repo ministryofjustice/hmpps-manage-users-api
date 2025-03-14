@@ -36,7 +36,7 @@ class UserCaseloadsController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Get list of caseloads associated with the users account",
-    description = "Caseloads for a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES\"",
+    description = "Caseloads for a specific user. Requires role ROLE_USER_PERMISSIONS__RO or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES\"",
     security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
     responses = [
       ApiResponse(
