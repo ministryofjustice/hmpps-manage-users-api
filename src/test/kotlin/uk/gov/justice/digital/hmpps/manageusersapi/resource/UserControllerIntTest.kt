@@ -704,12 +704,23 @@ class UserControllerIntTest : IntegrationTestBase() {
       val developerMessage = "Account for username $username not found"
       externalUsersApiMockServer.stubGet(OK, "/users/username/$username/roles", userMessage, developerMessage)
       nomisApiMockServer.stubFindUserByUsername(username)
-      webTestClient.get().uri("/users/$username/roles")
-        .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
-        .exchange()
-        .expectStatus().isOk
-        .expectHeader().contentType(APPLICATION_JSON)
-        .expectBody()
+      callApiWithRole(username, "ROLE_PCMS_USER_ADMIN")
+        .jsonPath("[*].roleCode").value<List<String>> {
+          assertThat(it).contains("MAINTAIN_ACCESS_ROLES")
+          assertThat(it).contains("GLOBAL_SEARCH")
+          assertThat(it).contains("HMPPS_REGISTERS_MAINTAINER")
+          assertThat(it).contains("HPA_USER")
+        }
+    }
+
+    @Test
+    fun `Can get a list of roles of valid nomis user with the ROLE_USER_PERMISSIONS__RO role`() {
+      val username = "NUSER_GEN"
+      val userMessage = "User not found: Account for username $username not found"
+      val developerMessage = "Account for username $username not found"
+      externalUsersApiMockServer.stubGet(OK, "/users/username/$username/roles", userMessage, developerMessage)
+      nomisApiMockServer.stubFindUserByUsername(username)
+      callApiWithRole(username, "ROLE_USER_PERMISSIONS__RO")
         .jsonPath("[*].roleCode").value<List<String>> {
           assertThat(it).contains("MAINTAIN_ACCESS_ROLES")
           assertThat(it).contains("GLOBAL_SEARCH")
@@ -724,16 +735,18 @@ class UserControllerIntTest : IntegrationTestBase() {
       val uuid = UUID.randomUUID()
       externalUsersApiMockServer.stubGetSearchableRoles("/users/username/$username/roles")
       hmppsAuthMockServer.stubUserIdByUsernameAndSource(username, auth, uuid)
-      webTestClient.get().uri("/users/$username/roles")
-        .headers(setAuthorisation(roles = listOf("ROLE_PCMS_USER_ADMIN")))
-        .exchange()
-        .expectStatus().isOk
-        .expectHeader().contentType(APPLICATION_JSON)
-        .expectBody()
+      callApiWithRole(username, "ROLE_PCMS_USER_ADMIN")
         .jsonPath("[*].roleCode").value<List<String>> {
           assertThat(it).contains("PF_POLICE")
         }
     }
+
+    private fun callApiWithRole(username: String, role: String): WebTestClient.BodyContentSpec = webTestClient.get().uri("/users/$username/roles")
+      .headers(setAuthorisation(roles = listOf(role)))
+      .exchange()
+      .expectStatus().isOk
+      .expectHeader().contentType(APPLICATION_JSON)
+      .expectBody()
 
     @Test
     fun `access forbidden when no authority`() {
