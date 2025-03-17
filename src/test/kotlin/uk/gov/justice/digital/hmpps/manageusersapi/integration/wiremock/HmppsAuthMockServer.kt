@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
+import com.github.tomakehurst.wiremock.client.WireMock.patch
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
@@ -13,7 +14,9 @@ import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
-import java.util.UUID
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
   companion object {
@@ -488,6 +491,109 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                 },
                 "first": true,
                 "numberOfElements": 2,
+                "empty": false
+              }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubPostWithStatus(url: String, httpStatus: HttpStatus = HttpStatus.OK) {
+    stubFor(
+      post(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withStatus(httpStatus.value()),
+        ),
+    )
+  }
+
+  fun stubUpdateAllowlistUserWithStatus(id: String, httpStatus: HttpStatus = HttpStatus.OK) {
+    stubFor(
+      patch("/auth/api/user/allowlist/$id")
+        .willReturn(
+          aResponse()
+            .withStatus(httpStatus.value()),
+        ),
+    )
+  }
+
+  fun stubGetAllowlistUserWithStatus(username: String, httpStatus: HttpStatus = HttpStatus.OK) {
+    stubFor(
+      get("/auth/api/user/allowlist/$username")
+        .willReturn(
+          aResponse()
+            .withStatus(httpStatus.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                  "id": "173184e5-ba82-4608-81e1-9e74cecc98f0",
+                  "username": "$username",
+                  "firstName": "Sharayah",
+                  "lastName": "Beasley",
+                  "email": "sharayah.beasley@justice.gov.uk",
+                  "reason": "for testing purposes",
+                  "createdOn": "${LocalDateTime.now()}",
+                  "allowlistEndDate": "${LocalDate.now().plusMonths(1)}",
+                  "lastUpdated": "${LocalDateTime.now()}",
+                  "lastUpdatedBy": "QUINTASHAVL"
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubGetAllAllowlistUserWithStatus(query: String = "?status=ALL", httpStatus: HttpStatus = HttpStatus.OK) {
+    stubFor(
+      get("/auth/api/user/allowlist$query")
+        .willReturn(
+          aResponse()
+            .withStatus(httpStatus.value())
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+              {
+                "content": [
+                  {
+                    "id": "173184e5-ba82-4608-81e1-9e74cecc98f0",
+                    "username": "SHANDRIAQPI",
+                    "firstName": "Sharayah",
+                    "lastName": "Beasley",
+                    "email": "sharayah.beasley@justice.gov.uk",
+                    "reason": "for testing purposes",
+                    "createdOn": "${LocalDateTime.now()}",
+                    "allowlistEndDate": "${LocalDate.now().plusMonths(1)}",
+                    "lastUpdated": "${LocalDateTime.now()}",
+                    "lastUpdatedBy": "QUINTASHAVL"
+                  }
+                ],
+                "pageable": {
+                  "sort": {
+                    "empty": false,
+                    "sorted": true,
+                    "unsorted": false
+                  },
+                  "offset": 0,
+                  "pageSize": 10,
+                  "pageNumber": 0,
+                  "paged": true,
+                  "unpaged": false
+                },
+                "totalPages": 1,
+                "totalElements": 1,
+                "last": false,
+                "size": 10,
+                "number": 0,
+                "sort": {
+                  "empty": false,
+                  "sorted": true,
+                  "unsorted": false
+                },
+                "first": true,
+                "numberOfElements": 1,
                 "empty": false
               }
               """.trimIndent(),

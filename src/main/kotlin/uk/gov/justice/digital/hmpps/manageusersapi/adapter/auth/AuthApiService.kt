@@ -5,6 +5,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
@@ -13,9 +14,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AzureUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistAddRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistPatchRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
+import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.Status as AllowListStatus
 
 @Service
 class AuthApiService(
@@ -105,6 +110,31 @@ class AuthApiService(
       "sort" to sort,
     ),
   )
+
+  fun addUserToAllowlist(userAllowlistAddRequest: UserAllowlistAddRequest) = userWebClientUtils.postWithBody(userAllowlistAddRequest, "/api/user/allowlist")
+
+  fun getAllAllowlistUsers(name: String?, status: AllowListStatus, pageable: Pageable) = userWebClientUtils.getWithParams(
+    "/api/user/allowlist",
+    object : ParameterizedTypeReference<PagedResponse<UserAllowlistDetail>>() {},
+    mapNonNull(
+      "name" to name,
+      "status" to status,
+    ),
+  )
+
+  fun getAllowlistUser(username: String): UserAllowlistDetail = userWebClientUtils.get(
+    "/api/user/allowlist/{username}",
+    UserAllowlistDetail::class.java,
+    username,
+  )
+
+  fun updateAllowlistUserAccess(id: UUID, updateUserAccessRequest: UserAllowlistPatchRequest) {
+    userWebClientUtils.patchWithBody(
+      updateUserAccessRequest,
+      "/api/user/allowlist/{id}",
+      id,
+    )
+  }
 }
 
 fun <K, V> mapNonNull(vararg pairs: Pair<K, V>) = mapOf(*pairs).filterValues { it != null }

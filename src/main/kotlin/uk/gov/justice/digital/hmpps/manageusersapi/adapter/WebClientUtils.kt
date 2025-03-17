@@ -72,6 +72,15 @@ class WebClientUtils(
     .withRetryPolicy()
     .block()!!
 
+  fun patchWithBody(body: Any, uri: String, vararg uriVariables: Any?) {
+    client.patch()
+      .uri(uri, *uriVariables)
+      .bodyValue(body)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
   fun putWithBody(body: Any, uri: String, vararg uriVariables: Any?) {
     client.put()
       .uri(uri, *uriVariables)
