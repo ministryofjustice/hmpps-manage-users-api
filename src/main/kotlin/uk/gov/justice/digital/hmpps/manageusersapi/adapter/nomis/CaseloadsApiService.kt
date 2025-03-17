@@ -10,12 +10,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 @Service(value = "nomisCaseloadsApiService")
 class CaseloadsApiService(
   @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,
+  @Qualifier("nomisWebClientUtils") val serviceWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getUserCaseloads(username: String) = userWebClientUtils.get("/users/{username}/caseloads", UserCaseloadDetail::class.java, username)
+  fun getUserCaseloads(username: String) = serviceWebClientUtils.get("/users/{username}/caseloads", UserCaseloadDetail::class.java, username)
 
   fun addUserCaseloads(username: String, caseloads: List<String>): UserCaseloadDetail = userWebClientUtils.postWithResponse(
     "/users/{username}/caseloads",
