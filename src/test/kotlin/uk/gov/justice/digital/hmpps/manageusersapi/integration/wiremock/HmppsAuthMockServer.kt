@@ -546,7 +546,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubGetAllAllowlistUserWithStatus(query: String = "?status=ALL", httpStatus: HttpStatus = HttpStatus.OK) {
+  fun stubGetAllAllowlistUserWithStatus(query: String = "?status=ALL&page=0&size=10", httpStatus: HttpStatus = HttpStatus.OK) {
     stubFor(
       get("/auth/api/user/allowlist$query")
         .willReturn(
