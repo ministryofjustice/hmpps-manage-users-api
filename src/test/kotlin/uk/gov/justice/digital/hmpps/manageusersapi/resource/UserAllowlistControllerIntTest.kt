@@ -213,7 +213,7 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Get users is ok filtered by name`() {
-      hmppsAuthMockServer.stubGetAllAllowlistUserWithStatus("?name=AUTH&status=ALL")
+      hmppsAuthMockServer.stubGetAllAllowlistUserWithStatus("?name=AUTH&status=ALL&page=0&size=10")
       webTestClient
         .get().uri("/users/allowlist?name=AUTH")
         .headers(setAuthorisation("AUTH_MANAGE_USER_ALLOW_LIST", listOf("ROLE_MANAGE_USER_ALLOW_LIST")))
@@ -228,7 +228,7 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Get users is ok filtered by status`() {
-      hmppsAuthMockServer.stubGetAllAllowlistUserWithStatus("?status=EXPIRED")
+      hmppsAuthMockServer.stubGetAllAllowlistUserWithStatus("?status=EXPIRED&page=0&size=10")
       webTestClient
         .get().uri("/users/allowlist?status=EXPIRED")
         .headers(setAuthorisation("AUTH_MANAGE_USER_ALLOW_LIST", listOf("ROLE_MANAGE_USER_ALLOW_LIST")))

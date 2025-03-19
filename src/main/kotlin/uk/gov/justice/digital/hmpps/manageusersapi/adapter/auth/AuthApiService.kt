@@ -119,6 +119,8 @@ class AuthApiService(
     mapNonNull(
       "name" to name,
       "status" to status,
+      "page" to pageable.pageNumber,
+      "size" to pageable.pageSize,
     ),
   )
 
