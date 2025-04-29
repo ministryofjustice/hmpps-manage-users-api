@@ -18,7 +18,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
+  implementation("com.fasterxml.jackson:jackson-bom:2.19.0")
   implementation("org.apache.commons:commons-text:1.13.1")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.13.1")
