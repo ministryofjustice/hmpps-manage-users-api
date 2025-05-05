@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -34,6 +35,7 @@ import java.util.UUID
 class UserController(
   private val userService: UserService,
   private val authenticationFacade: AuthenticationFacade,
+  @Value("\${hmpps.activeCaseloadIdFlagEnabled}") private val activeCaseloadIdFlagEnabled: Boolean,
 ) {
 
   @GetMapping("/users/{username}")
@@ -63,7 +65,7 @@ class UserController(
   ): UserDetailsDto {
     val user = userService.findUserByUsername(username)
     return if (user != null) {
-      UserDetailsDto.fromDomain(user)
+      UserDetailsDto.fromDomain(user, true)
     } else {
       throw NotFoundException("Account for username $username not found")
     }
@@ -78,7 +80,7 @@ class UserController(
   fun myDetails(): User {
     val user = userService.findUserByUsernameWithAuthSource(authenticationFacade.currentUsername!!)
     return user?.let {
-      UserDetailsDto.fromDomain(user)
+      UserDetailsDto.fromDomain(user, activeCaseloadIdFlagEnabled)
     } ?: UsernameDto(authenticationFacade.currentUsername!!)
   }
 
@@ -277,7 +279,7 @@ data class UserDetailsDto(
 ) : User {
 
   companion object {
-    fun fromDomain(user: GenericUser): UserDetailsDto {
+    fun fromDomain(user: GenericUser, activeCaseloadEndpointIdFlagEnabled: Boolean): UserDetailsDto {
       with(user) {
         return UserDetailsDto(
           username,
@@ -285,7 +287,7 @@ data class UserDetailsDto(
           name,
           authSource,
           staffId,
-          activeCaseLoadId,
+          if (activeCaseloadEndpointIdFlagEnabled) activeCaseLoadId else null,
           userId,
           uuid,
         )
