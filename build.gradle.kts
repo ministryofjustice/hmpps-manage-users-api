@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.2.0"
-  kotlin("plugin.spring") version "2.1.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
+  kotlin("plugin.spring") version "2.2.0"
 }
 
 configurations {
@@ -15,10 +15,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
-  implementation("com.fasterxml.jackson:jackson-bom:2.19.0")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.1")
+  implementation("com.fasterxml.jackson:jackson-bom:2.19.1")
   implementation("org.apache.commons:commons-text:1.13.1")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.13.1")
@@ -30,7 +30,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-  testImplementation("org.wiremock:wiremock-standalone:3.13.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.13.1")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 
@@ -44,8 +44,6 @@ kotlin {
 
 tasks {
   withType<KotlinCompile> {
-    kotlinOptions {
-      compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-    }
+    compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
   }
 }
