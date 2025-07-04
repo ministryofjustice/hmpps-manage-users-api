@@ -56,6 +56,7 @@ generic-service:
     DELIUS_ROLES_MAPPINGS_EDSBT001: "ROLE_EM_DATASTORE_GENERAL_RO"
     DELIUS_ROLES_MAPPINGS_EDSBT002: "ROLE_EM_DATASTORE_RESTRICTED_RO"
     DELIUS_ROLES_MAPPINGS_SPLNBT001: "ROLE_SENTENCE_PLAN"
+    DELIUS_ROLES_MAPPINGS_WPBT300: "ROLE_BREACH_NOTICE_USER"
 
   # Pre-existing kubernetes secrets to load as environment variables in the deployment.
   # namespace_secrets:
