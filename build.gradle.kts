@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
-  kotlin("plugin.spring") version "2.1.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.3"
+  kotlin("plugin.spring") version "2.2.0"
 }
 
 configurations {
@@ -17,8 +17,8 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.1")
-  implementation("com.fasterxml.jackson:jackson-bom:2.19.1")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2")
+  implementation("com.fasterxml.jackson:jackson-bom:2.19.2")
   implementation("org.apache.commons:commons-text:1.13.1")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.13.1")
