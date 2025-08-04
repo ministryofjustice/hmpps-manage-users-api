@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
@@ -137,7 +138,7 @@ class UserService(
 
   fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = prisonUserApiService.findUsersByCaseloadAndRole(pageRequest, filter)
 
-  fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserSummary> = prisonUserApiService.downloadUsersByFilter(filter)
+  fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserDownloadSummary> = prisonUserApiService.downloadUsersByFilter(filter)
 
   fun downloadPrisonAdminsByFilter(filter: PrisonUserFilter): List<PrisonAdminUserSummary> = prisonUserApiService.downloadPrisonAdminsByFilter(filter)
 }

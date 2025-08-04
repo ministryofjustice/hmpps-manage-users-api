@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -183,7 +184,7 @@ class UserApiService(
 
   fun downloadUsersByFilter(filter: PrisonUserFilter) = userExtendedTimeoutWebClientUtils.getWithParams(
     "/users/download",
-    object : ParameterizedTypeReference<List<PrisonUserSummary>>() {},
+    object : ParameterizedTypeReference<List<PrisonUserDownloadSummary>>() {},
     mapPrisonUserFilterToMap(filter),
   )
 
