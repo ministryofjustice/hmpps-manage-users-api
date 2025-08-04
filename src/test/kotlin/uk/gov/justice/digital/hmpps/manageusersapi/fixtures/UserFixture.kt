@@ -9,8 +9,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CaseloadRoleDetail
@@ -107,7 +107,7 @@ class UserFixture {
       accountStatus = accountStatus,
     )
 
-    fun createPrisonUserSummary(
+    fun createPrisonUserDownloadSummary(
       username: String = "NUSER_GEN",
       firstName: String = "Nomis",
       staffId: String = "123456",
@@ -115,7 +115,7 @@ class UserFixture {
       activeCaseLoad: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
       email: String = "nomis.usergen@digital.justice.gov.uk",
       active: Boolean = true,
-    ) = PrisonUserSummary(
+    ) = PrisonUserDownloadSummary(
       username = username,
       staffId = staffId,
       firstName = firstName,
@@ -123,6 +123,7 @@ class UserFixture {
       active = active,
       activeCaseload = activeCaseLoad,
       email = email,
+      status = "OPEN",
     )
 
     fun createPrisonUserSearchSummary(

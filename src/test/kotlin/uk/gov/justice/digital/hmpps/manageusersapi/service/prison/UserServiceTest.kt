@@ -20,8 +20,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
@@ -467,7 +467,7 @@ class UserServiceTest {
   inner class EnablePrisonUser {
     @Test
     fun `updates prison user on success`() {
-      val prisonuser = UserFixture.createPrisonUserDetails()
+      val prisonuser = createPrisonUserDetails()
 
       doNothing().whenever(prisonUserApiService).enableUserByUserId(prisonuser.username)
       whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(prisonuser)
@@ -480,7 +480,7 @@ class UserServiceTest {
 
     @Test
     fun `throws error if prison user doesn't exist`() {
-      val prisonuser = UserFixture.createPrisonUserDetails()
+      val prisonuser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(null)
 
       // verify that the exception is thrown
@@ -494,7 +494,7 @@ class UserServiceTest {
   inner class DisablePrisonUser {
     @Test
     fun `updates prison user on success`() {
-      val prisonuser = UserFixture.createPrisonUserDetails()
+      val prisonuser = createPrisonUserDetails()
 
       doNothing().whenever(prisonUserApiService).disableUserByUserId(prisonuser.username)
       whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(prisonuser)
@@ -507,7 +507,7 @@ class UserServiceTest {
 
     @Test
     fun `throws error if prison user doesn't exist`() {
-      val prisonuser = UserFixture.createPrisonUserDetails()
+      val prisonuser = createPrisonUserDetails()
       whenever(prisonUserApiService.findUserByUsername(prisonuser.username)).thenReturn(null)
 
       // verify that the exception is thrown
@@ -552,8 +552,8 @@ class UserServiceTest {
     fun `calls prisonUserApiService`() {
       whenever(prisonUserApiService.downloadUsersByFilter(any())).thenReturn(
         listOf(
-          createPrisonUserSummary(username = "user1"),
-          createPrisonUserSummary(username = "user2"),
+          createPrisonUserDownloadSummary(username = "user1"),
+          createPrisonUserDownloadSummary(username = "user2"),
         ),
       )
 
