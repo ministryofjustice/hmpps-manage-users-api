@@ -283,6 +283,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyEntriesOf(
             mapOf(
               "username" to "basicuser",
+              "authSource" to "none",
             ),
           )
         }
