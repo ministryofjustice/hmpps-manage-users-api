@@ -14,9 +14,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+  implementation("org.springframework.data:spring-data-commons")
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2")
   implementation("com.fasterxml.jackson:jackson-bom:2.19.2")
   implementation("org.apache.commons:commons-text:1.14.0")

@@ -5,14 +5,12 @@ import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserIdentity
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
 
 @Service
-@Transactional(readOnly = true)
 class VerifyEmailService(
   private val telemetryClient: TelemetryClient,
   private val notificationService: NotificationService,
