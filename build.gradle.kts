@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.7"
   kotlin("plugin.spring") version "2.2.10"
 }
 
@@ -16,7 +16,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.data:spring-data-commons")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2")
   implementation("com.fasterxml.jackson:jackson-bom:2.19.2")
   implementation("org.apache.commons:commons-text:1.14.0")
@@ -27,8 +27,8 @@ dependencies {
   implementation("uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.7")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.7")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
   testImplementation("org.mockito:mockito-inline:5.2.0")
