@@ -61,8 +61,8 @@ jobs:
         shell: bash
         run: |
           export JAVA_OPTS="${{ inputs.java-options }}"
+          APPLICATION_NOTIFY_KEY=${{ secrets.APPLICATION_NOTIFY_KEY }}
           ${{ inputs.gradle-command }}
-        env:  ${{ secrets.APPLICATION_NOTIFY_KEY }}
       - name: Upload the test artifacts
         if: ${{ inputs.upload-test-artifacts && !cancelled() }}
         uses: actions/upload-artifact@v4
