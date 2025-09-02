@@ -60,7 +60,6 @@ jobs:
       - name: Run checks with gradle
         shell: bash
         run: |
-          export JAVA_OPTS="${{ inputs.java-options }}"
           APPLICATION_NOTIFY_KEY=${{ secrets.APPLICATION_NOTIFY_KEY }}
           ${{ inputs.gradle-command }}
       - name: Upload the test artifacts
