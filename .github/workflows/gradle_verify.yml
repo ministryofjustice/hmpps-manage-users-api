@@ -48,7 +48,7 @@ jobs:
     name: Verify the gradle app
     runs-on: ubuntu-latest
     env:
-      APPLICATION_NOTIFY_KEY=${{ secrets.APPLICATION_NOTIFY_KEY }}
+      APPLICATION_NOTIFY_KEY: ${{ secrets.APPLICATION_NOTIFY_KEY }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
