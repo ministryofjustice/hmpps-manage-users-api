@@ -42,8 +42,7 @@ on:
         default: false
         required: false
     secrets:
-      APPLICATION_NOTIFY_KEY:
-        required: true
+      inherit: true
 permissions:
   contents: read
 jobs:
