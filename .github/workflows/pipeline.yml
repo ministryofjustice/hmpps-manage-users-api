@@ -37,8 +37,7 @@ jobs:
     uses: ./.github/workflows/gradle_verify.yml
     secrets:
        inherit: true
-    with:
-      gradle-variable: ${{ secrets.APPLICATION_NOTIFY_KEY }}
+       APPLICATION_NOTIFY_KEY: ${{ secrets.APPLICATION_NOTIFY_KEY }}
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'

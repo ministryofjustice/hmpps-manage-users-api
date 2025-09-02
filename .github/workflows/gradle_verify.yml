@@ -11,11 +11,6 @@ on:
         type: string
         default: ''
         required: false
-      gradle-variable:
-        description: Any gradle variables that need to be set.  Not normally required when using github actions
-        type: string
-        default: ''
-        required: false
       gradle-command:
         description: The gradle command to execute
         type: string
@@ -46,6 +41,9 @@ on:
         type: boolean
         default: false
         required: false
+    secrets:
+      APPLICATION_NOTIFY_KEY:
+        required: true
 permissions:
   contents: read
 jobs:
@@ -66,7 +64,8 @@ jobs:
         shell: bash
         run: |
           export JAVA_OPTS="${{ inputs.java-options }}"
-          ${{ inputs.gradle-variable }}${{ inputs.gradle-command }}
+          ${{ inputs.gradle-command }}
+        env:  ${{ secrets.APPLICATION_NOTIFY_KEY }}
       - name: Upload the test artifacts
         if: ${{ inputs.upload-test-artifacts && !cancelled() }}
         uses: actions/upload-artifact@v4
