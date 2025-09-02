@@ -47,6 +47,8 @@ jobs:
   gradle-verify:
     name: Verify the gradle app
     runs-on: ubuntu-latest
+    env:
+      APPLICATION_NOTIFY_KEY=${{ secrets.APPLICATION_NOTIFY_KEY }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -60,7 +62,6 @@ jobs:
       - name: Run checks with gradle
         shell: bash
         run: |
-          APPLICATION_NOTIFY_KEY=${{ secrets.APPLICATION_NOTIFY_KEY }}
           ${{ inputs.gradle-command }}
       - name: Upload the test artifacts
         if: ${{ inputs.upload-test-artifacts && !cancelled() }}
