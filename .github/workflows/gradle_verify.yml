@@ -11,6 +11,11 @@ on:
         type: string
         default: ''
         required: false
+      gradle-env:
+        description: Any JAVA_OPTS that need to be set.  Not normally required when using github actions
+        type: string
+        default: ''
+        required: false
       gradle-command:
         description: The gradle command to execute
         type: string
@@ -48,7 +53,7 @@ jobs:
     name: Verify the gradle app
     runs-on: ubuntu-latest
     env:
-      APPLICATION_NOTIFY_KEY: ${{ secrets.APPLICATION_NOTIFY_KEY }}
+       ${{ inputs.gradle-env }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
