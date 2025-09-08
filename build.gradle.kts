@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.1"
   kotlin("plugin.spring") version "2.2.10"
 }
 
@@ -16,9 +16,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.data:spring-data-commons")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2")
-  implementation("com.fasterxml.jackson:jackson-bom:2.19.2")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0")
+  implementation("com.fasterxml.jackson:jackson-bom:2.20.0")
   implementation("org.apache.commons:commons-text:1.14.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.13.1")
