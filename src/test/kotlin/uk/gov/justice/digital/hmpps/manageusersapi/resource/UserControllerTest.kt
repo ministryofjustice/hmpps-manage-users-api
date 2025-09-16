@@ -71,7 +71,8 @@ class UserControllerTest {
   @Test
   fun `find my details for basic user`() {
     whenever(authenticationFacade.currentUsername).thenReturn("me")
-    val userDetails = UsernameDto("me")
+    whenever(authenticationFacade.authSource).thenReturn(auth)
+    val userDetails = UsernameDto("me", auth)
     whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(null)
 
     val user = userController.myDetails()

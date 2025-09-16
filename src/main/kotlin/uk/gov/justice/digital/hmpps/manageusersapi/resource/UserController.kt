@@ -79,7 +79,7 @@ class UserController(
     val user = userService.findUserByUsernameWithAuthSource(authenticationFacade.currentUsername!!)
     return user?.let {
       UserDetailsDto.fromDomain(user)
-    } ?: UsernameDto(authenticationFacade.currentUsername!!)
+    } ?: UsernameDto(authenticationFacade.currentUsername!!, authenticationFacade.authSource)
   }
 
   @GetMapping("/users/me/groups")
@@ -224,10 +224,12 @@ data class UserRole(
 
 interface User {
   val username: String
+  val authSource: AuthSource
 }
 
 data class UsernameDto(
   override val username: String,
+  override val authSource: AuthSource,
 ) : User
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -258,7 +260,7 @@ data class UserDetailsDto(
   var name: String,
 
   @Schema(title = "Authentication Source", description = "auth for external users, nomis for nomis authenticated users", example = "nomis")
-  var authSource: AuthSource,
+  override val authSource: AuthSource,
 
   @Deprecated("")
   @Schema(title = "Staff Id", description = "Deprecated, use userId instead", example = "231232")
