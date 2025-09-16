@@ -88,7 +88,7 @@ class UserControllerTest {
     @Test
     fun `find user by user name`() {
       whenever(userService.findUserByUsername("NUSER_GEN")).thenReturn(
-        UserFixture.createPrisonUserDetails(),
+        createPrisonUserDetails(),
       )
       assertThat(userController.findUserByUsername("NUSER_GEN")).isNotNull
       verify(userService).findUserByUsername("NUSER_GEN")
@@ -232,8 +232,8 @@ class UserControllerTest {
     fun `calls prisonUserService`() {
       whenever(userService.downloadUsersByFilter(any())).thenReturn(
         listOf(
-          UserFixture.createPrisonUserSummary(username = "user1"),
-          UserFixture.createPrisonUserSummary(username = "user2"),
+          UserFixture.createPrisonUserDownloadSummary(username = "user1"),
+          UserFixture.createPrisonUserDownloadSummary(username = "user2"),
         ),
       )
 

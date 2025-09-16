@@ -37,8 +37,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
-import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserStatus
@@ -252,7 +252,7 @@ class UserSearchController(
       example = "true",
     )
     showOnlyLSAs: Boolean = false,
-  ): List<PrisonUserSummary> = prisonUserService.downloadUsersByFilter(
+  ): List<PrisonUserDownloadSummary> = prisonUserService.downloadUsersByFilter(
     PrisonUserFilter(
       localAdministratorUsername = localAdministratorUsernameWhenNotCentralAdministrator(),
       name = nameFilter.nonBlank(),
