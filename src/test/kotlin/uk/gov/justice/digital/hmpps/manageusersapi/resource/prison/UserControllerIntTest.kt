@@ -1482,6 +1482,19 @@ class UserControllerIntTest : IntegrationTestBase() {
         getRequestedFor(urlEqualTo(nomisUri)),
       )
     }
+
+    @Test
+    fun `findUsersWithFilter calls find-users endpoint using service client`() {
+      nomisApiMockServer.stubFindUsersByFilter(nomisUri, OK)
+      webTestClient.get().uri(localUri)
+        .headers(setAuthorisation(roles = listOf("ROLE_STAFF_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo(nomisUri)),
+      )
+    }
   }
 
   @Nested
