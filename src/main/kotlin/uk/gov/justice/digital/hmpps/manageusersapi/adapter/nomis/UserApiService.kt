@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.mapNonNull
+import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -170,11 +171,15 @@ class UserApiService(
     username,
   )
 
-  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = userWebClientUtils.getWithParams(
-    "/users",
-    object : ParameterizedTypeReference<PagedResponse<PrisonUserSearchSummary>>() {},
-    mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),
-  )
+  fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
+    val useServiceClient = AuthenticationFacade.hasRoles("ROLE_STAFF_SEARCH") && !(AuthenticationFacade.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_MAINTAIN_ACCESS_ROLES"))
+    val client = if (useServiceClient) serviceWebClientUtils else userWebClientUtils
+    return client.getWithParams(
+      "/users",
+      object : ParameterizedTypeReference<PagedResponse<PrisonUserSearchSummary>>() {},
+      mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),
+    )
+  }
 
   fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = serviceWebClientUtils.getWithParams(
     "/users",
