@@ -401,14 +401,17 @@ class UserController(
   ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
 
   @GetMapping("/prisonusers/{username}", produces = [MediaType.APPLICATION_JSON_VALUE])
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT', 'ROLE_STAFF_SEARCH')")
   @Operation(
     summary = "Get specified user details",
-    description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+    description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MANAGE_NOMIS_USER_ACCOUNT or ROLE_STAFF_SEARCH",
     security = [
       SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
       SecurityRequirement(
         name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+      ),
+      SecurityRequirement(
+        name = "ROLE_STAFF_SEARCH",
       ),
     ],
   )
