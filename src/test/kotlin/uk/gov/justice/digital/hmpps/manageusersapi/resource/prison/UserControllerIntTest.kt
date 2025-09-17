@@ -1237,10 +1237,17 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `find user by username`() {
+    fun `find user by username with allowed roles`() {
+      for (role in listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MANAGE_NOMIS_USER_ACCOUNT", "ROLE_STAFF_SEARCH")) {
+        testUserDetailsCanBeObtainedWithRole(role)
+      }
+    }
+
+    private fun testUserDetailsCanBeObtainedWithRole(roleToUse: String) {
       nomisApiMockServer.stubFindUserByUsername(username)
+
       val prisonUser = webTestClient.get().uri("/prisonusers/$username")
-        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .headers(setAuthorisation(roles = listOf(roleToUse)))
         .exchange()
         .expectStatus().isOk
         .expectBody(NewPrisonUserDto::class.java)
