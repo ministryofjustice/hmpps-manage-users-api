@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.1"
-  kotlin("plugin.spring") version "2.2.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.1"
+  kotlin("plugin.spring") version "2.2.20"
 }
 
 configurations {
@@ -21,7 +21,7 @@ dependencies {
   implementation("com.fasterxml.jackson:jackson-bom:2.20.0")
   implementation("org.apache.commons:commons-text:1.14.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
-  implementation("com.google.code.gson:gson:2.13.1")
+  implementation("com.google.code.gson:gson:2.13.2")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
   implementation("uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE")
