@@ -997,6 +997,31 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubGetCRSGroups() {
+    stubFor(
+      get(urlEqualTo("/groups/subset/crs"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withStatus(OK.value())
+            .withBody(
+              """
+                [
+                  {
+                    "groupCode": "INT_CR_GROUP_1",
+                    "groupName": "CRS Group 1"
+                  },
+                  {
+                    "groupCode": "INT_CR_GROUP_2",
+                    "groupName": "CRS Group 2"
+                  }
+                ]
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubGetGroupDetails(group: String) {
     stubFor(
       get(urlEqualTo("/groups/$group"))

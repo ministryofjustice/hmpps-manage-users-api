@@ -16,6 +16,8 @@ class GroupsService(
 
   fun getGroups(): List<UserGroup> = groupsApiService.getGroups()
 
+  fun getCRSGroups(): List<UserGroup> = groupsApiService.getCRSGroups()
+
   fun getGroupDetail(
     group: String,
   ): Group = groupsApiService.getGroupDetail(group)
