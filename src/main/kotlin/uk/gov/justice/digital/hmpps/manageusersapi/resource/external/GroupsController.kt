@@ -60,6 +60,30 @@ class GroupsController(
   @GetMapping("/groups")
   fun getGroups(): List<UserGroupDto> = groupsService.getGroups().map { UserGroupDto.fromDomain(it) }
 
+  @PreAuthorize("hasAnyRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')")
+  @Operation(
+    summary = "Get the subset of groups that are CRS groups.",
+    description = "Get all CRS groups. Requires role ROLE_CONTRACT_MANAGER_VIEW_GROUP",
+    security = [SecurityRequirement(name = "ROLE_CONTRACT_MANAGER_VIEW_GROUP")],
+  )
+  @FailApiResponses
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "All CRS Groups Returned",
+        content = [
+          Content(
+            mediaType = "application/json",
+            array = ArraySchema(schema = Schema(implementation = UserGroupDto::class)),
+          ),
+        ],
+      ),
+    ],
+  )
+  @GetMapping("/groups/subset/crs")
+  fun getCRSGroups(): List<UserGroupDto> = groupsService.getCRSGroups().map { UserGroupDto.fromDomain(it) }
+
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(

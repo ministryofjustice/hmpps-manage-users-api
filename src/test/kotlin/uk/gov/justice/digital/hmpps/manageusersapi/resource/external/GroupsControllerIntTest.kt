@@ -61,6 +61,51 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class CRSGroups {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/groups/subset/crs")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/groups/subset/crs")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `All CRS Groups endpoint returns all CRS groups when has correct role`() {
+      externalUsersApiMockServer.stubGetCRSGroups()
+      webTestClient
+        .get().uri("/groups/subset/crs")
+        .headers(setAuthorisation(roles = listOf("ROLE_CONTRACT_MANAGER_VIEW_GROUP")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json(
+          """
+            [
+              {
+                "groupCode": "INT_CR_GROUP_1",
+                "groupName": "CRS Group 1"
+              },
+              {
+                "groupCode": "INT_CR_GROUP_2",
+                "groupName": "CRS Group 2"
+              }
+            ]
+          """.trimIndent(),
+        )
+    }
+  }
+
+  @Nested
   inner class GroupDetails {
 
     @AfterEach
