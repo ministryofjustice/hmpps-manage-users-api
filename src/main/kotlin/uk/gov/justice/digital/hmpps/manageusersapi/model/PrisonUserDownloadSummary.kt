@@ -9,4 +9,5 @@ data class PrisonUserDownloadSummary(
   val activeCaseload: PrisonCaseload?,
   val email: String?,
   val status: String?,
+  val dpsRoleCount: Int?,
 )
