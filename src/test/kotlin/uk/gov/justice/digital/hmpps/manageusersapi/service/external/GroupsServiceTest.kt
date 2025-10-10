@@ -29,16 +29,6 @@ class GroupsServiceTest {
   }
 
   @Test
-  fun `Get CRS groups`() {
-    val groups = listOf(UserGroup(groupCode = "INT_CR_GROUP1", groupName = "desc"))
-    whenever(groupsApiService.getCRSGroups()).thenReturn(groups)
-
-    val actualGroups = groupsService.getCRSGroups()
-    assertThat(actualGroups).isEqualTo(groups)
-    verify(groupsApiService).getCRSGroups()
-  }
-
-  @Test
   fun `get group details`() {
     val groupDetails = Group(
       groupCode = "FRED",

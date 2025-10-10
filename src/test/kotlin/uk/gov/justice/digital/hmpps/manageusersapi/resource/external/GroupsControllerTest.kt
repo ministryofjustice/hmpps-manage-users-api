@@ -34,21 +34,6 @@ class GroupsControllerTest {
   }
 
   @Nested
-  inner class CRSGroups {
-    @Test
-    fun `Get all CRS Groups`() {
-      val groups = listOf(UserGroup(groupCode = "INT_CR_GROUP1", groupName = "desc"))
-
-      whenever(groupsService.getCRSGroups()).thenReturn(groups)
-
-      val response = groupsController.getCRSGroups()
-      assertThat(response).isEqualTo(
-        groups.map { UserGroupDto.fromDomain(it) },
-      )
-    }
-  }
-
-  @Nested
   inner class GetGroups {
     @Test
     fun `Get Child Group details`() {
