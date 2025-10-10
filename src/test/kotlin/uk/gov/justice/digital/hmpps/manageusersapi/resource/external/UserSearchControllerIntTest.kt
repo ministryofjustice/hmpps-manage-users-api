@@ -6,8 +6,60 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import java.time.LocalDateTime
 
 class UserSearchControllerIntTest : IntegrationTestBase() {
+
+  @Nested
+  inner class FindUsersByCRSGroupCode {
+
+    @Test
+    fun `access forbidden when unauthorised`() {
+      webTestClient.get().uri("/externalusers/crsgroup/INT_CR_GROUP_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `no access without correct authority`() {
+      webTestClient.get().uri("/externalusers/crsgroup/INT_CR_GROUP_1")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should respond with empty list when no content`() {
+      externalUsersApiMockServer.stubEmptyCrsUserList("INT_CR_GROUP_1")
+      webTestClient.get().uri("/externalusers/crsgroup/INT_CR_GROUP_1")
+        .headers(setAuthorisation(roles = listOf("ROLE_CONTRACT_MANAGER_VIEW_GROUP")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `should respond with user data returned from external users api`() {
+      externalUsersApiMockServer.stubCrsUserList("INT_CR_GROUP_2")
+      webTestClient.get().uri("/externalusers/crsgroup/INT_CR_GROUP_2")
+        .headers(setAuthorisation(roles = listOf("ROLE_CONTRACT_MANAGER_VIEW_GROUP")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].userId").value<List<String>> { assertThat(it).hasSize(1) }
+        .jsonPath("$[0].userId").isEqualTo("6c4036b7-e87d-44fb-864f-5a06c1c492f3")
+        .jsonPath("$[0].username").isEqualTo("TEST_INTERVENTIONS_SP_1")
+        .jsonPath("$[0].email").isEqualTo("test.interventions.sp.1@digital.justice.gov.uk")
+        .jsonPath("$[0].firstName").isEqualTo("Robin")
+        .jsonPath("$[0].lastName").isEqualTo("Croswell")
+        .jsonPath("$[0].locked").isEqualTo(false)
+        .jsonPath("$[0].enabled").isEqualTo(true)
+        .jsonPath("$[0].verified").isEqualTo(true)
+        .jsonPath("$[0].lastLoggedIn").isEqualTo(LocalDateTime.of(2040, 3, 5, 11, 48, 34, 272364 * 1000))
+        .jsonPath("$[0].inactiveReason").isEmpty
+    }
+  }
 
   @Nested
   inner class FindUsersByEmail {

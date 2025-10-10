@@ -16,6 +16,8 @@ class UserSearchApiService(
   @Qualifier("externalUsersWebClientUtils") val serviceWebClientUtils: WebClientUtils,
   @Qualifier("externalUsersUserWebClientUtils") val userWebClientUtils: WebClientUtils,
 ) {
+  fun findUsersByCrsGroup(groupCode: String): List<ExternalUser> = userWebClientUtils.get("/users/crsgroup/{crsgroupcode}", UserList::class.java, groupCode)
+
   fun findUsersByEmail(email: String): List<ExternalUser>? = userWebClientUtils.getIfPresent("/users?email={email}", UserList::class.java, email)
 
   fun findUserByUsername(username: String): ExternalUser = userWebClientUtils.get("/users/{username}", ExternalUser::class.java, username)
