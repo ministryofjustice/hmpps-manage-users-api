@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserSearchControllerIntTest
 import java.util.UUID
 
 class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
