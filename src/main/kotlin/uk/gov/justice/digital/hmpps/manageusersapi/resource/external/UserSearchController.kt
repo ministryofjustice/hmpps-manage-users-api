@@ -58,7 +58,7 @@ class UserSearchController(
   @PreAuthorize(
     "hasRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')",
   )
-  suspend fun searchForCrsGroupMembers(@PathVariable crsgroupcode: String): ResponseEntity<Any> {
+  suspend fun searchForCrsGroupMembers(@PathVariable crsgroupcode: String): ResponseEntity<List<ExternalUserDetailsDto>> {
     val users = userSearchService.findExternalUsersByCrsGroup(crsgroupcode).map { ExternalUserDetailsDto.fromDomain(it) }
     return ResponseEntity(users, HttpStatus.OK)
   }
