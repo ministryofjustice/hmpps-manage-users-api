@@ -11,6 +11,8 @@ class UserSearchService(
   val userSearchApiService: UserSearchApiService,
 ) {
 
+  fun findExternalUsersByCrsGroup(crsgroupcode: String) = userSearchApiService.findUsersByCrsGroup(crsgroupcode)
+
   fun findExternalUsersByEmail(email: String?) = email ?.let { userSearchApiService.findUsersByEmail(email) }
 
   fun findExternalUserById(userId: UUID) = userSearchApiService.findByUserId(userId)

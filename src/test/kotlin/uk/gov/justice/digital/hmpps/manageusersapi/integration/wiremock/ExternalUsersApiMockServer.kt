@@ -1747,4 +1747,49 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
         ),
     )
   }
+
+  fun stubEmptyCrsUserList(crsGroupCode: String) {
+    stubFor(
+      get(urlEqualTo("/users/crsgroup/$crsGroupCode"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(OK.value())
+            .withBody(
+              """ 
+                []
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubCrsUserList(crsGroupCode: String) {
+    stubFor(
+      get(urlEqualTo("/users/crsgroup/$crsGroupCode"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(OK.value())
+            .withBody(
+              """
+                [
+                  {
+                    "userId":"6c4036b7-e87d-44fb-864f-5a06c1c492f3",
+                    "username":"TEST_INTERVENTIONS_SP_1",
+                    "email":"test.interventions.sp.1@digital.justice.gov.uk",
+                    "firstName":"Robin",
+                    "lastName":"Croswell",
+                    "locked":false,
+                    "enabled":true,
+                    "verified":true,
+                    "lastLoggedIn":"2040-03-05T11:48:34.272364",
+                    "inactiveReason":null
+                  }
+                ]
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
 }
