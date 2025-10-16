@@ -27,6 +27,20 @@ class UserSearchServiceTest {
   }
 
   @Nested
+  inner class FindExternalUsersByCrsGroup {
+    @Test
+    fun shouldFindUsersByCrsGroupFromExternal() {
+      val crsGroupCode = "CRS-GROUP-CODE"
+      val expectedUser = givenAnExternalUser()
+      whenever(userSearchApiService.findUsersByCrsGroup(crsGroupCode)).thenReturn(listOf(expectedUser))
+
+      val actualUsers = userSearchService.findExternalUsersByCrsGroup(crsGroupCode)
+
+      assertThat(actualUsers).containsExactly(expectedUser)
+    }
+  }
+
+  @Nested
   inner class FindUsersByEmail {
     @Test
     fun shouldReturnNullWhenEmailNull() {
@@ -63,11 +77,10 @@ class UserSearchServiceTest {
 
     @Test
     fun shouldCallExternalUsersApi() {
-      val userId = UUID.randomUUID()
-      val expectedUser = ExternalUser(userId = userId, username = "testy", email = "testy@testing.com", firstName = "Testy", lastName = "McTesting")
-      whenever(userSearchApiService.findByUserId(userId)).thenReturn(expectedUser)
+      val expectedUser = givenAnExternalUser()
+      whenever(userSearchApiService.findByUserId(expectedUser.userId)).thenReturn(expectedUser)
 
-      val actualUser = userSearchService.findExternalUserById(userId)
+      val actualUser = userSearchService.findExternalUserById(expectedUser.userId)
 
       assertEquals(expectedUser, actualUser)
     }
@@ -86,4 +99,6 @@ class UserSearchServiceTest {
       verify(userSearchApiService).findUsers(name, roles, groups, Pageable.unpaged(), ACTIVE)
     }
   }
+
+  private fun givenAnExternalUser() = ExternalUser(userId = UUID.randomUUID(), username = "testy", email = "testy@testing.com", firstName = "Testy", lastName = "McTesting")
 }

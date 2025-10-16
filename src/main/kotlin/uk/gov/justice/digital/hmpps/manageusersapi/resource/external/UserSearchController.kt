@@ -32,6 +32,37 @@ class UserSearchController(
   private val userSearchService: UserSearchService,
 ) {
 
+  @GetMapping("/crsgroup/{crsgroupcode}")
+  @Operation(
+    summary = "Find members of a CRS Group.",
+    description = "Returns a list of members of a CRS Group. Requires role ROLE_CONTRACT_MANAGER_VIEW_GROUP",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize(
+    "hasRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')",
+  )
+  suspend fun searchForCrsGroupMembers(@PathVariable crsgroupcode: String): ResponseEntity<List<ExternalUserDetailsDto>> {
+    val users = userSearchService.findExternalUsersByCrsGroup(crsgroupcode).map { ExternalUserDetailsDto.fromDomain(it) }
+    return ResponseEntity(users, HttpStatus.OK)
+  }
+
   @GetMapping("/search")
   @Operation(
     summary = "Search for an external user.",

@@ -22,6 +22,8 @@ class GroupsApiService(
 
   fun getGroups(): List<UserGroup> = userWebClientUtils.get("/groups", GroupList::class.java)
 
+  fun getCRSGroups(): List<UserGroup> = userWebClientUtils.get("/groups/subset/crs", GroupList::class.java)
+
   fun getGroupDetail(group: String): Group = userWebClientUtils.get("/groups/{group}", Group::class.java, group)
 
   fun getChildGroupDetail(group: String): ChildGroup = userWebClientUtils.get("/groups/child/{group}", ChildGroup::class.java, group)

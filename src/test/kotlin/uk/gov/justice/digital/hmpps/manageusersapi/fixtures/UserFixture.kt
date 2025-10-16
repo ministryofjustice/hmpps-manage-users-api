@@ -124,6 +124,7 @@ class UserFixture {
       activeCaseload = activeCaseLoad,
       email = email,
       status = "OPEN",
+      dpsRoleCount = 6,
     )
 
     fun createPrisonUserSearchSummary(
