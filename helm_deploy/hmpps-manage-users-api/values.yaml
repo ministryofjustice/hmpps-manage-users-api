@@ -60,6 +60,7 @@ generic-service:
     DELIUS_ROLES_MAPPINGS_ESUPBT001: "ROLE_ESUPERVISION__PRACTITIONER__RW"
     DELIUS_ROLES_MAPPINGS_WPBT302: "ROLE_SUICIDE_RISK_USER"
     DELIUS_ROLES_MAPPINGS_RMBT003: "ROLE_CONTRACT_MANAGER_VIEW_GROUP"
+    DELIUS_ROLES_MAPPINGS_WPBT301: "ROLE_COSSO_USER"
 
   # Pre-existing kubernetes secrets to load as environment variables in the deployment.
   # namespace_secrets:
