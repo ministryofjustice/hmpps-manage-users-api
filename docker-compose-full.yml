@@ -12,7 +12,7 @@ services:
       - POSTGRES_DB=auth-db
 
   hmpps-auth:
-    image: quay.io/hmpps/hmpps-auth:latest
+    image: ghcr.io/ministryofjustice/hmpps-auth:latest
     container_name: hmpps-auth
     depends_on:
       - auth-db
@@ -41,7 +41,7 @@ services:
       - ./wiremock:/home/wiremock
 
   hmpps-external-users-api:
-    image: quay.io/hmpps/hmpps-external-users-api:latest
+    image: ghcr.io/ministryofjustice/hmpps-external-users-api:latest
     container_name: hmpps-external-users-api
     depends_on:
       - hmpps-auth
@@ -57,7 +57,7 @@ services:
       - SPRING_FLYWAY_URL=jdbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
 
   hmpps-manage-users-api:
-    image: quay.io/hmpps/hmpps-manage-users-api:latest
+    image: ghcr.io/ministryofjustice/hmpps-manage-users-api:latest
     container_name: hmpps-manage-users-api
     depends_on:
       - hmpps-auth
