@@ -406,13 +406,10 @@ class UserController(
     summary = "Get specified user details",
     description = "Information on a specific user. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MANAGE_NOMIS_USER_ACCOUNT or ROLE_STAFF_SEARCH",
     security = [
-      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
-      SecurityRequirement(
-        name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
-      ),
-      SecurityRequirement(
-        name = "ROLE_STAFF_SEARCH",
-      ),
+      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
+      SecurityRequirement(name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT"),
+      SecurityRequirement(name = "ROLE_STAFF_SEARCH"),
     ],
   )
   @StandardApiResponses
@@ -458,6 +455,28 @@ class UserController(
     @PathVariable
     username: String,
   ) = prisonUserService.findUserDetailsByUsername(username)
+
+  @PostMapping("/prisonusers/find-by-usernames")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT', 'ROLE_STAFF_SEARCH')")
+  @Operation(
+    summary = "Find user details by list of usernames.",
+    description = "Find user details by list of usernames. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MANAGE_NOMIS_USER_ACCOUNT or ROLE_STAFF_SEARCH",
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"),
+      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
+      SecurityRequirement(name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT"),
+      SecurityRequirement(name = "ROLE_STAFF_SEARCH"),
+    ],
+  )
+  @StandardApiResponses
+  fun findUsersByUsernames(
+    @Parameter(description = "The list of usernames.", required = true)
+    @RequestBody
+    usernames: List<String>,
+  ): Map<String, NewPrisonUserDto> {
+    val users = prisonUserService.findUsersByUsernames(usernames)
+    return users.mapValues { NewPrisonUserDto.fromDomain(it.value) }
+  }
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")

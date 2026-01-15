@@ -463,6 +463,91 @@ class UserServiceTest {
     }
   }
 
+  /*
+  findUsersByUsernames() calls findUserByUsername(), and so testing of findUsersByUsernames() also relies on the
+  existing testing of findUserByUsername()
+   */
+  @Nested
+  inner class FindUsersByUsernames {
+    @Test
+    fun `0 usernames returns 0 users`() {
+      val usernames = listOf<String>()
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(0)
+
+      verifyNoInteractions(prisonUserApiService)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `1 username returns 0 users`() {
+      val nonExistentUsername = "NON_EXISTENT_USER"
+      val usernames = listOf(nonExistentUsername)
+      whenever(prisonUserApiService.findUserByUsername(nonExistentUsername)).thenReturn(null)
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(0)
+
+      verify(prisonUserApiService).findUserByUsername(nonExistentUsername)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `1 username returns 1 user`() {
+      val usernames = listOf("NUSER_GEN")
+      val fixturePrisonUser = createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(usernames.first())).thenReturn(fixturePrisonUser)
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(1)
+      val user = users.values.first()
+      assertThat(user).isEqualTo(fixturePrisonUser)
+
+      verify(prisonUserApiService).findUserByUsername(usernames.first())
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `2 usernames return 2 users`() {
+      val testData = (1..2).map { i ->
+        val username = "NUSER_GEN$i"
+        val user = createPrisonUserDetails().copy(username = username)
+        whenever(prisonUserApiService.findUserByUsername(username)).thenReturn(user)
+        user
+      }
+      val usernames = testData.map { it.username }
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(2)
+
+      testData.forEach { testUser ->
+        val user = users[testUser.username]!!
+        assertThat(user).isEqualTo(testUser)
+      }
+
+      verify(prisonUserApiService).findUserByUsername(usernames[0])
+      verify(prisonUserApiService).findUserByUsername(usernames[1])
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+  }
+
   @Nested
   inner class EnablePrisonUser {
     @Test

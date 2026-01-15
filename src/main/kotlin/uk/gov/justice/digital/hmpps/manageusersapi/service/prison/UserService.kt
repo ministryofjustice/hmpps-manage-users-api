@@ -76,6 +76,15 @@ class UserService(
 
   fun findUserByUsername(username: String) = prisonUserApiService.findUserByUsernameWithError(username)
 
+  fun findUsersByUsernames(usernames: List<String>): Map<String, PrisonUser> {
+    val users = mutableMapOf<String, PrisonUser>()
+    usernames.forEach { username ->
+      val user = prisonUserApiService.findUserByUsername(username)
+      if (user != null) users[username] = user
+    }
+    return users.toMap()
+  }
+
   fun findUserDetailsByUsername(username: String) = prisonUserApiService.findUserDetailsByUsername(username)
 
   fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
@@ -136,7 +145,10 @@ class UserService(
 
   fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = prisonUserApiService.findUsersByFilter(pageRequest, filter)
 
-  fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = prisonUserApiService.findUsersByCaseloadAndRole(pageRequest, filter)
+  fun findUsersByCaseloadAndRole(
+    pageRequest: Pageable,
+    filter: PrisonUserFilter,
+  ): PagedResponse<PrisonUserSearchSummary> = prisonUserApiService.findUsersByCaseloadAndRole(pageRequest, filter)
 
   fun downloadUsersByFilter(filter: PrisonUserFilter): List<PrisonUserDownloadSummary> = prisonUserApiService.downloadUsersByFilter(filter)
 

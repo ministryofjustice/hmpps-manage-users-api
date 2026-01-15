@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
@@ -168,6 +169,38 @@ class UserControllerTest {
             activeCaseLoadId = null,
           ),
         )
+    }
+  }
+
+  @Nested
+  inner class FindUsersByUsernames {
+    @Test
+    fun `1 username returns 1 user`() {
+      val usernames = listOf("NUSER_GEN")
+      val userDetails = usernames.associateBy(
+        { username -> username },
+        { username -> createPrisonUserDetails().copy(username = username) },
+      )
+      whenever(userService.findUsersByUsernames(usernames)).thenReturn(userDetails)
+
+      val users = userController.findUsersByUsernames(usernames)
+      verify(userService).findUsersByUsernames(usernames)
+      assertThat(users).hasSize(userDetails.size)
+      users.forEach { (username, user) ->
+        assertThat(user).isEqualTo(NewPrisonUserDto.fromDomain(userDetails[username]!!))
+      }
+      verify(userService).findUsersByUsernames(usernames)
+    }
+
+    @Test
+    fun `1 non-existent username returns 0 users`() {
+      val usernames = listOf("DOES_NOT_EXIST")
+      val userDetails = mapOf<String, PrisonUser>()
+      whenever(userService.findUsersByUsernames(usernames)).thenReturn(userDetails)
+
+      val users = userController.findUsersByUsernames(usernames)
+      verify(userService).findUsersByUsernames(usernames)
+      assertThat(users).isEmpty()
     }
   }
 

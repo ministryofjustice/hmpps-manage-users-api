@@ -8,12 +8,16 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
@@ -1238,7 +1242,12 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `find user by username with allowed roles`() {
-      for (role in listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MANAGE_NOMIS_USER_ACCOUNT", "ROLE_STAFF_SEARCH")) {
+      for (role in listOf(
+        "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+        "ROLE_MAINTAIN_ACCESS_ROLES",
+        "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+        "ROLE_STAFF_SEARCH",
+      )) {
         testUserDetailsCanBeObtainedWithRole(role)
       }
     }
@@ -1444,6 +1453,113 @@ class UserControllerIntTest : IntegrationTestBase() {
       nomisApiMockServer.verify(
         putRequestedFor(urlEqualTo("/users/$username/lock-user")),
       )
+    }
+  }
+
+  @Nested
+  inner class FindUsersByUsernames {
+    private val uri = "/prisonusers/find-by-usernames"
+    private val authorisedRole = "ROLE_STAFF_SEARCH"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      val usernames = listOf("NUSER_GEN")
+      webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      val usernames = listOf("NUSER_GEN")
+      webTestClient.post().uri(uri)
+        .headers(setAuthorisation(roles = listOf()))
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      val usernames = listOf("NUSER_GEN")
+      webTestClient.post().uri(uri)
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns empty json object when usernames not found`() {
+      val usernames = listOf("NUSER_GEN")
+      nomisApiMockServer.stubGetFail("/users/${usernames.first()}", NOT_FOUND)
+
+      webTestClient.post().uri(uri)
+        .headers(setAuthorisation(roles = listOf(authorisedRole)))
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("{}")
+    }
+
+    @ParameterizedTest(name = "access ok with authorised role {0}")
+    @ValueSource(
+      strings = [
+        "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+        "ROLE_MAINTAIN_ACCESS_ROLES",
+        "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+        "ROLE_STAFF_SEARCH",
+      ],
+    )
+    fun `access ok with authorised role`(authorisedRole: String) {
+      val usernames = listOf<String>()
+
+      webTestClient.post().uri(uri)
+        .headers(setAuthorisation(roles = listOf(authorisedRole)))
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("{}")
+    }
+
+    @Test
+    fun `0 usernames returns 0 users`() {
+      val usernames = listOf<String>()
+
+      webTestClient.post().uri(uri)
+        .headers(setAuthorisation(roles = listOf(authorisedRole)))
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("{}")
+    }
+
+    @Test
+    fun `1 username returns 1 user`() {
+      val usernames = listOf("NUSER_GEN")
+
+      nomisApiMockServer.stubFindUserByUsername(usernames.first())
+
+      val mapOfUsersType = object : ParameterizedTypeReference<Map<String, NewPrisonUserDto>>() {}
+      val users = webTestClient.post().uri(uri)
+        .headers(setAuthorisation(roles = listOf(authorisedRole)))
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody(mapOfUsersType)
+        .returnResult().responseBody!!
+
+      assertThat(users).hasSize(1)
+      val user = users[usernames.first()]!!
+      assertThat(user.username).isEqualTo(usernames.first())
     }
   }
 
