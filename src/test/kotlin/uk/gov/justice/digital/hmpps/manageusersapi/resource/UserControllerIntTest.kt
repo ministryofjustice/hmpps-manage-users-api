@@ -843,12 +843,14 @@ class UserControllerIntTest : IntegrationTestBase() {
                "accountType": "GENERAL",
                "activeCaseload": {
                  "id": "WWI",
-                 "name": "WANDSWORTH (HMP)"
+                 "name": "WANDSWORTH (HMP)",
+                 "function": "GENERAL"
                },
                "caseloads": [
                  {
                    "id": "WWI",
-                   "name": "WANDSWORTH (HMP)"
+                   "name": "WANDSWORTH (HMP)",
+                   "function": "GENERAL"
                  }
                ]
              }

@@ -78,7 +78,7 @@ class UserRolesControllerTest {
 
   private fun createPrisonUserRole(): PrisonUserRole {
     val activePrisonCaseload =
-      PrisonCaseload("TESTING-1234", "TEST-CASELOAD-1")
+      PrisonCaseload("TESTING-1234", "TEST-CASELOAD-1", "GENERAL")
 
     val prisonRoles = listOf(
       PrisonRole(

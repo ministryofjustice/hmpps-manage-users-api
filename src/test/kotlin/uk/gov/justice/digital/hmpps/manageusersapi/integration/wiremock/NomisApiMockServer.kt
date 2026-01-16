@@ -127,16 +127,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "accountType": "GENERAL",
                         "activeCaseload": {
                             "id": "BXI",
-                            "name": "Brixton (HMP)"
+                            "name": "Brixton (HMP)",
+                            "function": "GENERAL"
                         },
                         "caseloads": [
                             {
                                 "id": "NWEB",
-                                "name": "Nomis-web Application"
+                                "name": "Nomis-web Application",
+                                "function": "GENERAL"
                             },
                             {
                                 "id": "BXI",
-                                "name": "Brixton (HMP)"
+                                "name": "Brixton (HMP)",
+                                "function": "GENERAL"
                             }
                         ]
                     },
@@ -146,16 +149,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "accountType": "ADMIN",
                         "activeCaseload": {
                             "id": "CADM_I",
-                            "name": "Central Administration Caseload For Hmps"
+                            "name": "Central Administration Caseload For Hmps",
+                            "function": "GENERAL"
                         },
                         "caseloads": [
                             {
                                 "id": "NWEB",
-                                "name": "Nomis-web Application"
+                                "name": "Nomis-web Application",
+                                "function": "GENERAL"
                             },
                             {
                                 "id": "CADM_I",
-                                "name": "Central Administration Caseload For Hmps"
+                                "name": "Central Administration Caseload For Hmps",
+                                "function": "GENERAL"
                             }
                         ]
                     }
@@ -193,16 +199,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "accountType": "GENERAL",
                         "activeCaseload": {
                             "id": "BXI",
-                            "name": "Brixton (HMP)"
+                            "name": "Brixton (HMP)",
+                            "function": "GENERAL"
                         },
                         "caseloads": [
                             {
                                 "id": "NWEB",
-                                "name": "Nomis-web Application"
+                                "name": "Nomis-web Application",
+                                "function": "GENERAL"
                             },
                             {
                                 "id": "BXI",
-                                "name": "Brixton (HMP)"
+                                "name": "Brixton (HMP)",
+                                "function": "GENERAL"
                             }
                         ]
                     },
@@ -212,16 +221,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "accountType": "ADMIN",
                         "activeCaseload": {
                             "id": "CADM_I",
-                            "name": "Central Administration Caseload For Hmps"
+                            "name": "Central Administration Caseload For Hmps",
+                            "function": "GENERAL"
                         },
                         "caseloads": [
                             {
                                 "id": "NWEB",
-                                "name": "Nomis-web Application"
+                                "name": "Nomis-web Application",
+                                "function": "GENERAL"
                             },
                             {
                                 "id": "CADM_I",
-                                "name": "Central Administration Caseload For Hmps"
+                                "name": "Central Administration Caseload For Hmps",
+                                "function": "GENERAL"
                             }
                         ]
                     }
@@ -259,16 +271,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "accountType": "GENERAL",
                         "activeCaseload": {
                             "id": "BXI",
-                            "name": "Brixton (HMP)"
+                            "name": "Brixton (HMP)",
+                            "function": "GENERAL"
                         },
                         "caseloads": [
                             {
                                 "id": "NWEB",
-                                "name": "Nomis-web Application"
+                                "name": "Nomis-web Application",
+                                "function": "GENERAL"
                             },
                             {
                                 "id": "BXI",
-                                "name": "Brixton (HMP)"
+                                "name": "Brixton (HMP)",
+                                "function": "GENERAL"
                             }
                         ]
                     },
@@ -278,16 +293,19 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                         "accountType": "ADMIN",
                         "activeCaseload": {
                             "id": "CADM_I",
-                            "name": "Central Administration Caseload For Hmps"
+                            "name": "Central Administration Caseload For Hmps",
+                            "function": "GENERAL"
                         },
                         "caseloads": [
                             {
                                 "id": "NWEB",
-                                "name": "Nomis-web Application"
+                                "name": "Nomis-web Application",
+                                "function": "GENERAL"
                             },
                             {
                                 "id": "CADM_I",
-                                "name": "Central Administration Caseload For Hmps"
+                                "name": "Central Administration Caseload For Hmps",
+                                "function": "GENERAL"
                             }
                         ]
                     }
@@ -694,12 +712,14 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                      "accountType": "GENERAL",
                      "activeCaseload": {
                        "id": "WWI",
-                       "name": "WANDSWORTH (HMP)"
+                       "name": "WANDSWORTH (HMP)",
+                       "function": "GENERAL"
                      },
                      "caseloads": [
                        {
                          "id": "WWI",
-                         "name": "WANDSWORTH (HMP)"
+                         "name": "WANDSWORTH (HMP)",
+                         "function": "GENERAL"
                        }
                      ]
                    }
@@ -729,7 +749,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "expired": false,
                     "activeCaseload": {
                         "id": "MDI",
-                        "name": "Moorland (HMP & YOI)"
+                        "name": "Moorland (HMP & YOI)",
+                        "function": "GENERAL"
                     },
                     "dpsRoleCount": 4,
                     "email": "$firstName.$lastName@digital.justice.gov.uk",
@@ -746,7 +767,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "expired": false,
                     "activeCaseload": {
                         "id": "CADM_I",
-                        "name": "Central Administration Caseload For Hmps"
+                        "name": "Central Administration Caseload For Hmps",
+                        "function": "GENERAL"
                     },
                     "dpsRoleCount": 11,
                     "email": "$firstName.$lastName@digital.justice2.gov.uk",
@@ -781,7 +803,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                       "expired": false,
                       "activeCaseload": {
                           "id": "BAI",
-                          "name": "Belmarsh (HMP)"
+                          "name": "Belmarsh (HMP)",
+                          "function": "GENERAL"
                       },
                       "dpsRoleCount": 1,
                       "email": null,
@@ -841,7 +864,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "expired": false,
                     "activeCaseload": {
                         "id": "BAI",
-                        "name": "Belmarsh (HMP)"
+                        "name": "Belmarsh (HMP)",
+                        "function": "GENERAL"
                     },
                     "dpsRoleCount": 1,
                     "email": null,
@@ -900,7 +924,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "expired": false,
                     "activeCaseload": {
                         "id": "BAI",
-                        "name": "Belmarsh (HMP)"
+                        "name": "Belmarsh (HMP)",
+                        "function": "GENERAL"
                     },
                     "dpsRoleCount": 1,
                     "email": null,
@@ -908,7 +933,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "groups": [
                       {
                           "id": "BXI",
-                          "name": "Brixton (HMP)"
+                          "name": "Brixton (HMP)",
+                          "function": "GENERAL"
                       }
                     ]
                   }
@@ -977,7 +1003,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 [
                   {
                     "id": "BXI",
-                    "name": "Brixton (HMP)"
+                    "name": "Brixton (HMP)",
+                    "function": "GENERAL"
                   }
                 ]
               """.trimIndent(),
@@ -1074,7 +1101,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         "accountType": "ADMIN",
         "activeCaseload": {
         "id": "CADM_I",
-        "name": "Central Administration Caseload For Hmps"
+        "name": "Central Administration Caseload For Hmps",
+        "function": "GENERAL"
         },
         "dpsRoles": [
           {
@@ -1102,12 +1130,14 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
         "accountType": "GENERAL",
         "activeCaseload": {
            "id": "WWI",
-           "name": "WANDSWORTH (HMP)"
+           "name": "WANDSWORTH (HMP)",
+           "function": "GENERAL"
           },
           "caseloads": [
            {
              "id": "WWI",
-             "name": "WANDSWORTH (HMP)"
+             "name": "WANDSWORTH (HMP)",
+             "function": "GENERAL"
            }
           ]
       }
@@ -1127,7 +1157,8 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                   "expired": false,
                   "activeCaseload": {
                     "id": "$caseload",
-                    "name": "$caseload (HMP)"
+                    "name": "$caseload (HMP)",
+                    "function": "GENERAL"
                   },
                   "dpsRoleCount": 0.0,
                   "staffStatus": "ACTIVE"

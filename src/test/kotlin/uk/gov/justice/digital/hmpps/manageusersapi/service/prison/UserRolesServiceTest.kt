@@ -135,7 +135,7 @@ class UserRolesServiceTest {
   private fun createUserRoleDetails() = PrisonUserRole(
     username = "bob",
     active = true,
-    activeCaseload = PrisonCaseload(id = "CADM_I", name = "Central Administration Caseload For Hmps"),
+    activeCaseload = PrisonCaseload(id = "CADM_I", name = "Central Administration Caseload For Hmps", function = "GENERAL"),
     dpsRoles = listOf(
       PrisonRole(
         code = "OMIC_ADMIN",
@@ -163,11 +163,11 @@ class UserRolesServiceTest {
     username = username,
     active = active,
     accountType = accountType,
-    activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+    activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)", "GENERAL"),
     dpsRoles = listOf(),
     nomisRoles = listOf(
       CaseloadRoleDetail(
-        uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+        uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)", "GENERAL"),
         listOf(
           RoleDetail("ROLE1", "Role 1"),
           RoleDetail("ROLE2", "Role 2"),
