@@ -1,8 +1,7 @@
 version: "3"
 services:
   hmpps-manage-users-api:
-    build:
-      context: .
+    image: quay.io/hmpps/hmpps-manage-users-api:latest
     container_name: hmpps-manage-users-api
     ports:
       - "8081:8080"

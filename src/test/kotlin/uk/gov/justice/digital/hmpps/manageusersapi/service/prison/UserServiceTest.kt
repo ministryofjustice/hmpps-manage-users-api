@@ -485,7 +485,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `1 username returns 0 users`() {
+    fun `1 non-existent username returns 0 users`() {
       val nonExistentUsername = "NON_EXISTENT_USER"
       val usernames = listOf(nonExistentUsername)
       whenever(prisonUserApiService.findUserByUsername(nonExistentUsername)).thenReturn(null)
