@@ -18,6 +18,7 @@ data class PrisonUserRole(
 data class PrisonCaseload(
   val id: String,
   val name: String,
+  val function: String,
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

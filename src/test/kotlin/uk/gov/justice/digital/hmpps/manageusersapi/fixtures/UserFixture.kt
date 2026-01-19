@@ -112,7 +112,7 @@ class UserFixture {
       firstName: String = "Nomis",
       staffId: String = "123456",
       lastName: String = "Take",
-      activeCaseLoad: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      activeCaseLoad: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)", "GENERAL"),
       email: String = "nomis.usergen@digital.justice.gov.uk",
       active: Boolean = true,
     ) = PrisonUserDownloadSummary(
@@ -136,7 +136,7 @@ class UserFixture {
       status: String = "ACTIVE",
       locked: Boolean = false,
       expired: Boolean = false,
-      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)", "GENERAL"),
       dpsRoleCount: Int = 2,
       email: String = "",
     ) = PrisonUserSearchSummary(
@@ -163,7 +163,7 @@ class UserFixture {
       status: PrisonAccountStatus = PrisonAccountStatus.OPEN,
       locked: Boolean = false,
       expired: Boolean = false,
-      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)"),
+      activeCaseload: PrisonCaseload = PrisonCaseload("MDI", "Moorland (HMP)", "GENERAL"),
       dpsRoleCount: Int = 2,
       email: String = "nomis.take@example.com",
     ) = PrisonAdminUserSummary(
@@ -193,11 +193,12 @@ class UserFixture {
       activeCaseload = uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload(
         "MDI",
         "Moorland (HMP)",
+        "GENERAL",
       ),
       dpsRoles = listOf(),
       nomisRoles = listOf(
         CaseloadRoleDetail(
-          uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)"),
+          uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.PrisonCaseload("MDI", "Moorland (HMP)", "GENERAL"),
           listOf(
             RoleDetail("ROLE1", "Role 1"),
             RoleDetail("ROLE2", "Role 2"),
@@ -216,12 +217,12 @@ class UserFixture {
       adminUserName: String = "TEST_USER_ADM",
     ): PrisonStaffUser {
       val generalCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("BXI", "Brixton (HMP)"),
+        PrisonCaseload("NWEB", "Nomis-web Application", "GENERAL"),
+        PrisonCaseload("BXI", "Brixton (HMP)", "GENERAL"),
       )
       val adminCaseLoads = listOf(
-        PrisonCaseload("NWEB", "Nomis-web Application"),
-        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps"),
+        PrisonCaseload("NWEB", "Nomis-web Application", "GENERAL"),
+        PrisonCaseload("CADM_I", "Central Administration Caseload For Hmps", "GENERAL"),
       )
       val generalAccount = UserCaseload(
         generalUserName,
@@ -258,15 +259,17 @@ class UserFixture {
       username = username,
       active = active,
       accountType = accountType,
-      activeCaseload = PrisonCaseload(id = "NWEB", name = "National Web"),
+      activeCaseload = PrisonCaseload(id = "NWEB", name = "National Web", function = "GENERAL"),
       caseloads = listOf(
         PrisonCaseload(
           id = "NWEB",
           name = "National Web",
+          function = "GENERAL",
         ),
         PrisonCaseload(
           id = "LEI",
           name = "Leeds",
+          function = "GENERAL",
         ),
       ),
     )
