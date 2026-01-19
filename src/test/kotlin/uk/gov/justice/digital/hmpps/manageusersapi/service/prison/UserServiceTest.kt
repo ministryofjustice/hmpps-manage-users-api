@@ -301,7 +301,7 @@ class UserServiceTest {
         listOf(
           PrisonUserSummary("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
-          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland", "GENERAL"), null),
         ),
       )
       whenever(authApiService.findUserEmails(listOf())).thenReturn(listOf())
@@ -342,9 +342,9 @@ class UserServiceTest {
     fun `Prison users matched in auth`() {
       whenever(prisonUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland", "GENERAL"), null),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, null),
-          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland", "GENERAL"), null),
         ),
       )
 
@@ -393,10 +393,10 @@ class UserServiceTest {
     fun `Prison users partially matched in auth`() {
       whenever(prisonUserApiService.findUsersByFirstAndLastName("first", "last")).thenReturn(
         listOf(
-          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland", "GENERAL"), null),
           PrisonUserSummary("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
           PrisonUserSummary("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
-          PrisonUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null),
+          PrisonUserSummary("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland", "GENERAL"), null),
         ),
       )
 
