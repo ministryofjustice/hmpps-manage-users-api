@@ -399,7 +399,7 @@ class UserServiceTest {
     username = "the username",
     active = true,
     accountType = UsageType.GENERAL,
-    activeCaseload = PrisonCaseload(id = "WWI", name = "WANDSWORTH (HMP)"),
-    caseloads = listOf(PrisonCaseload(id = "WWI", name = "WANDSWORTH (HMP)")),
+    activeCaseload = PrisonCaseload(id = "WWI", name = "WANDSWORTH (HMP)", function = "GENERAL"),
+    caseloads = listOf(PrisonCaseload(id = "WWI", name = "WANDSWORTH (HMP)", function = "GENERAL")),
   )
 }

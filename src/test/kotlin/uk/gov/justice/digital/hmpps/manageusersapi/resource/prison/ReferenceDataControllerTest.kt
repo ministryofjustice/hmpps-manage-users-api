@@ -17,16 +17,16 @@ class ReferenceDataControllerTest {
   fun `get caseloads`() {
     whenever(referenceDataService.getCaseloads()).thenReturn(
       CaseloadList().apply {
-        add(PrisonCaseload("TESTING-1234", "TEST-CASELOAD-1"))
-        add(PrisonCaseload("TESTING-1235", "TEST-CASELOAD-2"))
+        add(PrisonCaseload("TESTING-1234", "TEST-CASELOAD-1", "GENERAL"))
+        add(PrisonCaseload("TESTING-1235", "TEST-CASELOAD-2", "GENERAL"))
       },
     )
 
     val caseloads = referenceDataController.getCaseload()
     verify(referenceDataService).getCaseloads()
     assertThat(caseloads).containsExactlyInAnyOrder(
-      PrisonCaseload("TESTING-1234", "TEST-CASELOAD-1"),
-      PrisonCaseload("TESTING-1235", "TEST-CASELOAD-2"),
+      PrisonCaseload("TESTING-1234", "TEST-CASELOAD-1", "GENERAL"),
+      PrisonCaseload("TESTING-1235", "TEST-CASELOAD-2", "GENERAL"),
     )
   }
 }
