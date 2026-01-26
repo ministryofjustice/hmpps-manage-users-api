@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -13,7 +13,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
+import com.google.gson.Gson
 import org.springframework.http.HttpStatus
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
@@ -103,7 +105,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubCreateLinkedCentralAdminUser(request: CreateLinkedCentralAdminUserRequest) {
     stubFor(
       post(urlEqualTo("/users/link-admin-account/${request.existingUsername}")).withRequestBody(
-        WireMock.containing(
+        containing(
           """
               {"username":"TEST_USER_ADM"}
           """.trimIndent(),
@@ -175,7 +177,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubCreateLinkedLocalAdminUser(request: CreateLinkedLocalAdminUserRequest) {
     stubFor(
       post(urlEqualTo("/users/link-local-admin-account/${request.existingUsername}")).withRequestBody(
-        WireMock.containing(
+        containing(
           """
           {"username":"TEST_USER_ADM","localAdminGroup":"MDI"}
           """.trimIndent(),
@@ -247,7 +249,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubCreateLinkedGeneralUser(request: CreateLinkedGeneralUserRequest) {
     stubFor(
       post(urlEqualTo("/users/link-general-account/${request.existingAdminUsername}")).withRequestBody(
-        WireMock.containing(
+        containing(
           """
           {"username":"TESTUSER1_GEN","defaultCaseloadId":"BXI"}
           """.trimIndent(),
@@ -695,6 +697,37 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
               }
               """.trimIndent(),
             ),
+        ),
+    )
+  }
+
+  fun stubFindUsersByUsernames(usernames: List<String>, response: Map<String, PrisonUserBasicDetails>? = null) {
+    val responseJson = when (response) {
+      // not explicitly providing the response means we will generate one based on the usernames provided
+      null -> Gson().toJson(
+        usernames.associateWith { username ->
+          mapOf(
+            "username" to username,
+            "firstName" to "Nomis",
+            "staffId" to 123456,
+            "lastName" to "Take",
+            "activeCaseLoadId" to "MDI",
+            "enabled" to "true",
+            "accountStatus" to "OPEN",
+          )
+        },
+      )
+
+      else -> Gson().toJson(response)
+    }
+
+    stubFor(
+      post("/users/basic/find-by-usernames")
+        .withRequestBody(equalToJson(Gson().toJson(usernames)))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(responseJson),
         ),
     )
   }

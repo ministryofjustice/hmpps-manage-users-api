@@ -107,6 +107,30 @@ class UserApiService(
     )
   }
 
+  fun findUserBasicDetailsByUsernames(usernames: List<String>): Map<String, PrisonUserBasicDetails> {
+    val filteredUsernames = usernames.filter { username ->
+      when ("@" in username) {
+        true -> {
+          log.debug("Nomis not called with username as contained @: {}", username)
+          false
+        }
+
+        else -> true
+      }
+    }
+
+    if (filteredUsernames.isEmpty()) {
+      return mapOf()
+    }
+
+    val mapOfUsersType = object : ParameterizedTypeReference<Map<String, PrisonUserBasicDetails>>() {}
+    return serviceWebClientUtils.postWithResponse(
+      "/users/basic/find-by-usernames",
+      filteredUsernames,
+      mapOfUsersType,
+    )
+  }
+
   fun findUserByUsernameWithError(username: String): PrisonUser? {
     if ("@" in username) {
       log.error("Nomis not called with username as contained @: {}", username)
@@ -172,7 +196,13 @@ class UserApiService(
   )
 
   fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
-    val useServiceClient = AuthenticationFacade.hasRoles("ROLE_STAFF_SEARCH") && !(AuthenticationFacade.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_MAINTAIN_ACCESS_ROLES"))
+    val useServiceClient = AuthenticationFacade.hasRoles("ROLE_STAFF_SEARCH") &&
+      !(
+        AuthenticationFacade.hasRoles(
+          "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+          "ROLE_MAINTAIN_ACCESS_ROLES",
+        )
+        )
     val client = if (useServiceClient) serviceWebClientUtils else userWebClientUtils
     return client.getWithParams(
       "/users",
@@ -181,7 +211,10 @@ class UserApiService(
     )
   }
 
-  fun findUsersByCaseloadAndRole(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> = serviceWebClientUtils.getWithParams(
+  fun findUsersByCaseloadAndRole(
+    pageRequest: Pageable,
+    filter: PrisonUserFilter,
+  ): PagedResponse<PrisonUserSearchSummary> = serviceWebClientUtils.getWithParams(
     "/users",
     object : ParameterizedTypeReference<PagedResponse<PrisonUserSearchSummary>>() {},
     mapPrisonUserFilterToMap(filter) + mapPageRequest(pageRequest),

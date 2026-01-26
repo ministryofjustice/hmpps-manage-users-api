@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonAdminUserSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
@@ -460,6 +461,82 @@ class UserServiceTest {
       assertThat(prisonUserService.findUserByUsername("NUSER_GEN")).isEqualTo(
         createPrisonUserDetails(),
       )
+    }
+  }
+
+  @Nested
+  inner class FindUsersByUsernames {
+    @Test
+    fun `0 usernames returns 0 users`() {
+      val usernames = listOf<String>()
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(0)
+
+      verify(prisonUserApiService).findUserBasicDetailsByUsernames(usernames)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `1 non-existent username returns 0 users`() {
+      val nonExistentUsername = "NON_EXISTENT_USER"
+      val usernames = listOf(nonExistentUsername)
+      whenever(prisonUserApiService.findUserBasicDetailsByUsernames(usernames)).thenReturn(mapOf())
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(0)
+
+      verify(prisonUserApiService).findUserBasicDetailsByUsernames(usernames)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `1 username returns 1 user`() {
+      val usernames = listOf("NUSER_GEN")
+      val fixturePrisonUsers = usernames.associateBy({ username -> username }, { createPrisonUserBasicDetails() })
+      whenever(prisonUserApiService.findUserBasicDetailsByUsernames(usernames)).thenReturn(fixturePrisonUsers)
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(1)
+      assertThat(users).isEqualTo(fixturePrisonUsers)
+
+      verify(prisonUserApiService).findUserBasicDetailsByUsernames(usernames)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `2 usernames return 2 users`() {
+      val usernames = (1..2).map { "NUSER_GEN$it" }
+      val fixturePrisonUsers = usernames.associateBy({ username -> username }, { createPrisonUserBasicDetails() })
+      whenever(prisonUserApiService.findUserBasicDetailsByUsernames(usernames)).thenReturn(fixturePrisonUsers)
+
+      val users = prisonUserService.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(2)
+
+      usernames.forEach { username ->
+        val user = users[username]!!
+        val fixturePrisonUser = fixturePrisonUsers[username]!!
+        assertThat(user).isEqualTo(fixturePrisonUser)
+      }
+
+      verify(prisonUserApiService).findUserBasicDetailsByUsernames(usernames)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
     }
   }
 

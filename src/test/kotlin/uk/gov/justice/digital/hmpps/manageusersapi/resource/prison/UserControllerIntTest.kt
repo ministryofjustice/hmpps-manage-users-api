@@ -1,13 +1,19 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
@@ -17,6 +23,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 
 class UserControllerIntTest : IntegrationTestBase() {
@@ -1186,6 +1193,116 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class FindUsersByUsernames {
+    private val username = "NUSER_GEN"
+    private val uri = "/prisonusers/find-by-usernames"
+    private val mapOfStringToPrisonUserBasicDetailsType =
+      object : ParameterizedTypeReference<Map<String, PrisonUserBasicDetails>>() {}
+
+    @BeforeEach
+    fun beforeEach() {
+      nomisApiMockServer.resetRequests()
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      val usernames = listOf<String>()
+      webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      val usernames = listOf<String>()
+      webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      val usernames = listOf<String>()
+      webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `users not found`() {
+      val usernames = listOf(username)
+      nomisApiMockServer.stubFindUsersByUsernames(usernames, mapOf())
+
+      val users = webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(mapOfStringToPrisonUserBasicDetailsType)
+        .returnResult().responseBody!!
+
+      assertThat(users).hasSize(0)
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/basic/find-by-usernames"))
+          .withRequestBody(equalToJson(Gson().toJson(usernames))),
+      )
+    }
+
+    @Test
+    fun `user not searched when username has @`() {
+      val username = "USER@NAME"
+      val usernames = listOf(username)
+
+      val users = webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(mapOfStringToPrisonUserBasicDetailsType)
+        .returnResult().responseBody!!
+
+      assertThat(users).hasSize(0)
+      // nomis api should not have been called, as the username with '@' should have been filtered out,
+      // leaving no usernames, so no request needs to be sent onwards
+      nomisApiMockServer.verify(0, postRequestedFor(urlEqualTo("/users/basic/find-by-usernames")))
+    }
+
+    @ParameterizedTest(name = "access ok with authorised role {0}")
+    @ValueSource(
+      strings = [
+        "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+        "ROLE_MAINTAIN_ACCESS_ROLES",
+        "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+        "ROLE_STAFF_SEARCH",
+      ],
+    )
+    fun `access ok with authorised role`(authorisedRole: String) {
+      val usernames = listOf(username)
+      nomisApiMockServer.stubFindUsersByUsernames(usernames)
+
+      val users = webTestClient.post().uri(uri)
+        .bodyValue(usernames)
+        .headers(setAuthorisation(roles = listOf(authorisedRole)))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(mapOfStringToPrisonUserBasicDetailsType)
+        .returnResult().responseBody!!
+
+      assertThat(users).hasSize(1)
+
+      nomisApiMockServer.verify(
+        postRequestedFor(urlEqualTo("/users/basic/find-by-usernames"))
+          .withRequestBody(equalToJson(Gson().toJson(usernames))),
+      )
+    }
+  }
+
+  @Nested
   inner class FindUserByUsername {
     private val username = "NUSER_GEN"
 
@@ -1238,7 +1355,12 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `find user by username with allowed roles`() {
-      for (role in listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_MANAGE_NOMIS_USER_ACCOUNT", "ROLE_STAFF_SEARCH")) {
+      for (role in listOf(
+        "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+        "ROLE_MAINTAIN_ACCESS_ROLES",
+        "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+        "ROLE_STAFF_SEARCH",
+      )) {
         testUserDetailsCanBeObtainedWithRole(role)
       }
     }

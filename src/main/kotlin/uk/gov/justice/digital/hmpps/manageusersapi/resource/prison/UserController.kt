@@ -420,6 +420,26 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ) = prisonUserService.findUserByUsername(username)?.let { NewPrisonUserDto.fromDomain(it) }
 
+  @PostMapping("/prisonusers/find-by-usernames", produces = [MediaType.APPLICATION_JSON_VALUE])
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT', 'ROLE_STAFF_SEARCH')")
+  @Operation(
+    summary = "Get specified user details",
+    description = "Information on specific users. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MANAGE_NOMIS_USER_ACCOUNT or ROLE_STAFF_SEARCH",
+    security = [
+      SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
+      SecurityRequirement(
+        name = "ROLE_MANAGE_NOMIS_USER_ACCOUNT",
+      ),
+      SecurityRequirement(
+        name = "ROLE_STAFF_SEARCH",
+      ),
+    ],
+  )
+  @StandardApiResponses
+  fun findUsersByUsernames(
+    @Parameter(description = "The usernames of the users.", required = true) @RequestBody usernames: List<String>,
+  ) = prisonUserService.findUsersByUsernames(usernames)
+
   @GetMapping("/prisonusers/{username}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
   @Operation(
