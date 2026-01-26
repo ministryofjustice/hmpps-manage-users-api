@@ -120,6 +120,13 @@ class WebClientUtils(
     .bodyToMono(elementClass)
     .block()!!
 
+  fun <T : Any> postWithResponse(uri: String, body: Any, elementClass: ParameterizedTypeReference<T>, vararg uriVariables: Any?): T = client.post()
+    .uri(uri, *uriVariables)
+    .bodyValue(body)
+    .retrieve()
+    .bodyToMono(elementClass)
+    .block()!!
+
   fun <T : Any> postWithResponse(uri: String, elementClass: Class<T>, vararg uriVariables: Any?): T = client.post()
     .uri(uri, *uriVariables)
     .retrieve()

@@ -11,6 +11,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
@@ -92,6 +93,21 @@ class UserControllerTest {
       )
       assertThat(userController.findUserByUsername("NUSER_GEN")).isNotNull
       verify(userService).findUserByUsername("NUSER_GEN")
+    }
+  }
+
+  @Nested
+  inner class FindUsersByUsernames {
+    @Test
+    fun `find users by user names`() {
+      val usernames = listOf("NUSER_GEN")
+      val fixturePrisonUsers = usernames.associateBy({ username -> username }, { createPrisonUserBasicDetails() })
+      whenever(userService.findUsersByUsernames(usernames)).thenReturn(fixturePrisonUsers)
+
+      val users = userController.findUsersByUsernames(usernames)
+
+      assertThat(users).hasSize(1)
+      verify(userService).findUsersByUsernames(usernames)
     }
   }
 

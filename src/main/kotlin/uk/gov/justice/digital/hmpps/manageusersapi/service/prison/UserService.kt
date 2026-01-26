@@ -76,6 +76,8 @@ class UserService(
 
   fun findUserByUsername(username: String) = prisonUserApiService.findUserByUsernameWithError(username)
 
+  fun findUsersByUsernames(usernames: List<String>) = prisonUserApiService.findUserBasicDetailsByUsernames(usernames)
+
   fun findUserDetailsByUsername(username: String) = prisonUserApiService.findUserDetailsByUsername(username)
 
   fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
