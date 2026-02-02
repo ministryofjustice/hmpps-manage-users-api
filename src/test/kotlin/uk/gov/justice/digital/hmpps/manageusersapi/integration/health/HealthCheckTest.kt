@@ -2,11 +2,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.integration.health
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase.Companion.deliusApiMockServer
-import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase.Companion.externalUsersApiMockServer
-import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase.Companion.hmppsAuthMockServer
-import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase.Companion.nomisApiMockServer
-import kotlin.text.get
 
 class HealthCheckTest : IntegrationTestBase() {
 
