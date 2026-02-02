@@ -210,7 +210,7 @@ class UserController(
     description = "Caseloads for the current user",
   )
   fun getMyCaseloads(): UserCaseloadDetail? = hmppsAuthenticationHolder.username?.run {
-    return userService.getCaseloads()
+    userService.getCaseloads()
   }
 }
 

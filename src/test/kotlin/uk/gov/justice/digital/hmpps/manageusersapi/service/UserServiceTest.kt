@@ -297,7 +297,7 @@ class UserServiceTest {
 
     @Test
     fun myRoles_noRoles() {
-      whenever(hmppsAuthenticationHolder.authentication).thenReturn(authentication as AuthAwareAuthenticationToken?)
+      whenever(hmppsAuthenticationHolder.authentication).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(emptyList())
       assertThat(userService.myRoles()).isEmpty()
     }
