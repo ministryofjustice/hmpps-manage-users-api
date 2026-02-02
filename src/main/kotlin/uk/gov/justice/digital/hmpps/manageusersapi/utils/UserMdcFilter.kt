@@ -30,7 +30,7 @@ class UserMdcFilter : Filter {
     try {
       if (authenticationOrNull != null) {
         MDC.put(USER_ID_HEADER, authenticationOrNull.getPrincipal())
-        telemetryClient!!.getContext().getUser().setId(authenticationOrNull.getPrincipal())
+        telemetryClient?.context?.user?.setId(authenticationOrNull.getPrincipal())
       }
 
       chain.doFilter(request, response)
