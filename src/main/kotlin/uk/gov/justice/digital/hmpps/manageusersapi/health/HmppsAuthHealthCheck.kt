@@ -5,5 +5,5 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.hmpps.kotlin.health.HealthPingCheck
 
-@Component("nomisApiHealthCheck")
-class NomisApiHealthCheck(@Qualifier("nomisHealthWebClient") webClient: WebClient) : HealthPingCheck(webClient)
+@Component("authHealthCheck")
+class HmppsAuthHealthCheck(@Qualifier("authHealthWebClient") webClient: WebClient) : HealthPingCheck(webClient)

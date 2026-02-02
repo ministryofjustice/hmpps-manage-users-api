@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
@@ -15,6 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import java.util.UUID
 
 @Service
@@ -23,7 +23,7 @@ class UserService(
   private val deliusApiService: UserApiService,
   private val externalUsersSearchApiService: UserSearchApiService,
   private val prisonApiService: uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService,
-  private val authenticationFacade: AuthenticationFacade,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   private val externalRolesApiService: UserRolesApiService,
   private val userGroupsService: UserGroupService,
   private val nomisRolesApiService: RolesApiService,
@@ -33,7 +33,7 @@ class UserService(
     this.uuid = authUserId.uuid
   }
 
-  fun findUserByUsernameWithAuthSource(username: String): GenericUser? = when (authenticationFacade.authSource) {
+  fun findUserByUsernameWithAuthSource(username: String): GenericUser? = when (AuthSource.valueOf(hmppsAuthenticationHolder.authSource.toString().lowercase())) {
     AuthSource.auth -> externalUsersSearchApiService.findUserByUsernameOrNull(username)?.toGenericUser()
     AuthSource.nomis -> prisonApiService.findUserBasicDetailsByUsername(username)?.toGenericUser()
     AuthSource.azuread -> authApiService.findAzureUserByUsername(username)?.toGenericUser()
@@ -89,7 +89,7 @@ class UserService(
 
   fun getAllDeliusRoles() = deliusApiService.getAllDeliusRoles()
 
-  fun myRoles() = authenticationFacade.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
+  fun myRoles() = hmppsAuthenticationHolder.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
     .map { ExternalUserRole(it!!.authority.substring(5)) }
 
   fun getCaseloads(): UserCaseloadDetail = nomisRolesApiService.getCaseloads()

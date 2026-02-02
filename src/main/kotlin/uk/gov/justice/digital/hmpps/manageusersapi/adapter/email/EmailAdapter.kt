@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.adapter.email
 import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.service.notify.NotificationClientApi
 import uk.gov.service.notify.NotificationClientException
 
@@ -11,7 +11,7 @@ import uk.gov.service.notify.NotificationClientException
 class EmailAdapter(
   private val notificationClient: NotificationClientApi,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
 ) {
 
   fun send(templateId: String, personalisation: Map<String, Any>, eventPrefix: String, username: String, email: String) {
@@ -23,7 +23,7 @@ class EmailAdapter(
       log.warn("Failed to send $eventPrefix for user {}", username, e)
       telemetryClient.trackEvent(
         "${eventPrefix}Failure",
-        mapOf("username" to username, "reason" to reason, "admin" to authenticationFacade.currentUsername),
+        mapOf("username" to username, "reason" to reason, "admin" to hmppsAuthenticationHolder.username),
         null,
       )
       throw e

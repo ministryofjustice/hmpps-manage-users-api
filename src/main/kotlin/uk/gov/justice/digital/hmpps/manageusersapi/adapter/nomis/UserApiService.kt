@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.mapNonNull
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
@@ -26,6 +25,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedG
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 
 @Service(value = "nomisUserApiService")
 class UserApiService(
@@ -196,9 +196,9 @@ class UserApiService(
   )
 
   fun findUsersByFilter(pageRequest: Pageable, filter: PrisonUserFilter): PagedResponse<PrisonUserSearchSummary> {
-    val useServiceClient = AuthenticationFacade.hasRoles("ROLE_STAFF_SEARCH") &&
+    val useServiceClient = HmppsAuthenticationHolder.hasRoles("ROLE_STAFF_SEARCH") &&
       !(
-        AuthenticationFacade.hasRoles(
+        HmppsAuthenticationHolder.hasRoles(
           "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
           "ROLE_MAINTAIN_ACCESS_ROLES",
         )

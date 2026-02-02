@@ -8,12 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.manageusersapi.helper.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.DeliusApiMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.ExternalUsersApiMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.HmppsAuthMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.wiremock.NomisApiMockServer
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -24,7 +24,7 @@ abstract class IntegrationTestBase {
   lateinit var webTestClient: WebTestClient
 
   @Autowired
-  protected lateinit var jwtAuthHelper: JwtAuthHelper
+  protected lateinit var jwtAuthHelper: JwtAuthorisationHelper
 
   companion object {
     @JvmField
@@ -65,7 +65,23 @@ abstract class IntegrationTestBase {
     roles: List<String> = listOf(),
     scopes: List<String> = listOf(),
     authSource: AuthSource = AuthSource.auth,
-  ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisation(user, roles, scopes, authSource)
+  ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisationHeader(username = user, roles = roles, scope = scopes)
+
+  internal fun setAuthorisationWithAuthSource(
+    user: String = "AUTH_ADM",
+    roles: List<String> = listOf(),
+    scopes: List<String> = listOf(),
+    authSource: AuthSource = AuthSource.auth,
+  ): (HttpHeaders) -> Unit = {
+    it.setBearerAuth(
+      jwtAuthHelper.createJwtAccessToken(
+        username = user,
+        roles = roles,
+        scope = scopes,
+        authSource = authSource.toString(),
+      ),
+    )
+  }
 
   fun readFile(file: String): String = this.javaClass.getResource(file).readText()
 }

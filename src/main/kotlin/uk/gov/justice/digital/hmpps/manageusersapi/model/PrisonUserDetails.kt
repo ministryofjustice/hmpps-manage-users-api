@@ -43,7 +43,7 @@ data class PrisonUserDetails(
     userId = userId.toString(),
     name = name,
     uuid = null,
-    staffId = userId.toLong(),
+    staffId = userId,
     activeCaseLoadId = activeCaseloadId,
   )
 

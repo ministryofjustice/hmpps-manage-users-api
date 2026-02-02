@@ -8,14 +8,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserRolesApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.RolesApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
@@ -34,6 +32,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
+import uk.gov.justice.hmpps.kotlin.auth.AuthAwareAuthenticationToken
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import java.util.UUID
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService as PrisonUserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserRole as UserRoleResponse
@@ -43,8 +43,8 @@ class UserServiceTest {
   private val deliusUserApiService: UserApiService = mock()
   private val externalUsersApiService: UserSearchApiService = mock()
   private val prisonUserApiService: PrisonUserApiService = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
-  private val authentication: Authentication = mock()
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder = mock()
+  private val authentication: AuthAwareAuthenticationToken = mock()
   private val externalRolesApiService: UserRolesApiService = mock()
   private val userGroupsService: UserGroupService = mock()
   private val nomisRolesApiService: RolesApiService = mock()
@@ -54,7 +54,7 @@ class UserServiceTest {
     deliusUserApiService,
     externalUsersApiService,
     prisonUserApiService,
-    authenticationFacade,
+    hmppsAuthenticationHolder,
     externalRolesApiService,
     userGroupsService,
     nomisRolesApiService,
@@ -290,14 +290,14 @@ class UserServiceTest {
   inner class MyRoles {
     @Test
     fun myRoles() {
-      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(hmppsAuthenticationHolder.authentication).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_BOB"), SimpleGrantedAuthority("ROLE_JOE_FRED")))
       assertThat(userService.myRoles()).containsOnly(ExternalUserRole("BOB"), ExternalUserRole("JOE_FRED"))
     }
 
     @Test
     fun myRoles_noRoles() {
-      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(hmppsAuthenticationHolder.authentication).thenReturn(authentication as AuthAwareAuthenticationToken?)
       whenever(authentication.authorities).thenReturn(emptyList())
       assertThat(userService.myRoles()).isEmpty()
     }
