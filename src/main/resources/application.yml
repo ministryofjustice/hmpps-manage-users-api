@@ -5,8 +5,9 @@ info.app:
 spring:
   application:
     name: hmpps-manage-users-api
-  codec:
-    max-in-memory-size: 20MB
+  http:
+    codecs:
+      max-in-memory-size: 20MB
 
   mvc.async.request-timeout: 200000
 
@@ -75,6 +76,11 @@ notification:
     empty: ${BANNER.EMPTY}
     dpsmenu: ${BANNER.DPSMENU}
 
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 api:
   health-timeout-ms: 1000

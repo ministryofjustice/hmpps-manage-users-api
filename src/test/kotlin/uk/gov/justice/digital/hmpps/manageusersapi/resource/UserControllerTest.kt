@@ -9,19 +9,20 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import java.util.UUID
 
 class UserControllerTest {
 
   private val userService: UserService = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
-  private val userController = UserController(userService, authenticationFacade)
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder = mock()
+  private val userController = UserController(userService, hmppsAuthenticationHolder)
 
   @Test
   fun `find user by username`() {
@@ -60,7 +61,7 @@ class UserControllerTest {
       userId = UUID.randomUUID().toString(),
       uuid = UUID.randomUUID(),
     )
-    whenever(authenticationFacade.currentUsername).thenReturn("me")
+    whenever(hmppsAuthenticationHolder.username).thenReturn("me")
     whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(userDetails)
 
     val user = userController.myDetails()
@@ -70,8 +71,8 @@ class UserControllerTest {
 
   @Test
   fun `find my details for basic user`() {
-    whenever(authenticationFacade.currentUsername).thenReturn("me")
-    whenever(authenticationFacade.authSource).thenReturn(auth)
+    whenever(hmppsAuthenticationHolder.username).thenReturn("me")
+    whenever(hmppsAuthenticationHolder.authSource).thenReturn(AuthSource.AUTH)
     val userDetails = UsernameDto("me", auth)
     whenever(userService.findUserByUsernameWithAuthSource("me")).thenReturn(null)
 
@@ -165,7 +166,7 @@ class UserControllerTest {
   inner class MyEmail {
     @Test
     fun myEmail() {
-      whenever(authenticationFacade.currentUsername).thenReturn("me")
+      whenever(hmppsAuthenticationHolder.username).thenReturn("me")
       whenever(userService.findUserEmail(any(), any())).thenReturn(
         EmailAddress(
           username = "JOE",

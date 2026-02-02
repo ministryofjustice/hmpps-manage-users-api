@@ -8,6 +8,13 @@ notification:
     empty:
     dpsmenu: Local DPS menu page message
 
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
 application:
   # test key which doesn't send emails, but is automatically accepted by notify
   notify:

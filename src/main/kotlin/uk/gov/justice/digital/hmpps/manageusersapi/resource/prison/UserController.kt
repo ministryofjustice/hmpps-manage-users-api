@@ -12,6 +12,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.apache.commons.text.WordUtils
 import org.springframework.beans.factory.annotation.Value
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
@@ -46,12 +46,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 
 @RestController("PrisonSearchController")
 @Validated
 class UserSearchController(
   private val prisonUserService: UserService,
-  private val authenticationFacade: AuthenticationFacade,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_STAFF_SEARCH')")
@@ -331,7 +332,7 @@ class UserSearchController(
     ),
   )
 
-  fun localAdministratorUsernameWhenNotCentralAdministrator(): String? = if (AuthenticationFacade.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")) null else authenticationFacade.currentUsername
+  fun localAdministratorUsernameWhenNotCentralAdministrator(): String? = if (HmppsAuthenticationHolder.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")) null else hmppsAuthenticationHolder.username
 }
 
 @RestController("PrisonUserController")
@@ -717,7 +718,7 @@ data class CreateUserRequest(
 
   @Schema(description = "Last name of the user", example = "Smith", required = true) @NotBlank val lastName: String,
 
-  @Schema(description = "The type of user", example = "DPS_LSA", required = true) @NotBlank val userType: UserType,
+  @Schema(description = "The type of user", example = "DPS_LSA", required = true) @NotNull val userType: UserType,
 
   @Schema(
     description = "Default caseload (a.k.a Prison ID)",

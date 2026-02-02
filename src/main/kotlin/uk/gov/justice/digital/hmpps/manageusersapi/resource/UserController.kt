@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
@@ -28,12 +27,13 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.Authenticate
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserService
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.NotFoundException
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import java.util.UUID
 
 @RestController("UserController")
 class UserController(
   private val userService: UserService,
-  private val authenticationFacade: AuthenticationFacade,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
 ) {
 
   @GetMapping("/users/{username}")
@@ -76,10 +76,10 @@ class UserController(
   )
   @AuthenticatedApiResponses
   fun myDetails(): User {
-    val user = userService.findUserByUsernameWithAuthSource(authenticationFacade.currentUsername!!)
+    val user = userService.findUserByUsernameWithAuthSource(hmppsAuthenticationHolder.username!!)
     return user?.let {
       UserDetailsDto.fromDomain(user)
-    } ?: UsernameDto(authenticationFacade.currentUsername!!, authenticationFacade.authSource)
+    } ?: UsernameDto(hmppsAuthenticationHolder.username!!, AuthSource.valueOf(hmppsAuthenticationHolder.authSource.toString().lowercase()))
   }
 
   @GetMapping("/users/me/groups")
@@ -88,7 +88,7 @@ class UserController(
     description = "Find my location/group details. This should be accessed with user token.",
   )
   @AuthenticatedApiResponses
-  fun myGroupDetails(): List<UserGroupDto> = userService.findGroupDetails(authenticationFacade.currentUsername!!)
+  fun myGroupDetails(): List<UserGroupDto> = userService.findGroupDetails(hmppsAuthenticationHolder.username!!)
 
   @GetMapping("/users/{username}/email")
   @Operation(
@@ -153,7 +153,7 @@ class UserController(
     @Parameter(description = "Return unverified email addresses.", required = false)
     @RequestParam
     unverified: Boolean = false,
-  ): ResponseEntity<*> = getUserEmail(authenticationFacade.currentUsername!!, unverified = unverified)
+  ): ResponseEntity<*> = getUserEmail(hmppsAuthenticationHolder.username!!, unverified = unverified)
 
   @GetMapping("/users/me/roles")
   @Operation(
@@ -209,10 +209,8 @@ class UserController(
     summary = "Get list of caseloads associated with the current user",
     description = "Caseloads for the current user",
   )
-  fun getMyCaseloads(): UserCaseloadDetail {
-    authenticationFacade.currentUsername?.run {
-      return userService.getCaseloads()
-    } ?: throw NotFoundException("No user in context")
+  fun getMyCaseloads(): UserCaseloadDetail? = hmppsAuthenticationHolder.username?.run {
+    userService.getCaseloads()
   }
 }
 

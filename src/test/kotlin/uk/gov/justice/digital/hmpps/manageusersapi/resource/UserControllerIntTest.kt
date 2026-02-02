@@ -220,7 +220,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       webTestClient
         .get().uri("/users/me")
         .headers(
-          setAuthorisation(),
+          setAuthorisationWithAuthSource(),
         )
         .exchange()
         .expectStatus().isOk
@@ -248,7 +248,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       webTestClient
         .get().uri("/users/me")
         .headers(
-          setAuthorisation(authSource = nomis),
+          setAuthorisationWithAuthSource(authSource = nomis),
         )
         .exchange()
         .expectStatus().isOk
@@ -274,7 +274,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       webTestClient
         .get().uri("/users/me")
         .headers(
-          setAuthorisation("basicuser", authSource = none),
+          setAuthorisationWithAuthSource(user = "basicuser", authSource = none),
         )
         .exchange()
         .expectStatus().isOk

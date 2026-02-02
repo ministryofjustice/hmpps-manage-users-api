@@ -22,12 +22,12 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createExternalUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.service.notify.NotificationClientException
 import java.util.UUID
 
@@ -39,7 +39,7 @@ class UserServiceTest {
   private val userGroupApiService: UserGroupApiService = mock()
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder = mock()
 
   private val syncUserUpdates = false
 
@@ -57,7 +57,7 @@ class UserServiceTest {
       userGroupApiService,
       verifyEmailService,
       telemetryClient,
-      authenticationFacade,
+      hmppsAuthenticationHolder,
       syncUserUpdates,
     )
   }
@@ -651,7 +651,7 @@ class UserServiceTest {
       userGroupApiService,
       verifyEmailService,
       telemetryClient,
-      authenticationFacade,
+      hmppsAuthenticationHolder,
       true,
     )
   }

@@ -9,10 +9,10 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationSer
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserGroupApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.external.UserSearchApiService
-import uk.gov.justice.digital.hmpps.manageusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.DeactivateReason
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.NewUser
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EmailHelper
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import java.util.UUID
 
 @Service("ExternalUserService")
@@ -24,7 +24,7 @@ class UserService(
   private val userGroupApiService: UserGroupApiService,
   private val verifyEmailService: VerifyEmailService,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   @Value("\${hmpps-auth.sync-user}") private val syncUserUpdates: Boolean,
 ) {
 
@@ -56,7 +56,7 @@ class UserService(
     notificationService.externalUserEnabledNotification(user)
     telemetryClient.trackEvent(
       "ExternalUserEnabled",
-      mapOf("username" to user.username, "admin" to authenticationFacade.currentUsername),
+      mapOf("username" to user.username, "admin" to hmppsAuthenticationHolder.username),
       null,
     )
   }

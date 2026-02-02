@@ -55,7 +55,7 @@ class HmppsManageUsersApiExceptionHandler {
       log.error("Unexpected server exception", e)
     }
     return ResponseEntity
-      .status(e.rawStatusCode)
+      .status(e.statusCode)
       .contentType(APPLICATION_JSON)
       .body(e.responseBodyAsByteArray)
   }
