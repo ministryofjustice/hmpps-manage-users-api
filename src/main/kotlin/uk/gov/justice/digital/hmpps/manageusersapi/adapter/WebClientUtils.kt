@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
+import reactor.util.retry.Retry.max
 import java.net.URI
 
 class WebClientUtils(
@@ -144,9 +145,20 @@ class WebClientUtils(
     throw if (e.statusCode.equals(status)) newException else e
   }
 
+  // todo Retry.max() creates a retry spec that does not apply exponential backoff between retry attempts.
+  // This can lead to overwhelming the downstream service with rapid successive requests during transient
+  // failures. Consider using Retry.backoff() instead to implement exponential backoff,
+  // e.g.,
+  // private fun <T> Mono<T>.withRetryPolicy(): Mono<T> = this
+  //   .retryWhen(
+  //     Retry.backoff(maxRetryAttempts, java.time.Duration.ofMillis(100))
+  //       .filter { isTimeoutException(it) }
+  //       .doBeforeRetry { logRetrySignal(it) },
+  //   )
+
   private fun <T> Mono<T>.withRetryPolicy(): Mono<T> = this
     .retryWhen(
-      Retry.max(maxRetryAttempts)
+      max(maxRetryAttempts)
         .filter { isTimeoutException(it) }
         .doBeforeRetry { logRetrySignal(it) },
     )
@@ -182,15 +194,12 @@ class WebClientUtils(
   private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
     path(path)
     queryParams.forEach { (key, value) ->
-      value?.let {
-        // Force usage of correct overloaded queryParam method
-        if (value is Collection<*>) {
-          queryParam(key, value)
-        } else {
-          queryParam(key, "{$key}")
-        }
-      } ?: run { queryParam(key, value) }
+      when (value) {
+        null -> queryParam(key)
+        is String -> queryParam(key, value.toString())
+        else -> queryParam(key, value)
+      }
     }
-    return build(queryParams)
+    return build()
   }
 }
