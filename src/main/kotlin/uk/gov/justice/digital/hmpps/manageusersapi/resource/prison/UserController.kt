@@ -37,6 +37,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
@@ -425,7 +426,13 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT', 'ROLE_STAFF_SEARCH')")
   @Operation(
     summary = "Get specified user details",
-    description = "Information on specific users. Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MANAGE_NOMIS_USER_ACCOUNT or ROLE_STAFF_SEARCH",
+    description = """
+Information on specific users. Returns an associative array of `username` `->` `user details`.
+
+If a user is not found for a given username, that user will not appear in the response. If no users are found for any supplied usernames, the response will be empty `{}`.
+
+Requires role ROLE_MAINTAIN_ACCESS_ROLES_ADMIN, ROLE_MAINTAIN_ACCESS_ROLES, ROLE_MANAGE_NOMIS_USER_ACCOUNT or ROLE_STAFF_SEARCH".
+""",
     security = [
       SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "ROLE_MAINTAIN_ACCESS_ROLES"),
       SecurityRequirement(
@@ -437,9 +444,16 @@ class UserController(
     ],
   )
   @StandardApiResponses
+  @ApiResponse(
+    responseCode = "200",
+    description = "new desc",
+    content = [Content(mediaType = "application/json", schema = Schema(implementation = FindUsersByUsernamesExample200Response::class))],
+  )
   fun findUsersByUsernames(
     @Parameter(description = "The usernames of the users.", required = true) @RequestBody usernames: List<String>,
   ) = prisonUserService.findUsersByUsernames(usernames)
+
+  private data class FindUsersByUsernamesExample200Response(val username1: PrisonUserBasicDetails, val username2: PrisonUserBasicDetails)
 
   @GetMapping("/prisonusers/{username}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
