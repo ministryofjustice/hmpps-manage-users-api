@@ -142,7 +142,7 @@ class UserSearchController(
   @GetMapping("/prisonusers/find-by-caseload-and-role")
   @Operation(
     summary = "Get all users filtered by active caseload and role",
-    description = "Requires role USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO<br/>Get all users with active caseload and nomis role.<br/> This search does not limit by user token.",
+    description = "Requires role USERS__PRISON_USERS__FIND_BY_CASELOAD_AND_ROLE__RO<br/>Get all users with active caseload and DPS role.<br/> Unlike regular search this operation returns all users that fit these criteria and does not limit by user token.",
     responses = [
       ApiResponse(
         responseCode = "200",
