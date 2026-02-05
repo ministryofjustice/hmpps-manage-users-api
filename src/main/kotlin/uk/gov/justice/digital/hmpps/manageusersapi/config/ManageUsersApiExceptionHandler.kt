@@ -61,7 +61,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(UserExistsException::class)
-  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse?>? {
+  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse> {
     log.debug("User exists exception caught: {}", e.message)
     return ResponseEntity
       .status(CONFLICT)
@@ -129,7 +129,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(HttpMessageNotReadableException::class)
-  fun handleValidationAnyException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse?>? {
+  fun handleValidationAnyException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -138,7 +138,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
-  fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse?>? {
+  fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -147,7 +147,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
-  fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse?>? {
+  fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -174,7 +174,7 @@ class HmppsManageUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(HmppsValidationException::class)
-  fun handleCustomValidationException(e: HmppsValidationException): ResponseEntity<ErrorResponse?>? {
+  fun handleCustomValidationException(e: HmppsValidationException): ResponseEntity<ErrorResponse> {
     log.debug("Validation exception caught: {}", e.message)
     return ResponseEntity
       .status(CONFLICT)
