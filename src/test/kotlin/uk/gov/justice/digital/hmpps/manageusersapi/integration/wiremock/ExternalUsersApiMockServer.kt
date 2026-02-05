@@ -842,7 +842,7 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGetRolesForRoleName() {
     stubFor(
-      get(urlEqualTo("/roles?adminTypes=%5BDPS_ADM%5D"))
+      get(urlEqualTo("/roles?adminTypes=DPS_ADM"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))

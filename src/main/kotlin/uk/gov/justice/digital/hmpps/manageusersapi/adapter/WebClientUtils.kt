@@ -204,13 +204,14 @@ class WebClientUtils(
   //     } ?: run { queryParam(key, value) }
   //   }
   //   return build(queryParams)
+  // }
 
   private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
     path(path)
     queryParams.forEach { (key, value) ->
       when (value) {
         null -> queryParam(key)
-        is String -> queryParam(key, value)
+        is Collection<*> -> queryParam(key, *(value.filterNotNull().toTypedArray()))
         else -> queryParam(key, value)
       }
     }
