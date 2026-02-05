@@ -809,6 +809,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val createLinkedLsaRequest = CreateLinkedLocalAdminUserRequest("TEST_USER", "TEST_USER_ADM", "MDI")
 
       nomisApiMockServer.stubCreateLinkedLocalAdminUser(createLinkedLsaRequest)
+      hmppsAuthMockServer.stubForNewToken()
 
       val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/lsa")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))

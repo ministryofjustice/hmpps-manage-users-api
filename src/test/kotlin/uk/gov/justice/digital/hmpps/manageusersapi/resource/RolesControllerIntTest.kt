@@ -7,7 +7,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.CoreMatchers.hasItems
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -247,9 +246,10 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role code must be between 2 and 30 characters"),
-        )
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role code must be between 2 and 30 characters")
+        }
     }
 
     @Test
@@ -269,9 +269,10 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role code must be between 2 and 30 characters"),
-        )
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role code must be between 2 and 30 characters")
+        }
     }
 
     @Test
@@ -291,9 +292,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role code must only contain 0-9, A-Z, a-z and _  characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role code must only contain 0-9, A-Z, a-z and _  characters")
+        }
     }
 
     @Test
@@ -313,9 +314,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role name must be between 4 and 100 characters")
+        }
     }
 
     @Test
@@ -335,9 +336,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role name must be between 4 and 100 characters")
+        }
     }
 
     @Test
@@ -357,9 +358,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role name must only contain 0-9, A-Z, a-z and ( ) & , - . '  characters")
+        }
     }
 
     @Test
@@ -379,9 +380,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role description must be no more than 1024 characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role description must be no more than 1024 characters")
+        }
     }
 
     @Test
@@ -401,9 +402,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role description must only contain can only contain 0-9, A-Z, a-z, newline and ( ) & , - . '  characters")
+        }
     }
 
     @Test
@@ -423,9 +424,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Admin type cannot be empty"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Admin type cannot be empty")
+        }
     }
 
     @Test
@@ -784,9 +785,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("roleName" to "tim")))
         .exchange()
         .expectStatus().isBadRequest
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role name must be between 4 and 100 characters")
+        }
     }
 
     @Test
@@ -797,9 +798,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("roleName" to "12345".repeat(20) + "y")))
         .exchange()
         .expectStatus().isBadRequest
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role name must be between 4 and 100 characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role name must be between 4 and 100 characters")
+        }
     }
 
     @Test
@@ -811,9 +812,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
-        .jsonPath("errors").value(
-          hasItems("Role name must only contain 0-9, a-z and ( ) & , - . '  characters"),
-        )
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role name must only contain 0-9, a-z and ( ) & , - . '  characters")
+        }
     }
 
     @Test
@@ -1011,9 +1012,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody().jsonPath("errors").value(
-          hasItems("Role description must be no more than 1024 characters"),
-        )
+        .expectBody().jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role description must be no more than 1024 characters")
+        }
     }
 
     @Test
@@ -1026,9 +1027,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
-        .jsonPath("errors").value(
-          hasItems("Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters"),
-        )
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Role description must only contain can only contain 0-9, a-z, newline and ( ) & , - . '  characters")
+        }
     }
 
     @Test
@@ -1137,9 +1138,9 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
-        .jsonPath("errors").value(
-          hasItems("Admin type cannot be empty"),
-        )
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["errors"] as String).isEqualTo("Admin type cannot be empty")
+        }
     }
 
     @Test

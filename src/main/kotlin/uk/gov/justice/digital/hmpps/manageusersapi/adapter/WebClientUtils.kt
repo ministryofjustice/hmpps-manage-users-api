@@ -156,7 +156,7 @@ class WebClientUtils(
   //       .doBeforeRetry { logRetrySignal(it) },
   //   )
 
-  private fun <T> Mono<T>.withRetryPolicy(): Mono<T> = this
+  private fun <T : Any> Mono<T>.withRetryPolicy(): Mono<T> = this
     .retryWhen(
       max(maxRetryAttempts)
         .filter { isTimeoutException(it) }
@@ -191,12 +191,26 @@ class WebClientUtils(
     .bodyToMono(elementClass)
     .block()!!
 
+  // private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
+  //   path(path)
+  //   queryParams.forEach { (key, value) ->
+  //     value?.let {
+  //       // Force usage of correct overloaded queryParam method
+  //       if (value is Collection<*>) {
+  //         queryParam(key, value)
+  //       } else {
+  //         queryParam(key, "{$key}")
+  //       }
+  //     } ?: run { queryParam(key, value) }
+  //   }
+  //   return build(queryParams)
+
   private fun UriBuilder.buildURI(path: String, queryParams: Map<String, Any?>): URI {
     path(path)
     queryParams.forEach { (key, value) ->
       when (value) {
         null -> queryParam(key)
-        is String -> queryParam(key, value.toString())
+        is String -> queryParam(key, value)
         else -> queryParam(key, value)
       }
     }

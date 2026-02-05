@@ -118,7 +118,7 @@ class UserControllerTest {
       )
 
       val responseEntity = userController.getUserEmail("joe")
-      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.statusCode.value()).isEqualTo(200)
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", true))
     }
 
@@ -128,7 +128,7 @@ class UserControllerTest {
         EmailAddress(username = "JOE", verified = false, email = "someemail"),
       )
       val responseEntity = userController.getUserEmail("joe", unverified = true)
-      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.statusCode.value()).isEqualTo(200)
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", false))
     }
 
@@ -147,7 +147,7 @@ class UserControllerTest {
         EmailAddress(username = "JOE", verified = false, email = null),
       )
       val responseEntity = userController.getUserEmail("joe")
-      assertThat(responseEntity.statusCodeValue).isEqualTo(204)
+      assertThat(responseEntity.statusCode.value()).isEqualTo(204)
       assertThat(responseEntity.body).isNull()
     }
 
@@ -157,7 +157,7 @@ class UserControllerTest {
         EmailAddress(username = "JOE", verified = false, email = null),
       )
       val responseEntity = userController.getUserEmail("joe", unverified = true)
-      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.statusCode.value()).isEqualTo(200)
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", null, false))
     }
   }
@@ -175,7 +175,7 @@ class UserControllerTest {
         ),
       )
       val responseEntity = userController.myEmail()
-      assertThat(responseEntity.statusCodeValue).isEqualTo(200)
+      assertThat(responseEntity.statusCode.value()).isEqualTo(200)
       assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", true))
     }
   }
