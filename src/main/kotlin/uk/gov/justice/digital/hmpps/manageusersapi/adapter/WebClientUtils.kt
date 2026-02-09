@@ -215,6 +215,6 @@ class WebClientUtils(
         else -> queryParam(key, value)
       }
     }
-    return build()
+    return build(queryParams)
   }
 }
