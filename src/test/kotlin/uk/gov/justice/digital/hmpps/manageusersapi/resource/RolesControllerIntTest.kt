@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus.REQUEST_TIMEOUT
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
-import kotlin.text.contains
 
 class RolesControllerIntTest : IntegrationTestBase() {
 
