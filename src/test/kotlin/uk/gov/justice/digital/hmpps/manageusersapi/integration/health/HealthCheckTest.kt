@@ -15,10 +15,10 @@ class HealthCheckTest : IntegrationTestBase() {
       .isOk
       .expectBody()
       .jsonPath("status").isEqualTo("UP")
-      .jsonPath("components.authHealthCheck.details.HttpStatus").isEqualTo("OK")
-      .jsonPath("components.deliusApiHealthCheck.details.HttpStatus").isEqualTo("OK")
-      .jsonPath("components.externalUsersApiHealthCheck.details.HttpStatus").isEqualTo("OK")
-      .jsonPath("components.nomisApiHealthCheck.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("components.authHealthCheck.details.HttpStatus").isEqualTo("200 OK")
+      .jsonPath("components.deliusApiHealthCheck.details.HttpStatus").isEqualTo("200 OK")
+      .jsonPath("components.externalUsersApiHealthCheck.details.HttpStatus").isEqualTo("200 OK")
+      .jsonPath("components.nomisApiHealthCheck.details.HttpStatus").isEqualTo("200 OK")
   }
 
   @Test
