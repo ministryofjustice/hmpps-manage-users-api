@@ -817,7 +817,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation(roles = listOf("ROLE_ROLES_ADMIN")))
-        .body(fromValue(mapOf("roleName" to $$"a$here")))
+        .body(fromValue(mapOf("roleName" to "a\$here")))
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
