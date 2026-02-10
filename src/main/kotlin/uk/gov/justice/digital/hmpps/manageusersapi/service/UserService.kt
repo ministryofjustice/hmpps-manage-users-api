@@ -89,8 +89,10 @@ class UserService(
 
   fun getAllDeliusRoles() = deliusApiService.getAllDeliusRoles()
 
-  fun myRoles() = hmppsAuthenticationHolder.authentication.authorities.filter { (it!!.authority.startsWith("ROLE_")) }
-    .map { ExternalUserRole(it!!.authority.substring(5)) }
+  fun myRoles() = hmppsAuthenticationHolder.authentication.authorities
+    .mapNotNull { it.authority }
+    .filter { it.startsWith("ROLE_") }
+    .map { ExternalUserRole(it.substring(5)) }
 
   fun getCaseloads(): UserCaseloadDetail = nomisRolesApiService.getCaseloads()
 }

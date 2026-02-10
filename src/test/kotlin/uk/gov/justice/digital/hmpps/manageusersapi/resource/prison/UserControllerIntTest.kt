@@ -809,6 +809,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       val createLinkedLsaRequest = CreateLinkedLocalAdminUserRequest("TEST_USER", "TEST_USER_ADM", "MDI")
 
       nomisApiMockServer.stubCreateLinkedLocalAdminUser(createLinkedLsaRequest)
+      hmppsAuthMockServer.stubForNewToken()
 
       val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/lsa")
         .headers(setAuthorisation(roles = listOf("ROLE_CREATE_USER")))
@@ -1005,7 +1006,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Link a General user to an existing Admin User`() {
       val createLinkedGeneralRequest = CreateLinkedGeneralUserRequest("TESTUSER1_ADM", "TESTUSER1_GEN", "BXI")
-
+      hmppsAuthMockServer.stubForNewToken()
       nomisApiMockServer.stubCreateLinkedGeneralUser(createLinkedGeneralRequest)
 
       val prisonStaffUser = webTestClient.post().uri("/linkedprisonusers/general")
