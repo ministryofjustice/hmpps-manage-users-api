@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.apache.commons.text.WordUtils
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -74,6 +75,7 @@ class UserSearchController(
   )
   fun getUsers(
     @PageableDefault(sort = ["lastName", "firstName"], direction = Sort.Direction.ASC)
+    @ParameterObject
     pageRequest: Pageable,
     @RequestParam(value = "nameFilter", required = false)
     @Parameter(
@@ -157,6 +159,7 @@ class UserSearchController(
   )
   fun getUsersByCaseloadAndRole(
     @PageableDefault(sort = ["lastName", "firstName"], direction = Sort.Direction.ASC)
+    @ParameterObject
     pageRequest: Pageable,
     @Parameter(
       description = "Filter results by user's currently active caseload i.e. the one they have currently selected",

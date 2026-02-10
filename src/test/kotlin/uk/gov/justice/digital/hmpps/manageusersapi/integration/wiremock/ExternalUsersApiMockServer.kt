@@ -1036,11 +1036,13 @@ class ExternalUsersApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "assignableRoles": [
                       {
                         "roleCode": "GLOBAL_SEARCH",
-                        "roleName": "Global Search"
+                        "roleName": "Global Search",
+                        "automatic": false
                       },
                       {
                         "roleCode": "LICENCE_RO",
-                        "roleName": "Licence Responsible Officer"
+                        "roleName": "Licence Responsible Officer",
+                        "automatic": false
                       }
                     ],
                     "children": [

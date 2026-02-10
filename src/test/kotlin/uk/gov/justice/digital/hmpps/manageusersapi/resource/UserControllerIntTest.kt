@@ -50,7 +50,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun ` should fail with not_found for basic username`() {
-      val username = "AUTH_ADM"
+      val username = "BOB_ADM"
       stubUserNotFound(username, external = true, nomis = true, delius = true)
 
       webTestClient.get().uri("/users/$username")
@@ -855,7 +855,6 @@ class UserControllerIntTest : IntegrationTestBase() {
                ]
              }
           """.trimIndent(),
-          true,
         )
     }
   }
