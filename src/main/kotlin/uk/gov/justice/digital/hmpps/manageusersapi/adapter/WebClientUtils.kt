@@ -149,7 +149,7 @@ class WebClientUtils(
   // This can lead to overwhelming the downstream service with rapid successive requests during transient
   // failures. Consider using Retry.backoff() instead to implement exponential backoff,
   // e.g.,
-  // private fun <T> Mono<T>.withRetryPolicy(): Mono<T> = this
+  // private fun <T : Any> Mono<T>.withRetryPolicy(): Mono<T> = this
   //   .retryWhen(
   //     Retry.backoff(maxRetryAttempts, java.time.Duration.ofMillis(100))
   //       .filter { isTimeoutException(it) }

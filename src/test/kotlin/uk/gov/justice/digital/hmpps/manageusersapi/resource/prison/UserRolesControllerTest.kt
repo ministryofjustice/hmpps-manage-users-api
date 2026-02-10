@@ -59,7 +59,7 @@ class UserRolesControllerTest {
       assertThat(actualUserRoles.active).isEqualTo(active)
       assertThat(actualUserRoles.accountType.name).isEqualTo(accountType.name)
       assertThat(actualUserRoles.activeCaseload!!.id).isEqualTo(activeCaseload!!.id)
-      assertThat(actualUserRoles.activeCaseload.name).isEqualTo(activeCaseload.name)
+      assertThat(actualUserRoles.activeCaseload!!.name).isEqualTo(activeCaseload!!.name)
       assertThat(actualUserRoles.dpsRoles.size).isEqualTo(dpsRoles.size)
       assertThat(actualUserRoles.dpsRoles[0].name).isEqualTo(dpsRoles[0].name)
       assertThat(actualUserRoles.dpsRoles[0].code).isEqualTo(dpsRoles[0].code)
@@ -67,12 +67,12 @@ class UserRolesControllerTest {
       assertThat(actualUserRoles.dpsRoles[0].type!!.name).isEqualTo(dpsRoles[0].type!!.name)
       assertThat(actualUserRoles.dpsRoles[0].adminRoleOnly).isEqualTo(dpsRoles[0].adminRoleOnly)
       assertThat(actualUserRoles.nomisRoles!!.size).isEqualTo(nomisRoles!!.size)
-      assertThat(actualUserRoles.nomisRoles[0].roles.size).isEqualTo(nomisRoles[0].roles.size)
-      assertThat(actualUserRoles.nomisRoles[0].roles[0].name).isEqualTo(nomisRoles[0].roles[0].name)
-      assertThat(actualUserRoles.nomisRoles[0].roles[0].code).isEqualTo(nomisRoles[0].roles[0].code)
-      assertThat(actualUserRoles.nomisRoles[0].roles[0].sequence).isEqualTo(nomisRoles[0].roles[0].sequence)
-      assertThat(actualUserRoles.nomisRoles[0].roles[0].type!!.name).isEqualTo(nomisRoles[0].roles[0].type!!.name)
-      assertThat(actualUserRoles.nomisRoles[0].roles[0].adminRoleOnly).isEqualTo(nomisRoles[0].roles[0].adminRoleOnly)
+      assertThat(actualUserRoles.nomisRoles!![0].roles.size).isEqualTo(nomisRoles!![0].roles.size)
+      assertThat(actualUserRoles.nomisRoles!![0].roles[0].name).isEqualTo(nomisRoles!![0].roles[0].name)
+      assertThat(actualUserRoles.nomisRoles!![0].roles[0].code).isEqualTo(nomisRoles!![0].roles[0].code)
+      assertThat(actualUserRoles.nomisRoles!![0].roles[0].sequence).isEqualTo(nomisRoles!![0].roles[0].sequence)
+      assertThat(actualUserRoles.nomisRoles!![0].roles[0].type!!.name).isEqualTo(nomisRoles!![0].roles[0].type!!.name)
+      assertThat(actualUserRoles.nomisRoles!![0].roles[0].adminRoleOnly).isEqualTo(nomisRoles!![0].roles[0].adminRoleOnly)
     }
   }
 
