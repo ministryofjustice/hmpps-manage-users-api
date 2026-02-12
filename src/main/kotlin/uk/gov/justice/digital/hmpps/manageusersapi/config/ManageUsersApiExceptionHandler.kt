@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.resource.NoResourceFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserExistsException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.EmailException
@@ -46,6 +47,28 @@ class HmppsManageUsersApiExceptionHandler {
         ),
       )
   }
+
+  @ExceptionHandler(NoResourceFoundException::class)
+  fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        userMessage = "No resource found failure: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.info("No resource found exception: {}", e.message) }
+
+  @ExceptionHandler(EntityNotFoundException::class)
+  fun handleNoResourceFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        userMessage = "No entity found failure: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.info("No entity found exception: {}", e.message) }
 
   @ExceptionHandler(WebClientResponseException::class)
   fun handleWebClientResponseException(e: WebClientResponseException): ResponseEntity<ByteArray> {
