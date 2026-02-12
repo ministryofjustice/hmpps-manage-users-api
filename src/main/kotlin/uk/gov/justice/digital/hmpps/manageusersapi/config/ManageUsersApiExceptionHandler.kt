@@ -59,17 +59,6 @@ class HmppsManageUsersApiExceptionHandler {
       ),
     ).also { log.info("No resource found exception: {}", e.message) }
 
-  @ExceptionHandler(EntityNotFoundException::class)
-  fun handleNoResourceFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
-    .status(NOT_FOUND)
-    .body(
-      ErrorResponse(
-        status = NOT_FOUND,
-        userMessage = "No entity found failure: ${e.message}",
-        developerMessage = e.message,
-      ),
-    ).also { log.info("No entity found exception: {}", e.message) }
-
   @ExceptionHandler(WebClientResponseException::class)
   fun handleWebClientResponseException(e: WebClientResponseException): ResponseEntity<ByteArray> {
     if (e.statusCode.is4xxClientError) {
