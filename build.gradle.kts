@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.3"
-  kotlin("plugin.spring") version "2.3.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.4"
+  kotlin("plugin.spring") version "2.3.10"
 }
 
 configurations {
@@ -10,7 +10,7 @@ configurations {
 }
 
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.0.1")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -19,8 +19,8 @@ dependencies {
   implementation("org.springframework.data:spring-data-commons")
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
-  implementation("com.fasterxml.jackson:jackson-bom:2.21.0")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1")
+  implementation("com.fasterxml.jackson:jackson-bom:2.21.1")
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.13.2")
