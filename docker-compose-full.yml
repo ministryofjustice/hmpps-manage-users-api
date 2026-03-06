@@ -73,7 +73,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev,local-docker
 
   nomis-user-roles-api:
-    image: quay.io/hmpps/nomis-user-roles-api:latest
+    image: ghcr.io/ministryofjustice/nomis-user-roles-api:latest
     container_name: nomis-user-roles-api
     ports:
       - "8082:8080"
