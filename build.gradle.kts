@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.1"
-  kotlin("plugin.spring") version "2.3.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.3"
+  kotlin("plugin.spring") version "2.3.21"
 }
 
 configurations {
@@ -10,7 +10,7 @@ configurations {
 }
 
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.1.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.1.1")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -18,13 +18,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.data:spring-data-commons")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
   }
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
-  implementation("com.google.code.gson:gson:2.13.2")
+  implementation("com.google.code.gson:gson:2.14.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
   implementation("uk.gov.service.notify:notifications-java-client:6.0.0-RELEASE")
