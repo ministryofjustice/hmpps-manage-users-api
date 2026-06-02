@@ -2,10 +2,12 @@ version: '3.1'
 services:
   auth-db:
     image: postgres:18
+    networks:
+      - hmpps
     container_name: auth-db
     restart: always
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_PASSWORD=admin_password
       - POSTGRES_USER=admin
@@ -13,6 +15,8 @@ services:
 
   hmpps-auth:
     image: ghcr.io/ministryofjustice/hmpps-auth:latest
+    networks:
+      - hmpps
     container_name: hmpps-auth
     depends_on:
       - auth-db
@@ -31,8 +35,39 @@ services:
       - HOSTNAME=hmpps-auth
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
 
+  manage-users-db:
+    image: postgres:18
+    networks:
+      - hmpps
+    container_name: manage-users-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin_password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=manage-users-db
+
+  localstack:
+    image: localstack/localstack:4
+    networks:
+      - hmpps
+    container_name: localstack
+    ports:
+      - "4566-4597:4566-4597"
+      - 8999:8080
+    environment:
+      - SERVICES=sqs
+      - DEBUG=${DEBUG- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack/init:/etc/localstack/init"
+  
   wiremock:
     image: wiremock/wiremock:latest
+    networks:
+      - hmpps
     command:
       - --local-response-templating
     ports:
@@ -42,6 +77,8 @@ services:
 
   hmpps-external-users-api:
     image: ghcr.io/ministryofjustice/hmpps-external-users-api:latest
+    networks:
+      - hmpps
     container_name: hmpps-external-users-api
     depends_on:
       - hmpps-auth
@@ -55,25 +92,29 @@ services:
       - API_BASE_URL_OAUTH=http://hmpps-auth:8080/auth
       - SPRING_R2DBC_URL=r2dbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
       - SPRING_FLYWAY_URL=jdbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
-
-  hmpps-manage-users-api:
-    image: ghcr.io/ministryofjustice/hmpps-manage-users-api:latest
-    container_name: hmpps-manage-users-api
-    depends_on:
-      - hmpps-auth
-      - hmpps-external-users-api
-      - wiremock
-      - nomis-user-roles-api
-    ports:
-      - "9091:8080"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
-    environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev,local-docker
+#
+#  hmpps-manage-users-api:
+#    image: ghcr.io/ministryofjustice/hmpps-manage-users-api:latest
+#    networks:
+#      - hmpps
+#    container_name: hmpps-manage-users-api
+#    depends_on:
+#      - hmpps-auth
+#      - hmpps-external-users-api
+#      - wiremock
+#      - nomis-user-roles-api
+#    ports:
+#      - "9091:8080"
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ping" ]
+#    environment:
+#      - SERVER_PORT=8080
+#      - SPRING_PROFILES_ACTIVE=dev,local-docker
 
   nomis-user-roles-api:
     image: ghcr.io/ministryofjustice/nomis-user-roles-api:latest
+    networks:
+      - hmpps
     container_name: nomis-user-roles-api
     ports:
       - "8082:8080"
@@ -84,3 +125,6 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - API_BASE_URL_OAUTH=http://hmpps-auth:8080/auth
       - LOGGING_LEVEL_ROOT=INFO
+
+networks:
+  hmpps:

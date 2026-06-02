@@ -40,6 +40,17 @@ spring:
       test:
         - "stdout"
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/manage-users-db?sslmode=prefer
+    username: admin
+    password: admin_password
+  flyway:
+    locations: classpath:db/migration
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/manage-users-db?sslmode=prefer
+    user: admin
+    password: admin_password
+
 server:
   port: 8080
   servlet:
@@ -150,3 +161,18 @@ delius:
   health.timeout: 1s
   endpoint.timeout: 5s
   max-retry-attempts: 2
+
+hmpps:
+  sqs:
+    provider: localstack
+    queues:
+      bulkjobqueue:
+        queueName: bulkJobQueue
+        asyncQueueClient: true
+        dlqName: bulkJobDlq
+        rateLimit: 10
+      bulkjobitemqueue:
+        queueName: bulkJobItemQueue
+        asyncQueueClient: true
+        dlqName: bulkJobItemDlq
+        rateLimit: 2
