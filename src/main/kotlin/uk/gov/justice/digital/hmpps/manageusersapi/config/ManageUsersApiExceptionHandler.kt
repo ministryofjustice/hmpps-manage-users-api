@@ -15,11 +15,13 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.multipart.support.MissingServletRequestPartException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.resource.NoResourceFoundException
@@ -161,13 +163,19 @@ class HmppsManageUsersApiExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException::class)
   fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
+    val errors = e.allErrors.mapNotNull {
+      when (it) {
+        is FieldError -> "${it.field.removePrefix("_")} ${it.defaultMessage}"
+        else -> it.defaultMessage
+      }
+    }
     return ResponseEntity
       .status(BAD_REQUEST)
       .contentType(APPLICATION_JSON)
       .body(
         ErrorResponse(
           status = BAD_REQUEST,
-          userMessage = e.message,
+          userMessage = "Validation failure: ${errors.joinToString(", ")}",
           developerMessage = e.message,
           errors = e.asErrorList(),
         ),
@@ -196,6 +204,21 @@ class HmppsManageUsersApiExceptionHandler {
           status = CONFLICT,
           errorCode = BASIC_VALIDATION_FAILURE,
           userMessage = e.message,
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(MissingServletRequestPartException::class)
+  fun handleMissingServletRequestPartException(e: MissingServletRequestPartException): ResponseEntity<ErrorResponse> {
+    log.debug("Bad Request (400) - missing multipart part", e)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .contentType(APPLICATION_JSON)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST.value(),
+          userMessage = "Required part '${e.requestPartName}' is missing",
           developerMessage = e.message,
         ),
       )

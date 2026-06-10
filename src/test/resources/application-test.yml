@@ -1,3 +1,9 @@
+spring:
+  datasource:
+    url: 'jdbc:h2:mem:manage-users-db;MODE=PostgreSQL'
+    username: sa
+    password:
+
 server:
   shutdown: immediate
 
@@ -74,3 +80,12 @@ application:
   # test key which doesn't send emails, but is automatically accepted by notify
   notify:
     key: testkey-992308b2-1e8f-4667-816b-8bdde781a4ac-9c211cf4-96d1-4c30-848b-8f172bca0b41
+
+hmpps:
+  sqs:
+    provider: localstack
+    queues:
+      bulkuserjobqueue:
+        queueName: ${random.uuid}
+        asyncQueueClient: true
+        dlqName: ${random.uuid}

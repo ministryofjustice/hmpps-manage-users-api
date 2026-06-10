@@ -1,0 +1,17 @@
+package uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger
+
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@FailApiResponses
+@ApiResponses(
+  value = [
+    ApiResponse(
+      responseCode = "202",
+      description = "Accepted",
+    ),
+  ],
+)
+annotation class AcceptedApiResponses
