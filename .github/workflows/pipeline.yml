@@ -49,10 +49,10 @@ jobs:
         uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/create_app_version@cd5eb88ee6b73a22548a64b8c7358a3bedc9516f # v1.0.13
   gradle_verify:
     name: Validate the kotlin
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
+    uses: ./.github/workflows/gradle_verify.yml
     secrets: inherit
     with:
-      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} APPLICATION_NOTIFY_KEY=$APPLICATION_NOTIFY_KEY ./gradlew assemble check'
+      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
       java-version: "25"
       localstack-services: sqs
