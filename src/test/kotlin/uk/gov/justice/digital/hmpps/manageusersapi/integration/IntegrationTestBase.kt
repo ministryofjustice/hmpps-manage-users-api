@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.integration
 
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -50,15 +49,6 @@ abstract class IntegrationTestBase {
       nomisApiMockServer.start()
       externalUsersApiMockServer.start()
       deliusApiMockServer.start()
-    }
-
-    @AfterAll
-    @JvmStatic
-    fun stopMocks() {
-      nomisApiMockServer.stop()
-      hmppsAuthMockServer.stop()
-      externalUsersApiMockServer.stop()
-      deliusApiMockServer.stop()
     }
   }
 
