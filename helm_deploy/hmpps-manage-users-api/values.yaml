@@ -88,9 +88,10 @@ generic-service:
       EXTERNAL_USERS_CLIENT_CLIENT_ID: "EXTERNAL_CLIENT_ID"
       EXTERNAL_USERS_CLIENT_CLIENT_SECRET: "EXTERNAL_CLIENT_SECRET"
       APPLICATION_NOTIFY_KEY: "APPLICATION_NOTIFY_KEY"
-    hmpps-manage-users-api-sqs-queue-secret:
-      HMPPS_SQS_QUEUES_BULKUSERJOBQUEUE_QUEUE_NAME: bulkUserJobQueueName
-      HMPPS_SQS_QUEUES_BULKUSERJOBQUEUE_DQL_NAME: bulkUserJobDlqName
+    sqs-manage-users-bulk-user-job-queue-secret:
+      HMPPS_SQS_QUEUES_BULKUSERJOBQUEUE_QUEUE_NAME: "sqs_queue_name"
+    sqs-manage-users-bulk-user-job-dlq-secret:
+      HMPPS_SQS_QUEUES_BULKUSERJOBQUEUE_DQL_NAME: "sqs_queue_name"
     
     rds-instance-output:
       DATABASE_ENDPOINT: "rds_instance_endpoint"
