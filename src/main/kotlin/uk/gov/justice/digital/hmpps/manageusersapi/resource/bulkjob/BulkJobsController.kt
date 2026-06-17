@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.Valid
+import jakarta.validation.GroupSequence
 import jakarta.validation.ValidationException
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
@@ -13,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
@@ -36,7 +37,7 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
   @ResponseStatus(HttpStatus.ACCEPTED)
   fun createUserRoleAdditionsJob(
     @RequestPart("userCsv", required = true) userCsv: MultipartFile,
-    @Valid @RequestPart("bulkJobDetails", required = true) bulkJobDetails: BulkUserRoleAdditionsRequest,
+    @Validated(ValidationOrder::class) @RequestPart("bulkJobDetails", required = true) bulkJobDetails: BulkUserRoleAdditionsRequest,
     authentication: Authentication,
   ): ResponseEntity<BulkUserRoleAdditionsResponse> {
     validateCsvFile(userCsv)
@@ -57,22 +58,16 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
 @Schema(description = "Bulk user role additions request")
 data class BulkUserRoleAdditionsRequest(
   @Schema(required = true, description = "JIRA reference", example = "ABC-1234")
-  @field:NotBlank(message = "must be supplied")
-  @field:Size(min = 4, max = 266, message = "must be between 4 and 266 characters")
+  @field:NotBlank(message = "must be supplied", groups = [Required::class])
+  @field:Size(min = 4, max = 266, message = "must be between 4 and 266 characters", groups = [Format::class])
   @JsonProperty("jiraReference")
-  val _jiraReference: String?,
+  val jiraReference: String = "",
 
   @Schema(required = true, description = "JIRA reference", example = "ABC-1234")
-  @field:NotEmpty(message = "must be supplied")
+  @field:NotEmpty(message = "must be supplied", groups = [Required::class])
   @JsonProperty("roles")
-  val _roles: List<String>?,
-) {
-  val jiraReference: String
-    get() = _jiraReference!!
-
-  val roles: List<String>
-    get() = _roles!!
-}
+  val roles: List<String> = emptyList(),
+)
 
 @Schema(description = "Bulk user role additions response")
 data class BulkUserRoleAdditionsResponse(
@@ -83,3 +78,9 @@ data class BulkUserRoleAdditionsResponse(
   )
   val id: UUID,
 )
+
+interface Required
+interface Format
+
+@GroupSequence(Required::class, Format::class)
+interface ValidationOrder

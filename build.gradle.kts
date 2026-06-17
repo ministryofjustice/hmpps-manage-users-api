@@ -34,6 +34,7 @@ dependencies {
   implementation("uk.gov.service.notify:notifications-java-client:6.0.0-RELEASE")
   implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.apache.commons:commons-csv:1.10.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   runtimeOnly("org.flywaydb:flyway-core")
   runtimeOnly("com.h2database:h2:2.4.240")

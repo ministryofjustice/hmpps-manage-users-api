@@ -165,7 +165,7 @@ class HmppsManageUsersApiExceptionHandler {
     log.info("Validation exception: {}", e.message)
     val errors = e.allErrors.mapNotNull {
       when (it) {
-        is FieldError -> "${it.field.removePrefix("_")} ${it.defaultMessage}"
+        is FieldError -> "${it.field} ${it.defaultMessage}"
         else -> it.defaultMessage
       }
     }
