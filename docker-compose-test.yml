@@ -1,5 +1,18 @@
 services:
 
+  manage-users-db:
+    image: postgres:18
+    networks:
+      - hmpps
+    container_name: manage-users-db
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin_password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=manage-users-db
+
   localstack:
     image: localstack/localstack:4
     networks:

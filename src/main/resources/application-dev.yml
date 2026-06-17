@@ -15,6 +15,12 @@ springdoc:
   swagger-ui:
     enabled: true
 
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/manage-users-db
+    username: admin
+    password: admin_password
+
 application:
   # test key which doesn't send emails, but is automatically accepted by notify
   notify:
