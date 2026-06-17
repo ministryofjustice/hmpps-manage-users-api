@@ -64,3 +64,12 @@ delius:
         - 'ROLE_WORKLOAD_MEASUREMENT'
       TEST_MANAGE_A_WORKFORCE_ALLOCATE_ROLE:
         - 'ROLE_MANAGE_A_WORKFORCE_ALLOCATE'
+
+hmpps:
+  sqs:
+    provider: localstack
+    queues:
+      bulkuserjobqueue:
+        queueName: bulkUserJobQueue
+        asyncQueueClient: true
+        dlqName: bulkUserJobDlq

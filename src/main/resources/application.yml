@@ -40,6 +40,21 @@ spring:
       test:
         - "stdout"
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  datasource:
+    url: 'jdbc:postgresql://${DATABASE_ENDPOINT}/${DATABASE_NAME}?sslmode=verify-full'
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
 server:
   port: 8080
   servlet:
@@ -150,3 +165,9 @@ delius:
   health.timeout: 1s
   endpoint.timeout: 5s
   max-retry-attempts: 2
+
+hmpps:
+  sqs:
+    queues:
+      bulkuserjobqueue:
+        asyncQueueClient: true

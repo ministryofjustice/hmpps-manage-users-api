@@ -55,6 +55,8 @@ jobs:
       gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
       java-version: "25"
+      localstack-services: sqs
+      localstack-tag: "4"
     needs:
       - app_version
   build:
