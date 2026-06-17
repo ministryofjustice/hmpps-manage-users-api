@@ -1,5 +1,6 @@
 generic-service:
   nameOverride: hmpps-manage-users-api
+  serviceAccountName: hmpps-manage-users
   productId: DPS017
 
   replicaCount: 4
