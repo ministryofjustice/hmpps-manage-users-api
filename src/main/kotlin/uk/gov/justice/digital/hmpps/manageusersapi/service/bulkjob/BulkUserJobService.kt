@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 import jakarta.validation.ValidationException
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVRecord
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -27,6 +30,19 @@ class BulkUserJobService(
     val bulkJob = createAndPersistJob(bulkJobDetails, requestedBy, users)
     bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
     return bulkJob.id
+  }
+
+  fun getBulkUserRoleAdditionsJobs(search: String, pageNumber: Int?, pageSize: Int?): List<BulkUserJob> {
+    var pagination = Pageable.unpaged(Sort.by("RequestDateTime").descending())
+    if (pageNumber != null && pageSize != null) {
+      pagination = PageRequest.of(pageNumber, pageSize, Sort.by("RequestDateTime").descending())
+    }
+
+    return bulkUserJobRepository.findByJiraReferenceContainingIgnoreCaseOrRequestedByContainingIgnoreCase(
+      jiraReference = search,
+      requestedBy = search,
+      pageable = pagination,
+    ).content
   }
 
   private fun createAndPersistJob(
