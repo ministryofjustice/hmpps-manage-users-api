@@ -16,6 +16,7 @@ generic-service:
     EXTERNAL_USERS_ENDPOINT_URL: https://external-users-api-stage.hmpps.service.justice.gov.uk
     DELIUS_ENDPOINT_URL: https://hmpps-auth-and-delius-stage.hmpps.service.justice.gov.uk
     SPRING_FLYWAY_DEFAULT_SCHEMA: manageusersapi
+    SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: manageusersapi
     BANNER_ROLES:
     BANNER_EMPTY:
     BANNER_DPSMENU:
