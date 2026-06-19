@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.GroupSequence
 import jakarta.validation.ValidationException
@@ -14,14 +15,18 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AcceptedApiResponses
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob.BulkUserJobService
+import java.time.LocalDateTime
 import java.util.UUID
 
 @RestController
@@ -43,6 +48,34 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
     validateCsvFile(userCsv)
     val id = bulkUserJobService.createBulkUserRoleAdditionsJob(userCsv, bulkJobDetails, authentication.name)
     return ResponseEntity.accepted().body(BulkUserRoleAdditionsResponse(id = id))
+  }
+
+  @GetMapping(path = ["/user-role-additions"])
+  @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")
+  @Operation(
+    summary = "Get bulk user role additions jobs.",
+    description = "Returns a list of bulk user role additions jobs.",
+  )
+  @StandardApiResponses
+  @Parameter(name = "search", description = "If provided, only results containing this string in the JIRA reference number or requested by will be returned.", required = false, example = "ABC-123")
+  @Parameter(name = "pageNumber", description = "The number of the page requested.", required = false, example = "1")
+  @Parameter(name = "pageSize", description = "The number of results that make up a single page.", required = false, example = "20")
+  @ResponseStatus(HttpStatus.OK)
+  fun getUserRoleAdditionsJobs(
+    @RequestParam(required = false, name = "search") search: String = "",
+    @RequestParam(required = false, name = "pageNumber") pageNumber: Int? = null,
+    @RequestParam(required = false, name = "pageSize") pageSize: Int? = null,
+  ): List<BulkUserRoleAdditionsJobSummary> {
+    val jobs = bulkUserJobService.getBulkUserRoleAdditionsJobs(search, pageNumber, pageSize)
+    return jobs.map {
+      BulkUserRoleAdditionsJobSummary(
+        id = it.id,
+        jiraReference = it.jiraReference,
+        status = it.status.name,
+        requestedBy = it.requestedBy,
+        requestDateTime = it.requestDateTime,
+      )
+    }
   }
 
   private fun validateCsvFile(file: MultipartFile) {
@@ -77,6 +110,44 @@ data class BulkUserRoleAdditionsResponse(
     example = "123e4567-e89b-12d3-a456-426614174000",
   )
   val id: UUID,
+)
+
+@Schema(description = "Bulk user role additions job summary")
+data class BulkUserRoleAdditionsJobSummary(
+  @Schema(
+    required = true,
+    description = "Id of the bulk user role additions job",
+    example = "123e4567-e89b-12d3-a456-426614174000",
+  )
+  val id: UUID,
+
+  @Schema(
+    required = true,
+    description = "The JIRA reference of the user role additions job",
+    example = "ABC-1234",
+  )
+  val jiraReference: String,
+
+  @Schema(
+    required = true,
+    description = "The status of the user role additions job",
+    example = "PENDING",
+  )
+  val status: String,
+
+  @Schema(
+    required = true,
+    description = "The user who requested the user role additions job",
+    example = "USER ONE",
+  )
+  val requestedBy: String,
+
+  @Schema(
+    required = true,
+    description = "The date and time when the user role additions job was requested",
+    example = "2026-05-11T16:32:05",
+  )
+  val requestDateTime: LocalDateTime,
 )
 
 interface Required

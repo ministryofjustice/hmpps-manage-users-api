@@ -154,10 +154,15 @@ class HmppsManageUsersApiExceptionHandler {
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
   fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
+    val message = if (e.requiredType == Integer::class.java || e.requiredType == Int::class.java) {
+      "Parameter '${e.name}' must be a valid integer"
+    } else {
+      "Invalid value for parameter '${e.name}'"
+    }
     return ResponseEntity
       .status(BAD_REQUEST)
       .contentType(APPLICATION_JSON)
-      .body(ErrorResponse(status = BAD_REQUEST, userMessage = e.message, developerMessage = e.message))
+      .body(ErrorResponse(status = BAD_REQUEST, userMessage = "Validation failure: $message", developerMessage = e.message))
   }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
