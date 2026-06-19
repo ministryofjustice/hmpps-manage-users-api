@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -10,6 +11,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -23,12 +25,15 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob.BulkJobsControllerIntTest.Companion.bulkJobDetailsJson
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob.BulkJobsControllerIntTest.Companion.usersCsv
 import uk.gov.justice.hmpps.sqs.HmppsQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.countAllMessagesOnQueue
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.SECONDS
+import java.util.UUID
 import java.util.stream.Stream
 
 @Import(SqsConfig::class)
@@ -150,6 +155,158 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
     }
 
     private fun buildValidMultipart(): BodyInserters.MultipartInserter = MultipartBuilder().usersCsv().bulkJobDetailsJson().build()
+  }
+
+  @Nested
+  open inner class GetBulkUserAdditionsJobs {
+
+    private val bulkJobOne = BulkUserJob(
+      id = UUID.fromString("11111111-1111-1111-1111-111111111111"),
+      status = BulkUserJobStatus.PENDING,
+      jiraReference = "ABC-123",
+      requestedBy = "Test",
+      requestDateTime = LocalDateTime.parse("2026-06-01T11:11:11"),
+    )
+    private val bulkJobTwo = BulkUserJob(
+      id = UUID.fromString("22222222-2222-2222-2222-222222222222"),
+      status = BulkUserJobStatus.COMPLETE,
+      jiraReference = "DEF-456",
+      requestedBy = "TestTwo",
+      requestDateTime = LocalDateTime.parse("2026-06-02T12:12:12"),
+    )
+    private val bulkJobThree = BulkUserJob(
+      id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+      status = BulkUserJobStatus.PENDING,
+      jiraReference = "GHI-789",
+      requestedBy = "ABC",
+      requestDateTime = LocalDateTime.parse("2026-06-02T13:13:13"),
+    )
+    private val bulkJobFour = BulkUserJob(
+      id = UUID.fromString("44444444-4444-4444-4444-444444444444"),
+      status = BulkUserJobStatus.COMPLETE,
+      jiraReference = "ABC-789",
+      requestedBy = "TestThree",
+      requestDateTime = LocalDateTime.parse("2026-06-02T14:14:14"),
+    )
+
+    @BeforeEach
+    fun setUp() {
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `bad request when invalid pageNumber query parameter`() {
+      webTestClient.get()
+        .uri { builder -> builder.path("/bulk-jobs/user-role-additions").queryParam("pageNumber", "ABC").build() }
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").isEqualTo("Validation failure: Parameter 'pageNumber' must be a valid integer")
+    }
+
+    @Test
+    fun `bad request when invalid pageSize query parameter`() {
+      webTestClient.get()
+        .uri { builder -> builder.path("/bulk-jobs/user-role-additions").queryParam("pageSize", "ABC").build() }
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").isEqualTo("Validation failure: Parameter 'pageSize' must be a valid integer")
+    }
+
+    @Test
+    fun `returns bulk user additions jobs when exist`() {
+      bulkUserJobRepository.saveAll(listOf(bulkJobOne, bulkJobTwo))
+
+      val response = webTestClient.get().uri("/bulk-jobs/user-role-additions")
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(object : ParameterizedTypeReference<List<BulkUserRoleAdditionsJobSummary>>() {})
+        .responseBody.blockFirst()
+
+      assertThat(response).containsExactly(
+        BulkUserRoleAdditionsJobSummary(
+          id = UUID.fromString("22222222-2222-2222-2222-222222222222"),
+          jiraReference = "DEF-456",
+          status = "COMPLETE",
+          requestedBy = "TestTwo",
+          requestDateTime = LocalDateTime.parse("2026-06-02T12:12:12"),
+        ),
+        BulkUserRoleAdditionsJobSummary(
+          id = UUID.fromString("11111111-1111-1111-1111-111111111111"),
+          jiraReference = "ABC-123",
+          status = "PENDING",
+          requestedBy = "Test",
+          requestDateTime = LocalDateTime.parse("2026-06-01T11:11:11"),
+        ),
+      )
+    }
+
+    @Test
+    fun `returns bulk user additions jobs with search parameters and pagination`() {
+      bulkUserJobRepository.saveAll(listOf(bulkJobOne, bulkJobTwo, bulkJobThree, bulkJobFour))
+
+      val response = webTestClient.get().uri { builder ->
+        builder.path("/bulk-jobs/user-role-additions")
+          .queryParam("search", "ABC")
+          .queryParam("pageNumber", "1")
+          .queryParam("pageSize", "2").build()
+      }
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(object : ParameterizedTypeReference<List<BulkUserRoleAdditionsJobSummary>>() {})
+        .responseBody.blockFirst()
+
+      assertThat(response).containsExactly(
+        BulkUserRoleAdditionsJobSummary(
+          id = UUID.fromString("11111111-1111-1111-1111-111111111111"),
+          jiraReference = "ABC-123",
+          status = "PENDING",
+          requestedBy = "Test",
+          requestDateTime = LocalDateTime.parse("2026-06-01T11:11:11"),
+        ),
+      )
+    }
+
+    @Test
+    fun `returns empty list when no results found`() {
+      bulkUserJobRepository.saveAll(listOf(bulkJobOne, bulkJobTwo, bulkJobThree, bulkJobFour))
+
+      val response = webTestClient.get()
+        .uri { builder -> builder.path("/bulk-jobs/user-role-additions").queryParam("search", "98765").build() }
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(object : ParameterizedTypeReference<List<BulkUserRoleAdditionsJobSummary>>() {})
+        .responseBody.blockFirst()
+
+      assertThat(response).isEmpty()
+    }
   }
 }
 

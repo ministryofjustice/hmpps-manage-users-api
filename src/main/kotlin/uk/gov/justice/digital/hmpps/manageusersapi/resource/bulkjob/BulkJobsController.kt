@@ -141,7 +141,7 @@ data class BulkUserRoleAdditionsJobSummary(
     example = "USER ONE",
   )
   val requestedBy: String,
-  
+
   @Schema(
     required = true,
     description = "The date and time when the user role additions job was requested",
@@ -149,7 +149,6 @@ data class BulkUserRoleAdditionsJobSummary(
   )
   val requestDateTime: LocalDateTime,
 )
-
 
 interface Required
 interface Format

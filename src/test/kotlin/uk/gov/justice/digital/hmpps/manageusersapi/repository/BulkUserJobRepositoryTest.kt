@@ -55,7 +55,7 @@ class BulkUserJobRepositoryTest {
     bulkUserJobRepository.save(pendingBulkUserJobTwo)
     bulkUserJobRepository.save(completedBulkUserJob)
   }
-   
+
   @Test
   fun `persists bulk user job entity`() {
     val bulkUserJob = BulkUserJob(jiraReference = "JIRA-111", requestedBy = "user1")
@@ -113,7 +113,7 @@ class BulkUserJobRepositoryTest {
         bulkUserJobRepository.findByJiraReferenceContainingIgnoreCaseOrRequestedByContainingIgnoreCase(
           "",
           "",
-          PageRequest.of(2, 1, Sort.by("RequestDateTime").descending()),
+          PageRequest.of(1, 1, Sort.by("RequestDateTime").descending()),
         ).content
 
       assertThat(bulkUserJobRepository.findAll()).hasSize(3)
@@ -121,20 +121,20 @@ class BulkUserJobRepositoryTest {
     }
 
     @Test
-    fun `findByJiraReferenceContainingIgnoreCaseOrRequestedByContainingIgnoreCase returns only bulk jobs for page when specified snd search provided`() {
+    fun `findByJiraReferenceContainingIgnoreCaseOrRequestedByContainingIgnoreCase returns only bulk jobs for page when specified and search provided`() {
       givenBulkJobsExist()
 
       val result =
         bulkUserJobRepository.findByJiraReferenceContainingIgnoreCaseOrRequestedByContainingIgnoreCase(
           "Test",
           "Test",
-          PageRequest.of(1, 1, Sort.by("RequestDateTime").descending()),
+          PageRequest.of(0, 1, Sort.by("RequestDateTime").descending()),
         ).content
 
       assertThat(bulkUserJobRepository.findAll()).hasSize(3)
-      assertThat(result).usingRecursiveFieldByFieldElementComparator().containsExactly(pendingBulkUserJob)
+      assertThat(result).usingRecursiveFieldByFieldElementComparator().containsExactly(completedBulkUserJob)
     }
-    
+
     @Test
     fun `findByJiraReferenceContainingIgnoreCaseOrRequestedByContainingIgnoreCase returns all bulk jobs when no search or pagination`() {
       givenBulkJobsExist()
