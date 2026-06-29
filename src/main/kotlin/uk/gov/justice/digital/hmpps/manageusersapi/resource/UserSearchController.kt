@@ -28,13 +28,18 @@ class UserSearchController(
       Note: User information held in the auth service may be out of date with the user information held in the source systems as
       their details will be as they were the last time that they authenticated.<br/><br/>
       
-       Requires role ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN or ROLE_PF_USER_ADMIN
+       Requires role ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN or ROLE_PF_USER_ADMIN or ROLE_MANAGE_USERS__USERS_SEARCH_RO
     """,
-    security = [SecurityRequirement(name = "ROLE_INTEL_ADMIN"), SecurityRequirement(name = "ROLE_PF_USER_ADMIN"), SecurityRequirement(name = "ROLE_PCMS_USER_ADMIN")],
+    security = [
+      SecurityRequirement(name = "ROLE_INTEL_ADMIN"),
+      SecurityRequirement(name = "ROLE_PF_USER_ADMIN"),
+      SecurityRequirement(name = "ROLE_PCMS_USER_ADMIN"),
+      SecurityRequirement(name = "ROLE_MANAGE_USERS__USERS_SEARCH_RO"),
+    ],
   )
   @StandardApiResponses
   @PreAuthorize(
-    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN', 'ROLE_PF_USER_ADMIN')",
+    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN', 'ROLE_PF_USER_ADMIN', 'ROLE_MANAGE_USERS__USERS_SEARCH_RO')",
   )
   fun searchForUsersInMultipleSourceSystems(
     @Parameter(description = "The username, email or name of the user.", example = "j smith")

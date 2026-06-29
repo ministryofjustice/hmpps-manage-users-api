@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 
 class UserSearchControllerIntTest : IntegrationTestBase() {
@@ -23,6 +25,24 @@ class UserSearchControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation())
         .exchange()
         .expectStatus().isForbidden
+    }
+
+    @ParameterizedTest(name = "should perform search with authorised role - {0}")
+    @ValueSource(
+      strings = [
+        "ROLE_INTEL_ADMIN",
+        "ROLE_PCMS_USER_ADMIN",
+        "ROLE_PF_USER_ADMIN",
+        "ROLE_MANAGE_USERS__USERS_SEARCH_RO",
+      ],
+    )
+    fun `should perform search with authorised roles`(authorisedRole: String) {
+      hmppsAuthMockServer.stubUserSearchNoResults()
+
+      webTestClient.get().uri("/users/search")
+        .headers(setAuthorisation(roles = listOf(authorisedRole)))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
