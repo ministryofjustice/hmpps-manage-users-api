@@ -44,13 +44,14 @@ class ClientCachingOAuth2AuthorizedClientServiceTest {
     .tokenUri("https://example.test/oauth/token")
     .build()
 
-  private fun accessToken() = OAuth2AccessToken(
-    OAuth2AccessToken.TokenType.BEARER,
-    "access-token",
-    Instant.now(),
-    Instant.now().plusSeconds(300),
-  )
-
+  private fun accessToken() = Instant.now().let { now ->
+    OAuth2AccessToken(
+      OAuth2AccessToken.TokenType.BEARER,
+      "access-token",
+      now,
+      now.plusSeconds(300),
+    )
+  }
   companion object {
     private const val REGISTRATION_ID = "delius"
   }
