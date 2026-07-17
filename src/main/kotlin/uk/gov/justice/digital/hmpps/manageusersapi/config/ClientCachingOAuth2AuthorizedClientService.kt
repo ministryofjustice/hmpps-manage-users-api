@@ -13,12 +13,13 @@ private const val SINGLE_PRINCIPAL = "principalName"
 class ClientCachingOAuth2AuthorizedClientService(private val clientRegistrationRepository: ClientRegistrationRepository) : OAuth2AuthorizedClientService {
   private val authorizedClients: MutableMap<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> = ConcurrentHashMap()
 
-  override fun <T : OAuth2AuthorizedClient?> loadAuthorizedClient(
+  override fun <T : OAuth2AuthorizedClient> loadAuthorizedClient(
     clientRegistrationId: String,
     principalName: String,
-  ): T? = clientRegistrationRepository.findByRegistrationId(clientRegistrationId)?.let {
+  ): T? {
+    clientRegistrationRepository.findByRegistrationId(clientRegistrationId) ?: return null
     @Suppress("UNCHECKED_CAST")
-    authorizedClients[OAuth2AuthorizedClientId(clientRegistrationId, SINGLE_PRINCIPAL)] as T
+    return authorizedClients[OAuth2AuthorizedClientId(clientRegistrationId, SINGLE_PRINCIPAL)] as? T
   }
 
   override fun saveAuthorizedClient(authorizedClient: OAuth2AuthorizedClient, principal: Authentication) {
