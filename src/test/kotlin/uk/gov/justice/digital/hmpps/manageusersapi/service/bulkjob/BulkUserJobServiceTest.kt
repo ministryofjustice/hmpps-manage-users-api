@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
@@ -20,6 +21,7 @@ import org.springframework.mock.web.MockMultipartFile
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus.CREATED
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
@@ -179,6 +181,42 @@ class BulkUserJobServiceTest {
         PageRequest.of(0, 1, Sort.by("RequestDateTime").descending()),
       )
       assertThat(result).isEqualTo(jobs)
+    }
+  }
+
+  @Nested
+  inner class GetBulkUserRoleAdditionsJobDetails {
+    @Test
+    fun `should return expected bulk user roles addition details`() {
+      val details = BulkUserJobDetails(
+        id = UUID.randomUUID(),
+        status = BulkUserJobStatus.PENDING,
+        jiraReference = "GHI-789",
+        requestedBy = "Test",
+        requestDateTime = LocalDateTime.now(),
+        totalCount = 4,
+        successCount = 3,
+        errorCount = 1,
+      )
+
+      whenever(bulkUserJobRepository.findDetailsById(details.id)).thenReturn(details)
+
+      val actual = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(details.id)
+
+      assertThat(actual).isEqualTo(details)
+      verify(bulkUserJobRepository, times(1)).findDetailsById(details.id)
+    }
+
+    @Test
+    fun `should return null when job details not found`() {
+      val id = UUID.randomUUID()
+
+      whenever(bulkUserJobRepository.findDetailsById(id)).thenReturn(null)
+
+      val actual = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(id)
+
+      assertThat(actual).isNull()
+      verify(bulkUserJobRepository, times(1)).findDetailsById(id)
     }
   }
 }

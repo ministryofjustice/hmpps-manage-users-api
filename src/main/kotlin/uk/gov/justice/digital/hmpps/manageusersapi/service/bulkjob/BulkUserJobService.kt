@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob.BulkUserRoleAdditionsRequest
 import java.util.UUID
 
@@ -44,6 +45,8 @@ class BulkUserJobService(
       pageable = pagination,
     ).content
   }
+
+  fun getBulkUserRoleAdditionsJobDetails(id: UUID): BulkUserJobDetails? = bulkUserJobRepository.findDetailsById(id)
 
   private fun createAndPersistJob(
     bulkJobDetails: BulkUserRoleAdditionsRequest,

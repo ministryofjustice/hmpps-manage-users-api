@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AcceptedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob.BulkUserJobService
@@ -77,6 +79,19 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
       )
     }
   }
+
+  @GetMapping(path = ["/user-role-additions/{id}"])
+  @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")
+  @Operation(
+    summary = "Get bulk user role additions job details.",
+    description = "Returns a bulk user role additions job details.",
+  )
+  @StandardApiResponses
+  fun getUserRoleAdditionsJob(
+    @PathVariable("id") id: UUID,
+  ): ResponseEntity<BulkUserJobDetails> = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(id)?.let {
+    ResponseEntity.ok(it)
+  } ?: ResponseEntity.notFound().build()
 
   private fun validateCsvFile(file: MultipartFile) {
     if (file.isEmpty) {
