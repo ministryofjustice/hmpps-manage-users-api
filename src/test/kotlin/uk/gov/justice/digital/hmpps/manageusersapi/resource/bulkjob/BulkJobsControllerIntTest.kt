@@ -322,15 +322,40 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     fun `should return the expected job details`() {
-      val requestTime = LocalDateTime.now()
+      val requestTime = LocalDateTime.parse("2026-06-01T11:11:11")
 
       val job = BulkUserJob(
         id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
         status = BulkUserJobStatus.PENDING,
         jiraReference = "GHI-789",
         requestedBy = "Test",
-        requestDateTime = requestTime.plusHours(2),
+        requestDateTime = requestTime,
       )
       job.jobItems.add(
         BulkUserJobItem(
@@ -376,7 +401,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.jiraReference").isEqualTo("GHI-789")
         .jsonPath("$.status").isEqualTo("PENDING")
         .jsonPath("$.requestedBy").isEqualTo("Test")
-        .jsonPath("$.requestDateTime").isEqualTo(requestTime.plusHours(2))
+        .jsonPath("$.requestDateTime").isEqualTo(requestTime.toString())
         .jsonPath("$.totalCount").isEqualTo(4)
         .jsonPath("$.successCount").isEqualTo(2)
         .jsonPath("$.errorCount").isEqualTo(1)

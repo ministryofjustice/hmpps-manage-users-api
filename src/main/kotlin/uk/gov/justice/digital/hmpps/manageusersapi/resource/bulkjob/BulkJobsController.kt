@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AcceptedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob.BulkUserJobService
@@ -89,8 +90,8 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
   @StandardApiResponses
   fun getUserRoleAdditionsJob(
     @PathVariable("id") id: UUID,
-  ): ResponseEntity<BulkUserJobDetails> = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(id)?.let {
-    ResponseEntity.ok(it)
+  ): ResponseEntity<BulkUserRolesAdditionsDetails> = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(id)?.let {
+    ResponseEntity.ok(it.toBulkUserRolesAdditionsDetails())
   } ?: ResponseEntity.notFound().build()
 
   private fun validateCsvFile(file: MultipartFile) {
@@ -101,6 +102,17 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
       throw ValidationException("Uploaded users file is not a CSV file")
     }
   }
+
+  internal fun BulkUserJobDetails.toBulkUserRolesAdditionsDetails() = BulkUserRolesAdditionsDetails(
+    id = this.id,
+    status = this.status,
+    jiraReference = this.jiraReference,
+    requestedBy = this.requestedBy,
+    requestDateTime = this.requestDateTime,
+    totalCount = this.totalCount,
+    successCount = this.successCount,
+    errorCount = this.errorCount,
+  )
 }
 
 @Schema(description = "Bulk user role additions request")
@@ -163,6 +175,65 @@ data class BulkUserRoleAdditionsJobSummary(
     example = "2026-05-11T16:32:05",
   )
   val requestDateTime: LocalDateTime,
+)
+
+@Schema(description = "Bulk user role additions job details")
+data class BulkUserRolesAdditionsDetails(
+  @Schema(
+    required = true,
+    description = "The unique identifier of the bulk user role additions job",
+    example = "123e4567-e89b-12d3-a456-426614174000",
+  )
+  val id: UUID,
+
+  @Schema(
+    required = true,
+    description = "The Jira Reference for the bulk user role additions job",
+    example = "Jira1234",
+  )
+  val jiraReference: String,
+
+  @Schema(
+    required = true,
+    description = "The current status of the bulk user role additions job",
+    example = "PENDING | COMPLETE",
+  )
+  val status: BulkUserJobStatus,
+
+  @Schema(
+    required = true,
+    description = "The user that requested the bulk user role additions job",
+    example = "someUsername",
+  )
+  val requestedBy: String,
+
+  @Schema(
+    required = true,
+    description = "The date time the bulk user role additions job was submitted",
+    example = "2026-06-01T11:11:11",
+  )
+  val requestDateTime: LocalDateTime,
+
+  @Schema(
+    required = true,
+    description = "The total number of assignments for the user role additions job",
+    example = "10",
+  )
+  val totalCount: Long = 0,
+
+  @Schema(
+    required = true,
+    description = "The current number of successful assignments for the user role additions job",
+    example = "1",
+  )
+  val successCount: Long = 0,
+
+  @Schema(
+    required = true,
+    description = "The current number of errored assignments for the user role additions job",
+    example = "1",
+  )
+  val errorCount: Long = 0,
 )
 
 interface Required
