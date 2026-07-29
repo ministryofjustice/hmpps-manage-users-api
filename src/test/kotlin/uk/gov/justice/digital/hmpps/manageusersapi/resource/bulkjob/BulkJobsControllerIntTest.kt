@@ -417,7 +417,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `should return expected value when job has no items`() {
-      val requestTime = LocalDateTime.now()
+      val requestTime = LocalDateTime.parse("2026-06-01T11:11:11")
 
       val job = bulkUserJobRepository.saveAndFlush(
         BulkUserJob(
@@ -425,7 +425,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
           status = BulkUserJobStatus.PENDING,
           jiraReference = "GHI-789",
           requestedBy = "Test",
-          requestDateTime = requestTime.plusHours(2),
+          requestDateTime = requestTime,
         ),
       )
 
@@ -438,7 +438,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.jiraReference").isEqualTo("GHI-789")
         .jsonPath("$.status").isEqualTo("PENDING")
         .jsonPath("$.requestedBy").isEqualTo("Test")
-        .jsonPath("$.requestDateTime").isEqualTo(requestTime.plusHours(2))
+        .jsonPath("$.requestDateTime").isEqualTo(requestTime)
         .jsonPath("$.totalCount").isEqualTo(0)
         .jsonPath("$.successCount").isEqualTo(0)
         .jsonPath("$.errorCount").isEqualTo(0)
