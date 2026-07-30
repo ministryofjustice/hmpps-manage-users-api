@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -25,8 +26,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob.BulkJobsControllerIntTest.Companion.bulkJobDetailsJson
-import uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob.BulkJobsControllerIntTest.Companion.usersCsv
 import uk.gov.justice.hmpps.sqs.HmppsQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.countAllMessagesOnQueue
@@ -306,6 +305,143 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .responseBody.blockFirst()
 
       assertThat(response).isEmpty()
+    }
+  }
+
+  @Nested
+  inner class GetBulkUserAdditionsDetails {
+
+    @BeforeEach
+    internal fun setUp() {
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @AfterEach
+    internal fun tearDown() {
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return the expected job details`() {
+      val requestTime = LocalDateTime.parse("2026-06-01T11:11:11")
+
+      val job = BulkUserJob(
+        id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+        status = BulkUserJobStatus.PENDING,
+        jiraReference = "GHI-789",
+        requestedBy = "Test",
+        requestDateTime = requestTime,
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user1",
+          rolename = "role1",
+          status = BulkUserJobItemStatus.CREATED,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user2",
+          rolename = "role2",
+          status = BulkUserJobItemStatus.SUCCESS,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user3",
+          rolename = "role3",
+          status = BulkUserJobItemStatus.ERROR,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user4",
+          rolename = "role4",
+          status = BulkUserJobItemStatus.SUCCESS,
+          bulkUserJob = job,
+        ),
+      )
+
+      bulkUserJobRepository.saveAndFlush(job)
+
+      webTestClient.get().uri("/bulk-jobs/user-role-additions/${job.id}")
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.id").isEqualTo(job.id)
+        .jsonPath("$.jiraReference").isEqualTo("GHI-789")
+        .jsonPath("$.status").isEqualTo("PENDING")
+        .jsonPath("$.requestedBy").isEqualTo("Test")
+        .jsonPath("$.requestDateTime").isEqualTo(requestTime.toString())
+        .jsonPath("$.totalCount").isEqualTo(4)
+        .jsonPath("$.successCount").isEqualTo(2)
+        .jsonPath("$.errorCount").isEqualTo(1)
+    }
+
+    @Test
+    fun `should return status not found if job id does not exist`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}")
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return expected value when job has no items`() {
+      val requestTime = LocalDateTime.parse("2026-06-01T11:11:11")
+
+      val job = bulkUserJobRepository.saveAndFlush(
+        BulkUserJob(
+          id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+          status = BulkUserJobStatus.PENDING,
+          jiraReference = "GHI-789",
+          requestedBy = "Test",
+          requestDateTime = requestTime,
+        ),
+      )
+
+      webTestClient.get().uri("/bulk-jobs/user-role-additions/${job.id}")
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.id").isEqualTo(job.id)
+        .jsonPath("$.jiraReference").isEqualTo("GHI-789")
+        .jsonPath("$.status").isEqualTo("PENDING")
+        .jsonPath("$.requestedBy").isEqualTo("Test")
+        .jsonPath("$.requestDateTime").isEqualTo(requestTime)
+        .jsonPath("$.totalCount").isEqualTo(0)
+        .jsonPath("$.successCount").isEqualTo(0)
+        .jsonPath("$.errorCount").isEqualTo(0)
     }
   }
 }

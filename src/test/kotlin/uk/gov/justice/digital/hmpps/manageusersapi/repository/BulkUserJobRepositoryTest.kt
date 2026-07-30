@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
 import java.time.LocalDateTime
 import java.util.UUID
@@ -102,7 +104,8 @@ class BulkUserJobRepositoryTest {
         ).content
 
       assertThat(bulkUserJobRepository.findAll()).hasSize(3)
-      assertThat(result).usingRecursiveFieldByFieldElementComparator().containsExactly(completedBulkUserJob, pendingBulkUserJob)
+      assertThat(result).usingRecursiveFieldByFieldElementComparator()
+        .containsExactly(completedBulkUserJob, pendingBulkUserJob)
     }
 
     @Test
@@ -149,7 +152,8 @@ class BulkUserJobRepositoryTest {
         ).content
 
       assertThat(bulkUserJobRepository.findAll()).hasSize(3)
-      assertThat(result).usingRecursiveFieldByFieldElementComparator().containsExactly(completedBulkUserJob, pendingBulkUserJobTwo, pendingBulkUserJob)
+      assertThat(result).usingRecursiveFieldByFieldElementComparator()
+        .containsExactly(completedBulkUserJob, pendingBulkUserJobTwo, pendingBulkUserJob)
     }
 
     @Test
@@ -164,7 +168,98 @@ class BulkUserJobRepositoryTest {
         ).content
 
       assertThat(bulkUserJobRepository.findAll()).hasSize(3)
-      assertThat(result).usingRecursiveFieldByFieldElementComparator().containsExactly(completedBulkUserJob, pendingBulkUserJob)
+      assertThat(result).usingRecursiveFieldByFieldElementComparator()
+        .containsExactly(completedBulkUserJob, pendingBulkUserJob)
+    }
+  }
+
+  @Nested
+  inner class FindDetailsById {
+
+    @Test
+    fun `should return expected details values`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+        status = BulkUserJobStatus.PENDING,
+        jiraReference = "GHI-789",
+        requestedBy = "Test",
+        requestDateTime = requestTime.plusHours(2),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user1",
+          rolename = "role1",
+          status = BulkUserJobItemStatus.CREATED,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user2",
+          rolename = "role2",
+          status = BulkUserJobItemStatus.SUCCESS,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user3",
+          rolename = "role3",
+          status = BulkUserJobItemStatus.ERROR,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user4",
+          rolename = "role4",
+          status = BulkUserJobItemStatus.SUCCESS,
+          bulkUserJob = job,
+        ),
+      )
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findDetailsById(job.id)
+      assertThat(actual).isNotNull
+
+      assertThat(actual!!.id).isEqualTo(job.id)
+      assertThat(actual.status).isEqualTo(BulkUserJobStatus.PENDING)
+      assertThat(actual.jiraReference).isEqualTo("GHI-789")
+      assertThat(actual.requestedBy).isEqualTo("Test")
+      assertThat(actual.requestDateTime).isEqualTo(requestTime.plusHours(2))
+
+      assertThat(actual.totalCount).isEqualTo(4)
+      assertThat(actual.successCount).isEqualTo(2)
+      assertThat(actual.errorCount).isEqualTo(1)
+    }
+
+    @Test
+    fun `should return correct values when job id does not exist`() {
+      assertThat(bulkUserJobRepository.findDetailsById(UUID.randomUUID())).isNull()
+    }
+
+    @Test
+    fun `should return correct values when job has no items`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+        status = BulkUserJobStatus.PENDING,
+        jiraReference = "GHI-789",
+        requestedBy = "Test",
+        requestDateTime = requestTime.plusHours(2),
+      )
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findDetailsById(job.id)
+
+      assertThat(actual!!.id).isEqualTo(job.id)
+      assertThat(actual.status).isEqualTo(BulkUserJobStatus.PENDING)
+      assertThat(actual.jiraReference).isEqualTo("GHI-789")
+      assertThat(actual.requestedBy).isEqualTo("Test")
+      assertThat(actual.requestDateTime).isEqualTo(requestTime.plusHours(2))
+      assertThat(actual.totalCount).isEqualTo(0)
+      assertThat(actual.successCount).isEqualTo(0)
+      assertThat(actual.errorCount).isEqualTo(0)
     }
   }
 }
