@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistAddRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistPatchRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistUserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import java.time.LocalDateTime
 import java.util.*
@@ -113,12 +114,13 @@ class AuthApiService(
 
   fun addUserToAllowlist(userAllowlistAddRequest: UserAllowlistAddRequest) = userWebClientUtils.postWithBody(userAllowlistAddRequest, "/api/user/allowlist")
 
-  fun getAllAllowlistUsers(name: String?, status: AllowListStatus, pageable: Pageable) = userWebClientUtils.getWithParams(
+  fun getAllAllowlistUsers(name: String?, status: AllowListStatus, userType: UserAllowlistUserType?, pageable: Pageable) = userWebClientUtils.getWithParams(
     "/api/user/allowlist",
     object : ParameterizedTypeReference<PagedResponse<UserAllowlistDetail>>() {},
     mapNonNull(
       "name" to name,
       "status" to status,
+      "userType" to userType,
       "page" to pageable.pageNumber,
       "size" to pageable.pageSize,
     ),
