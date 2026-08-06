@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
+import java.time.Instant
 import java.util.UUID
 import java.util.stream.Stream
 
@@ -22,6 +23,7 @@ interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
     """
       UPDATE BulkUserJobItem i
       SET i.status = :newStatus
+        , i.claimedAt = :claimedAt
       WHERE i.id = :jobItemId AND i.status = :currentStatus
     """,
   )
@@ -29,5 +31,6 @@ interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
     @Param("jobItemId") jobItemId: UUID,
     @Param("currentStatus") currentStatus: BulkUserJobItemStatus,
     @Param("newStatus") newStatus: BulkUserJobItemStatus,
+    @Param("claimedAt") claimedAt: Instant?,
   ): Int
 }

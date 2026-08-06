@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS bulk_user_job_item (
     username TEXT NOT NULL,
     rolename TEXT NOT NULL,
     status TEXT NOT NULL,
+    claimed_at TIMESTAMP with time zone,
     result TEXT,
     bulk_user_job_id UUID NOT NULL,
     constraint fk_bulk_job foreign key (bulk_user_job_id) REFERENCES bulk_user_job (id)

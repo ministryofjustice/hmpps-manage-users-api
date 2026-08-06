@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRep
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
+import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -19,10 +20,12 @@ class BulkUserJobItemService(
   }
 
   fun processJobItem(job: BulkUserJob, item: BulkUserJobItem) {
-    if (!claimJobItem(item.id)) {
+    val claimedAt = claimJobItem(item.id)
+    if (claimedAt == null) {
       log.info("Skipping bulk user job item {} because it has already been processed", item.id)
       return
     }
+    item.claimedAt = claimedAt
 
     try {
       bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
@@ -34,17 +37,23 @@ class BulkUserJobItemService(
     markPublished(item.id)
   }
 
-  private fun claimJobItem(jobItemId: UUID): Boolean = bulkUserJobItemRepository.updateStatusIfCurrent(
-    jobItemId = jobItemId,
-    currentStatus = BulkUserJobItemStatus.CREATED,
-    newStatus = BulkUserJobItemStatus.CLAIMED,
-  ) == 1
+  private fun claimJobItem(jobItemId: UUID): Instant? {
+    val claimedAt = Instant.now()
+    val updatedRows = bulkUserJobItemRepository.updateStatusIfCurrent(
+      jobItemId = jobItemId,
+      currentStatus = BulkUserJobItemStatus.CREATED,
+      newStatus = BulkUserJobItemStatus.CLAIMED,
+      claimedAt = claimedAt,
+    )
+    return if (updatedRows == 1) claimedAt else null
+  }
 
   private fun releaseClaim(jobItemId: UUID) {
     bulkUserJobItemRepository.updateStatusIfCurrent(
       jobItemId = jobItemId,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.CREATED,
+      claimedAt = null,
     )
   }
 
@@ -53,6 +62,7 @@ class BulkUserJobItemService(
       jobItemId = jobItemId,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = null,
     )
     check(updatedRows == 1) { "Bulk user job item $jobItemId could not be marked as PUBLISHED from CLAIMED" }
   }

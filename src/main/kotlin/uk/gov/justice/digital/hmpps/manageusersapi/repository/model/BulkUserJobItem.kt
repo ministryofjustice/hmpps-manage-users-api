@@ -8,6 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import java.time.Instant
 import java.util.UUID
 
 @Entity
@@ -20,6 +21,7 @@ data class BulkUserJobItem(
   val rolename: String,
   @Enumerated(EnumType.STRING)
   var status: BulkUserJobItemStatus = BulkUserJobItemStatus.CREATED,
+  var claimedAt: Instant? = null,
   val result: String? = null,
 
   @ManyToOne(fetch = FetchType.LAZY)

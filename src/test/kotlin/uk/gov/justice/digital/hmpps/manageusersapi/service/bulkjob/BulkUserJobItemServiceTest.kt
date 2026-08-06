@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -25,24 +28,27 @@ class BulkUserJobItemServiceTest {
     val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CREATED, bulkUserJob = job)
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
-        item.id,
-        BulkUserJobItemStatus.CREATED,
-        BulkUserJobItemStatus.CLAIMED,
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CREATED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
       ),
     ).thenReturn(1)
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
-        item.id,
-        BulkUserJobItemStatus.CLAIMED,
-        BulkUserJobItemStatus.PUBLISHED,
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        isNull(),
       ),
     ).thenReturn(1)
 
     service.processJobItem(job, item)
 
     verify(bulkUserJobItemPublisher).publishBulkUserJobItemEvent(job, item)
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(item.id, BulkUserJobItemStatus.CREATED, BulkUserJobItemStatus.CLAIMED)
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(item.id, BulkUserJobItemStatus.CLAIMED, BulkUserJobItemStatus.PUBLISHED)
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CREATED), eq(BulkUserJobItemStatus.CLAIMED), any())
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    assertThat(item.claimedAt).isNotNull
   }
 
   @Test
@@ -51,16 +57,17 @@ class BulkUserJobItemServiceTest {
     val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = job)
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
-        item.id,
-        BulkUserJobItemStatus.CREATED,
-        BulkUserJobItemStatus.CLAIMED,
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CREATED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
       ),
     ).thenReturn(0)
 
     service.processJobItem(job, item)
 
     verify(bulkUserJobItemPublisher, never()).publishBulkUserJobItemEvent(any(), any())
-    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(item.id, BulkUserJobItemStatus.CLAIMED, BulkUserJobItemStatus.PUBLISHED)
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), any())
   }
 
   @Test
@@ -69,9 +76,10 @@ class BulkUserJobItemServiceTest {
     val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CREATED, bulkUserJob = job)
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
-        item.id,
-        BulkUserJobItemStatus.CREATED,
-        BulkUserJobItemStatus.CLAIMED,
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CREATED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
       ),
     ).thenReturn(1)
     whenever(bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)).thenThrow(RuntimeException("send failed"))
@@ -80,7 +88,7 @@ class BulkUserJobItemServiceTest {
       .isInstanceOf(RuntimeException::class.java)
       .hasMessage("send failed")
 
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(item.id, BulkUserJobItemStatus.CLAIMED, BulkUserJobItemStatus.CREATED)
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.CREATED), isNull())
   }
 
   @Test
@@ -89,16 +97,18 @@ class BulkUserJobItemServiceTest {
     val item = BulkUserJobItem(id = UUID.randomUUID(), username = "USER123", rolename = "ROLE_ONE", bulkUserJob = job)
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
-        item.id,
-        BulkUserJobItemStatus.CREATED,
-        BulkUserJobItemStatus.CLAIMED,
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CREATED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
       ),
     ).thenReturn(1)
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
-        item.id,
-        BulkUserJobItemStatus.CLAIMED,
-        BulkUserJobItemStatus.PUBLISHED,
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        isNull(),
       ),
     ).thenReturn(0)
 
