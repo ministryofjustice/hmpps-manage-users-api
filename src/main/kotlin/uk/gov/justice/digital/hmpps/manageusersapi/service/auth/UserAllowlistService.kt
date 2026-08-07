@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistAddRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistPatchRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistUserType
 import java.util.*
 
 @Service("UserAllowListService")
@@ -15,7 +16,7 @@ class UserAllowlistService(
 ) {
   fun addUser(addUserRequest: UserAllowlistAddRequest) = authApiService.addUserToAllowlist(addUserRequest)
 
-  fun getAllUsers(name: String?, status: Status, pageable: Pageable): PagedResponse<UserAllowlistDetail> = authApiService.getAllAllowlistUsers(name, status, pageable)
+  fun getAllUsers(name: String?, status: Status, userType: UserAllowlistUserType?, pageable: Pageable): PagedResponse<UserAllowlistDetail> = authApiService.getAllAllowlistUsers(name, status, userType, pageable)
 
   fun updateUserAccess(id: UUID, updateUserAccessRequest: UserAllowlistPatchRequest) = authApiService.updateAllowlistUserAccess(id, updateUserAccessRequest)
 
