@@ -24,11 +24,13 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AcceptedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob.BulkUserJobService
+import java.io.OutputStreamWriter
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -93,6 +95,25 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
   ): ResponseEntity<BulkUserRolesAdditionsDetails> = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(id)?.let {
     ResponseEntity.ok(it.toBulkUserRolesAdditionsDetails())
   } ?: ResponseEntity.notFound().build()
+
+  @GetMapping(path = ["/user-role-additions/{id}/download"])
+  @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")
+  @Operation(
+    summary = "Provides a CSV download of the bulk job results.",
+    description = "Provides a CSV download of the bulk job results.",
+  )
+  @StandardApiResponses
+  fun getUserRoleAdditionsCsvDownload(@PathVariable("id") id: UUID): ResponseEntity<StreamingResponseBody> {
+    val body = StreamingResponseBody { outputStream ->
+      OutputStreamWriter(outputStream, "utf-8").use { writer ->
+        bulkUserJobService.writeJobResultsToCsv(writer, id)
+      }
+    }
+    return ResponseEntity.ok()
+      .contentType(MediaType.parseMediaType("text/csv"))
+      .header("Content-Disposition", "attachment; filename=bulk-roles-assignments-$id.csv")
+      .body(body)
+  }
 
   private fun validateCsvFile(file: MultipartFile) {
     if (file.isEmpty) {
