@@ -9,5 +9,5 @@ import java.util.stream.Stream
 @Repository
 interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
 
-  fun streamByBulkUserJobId(jobId: UUID): Stream<BulkUserJobItem>?
+  fun streamByBulkUserJobId(jobId: UUID): Stream<BulkUserJobItem>
 }

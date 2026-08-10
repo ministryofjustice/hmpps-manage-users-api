@@ -96,23 +96,22 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
     ResponseEntity.ok(it.toBulkUserRolesAdditionsDetails())
   } ?: ResponseEntity.notFound().build()
 
-
   @GetMapping(path = ["/user-role-additions/{id}/download"])
   @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")
   @Operation(
-    summary = "Get bulk user role additions job details.",
-    description = "Returns a bulk user role additions job details.",
+    summary = "Provides a CSV download of the bulk job results.",
+    description = "Provides a CSV download of the bulk job results.",
   )
   @StandardApiResponses
   fun getUserRoleAdditionsCsvDownload(@PathVariable("id") id: UUID): ResponseEntity<StreamingResponseBody> {
     val body = StreamingResponseBody { outputStream ->
-      OutputStreamWriter(outputStream).use { writer ->
+      OutputStreamWriter(outputStream, "utf-8").use { writer ->
         bulkUserJobService.writeJobResultsToCsv(writer, id)
       }
     }
     return ResponseEntity.ok()
       .contentType(MediaType.parseMediaType("text/csv"))
-      .header("Content-Disposition", "attachment; filename=bulk-roles-assignments-${id}.csv")
+      .header("Content-Disposition", "attachment; filename=bulk-roles-assignments-$id.csv")
       .body(body)
   }
 

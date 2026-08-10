@@ -620,7 +620,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
           rolename = "role_$index",
           status = status,
           bulkUserJob = this,
-          result = if (status == BulkUserJobItemStatus.ERROR) "error_desc_$index" else null
+          result = if (status == BulkUserJobItemStatus.ERROR) "error_desc_$index" else null,
         ),
       )
     }

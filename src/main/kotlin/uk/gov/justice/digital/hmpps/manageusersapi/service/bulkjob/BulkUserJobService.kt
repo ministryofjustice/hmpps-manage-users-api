@@ -57,20 +57,20 @@ class BulkUserJobService(
   @Transactional
   fun writeJobResultsToCsv(writer: Writer, jobId: UUID) {
     bulkUserJobRepository.findByIdOrNull(jobId)?.let {
-      bulkUserJobRepository.findCompletedJobById(jobId)?.let {
+      bulkUserJobRepository.findCompletedJobById(jobId)?.let { _ ->
         writer.write("userId,roleCode,status,reason\n")
 
-        bulkUserJobItemRepository.streamByBulkUserJobId(jobId)?.let { stream ->
+        bulkUserJobItemRepository.streamByBulkUserJobId(jobId).use { stream ->
           stream.forEach { item ->
             writer.write(item.toCsvRow())
           }
-          writer.flush()
         }
+        writer.flush()
       } ?: throw BulkUserJobNotCompleteException(jobId)
     } ?: throw BulkUserJobNotFoundException(jobId)
   }
 
-  private fun BulkUserJobItem.toCsvRow(): String = "$username,$rolename,$status,${result?:""}\n"
+  private fun BulkUserJobItem.toCsvRow(): String = "$username,$rolename,$status,${result ?: ""}\n"
 
   private fun createAndPersistJob(
     bulkJobDetails: BulkUserRoleAdditionsRequest,

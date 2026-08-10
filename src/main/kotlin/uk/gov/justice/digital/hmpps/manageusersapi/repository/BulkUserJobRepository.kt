@@ -61,8 +61,6 @@ interface BulkUserJobRepository : JpaRepository<BulkUserJob, UUID> {
   fun findCompletedJobById(
     @Param("jobId") jobId: UUID,
     @Param("statusComplete") status: BulkUserJobStatus = BulkUserJobStatus.COMPLETE,
-    @Param("jobItemStatuses") jobItemStatuses: Set<BulkUserJobItemStatus> = setOf(
-      BulkUserJobItemStatus.SUCCESS, BulkUserJobItemStatus.ERROR,
-    ),
+    @Param("jobItemStatuses") jobItemStatuses: Set<BulkUserJobItemStatus> = setOf(BulkUserJobItemStatus.SUCCESS, BulkUserJobItemStatus.ERROR),
   ): UUID?
 }

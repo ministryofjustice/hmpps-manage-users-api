@@ -235,7 +235,6 @@ class BulkUserJobServiceTest {
     }
   }
 
-
   @Nested
   inner class WriteJobResultsToCsv {
 

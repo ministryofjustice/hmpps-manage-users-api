@@ -245,7 +245,6 @@ class HmppsManageUsersApiExceptionHandler {
       )
   }
 
-
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
