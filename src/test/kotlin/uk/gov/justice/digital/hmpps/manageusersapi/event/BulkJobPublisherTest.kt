@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.event
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -10,6 +11,7 @@ import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import software.amazon.awssdk.services.sqs.model.SendMessageResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
 import uk.gov.justice.hmpps.sqs.HmppsQueue
@@ -31,6 +33,9 @@ class BulkJobPublisherTest {
     whenever(sqsClient.getQueueUrl(GetQueueUrlRequest.builder().queueName("bulkuserjobqueue").build())).thenReturn(
       CompletableFuture.completedFuture(GetQueueUrlResponse.builder().queueUrl("sqs://bulkuserjobqueue").build()),
     )
+    whenever(sqsClient.sendMessage(any<SendMessageRequest>())).thenReturn(
+      CompletableFuture.completedFuture(SendMessageResponse.builder().messageId("test-message-id").build()),
+    )
 
     publisher.publishBulkUserJobEvent(bulkJob)
 
@@ -47,5 +52,22 @@ class BulkJobPublisherTest {
     assertThatThrownBy { publisher.publishBulkUserJobEvent(bulkJob) }
       .isInstanceOf(QueueNotFoundException::class.java)
       .hasMessage("Queue with id bulkuserjobqueue does not exist")
+  }
+
+  @Test
+  fun `should throw exception when send message fails`() {
+    val bulkJob = BulkUserJob(UUID.randomUUID(), "JIRA-123", BulkUserJobStatus.PENDING, "userabc")
+    val bulkUserJobQueue = HmppsQueue(UUID.randomUUID().toString(), sqsClient, "bulkuserjobqueue")
+    whenever(hmppsQueueService.findByQueueId("bulkuserjobqueue")).thenReturn(bulkUserJobQueue)
+    whenever(sqsClient.getQueueUrl(GetQueueUrlRequest.builder().queueName("bulkuserjobqueue").build())).thenReturn(
+      CompletableFuture.completedFuture(GetQueueUrlResponse.builder().queueUrl("sqs://bulkuserjobqueue").build()),
+    )
+    whenever(sqsClient.sendMessage(any<SendMessageRequest>())).thenReturn(
+      CompletableFuture.failedFuture(RuntimeException("send failed")),
+    )
+
+    assertThatThrownBy { publisher.publishBulkUserJobEvent(bulkJob) }
+      .isInstanceOf(java.util.concurrent.CompletionException::class.java)
+      .hasRootCauseMessage("send failed")
   }
 }
