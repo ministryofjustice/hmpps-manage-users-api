@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
+import java.util.Optional
 import java.util.UUID
 
 @Repository
@@ -20,6 +21,16 @@ interface BulkUserJobRepository : JpaRepository<BulkUserJob, UUID> {
     requestedBy: String,
     pageable: Pageable,
   ): Page<BulkUserJob>
+
+  @Query(
+    """
+      SELECT j
+      FROM BulkUserJob j
+        LEFT JOIN FETCH j.jobItems
+      WHERE j.id = :jobId
+    """,
+  )
+  fun findWithJobItemsById(@Param("jobId") jobId: UUID): Optional<BulkUserJob>
 
   @Query(
     """
