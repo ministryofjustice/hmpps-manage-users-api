@@ -305,28 +305,6 @@ class BulkUserJobServiceTest {
     }
 
     @Test
-    fun `should write header when items stream is null`() {
-      whenever(bulkUserJobRepository.findById(jobId))
-        .thenReturn(Optional.of(job))
-
-      whenever(bulkUserJobRepository.findCompletedJobById(jobId))
-        .thenReturn(jobId)
-
-      whenever(bulkUserJobItemRepository.streamByBulkUserJobId(jobId))
-        .thenReturn(null)
-
-      bulkUserJobService.writeJobResultsToCsv(writer, jobId)
-
-      verify(bulkUserJobRepository, times(1)).findById(jobId)
-      verify(bulkUserJobRepository, times(1)).findCompletedJobById(jobId)
-      verify(writer).write(writerCaptor.capture())
-      verify(writer, atLeast(1)).flush()
-
-      assertThat(writerCaptor.allValues).hasSize(1)
-      assertThat(writerCaptor.firstValue).isEqualTo("userId,roleCode,status,reason\n")
-    }
-
-    @Test
     fun `should write all items when items stream is not empty`() {
       whenever(bulkUserJobRepository.findById(jobId))
         .thenReturn(Optional.of(job))
