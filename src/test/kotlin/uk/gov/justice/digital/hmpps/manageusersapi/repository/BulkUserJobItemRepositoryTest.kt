@@ -75,10 +75,9 @@ class BulkUserJobItemRepositoryTest(
       }
     }
   }
-  
-  @Nested 
-  inner class UpdateStatusIfCurrent{
 
+  @Nested
+  inner class UpdateStatusIfCurrent {
     @Test
     fun `updateStatusIfCurrent sets claimedAt when claim succeeds`() {
       val job = BulkUserJob(
