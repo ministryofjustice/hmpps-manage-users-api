@@ -116,4 +116,71 @@ class BulkUserJobItemServiceTest {
       .isInstanceOf(IllegalStateException::class.java)
       .hasMessage("Bulk user job item ${item.id} could not be marked as PUBLISHED from CLAIMED")
   }
+
+  @Test
+  fun `republishes stale claimed item and marks it published`() {
+    val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
+    val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CLAIMED, bulkUserJob = job)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
+      ),
+    ).thenReturn(1)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        isNull(),
+      ),
+    ).thenReturn(1)
+
+    service.republishStaleClaimedItem(job, item)
+
+    verify(bulkUserJobItemPublisher).publishBulkUserJobItemEvent(job, item)
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+  }
+
+  @Test
+  fun `skips stale republish when item is no longer claimed`() {
+    val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
+    val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = job)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
+      ),
+    ).thenReturn(0)
+
+    service.republishStaleClaimedItem(job, item)
+
+    verify(bulkUserJobItemPublisher, never()).publishBulkUserJobItemEvent(any(), any())
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+  }
+
+  @Test
+  fun `leaves stale item claimed when republish send fails`() {
+    val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
+    val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CLAIMED, bulkUserJob = job)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
+      ),
+    ).thenReturn(1)
+    whenever(bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)).thenThrow(RuntimeException("send failed"))
+
+    assertThatThrownBy { service.republishStaleClaimedItem(job, item) }
+      .isInstanceOf(RuntimeException::class.java)
+      .hasMessage("send failed")
+
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+  }
 }

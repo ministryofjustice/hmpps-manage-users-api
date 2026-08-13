@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
@@ -22,6 +25,7 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.test.web.reactive.server.EntityExchangeResult
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.manageusersapi.config.SqsConfig
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
@@ -31,8 +35,6 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
-import uk.gov.justice.hmpps.sqs.HmppsQueueService
-import uk.gov.justice.hmpps.sqs.countAllMessagesOnQueue
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.SECONDS
@@ -47,11 +49,6 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
 
   @Autowired
   private lateinit var bulkUserJobItemRepository: BulkUserJobItemRepository
-
-  @Autowired
-  protected lateinit var hmppsQueueService: HmppsQueueService
-
-  internal val itemQueue by lazy { hmppsQueueService.findByQueueId("bulkuserjobitemqueue")!! }
 
   companion object {
     @JvmStatic
@@ -134,31 +131,54 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
     @Transactional
     @Test
     open fun `bulk user additions job accepted`() {
+      listOf("USER123", "USER654").forEach { username ->
+        nomisApiMockServer.stubPostUserRoles(username, "ROLE_ONE")
+        nomisApiMockServer.stubPostUserRoles(username, "ROLE_FOUR")
+      }
+
       val response = webTestClient.post().uri("/bulk-jobs/user-role-additions")
         .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
         .contentType(MediaType.MULTIPART_FORM_DATA)
         .body(buildValidMultipart())
         .exchange()
         .expectStatus().isAccepted
-        .returnResult(BulkUserRoleAdditionsResponse::class.java)
+        .returnResult<BulkUserRoleAdditionsResponse>()
         .responseBody.blockFirst()
 
       assertThat(response).isNotNull
       await.untilAsserted {
-        assertThat(itemQueue.sqsClient.countAllMessagesOnQueue(itemQueue.queueUrl).get()).isEqualTo(4)
+        val job = bulkUserJobRepository.findById(response!!.id)
+        assertThat(job).isPresent.hasValueSatisfying {
+          assertThat(it.status).isEqualTo(BulkUserJobStatus.COMPLETE)
+        }
       }
 
       val bulkJob = bulkUserJobRepository.findById(response!!.id)
       assertThat(bulkJob).isPresent.hasValueSatisfying {
-        assertThat(it).usingRecursiveComparison().ignoringFields("jobItems", "requestDateTime").isEqualTo(
-          BulkUserJob(response.id, "JIRA-1234", BulkUserJobStatus.PENDING, "TEST_USR"),
-        )
+        assertThat(it.jiraReference).isEqualTo("JIRA-1234")
+        assertThat(it.requestedBy).isEqualTo("TEST_USR")
         assertThat(it.requestDateTime).isCloseTo(LocalDateTime.now(ZoneId.systemDefault()), within(5, SECONDS))
-        assertThat(it.jobItems).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id").containsExactlyInAnyOrder(
-          BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = it),
-          BulkUserJobItem(username = "USER654", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = it),
-          BulkUserJobItem(username = "USER123", rolename = "ROLE_FOUR", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = it),
-          BulkUserJobItem(username = "USER654", rolename = "ROLE_FOUR", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = it),
+        assertThat(it.jobItems)
+          .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id", "status", "result", "claimedAt")
+          .containsExactlyInAnyOrder(
+            BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", bulkUserJob = it),
+            BulkUserJobItem(username = "USER654", rolename = "ROLE_ONE", bulkUserJob = it),
+            BulkUserJobItem(username = "USER123", rolename = "ROLE_FOUR", bulkUserJob = it),
+            BulkUserJobItem(username = "USER654", rolename = "ROLE_FOUR", bulkUserJob = it),
+          )
+        assertThat(it.jobItems).allSatisfy { item ->
+          assertThat(item.status).isEqualTo(BulkUserJobItemStatus.SUCCESS)
+        }
+      }
+
+      listOf("USER123", "USER654").forEach { username ->
+        nomisApiMockServer.verify(
+          postRequestedFor(urlEqualTo("/users/$username/roles?caseloadId=NWEB"))
+            .withRequestBody(containing("ROLE_ONE")),
+        )
+        nomisApiMockServer.verify(
+          postRequestedFor(urlEqualTo("/users/$username/roles?caseloadId=NWEB"))
+            .withRequestBody(containing("ROLE_FOUR")),
         )
       }
     }
