@@ -111,6 +111,10 @@ application:
 
   smoketest.enabled: false
 
+  bulk-jobs:
+    stale-claimed-threshold: PT1H
+    reconciliation-interval: PT5M
+
 authorization-server:
   token:
     endpoint:

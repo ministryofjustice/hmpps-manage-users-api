@@ -451,6 +451,60 @@ class BulkUserJobRepositoryTest {
     }
   }
 
+  @Nested
+  inner class MarkCompleteIfAllItemsTerminal {
+    @Test
+    fun `marks pending job complete when all items are success or error`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.ERROR)
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val updatedRows = bulkUserJobRepository.markCompleteIfAllItemsTerminal(job.id)
+
+      assertThat(updatedRows).isEqualTo(1)
+      assertThat(bulkUserJobRepository.findById(job.id)).isPresent.hasValueSatisfying {
+        assertThat(it.status).isEqualTo(BulkUserJobStatus.COMPLETE)
+      }
+    }
+
+    @Test
+    fun `does not mark complete when non-terminal items remain`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.STARTED)
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val updatedRows = bulkUserJobRepository.markCompleteIfAllItemsTerminal(job.id)
+
+      assertThat(updatedRows).isEqualTo(0)
+      assertThat(bulkUserJobRepository.findById(job.id)).isPresent.hasValueSatisfying {
+        assertThat(it.status).isEqualTo(BulkUserJobStatus.PENDING)
+      }
+    }
+  }
+
+  @Nested
+  inner class FindIncompleteJobIds {
+    @Test
+    fun `returns ids of jobs that are not complete`() {
+      givenBulkJobsExist()
+
+      val actual = bulkUserJobRepository.findIncompleteJobIds()
+
+      assertThat(actual).containsExactlyInAnyOrder(pendingBulkUserJob.id, pendingBulkUserJobTwo.id)
+    }
+
+    @Test
+    fun `returns empty list when all jobs are complete`() {
+      bulkUserJobRepository.save(completedBulkUserJob)
+
+      val actual = bulkUserJobRepository.findIncompleteJobIds()
+
+      assertThat(actual).isEmpty()
+    }
+  }
+
   private fun createBulkUserJobWithStatus(status: BulkUserJobStatus) = BulkUserJob(
     id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
     status = status,

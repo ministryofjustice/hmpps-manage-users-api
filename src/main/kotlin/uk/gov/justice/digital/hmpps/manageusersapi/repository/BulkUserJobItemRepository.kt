@@ -16,6 +16,7 @@ import java.util.stream.Stream
 interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
 
   fun streamByBulkUserJobId(jobId: UUID): Stream<BulkUserJobItem>
+  fun findByBulkUserJobIdAndStatusAndClaimedAtBefore(jobId: UUID, status: BulkUserJobItemStatus, claimedAt: Instant): List<BulkUserJobItem>
 
   @Transactional
   @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -31,6 +32,25 @@ interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
     @Param("jobItemId") jobItemId: UUID,
     @Param("currentStatus") currentStatus: BulkUserJobItemStatus,
     @Param("newStatus") newStatus: BulkUserJobItemStatus,
-    @Param("claimedAt") claimedAt: Instant?,
+    @Param("claimedAt") claimedAt: Instant? = null,
+  ): Int
+
+  @Transactional
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+    """
+      UPDATE BulkUserJobItem i
+      SET i.status = :newStatus
+        , i.result = :result
+        , i.claimedAt = :claimedAt
+      WHERE i.id = :jobItemId AND i.status = :currentStatus
+    """,
+  )
+  fun updateStatusAndResultIfCurrent(
+    @Param("jobItemId") jobItemId: UUID,
+    @Param("currentStatus") currentStatus: BulkUserJobItemStatus,
+    @Param("newStatus") newStatus: BulkUserJobItemStatus,
+    @Param("result") result: String? = null,
+    @Param("claimedAt") claimedAt: Instant? = null,
   ): Int
 }

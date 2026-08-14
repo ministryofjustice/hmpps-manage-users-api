@@ -37,6 +37,41 @@ class BulkUserJobItemService(
     markPublished(item.id)
   }
 
+  fun republishStaleClaimedItem(job: BulkUserJob, item: BulkUserJobItem) {
+    val originalClaimedAt = item.claimedAt ?: Instant.EPOCH
+    val refreshed = bulkUserJobItemRepository.updateStatusIfCurrent(
+      jobItemId = item.id,
+      currentStatus = BulkUserJobItemStatus.CLAIMED,
+      newStatus = BulkUserJobItemStatus.CLAIMED,
+      claimedAt = Instant.now(),
+    ) == 1
+    if (!refreshed) {
+      log.info("Skipping stale re-publish of bulk user job item {} because it is no longer CLAIMED", item.id)
+      return
+    }
+
+    try {
+      bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
+    } catch (e: Exception) {
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        jobItemId = item.id,
+        currentStatus = BulkUserJobItemStatus.CLAIMED,
+        newStatus = BulkUserJobItemStatus.CLAIMED,
+        claimedAt = originalClaimedAt,
+      )
+      throw e
+    }
+
+    val published = bulkUserJobItemRepository.updateStatusIfCurrent(
+      jobItemId = item.id,
+      currentStatus = BulkUserJobItemStatus.CLAIMED,
+      newStatus = BulkUserJobItemStatus.PUBLISHED,
+    ) == 1
+    if (!published) {
+      log.warn("Re-published stale bulk user job item {} but could not mark it PUBLISHED as its status changed concurrently", item.id)
+    }
+  }
+
   private fun claimJobItem(jobItemId: UUID): Instant? {
     val claimedAt = Instant.now()
     val updatedRows = bulkUserJobItemRepository.updateStatusIfCurrent(
@@ -53,7 +88,6 @@ class BulkUserJobItemService(
       jobItemId = jobItemId,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.CREATED,
-      claimedAt = null,
     )
   }
 
@@ -62,7 +96,6 @@ class BulkUserJobItemService(
       jobItemId = jobItemId,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
-      claimedAt = null,
     )
     check(updatedRows == 1) { "Bulk user job item $jobItemId could not be marked as PUBLISHED from CLAIMED" }
   }
