@@ -51,8 +51,10 @@ class BulkUserJobItemRoleAssignmentServiceTest {
   }
 
   @Test
-  fun `skips processing when item is not in published status`() {
+  fun `skips processing when item is in a terminal status`() {
     val (message, item) = createMessageAndItem()
+    item.status = BulkUserJobItemStatus.SUCCESS
+    whenever(bulkUserJobItemRepository.findById(item.id)).thenReturn(Optional.of(item))
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
         item.id,
@@ -64,9 +66,51 @@ class BulkUserJobItemRoleAssignmentServiceTest {
 
     service.processRoleAssignmentMessage(message)
 
-    verify(bulkUserJobItemRepository, never()).findById(any())
     verify(userRolesService, never()).addRolesToUser(any(), any(), any())
     verify(bulkUserJobReconciliationService, never()).reconcileBulkJob(any())
+  }
+
+  @Test
+  fun `skips processing when item no longer exists`() {
+    val (message, item) = createMessageAndItem()
+    whenever(bulkUserJobItemRepository.findById(item.id)).thenReturn(Optional.empty())
+
+    service.processRoleAssignmentMessage(message)
+
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(any(), any(), any(), any())
+    verify(userRolesService, never()).addRolesToUser(any(), any(), any())
+    verify(bulkUserJobReconciliationService, never()).reconcileBulkJob(any())
+  }
+
+  @Test
+  fun `reprocesses item left started by an interrupted delivery`() {
+    val (message, item) = createMessageAndItem()
+    item.status = BulkUserJobItemStatus.STARTED
+    whenever(bulkUserJobItemRepository.findById(item.id)).thenReturn(Optional.of(item))
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        item.id,
+        BulkUserJobItemStatus.PUBLISHED,
+        BulkUserJobItemStatus.STARTED,
+        null,
+      ),
+    ).thenReturn(0)
+    whenever(userRolesService.addRolesToUser(item.username, listOf(item.rolename), "NWEB")).thenReturn(createUserRoleDetail(item.username))
+    whenever(
+      bulkUserJobItemRepository.updateStatusAndResultIfCurrent(
+        item.id,
+        BulkUserJobItemStatus.STARTED,
+        BulkUserJobItemStatus.SUCCESS,
+        null,
+        null,
+      ),
+    ).thenReturn(1)
+
+    service.processRoleAssignmentMessage(message)
+
+    verify(userRolesService).addRolesToUser(item.username, listOf(item.rolename), "NWEB")
+    verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(item.id, BulkUserJobItemStatus.STARTED, BulkUserJobItemStatus.SUCCESS, null, null)
+    verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
   }
 
   @Test
@@ -91,7 +135,7 @@ class BulkUserJobItemRoleAssignmentServiceTest {
   }
 
   @Test
-  fun `marks error when role is already assigned`() {
+  fun `marks success when role is already assigned`() {
     val (message, item) = createMessageAndItem()
     stubClaimAndLoad(item)
     whenever(userRolesService.addRolesToUser(item.username, listOf(item.rolename), "NWEB")).thenThrow(conflictException())
@@ -99,8 +143,8 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       bulkUserJobItemRepository.updateStatusAndResultIfCurrent(
         item.id,
         BulkUserJobItemStatus.STARTED,
-        BulkUserJobItemStatus.ERROR,
-        "Role already assigned",
+        BulkUserJobItemStatus.SUCCESS,
+        null,
         null,
       ),
     ).thenReturn(1)
@@ -110,8 +154,8 @@ class BulkUserJobItemRoleAssignmentServiceTest {
     verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(
       item.id,
       BulkUserJobItemStatus.STARTED,
-      BulkUserJobItemStatus.ERROR,
-      "Role already assigned",
+      BulkUserJobItemStatus.SUCCESS,
+      null,
       null,
     )
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)

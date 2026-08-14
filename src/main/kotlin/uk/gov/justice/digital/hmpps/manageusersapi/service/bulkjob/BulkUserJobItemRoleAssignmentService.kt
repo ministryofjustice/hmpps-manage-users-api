@@ -20,18 +20,23 @@ class BulkUserJobItemRoleAssignmentService(
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
     private const val USER_NOT_FOUND = "User not found"
-    private const val ROLE_ALREADY_ASSIGNED = "Role already assigned"
     private const val SYSTEM_ISSUE = "System issue"
   }
 
   fun processRoleAssignmentMessage(message: BulkUserJobItemMessage) {
-    if (!claimForAssignment(message.jobItemId)) {
-      log.info("Skipping bulk user job item {} because it is not in PUBLISHED status", message.jobItemId)
+    val item = bulkUserJobItemRepository.findById(message.jobItemId).orElse(null)
+    if (item == null) {
+      log.warn("Skipping bulk user job item {} because it no longer exists", message.jobItemId)
       return
     }
 
-    val item = bulkUserJobItemRepository.findById(message.jobItemId)
-      .orElseThrow { IllegalStateException("Bulk user job item ${message.jobItemId} not found") }
+    if (!claimForAssignment(item)) {
+      log.info(
+        "Skipping bulk user job item {} because it is not awaiting assignment (already in a terminal state or not yet published)",
+        message.jobItemId,
+      )
+      return
+    }
 
     if (!messageMatchesPersistedItem(message, item)) {
       markError(item.id, SYSTEM_ISSUE)
@@ -51,7 +56,9 @@ class BulkUserJobItemRoleAssignmentService(
       markError(item.id, USER_NOT_FOUND)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: WebClientResponseException.Conflict) {
-      markError(item.id, ROLE_ALREADY_ASSIGNED)
+      // The user already has the role (either pre-existing, or assigned by a previous processing of this message that
+      // failed before recording success), so treat it as a successful assignment
+      markSuccess(item.id)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: Exception) {
       markError(item.id, SYSTEM_ISSUE)
@@ -60,11 +67,22 @@ class BulkUserJobItemRoleAssignmentService(
     }
   }
 
-  private fun claimForAssignment(jobItemId: UUID): Boolean = bulkUserJobItemRepository.updateStatusIfCurrent(
-    jobItemId = jobItemId,
-    currentStatus = BulkUserJobItemStatus.PUBLISHED,
-    newStatus = BulkUserJobItemStatus.STARTED,
-  ) == 1
+  private fun claimForAssignment(item: BulkUserJobItem): Boolean {
+    // This might be a recovery so if the item was already started then no need to set the status as started,
+    // otherwise claim by changing from published to started.
+    val alreadyStarted = item.status == BulkUserJobItemStatus.STARTED
+    if (!alreadyStarted) {
+      val claimedFromPublished = bulkUserJobItemRepository.updateStatusIfCurrent(
+        jobItemId = item.id,
+        currentStatus = BulkUserJobItemStatus.PUBLISHED,
+        newStatus = BulkUserJobItemStatus.STARTED,
+      ) == 1
+      if (claimedFromPublished) {
+        return true
+      }
+    }
+    return alreadyStarted
+  }
 
   private fun markSuccess(jobItemId: UUID) {
     val updatedRows = bulkUserJobItemRepository.updateStatusAndResultIfCurrent(

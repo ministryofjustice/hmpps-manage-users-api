@@ -38,6 +38,7 @@ class BulkUserJobItemService(
   }
 
   fun republishStaleClaimedItem(job: BulkUserJob, item: BulkUserJobItem) {
+    val originalClaimedAt = item.claimedAt ?: Instant.EPOCH
     val refreshed = bulkUserJobItemRepository.updateStatusIfCurrent(
       jobItemId = item.id,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
@@ -49,7 +50,17 @@ class BulkUserJobItemService(
       return
     }
 
-    bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
+    try {
+      bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
+    } catch (e: Exception) {
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        jobItemId = item.id,
+        currentStatus = BulkUserJobItemStatus.CLAIMED,
+        newStatus = BulkUserJobItemStatus.CLAIMED,
+        claimedAt = originalClaimedAt,
+      )
+      throw e
+    }
 
     val published = bulkUserJobItemRepository.updateStatusIfCurrent(
       jobItemId = item.id,

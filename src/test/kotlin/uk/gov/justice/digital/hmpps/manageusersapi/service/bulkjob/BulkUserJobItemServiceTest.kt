@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRep
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
+import java.time.Instant
 import java.util.UUID
 
 class BulkUserJobItemServiceTest {
@@ -164,9 +165,11 @@ class BulkUserJobItemServiceTest {
   }
 
   @Test
-  fun `leaves stale item claimed when republish send fails`() {
+  fun `leaves stale item claimed and restores original claimedAt when republish send fails`() {
     val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
+    val originalClaimedAt = Instant.now().minusSeconds(7200)
     val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CLAIMED, bulkUserJob = job)
+    item.claimedAt = originalClaimedAt
     whenever(
       bulkUserJobItemRepository.updateStatusIfCurrent(
         eq(item.id),
@@ -181,6 +184,12 @@ class BulkUserJobItemServiceTest {
       .isInstanceOf(RuntimeException::class.java)
       .hasMessage("send failed")
 
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(
+      eq(item.id),
+      eq(BulkUserJobItemStatus.CLAIMED),
+      eq(BulkUserJobItemStatus.CLAIMED),
+      eq(originalClaimedAt),
+    )
     verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
   }
 }
