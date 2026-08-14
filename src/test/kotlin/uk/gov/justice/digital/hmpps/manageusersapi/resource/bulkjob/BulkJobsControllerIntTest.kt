@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.awaitility.kotlin.await
@@ -128,7 +127,6 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .expectBody().jsonPath("$.userMessage").isEqualTo(expectedMessage)
     }
 
-    @Transactional
     @Test
     open fun `bulk user additions job accepted`() {
       listOf("USER123", "USER654").forEach { username ->
@@ -153,7 +151,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         }
       }
 
-      val bulkJob = bulkUserJobRepository.findById(response!!.id)
+      val bulkJob = bulkUserJobRepository.findWithJobItemsById(response!!.id)
       assertThat(bulkJob).isPresent.hasValueSatisfying {
         assertThat(it.jiraReference).isEqualTo("JIRA-1234")
         assertThat(it.requestedBy).isEqualTo("TEST_USR")
