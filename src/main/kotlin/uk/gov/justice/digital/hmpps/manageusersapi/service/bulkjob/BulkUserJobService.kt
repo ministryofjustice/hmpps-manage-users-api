@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRepository
@@ -39,8 +41,23 @@ class BulkUserJobService(
   ): UUID {
     val users = parseFileForUsers(usersCsv)
     val bulkJob = createAndPersistJob(bulkJobDetails, requestedBy, users)
-    bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
+    publishAfterCommit(bulkJob)
     return bulkJob.id
+  }
+
+  private fun publishAfterCommit(bulkJob: BulkUserJob) {
+    // Ensure publish only happens if the job has been persisted so we do not try to process before that has happened
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+        object : TransactionSynchronization {
+          override fun afterCommit() {
+            bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
+          }
+        },
+      )
+    } else {
+      bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
+    }
   }
 
   fun getBulkUserRoleAdditionsJobs(search: String, pageNumber: Int?, pageSize: Int?): List<BulkUserJob> {

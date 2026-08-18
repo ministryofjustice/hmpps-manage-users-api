@@ -96,4 +96,68 @@ class BulkUserJobReconciliationServiceTest {
 
     verify(bulkUserJobRepository).markCompleteIfAllItemsTerminal(job.id)
   }
+
+  @Test
+  fun `processes unprocessed created items for stale jobs then attempts completion`() {
+    val job = BulkUserJob(jiraReference = "JIRA-1", requestedBy = "userabc")
+    val createdItem = BulkUserJobItem(
+      username = "USER111",
+      rolename = "ROLE_NEW",
+      status = BulkUserJobItemStatus.CREATED,
+      bulkUserJob = job,
+    )
+    whenever(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndClaimedAtBefore(
+        eq(job.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
+      ),
+    ).thenReturn(emptyList())
+    whenever(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+        eq(job.id),
+        eq(BulkUserJobItemStatus.CREATED),
+        any(),
+      ),
+    ).thenReturn(listOf(createdItem))
+    whenever(bulkUserJobRepository.findWithJobItemsById(job.id)).thenReturn(Optional.of(job))
+    whenever(bulkUserJobRepository.markCompleteIfAllItemsTerminal(job.id)).thenReturn(0)
+
+    service.reconcileBulkJob(job.id)
+
+    verify(bulkUserJobItemService).processJobItem(job, createdItem)
+    verify(bulkUserJobRepository).markCompleteIfAllItemsTerminal(job.id)
+  }
+
+  @Test
+  fun `continues reconciliation when a created item republish fails`() {
+    val job = BulkUserJob(jiraReference = "JIRA-1", requestedBy = "userabc")
+    val createdItem = BulkUserJobItem(
+      username = "USER111",
+      rolename = "ROLE_NEW",
+      status = BulkUserJobItemStatus.CREATED,
+      bulkUserJob = job,
+    )
+    whenever(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndClaimedAtBefore(
+        eq(job.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        any(),
+      ),
+    ).thenReturn(emptyList())
+    whenever(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+        eq(job.id),
+        eq(BulkUserJobItemStatus.CREATED),
+        any(),
+      ),
+    ).thenReturn(listOf(createdItem))
+    whenever(bulkUserJobRepository.findWithJobItemsById(job.id)).thenReturn(Optional.of(job))
+    whenever(bulkUserJobItemService.processJobItem(job, createdItem)).thenThrow(RuntimeException("publish failed"))
+    whenever(bulkUserJobRepository.markCompleteIfAllItemsTerminal(job.id)).thenReturn(0)
+
+    service.reconcileBulkJob(job.id)
+
+    verify(bulkUserJobRepository).markCompleteIfAllItemsTerminal(job.id)
+  }
 }

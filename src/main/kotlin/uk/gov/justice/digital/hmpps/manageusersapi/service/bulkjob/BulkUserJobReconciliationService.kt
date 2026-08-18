@@ -8,6 +8,8 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobReposit
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.UUID
 
 @Service
@@ -23,6 +25,7 @@ class BulkUserJobReconciliationService(
 
   fun reconcileBulkJob(jobId: UUID) {
     republishStaleClaimedItems(jobId)
+    republishUnprocessedCreatedItems(jobId)
     val updatedRows = bulkUserJobRepository.markCompleteIfAllItemsTerminal(jobId)
     if (updatedRows == 1) {
       log.info("Marked bulk user job {} as COMPLETE", jobId)
@@ -49,6 +52,32 @@ class BulkUserJobReconciliationService(
         log.error(
           "Failed to re-publish stale claimed bulk user job item {}; it remains CLAIMED and will be retried",
           staleItem.id,
+          e,
+        )
+      }
+    }
+  }
+
+  private fun republishUnprocessedCreatedItems(jobId: UUID) {
+    val staleCreatedCutoff = LocalDateTime.now(ZoneId.systemDefault()).minus(staleClaimedThreshold)
+    val createdItems = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+      jobId = jobId,
+      status = BulkUserJobItemStatus.CREATED,
+      requestedBefore = staleCreatedCutoff,
+    )
+    if (createdItems.isEmpty()) return
+
+    val job = bulkUserJobRepository.findWithJobItemsById(jobId)
+      .orElseThrow { IllegalStateException("Bulk user job $jobId not found when processing unprocessed created items") }
+
+    createdItems.forEach { createdItem ->
+      try {
+        log.warn("Processing unpublished (CREATED) bulk user job item {} for job {}", createdItem.id, jobId)
+        bulkUserJobItemService.processJobItem(job, createdItem)
+      } catch (e: Exception) {
+        log.error(
+          "Failed to process unpublished bulk user job item {}; it remains CREATED and will be retried",
+          createdItem.id,
           e,
         )
       }
