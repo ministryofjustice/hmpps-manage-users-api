@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
@@ -26,6 +27,17 @@ class BulkUserJobReconciliationServiceTest {
     bulkUserJobItemService,
     Duration.ofHours(1),
   )
+
+  @BeforeEach
+  fun defaultStubs() {
+    whenever(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+        any(),
+        any(),
+        any(),
+      ),
+    ).thenReturn(emptyList())
+  }
 
   @Test
   fun `marks job complete when no stale claimed items`() {
