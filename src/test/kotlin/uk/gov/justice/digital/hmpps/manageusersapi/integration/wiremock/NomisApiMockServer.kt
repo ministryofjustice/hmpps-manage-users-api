@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
@@ -914,6 +915,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
   fun stubPostUserRoles(username: String, body: String) {
     stubFor(
       post("/users/$username/roles?caseloadId=NWEB")
+        .withHeader("Authorization", matching("Bearer .+"))
         .withRequestBody(containing(body))
         .willReturn(
           aResponse()
