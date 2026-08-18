@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 
 import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
@@ -172,10 +173,12 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
       listOf("USER123", "USER654").forEach { username ->
         nomisApiMockServer.verify(
           postRequestedFor(urlEqualTo("/users/$username/roles?caseloadId=NWEB"))
+            .withHeader("Authorization", matching("Bearer .+"))
             .withRequestBody(containing("ROLE_ONE")),
         )
         nomisApiMockServer.verify(
           postRequestedFor(urlEqualTo("/users/$username/roles?caseloadId=NWEB"))
+            .withHeader("Authorization", matching("Bearer .+"))
             .withRequestBody(containing("ROLE_FOUR")),
         )
       }
