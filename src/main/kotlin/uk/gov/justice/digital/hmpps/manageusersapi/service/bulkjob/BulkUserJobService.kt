@@ -3,12 +3,15 @@ package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 import jakarta.validation.ValidationException
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVRecord
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRepository
@@ -29,6 +32,7 @@ class BulkUserJobService(
 ) {
   companion object {
     private const val USER_ID_HEADER = "userId"
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 
   @Transactional
@@ -39,8 +43,29 @@ class BulkUserJobService(
   ): UUID {
     val users = parseFileForUsers(usersCsv)
     val bulkJob = createAndPersistJob(bulkJobDetails, requestedBy, users)
-    bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
+    publishAfterCommit(bulkJob)
     return bulkJob.id
+  }
+
+  private fun publishAfterCommit(bulkJob: BulkUserJob) {
+    // Ensure publish only happens if the job has been persisted so we do not try to process before that has happened
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+        object : TransactionSynchronization {
+          override fun afterCommit() {
+            try {
+              bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
+            } catch (e: Exception) {
+              // The job and its items are already persisted at this point, so do not expose this error to the caller
+              // so they still receives the job id - the scheduled reconciler will republish the unprocessed CREATED items.
+              log.error("Failed to publish bulk user job event for job {} after commit - leaving for reconciliation", bulkJob.id, e)
+            }
+          }
+        },
+      )
+    } else {
+      bulkJobPublisher.publishBulkUserJobEvent(bulkJob)
+    }
   }
 
   fun getBulkUserRoleAdditionsJobs(search: String, pageNumber: Int?, pageSize: Int?): List<BulkUserJob> {

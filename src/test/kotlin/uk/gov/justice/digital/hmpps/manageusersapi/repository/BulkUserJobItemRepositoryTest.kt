@@ -262,6 +262,90 @@ class BulkUserJobItemRepositoryTest(
     }
   }
 
+  @Nested
+  inner class FindByBulkUserJobIdAndStatusAndJobRequestedBefore {
+    private val cutoff: LocalDateTime = LocalDateTime.parse("2026-08-11T10:00:00")
+
+    @Test
+    fun `returns created items for jobs requested before the cutoff`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("44444444-4444-4444-4444-444444444444"),
+        status = PENDING,
+        jiraReference = "ABC-123",
+        requestedBy = "Test",
+        requestDateTime = cutoff.minusMinutes(1),
+      )
+      val createdItem = createJobItemWithStatus(job, 1, CREATED)
+      job.jobItems.add(createdItem)
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(job.id, CREATED, cutoff)
+
+      assertThat(actual).containsExactly(createdItem)
+    }
+
+    @Test
+    fun `excludes items for jobs requested at or after the cutoff`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("55555555-5555-5555-5555-555555555555"),
+        status = PENDING,
+        jiraReference = "ABC-123",
+        requestedBy = "Test",
+        requestDateTime = cutoff,
+      )
+      job.jobItems.add(createJobItemWithStatus(job, 1, CREATED))
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(job.id, CREATED, cutoff)
+
+      assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun `excludes items with a different status`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("66666666-6666-6666-6666-666666666666"),
+        status = PENDING,
+        jiraReference = "ABC-123",
+        requestedBy = "Test",
+        requestDateTime = cutoff.minusMinutes(1),
+      )
+      job.jobItems.add(createJobItemWithStatus(job, 1, PUBLISHED))
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(job.id, CREATED, cutoff)
+
+      assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun `excludes created items belonging to a different job`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("77777777-7777-7777-7777-777777777777"),
+        status = PENDING,
+        jiraReference = "ABC-123",
+        requestedBy = "Test",
+        requestDateTime = cutoff.minusMinutes(1),
+      )
+      val otherJob = BulkUserJob(
+        id = UUID.fromString("88888888-8888-8888-8888-888888888888"),
+        status = PENDING,
+        jiraReference = "DEF-456",
+        requestedBy = "Test",
+        requestDateTime = cutoff.minusMinutes(1),
+      )
+      job.jobItems.add(createJobItemWithStatus(job, 1, CREATED))
+      otherJob.jobItems.add(createJobItemWithStatus(otherJob, 2, CREATED))
+      bulkUserJobRepository.saveAndFlush(job)
+      bulkUserJobRepository.saveAndFlush(otherJob)
+
+      val actual = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(job.id, CREATED, cutoff)
+
+      assertThat(actual).hasSize(1)
+      assertThat(actual.first().bulkUserJob.id).isEqualTo(job.id)
+    }
+  }
+
   private fun createBulkUserJobWithStatus(status: BulkUserJobStatus) = BulkUserJob(
     id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
     status = status,

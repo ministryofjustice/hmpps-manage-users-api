@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.UUID
 import java.util.stream.Stream
 
@@ -17,6 +18,20 @@ interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
 
   fun streamByBulkUserJobId(jobId: UUID): Stream<BulkUserJobItem>
   fun findByBulkUserJobIdAndStatusAndClaimedAtBefore(jobId: UUID, status: BulkUserJobItemStatus, claimedAt: Instant): List<BulkUserJobItem>
+
+  @Query(
+    """
+      SELECT i FROM BulkUserJobItem i
+      WHERE i.bulkUserJob.id = :jobId
+        AND i.status = :status
+        AND i.bulkUserJob.requestDateTime < :requestedBefore
+    """,
+  )
+  fun findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+    @Param("jobId") jobId: UUID,
+    @Param("status") status: BulkUserJobItemStatus,
+    @Param("requestedBefore") requestedBefore: LocalDateTime,
+  ): List<BulkUserJobItem>
 
   @Transactional
   @Modifying(clearAutomatically = true, flushAutomatically = true)
