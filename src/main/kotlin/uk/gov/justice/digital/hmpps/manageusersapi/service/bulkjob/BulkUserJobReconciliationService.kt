@@ -26,6 +26,7 @@ class BulkUserJobReconciliationService(
   fun reconcileBulkJob(jobId: UUID) {
     republishStaleClaimedItems(jobId)
     republishUnprocessedCreatedItems(jobId)
+    republishUnprocessedPublishedItems(jobId)
     val updatedRows = bulkUserJobRepository.markCompleteIfAllItemsTerminal(jobId)
     if (updatedRows == 1) {
       log.info("Marked bulk user job {} as COMPLETE", jobId)
@@ -78,6 +79,32 @@ class BulkUserJobReconciliationService(
         log.error(
           "Failed to process unpublished bulk user job item {}; it remains CREATED and will be retried",
           createdItem.id,
+          e,
+        )
+      }
+    }
+  }
+
+  private fun republishUnprocessedPublishedItems(jobId: UUID) {
+    val stalePublishedCutoff = Instant.now().minus(staleClaimedThreshold)
+    val publishedItems = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndClaimedAtBefore(
+      jobId = jobId,
+      status = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = stalePublishedCutoff,
+    )
+    if (publishedItems.isEmpty()) return
+
+    val job = bulkUserJobRepository.findWithJobItemsById(jobId)
+      .orElseThrow { IllegalStateException("Bulk user job $jobId not found when re-publishing stale published items") }
+
+    publishedItems.forEach { publishedItem ->
+      try {
+        log.warn("Re-publishing unprocessed (PUBLISHED) bulk user job item {} for job {}", publishedItem.id, jobId)
+        bulkUserJobItemService.republishPublishedItem(job, publishedItem)
+      } catch (e: Exception) {
+        log.error(
+          "Failed to re-publish unprocessed bulk user job item {}; it remains PUBLISHED and will be retried",
+          publishedItem.id,
           e,
         )
       }

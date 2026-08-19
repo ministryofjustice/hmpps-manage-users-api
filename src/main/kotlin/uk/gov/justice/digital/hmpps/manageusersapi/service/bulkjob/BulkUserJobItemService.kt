@@ -27,14 +27,25 @@ class BulkUserJobItemService(
     }
     item.claimedAt = claimedAt
 
-    try {
-      bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
-    } catch (e: Exception) {
-      releaseClaim(item.id)
-      throw e
+    // Mark the item PUBLISHED before publishing the message so when it is picked up the item is already in a state
+    // that can be claimed. If the publish itself fails then the scheduled reconciler will re-publish it.
+    markPublished(item.id)
+    bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
+  }
+
+  fun republishPublishedItem(job: BulkUserJob, item: BulkUserJobItem) {
+    val stillPublished = bulkUserJobItemRepository.updateStatusIfCurrent(
+      jobItemId = item.id,
+      currentStatus = BulkUserJobItemStatus.PUBLISHED,
+      newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = Instant.now(),
+    ) == 1
+    if (!stillPublished) {
+      log.info("Skipping re-publish of bulk user job item {} because it is no longer PUBLISHED", item.id)
+      return
     }
 
-    markPublished(item.id)
+    bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
   }
 
   fun republishStaleClaimedItem(job: BulkUserJob, item: BulkUserJobItem) {
@@ -66,6 +77,7 @@ class BulkUserJobItemService(
       jobItemId = item.id,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = Instant.now(),
     ) == 1
     if (!published) {
       log.warn("Re-published stale bulk user job item {} but could not mark it PUBLISHED as its status changed concurrently", item.id)
@@ -83,19 +95,12 @@ class BulkUserJobItemService(
     return if (updatedRows == 1) claimedAt else null
   }
 
-  private fun releaseClaim(jobItemId: UUID) {
-    bulkUserJobItemRepository.updateStatusIfCurrent(
-      jobItemId = jobItemId,
-      currentStatus = BulkUserJobItemStatus.CLAIMED,
-      newStatus = BulkUserJobItemStatus.CREATED,
-    )
-  }
-
   private fun markPublished(jobItemId: UUID) {
     val updatedRows = bulkUserJobItemRepository.updateStatusIfCurrent(
       jobItemId = jobItemId,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = Instant.now(),
     )
     check(updatedRows == 1) { "Bulk user job item $jobItemId could not be marked as PUBLISHED from CLAIMED" }
   }
