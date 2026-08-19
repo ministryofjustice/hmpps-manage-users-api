@@ -27,14 +27,24 @@ class BulkUserJobItemService(
     }
     item.claimedAt = claimedAt
 
-    try {
-      bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
-    } catch (e: Exception) {
-      releaseClaim(item.id)
-      throw e
+    // Mark the item PUBLISHED before publishing the message so when it is picked up the item is already in a state
+    // that can be claimed. If the publish itself fails then the scheduled reconciler will re-publish it.
+    markPublished(item.id)
+    bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
+  }
+
+  fun republishPublishedItem(job: BulkUserJob, item: BulkUserJobItem) {
+    val stillPublished = bulkUserJobItemRepository.updateStatusIfCurrent(
+      jobItemId = item.id,
+      currentStatus = BulkUserJobItemStatus.PUBLISHED,
+      newStatus = BulkUserJobItemStatus.PUBLISHED,
+    ) == 1
+    if (!stillPublished) {
+      log.info("Skipping re-publish of bulk user job item {} because it is no longer PUBLISHED", item.id)
+      return
     }
 
-    markPublished(item.id)
+    bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)
   }
 
   fun republishStaleClaimedItem(job: BulkUserJob, item: BulkUserJobItem) {
@@ -81,14 +91,6 @@ class BulkUserJobItemService(
       claimedAt = claimedAt,
     )
     return if (updatedRows == 1) claimedAt else null
-  }
-
-  private fun releaseClaim(jobItemId: UUID) {
-    bulkUserJobItemRepository.updateStatusIfCurrent(
-      jobItemId = jobItemId,
-      currentStatus = BulkUserJobItemStatus.CLAIMED,
-      newStatus = BulkUserJobItemStatus.CREATED,
-    )
   }
 
   private fun markPublished(jobItemId: UUID) {

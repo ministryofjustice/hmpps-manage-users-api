@@ -72,7 +72,7 @@ class BulkUserJobItemServiceTest {
   }
 
   @Test
-  fun `releases claim when publish fails`() {
+  fun `leaves item published when publish fails so reconciliation can recover it`() {
     val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
     val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CREATED, bulkUserJob = job)
     whenever(
@@ -83,13 +83,22 @@ class BulkUserJobItemServiceTest {
         any(),
       ),
     ).thenReturn(1)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.CLAIMED),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        isNull(),
+      ),
+    ).thenReturn(1)
     whenever(bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)).thenThrow(RuntimeException("send failed"))
 
     assertThatThrownBy { service.processJobItem(job, item) }
       .isInstanceOf(RuntimeException::class.java)
       .hasMessage("send failed")
 
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.CREATED), isNull())
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.CREATED), any())
   }
 
   @Test
@@ -116,6 +125,42 @@ class BulkUserJobItemServiceTest {
     assertThatThrownBy { service.processJobItem(job, item) }
       .isInstanceOf(IllegalStateException::class.java)
       .hasMessage("Bulk user job item ${item.id} could not be marked as PUBLISHED from CLAIMED")
+  }
+
+  @Test
+  fun `re-publishes item that is still published`() {
+    val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
+    val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.PUBLISHED, bulkUserJob = job)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        isNull(),
+      ),
+    ).thenReturn(1)
+
+    service.republishPublishedItem(job, item)
+
+    verify(bulkUserJobItemPublisher).publishBulkUserJobItemEvent(job, item)
+  }
+
+  @Test
+  fun `skips re-publish when item is no longer published`() {
+    val job = BulkUserJob(jiraReference = "JIRA-123", requestedBy = "userabc")
+    val item = BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.STARTED, bulkUserJob = job)
+    whenever(
+      bulkUserJobItemRepository.updateStatusIfCurrent(
+        eq(item.id),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        eq(BulkUserJobItemStatus.PUBLISHED),
+        isNull(),
+      ),
+    ).thenReturn(0)
+
+    service.republishPublishedItem(job, item)
+
+    verify(bulkUserJobItemPublisher, never()).publishBulkUserJobItemEvent(any(), any())
   }
 
   @Test
