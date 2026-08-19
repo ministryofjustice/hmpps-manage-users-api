@@ -190,7 +190,7 @@ class BulkUserJobReconciliationServiceTest {
       ),
     ).thenReturn(emptyList())
     whenever(
-      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndClaimedAtBefore(
         eq(job.id),
         eq(BulkUserJobItemStatus.PUBLISHED),
         any(),
@@ -222,7 +222,7 @@ class BulkUserJobReconciliationServiceTest {
       ),
     ).thenReturn(emptyList())
     whenever(
-      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+      bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndClaimedAtBefore(
         eq(job.id),
         eq(BulkUserJobItemStatus.PUBLISHED),
         any(),

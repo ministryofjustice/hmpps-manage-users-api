@@ -86,11 +86,11 @@ class BulkUserJobReconciliationService(
   }
 
   private fun republishUnprocessedPublishedItems(jobId: UUID) {
-    val stalePublishedCutoff = LocalDateTime.now(ZoneId.systemDefault()).minus(staleClaimedThreshold)
-    val publishedItems = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+    val stalePublishedCutoff = Instant.now().minus(staleClaimedThreshold)
+    val publishedItems = bulkUserJobItemRepository.findByBulkUserJobIdAndStatusAndClaimedAtBefore(
       jobId = jobId,
       status = BulkUserJobItemStatus.PUBLISHED,
-      requestedBefore = stalePublishedCutoff,
+      claimedAt = stalePublishedCutoff,
     )
     if (publishedItems.isEmpty()) return
 

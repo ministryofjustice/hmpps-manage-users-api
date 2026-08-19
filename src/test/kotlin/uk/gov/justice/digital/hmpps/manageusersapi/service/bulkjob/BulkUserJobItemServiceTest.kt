@@ -5,7 +5,6 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -40,7 +39,7 @@ class BulkUserJobItemServiceTest {
         eq(item.id),
         eq(BulkUserJobItemStatus.CLAIMED),
         eq(BulkUserJobItemStatus.PUBLISHED),
-        isNull(),
+        any(),
       ),
     ).thenReturn(1)
 
@@ -48,7 +47,7 @@ class BulkUserJobItemServiceTest {
 
     verify(bulkUserJobItemPublisher).publishBulkUserJobItemEvent(job, item)
     verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CREATED), eq(BulkUserJobItemStatus.CLAIMED), any())
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), any())
     assertThat(item.claimedAt).isNotNull
   }
 
@@ -88,7 +87,7 @@ class BulkUserJobItemServiceTest {
         eq(item.id),
         eq(BulkUserJobItemStatus.CLAIMED),
         eq(BulkUserJobItemStatus.PUBLISHED),
-        isNull(),
+        any(),
       ),
     ).thenReturn(1)
     whenever(bulkUserJobItemPublisher.publishBulkUserJobItemEvent(job, item)).thenThrow(RuntimeException("send failed"))
@@ -97,7 +96,7 @@ class BulkUserJobItemServiceTest {
       .isInstanceOf(RuntimeException::class.java)
       .hasMessage("send failed")
 
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), any())
     verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.CREATED), any())
   }
 
@@ -118,7 +117,7 @@ class BulkUserJobItemServiceTest {
         eq(item.id),
         eq(BulkUserJobItemStatus.CLAIMED),
         eq(BulkUserJobItemStatus.PUBLISHED),
-        isNull(),
+        any(),
       ),
     ).thenReturn(0)
 
@@ -136,7 +135,7 @@ class BulkUserJobItemServiceTest {
         eq(item.id),
         eq(BulkUserJobItemStatus.PUBLISHED),
         eq(BulkUserJobItemStatus.PUBLISHED),
-        isNull(),
+        any(),
       ),
     ).thenReturn(1)
 
@@ -154,7 +153,7 @@ class BulkUserJobItemServiceTest {
         eq(item.id),
         eq(BulkUserJobItemStatus.PUBLISHED),
         eq(BulkUserJobItemStatus.PUBLISHED),
-        isNull(),
+        any(),
       ),
     ).thenReturn(0)
 
@@ -180,14 +179,14 @@ class BulkUserJobItemServiceTest {
         eq(item.id),
         eq(BulkUserJobItemStatus.CLAIMED),
         eq(BulkUserJobItemStatus.PUBLISHED),
-        isNull(),
+        any(),
       ),
     ).thenReturn(1)
 
     service.republishStaleClaimedItem(job, item)
 
     verify(bulkUserJobItemPublisher).publishBulkUserJobItemEvent(job, item)
-    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    verify(bulkUserJobItemRepository).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), any())
   }
 
   @Test
@@ -206,7 +205,7 @@ class BulkUserJobItemServiceTest {
     service.republishStaleClaimedItem(job, item)
 
     verify(bulkUserJobItemPublisher, never()).publishBulkUserJobItemEvent(any(), any())
-    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), any())
   }
 
   @Test
@@ -235,6 +234,6 @@ class BulkUserJobItemServiceTest {
       eq(BulkUserJobItemStatus.CLAIMED),
       eq(originalClaimedAt),
     )
-    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), isNull())
+    verify(bulkUserJobItemRepository, never()).updateStatusIfCurrent(eq(item.id), eq(BulkUserJobItemStatus.CLAIMED), eq(BulkUserJobItemStatus.PUBLISHED), any())
   }
 }

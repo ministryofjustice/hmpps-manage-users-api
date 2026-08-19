@@ -38,6 +38,7 @@ class BulkUserJobItemService(
       jobItemId = item.id,
       currentStatus = BulkUserJobItemStatus.PUBLISHED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = Instant.now(),
     ) == 1
     if (!stillPublished) {
       log.info("Skipping re-publish of bulk user job item {} because it is no longer PUBLISHED", item.id)
@@ -76,6 +77,7 @@ class BulkUserJobItemService(
       jobItemId = item.id,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = Instant.now(),
     ) == 1
     if (!published) {
       log.warn("Re-published stale bulk user job item {} but could not mark it PUBLISHED as its status changed concurrently", item.id)
@@ -98,6 +100,7 @@ class BulkUserJobItemService(
       jobItemId = jobItemId,
       currentStatus = BulkUserJobItemStatus.CLAIMED,
       newStatus = BulkUserJobItemStatus.PUBLISHED,
+      claimedAt = Instant.now(),
     )
     check(updatedRows == 1) { "Bulk user job item $jobItemId could not be marked as PUBLISHED from CLAIMED" }
   }
