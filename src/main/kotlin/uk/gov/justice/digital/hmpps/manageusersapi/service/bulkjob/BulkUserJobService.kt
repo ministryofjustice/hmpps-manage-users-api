@@ -49,6 +49,7 @@ class BulkUserJobService(
   ): UUID {
     val users = parseFileForUsers(usersCsv)
     val bulkJob = createAndPersistJob(bulkJobDetails, requestedBy, users)
+    warnIfLargeBatchAfterCommit(bulkJob)
     publishAfterCommit(bulkJob)
     return bulkJob.id
   }
@@ -120,13 +121,14 @@ class BulkUserJobService(
       }
     }
     bulkUserJobRepository.save(bulkJob)
-    warnIfLargeBatch(bulkJob)
     return bulkJob
   }
 
-  private fun warnIfLargeBatch(bulkJob: BulkUserJob) {
+  private fun warnIfLargeBatchAfterCommit(bulkJob: BulkUserJob) {
     val itemCount = bulkJob.jobItems.size
-    if (itemCount > largeBatchWarningThreshold) {
+    if (itemCount <= largeBatchWarningThreshold) return
+
+    val emitWarning = {
       telemetryClient.trackEvent(
         LARGE_BATCH_EVENT,
         mapOf(
@@ -142,6 +144,18 @@ class BulkUserJobService(
         itemCount,
         largeBatchWarningThreshold,
       )
+    }
+
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+        object : TransactionSynchronization {
+          override fun afterCommit() {
+            emitWarning()
+          }
+        },
+      )
+    } else {
+      emitWarning()
     }
   }
 
