@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.validation.ValidationException
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVRecord
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -30,9 +32,12 @@ class BulkUserJobService(
   private val bulkUserJobRepository: BulkUserJobRepository,
   private val bulkUserJobItemRepository: BulkUserJobItemRepository,
   private val bulkJobPublisher: BulkJobPublisher,
+  private val telemetryClient: TelemetryClient,
+  @param:Value("\${application.bulk-jobs.throttling.large-batch-warning-threshold}") private val largeBatchWarningThreshold: Int,
 ) {
   companion object {
     private const val USER_ID_HEADER = "userId"
+    private const val LARGE_BATCH_EVENT = "BulkRoleAssignmentLargeBatch"
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
@@ -115,7 +120,29 @@ class BulkUserJobService(
       }
     }
     bulkUserJobRepository.save(bulkJob)
+    warnIfLargeBatch(bulkJob)
     return bulkJob
+  }
+
+  private fun warnIfLargeBatch(bulkJob: BulkUserJob) {
+    val itemCount = bulkJob.jobItems.size
+    if (itemCount > largeBatchWarningThreshold) {
+      telemetryClient.trackEvent(
+        LARGE_BATCH_EVENT,
+        mapOf(
+          "bulkJobId" to bulkJob.id.toString(),
+          "itemCount" to itemCount.toString(),
+          "warningThreshold" to largeBatchWarningThreshold.toString(),
+        ),
+        null,
+      )
+      log.warn(
+        "Large bulk user job {} accepted with {} role assignments (warning threshold {})",
+        bulkJob.id,
+        itemCount,
+        largeBatchWarningThreshold,
+      )
+    }
   }
 
   private fun parseFileForUsers(userCsv: MultipartFile): List<String> {

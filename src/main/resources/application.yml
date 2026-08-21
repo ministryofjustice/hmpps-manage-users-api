@@ -114,6 +114,15 @@ application:
   bulk-jobs:
     stale-claimed-threshold: PT1H
     reconciliation-interval: PT5M
+    throttling:
+      # Maximum sustained rate of API calls as part of the bulk job processing
+      api-permits-per-second: 5
+      # Maximum number of bulk job item messages processed concurrently
+      max-concurrent-messages: 3
+      # Must be <= max-concurrent-messages
+      max-messages-per-poll: 3
+      # Any jobs larger than this will log a warning for visibility but otherwise get processed as normal
+      large-batch-warning-threshold: 5000
 
 authorization-server:
   token:
