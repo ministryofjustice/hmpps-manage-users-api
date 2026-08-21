@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.validation.ValidationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.within
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -13,10 +15,14 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.atLeast
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.firstValue
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -26,6 +32,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobRepository
@@ -49,10 +56,29 @@ class BulkUserJobServiceTest {
   private val bulkUserJobRepository: BulkUserJobRepository = mock()
   private val bulkUserJobItemRepository: BulkUserJobItemRepository = mock()
   private val bulkJobPublisher: BulkJobPublisher = mock()
+  private val telemetryClient: TelemetryClient = mock()
   private val bulkUserJobCaptor = argumentCaptor<BulkUserJob>()
-  private val bulkUserJobService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher)
+  private val bulkUserJobService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, telemetryClient, 5000)
   private var jiraReference: String = "JIRA-123"
   private var roles: List<String> = listOf("ROLE_ONE", "ROLE_TWO")
+
+  @AfterEach
+  fun cleanUpTransactionSynchronization() {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.clearSynchronization()
+    }
+  }
+
+  private fun triggerAfterCommit() {
+    TransactionSynchronizationManager.getSynchronizations().forEach { it.afterCommit() }
+  }
+
+  @Test
+  fun `throws when large-batch-warning-threshold is not positive`() {
+    assertThrows<IllegalArgumentException> {
+      BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, telemetryClient, 0)
+    }
+  }
 
   @Nested
   inner class CreateBulkUserRoleAdditionsJob {
@@ -127,6 +153,67 @@ class BulkUserJobServiceTest {
       assertThatThrownBy { whenCreateBulkUserRoleAdditionsJobWithCsvContent(csvContent.toByteArray()) }
         .isInstanceOf(ValidationException::class.java)
         .hasMessage("Users csv row does not have exactly 1 column")
+    }
+
+    @Test
+    fun `Bulk user role additions job tracks a telemetry event when the batch exceeds the warning threshold`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val lowThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 3)
+
+      lowThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job does not track a telemetry event when the batch is within the warning threshold`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val highThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 5000)
+
+      highThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient, never()).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job defers large-batch telemetry to afterCommit when inside a transaction`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val lowThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 3)
+
+      TransactionSynchronizationManager.initSynchronization()
+
+      lowThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient, never()).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+
+      triggerAfterCommit()
+
+      verify(warningTelemetryClient).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job defers SQS publish to afterCommit when inside a transaction`() {
+      TransactionSynchronizationManager.initSynchronization()
+
+      whenCreateBulkUserRoleAdditionsJobWithCsvContent("USER123\nUSER456".toByteArray())
+
+      verify(bulkJobPublisher, never()).publishBulkUserJobEvent(any())
+
+      triggerAfterCommit()
+
+      verify(bulkJobPublisher).publishBulkUserJobEvent(any())
     }
 
     private fun whenCreateBulkUserRoleAdditionsJobWithCsvContent(contentBytes: ByteArray): UUID = bulkUserJobService

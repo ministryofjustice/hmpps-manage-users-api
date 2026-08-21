@@ -1,7 +1,9 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.google.common.util.concurrent.RateLimiter
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -22,10 +24,12 @@ class BulkUserJobItemRoleAssignmentServiceTest {
   private val bulkUserJobItemRepository: BulkUserJobItemRepository = mock()
   private val userRolesService: UserRolesService = mock()
   private val bulkUserJobReconciliationService: BulkUserJobReconciliationService = mock()
+  private val rolesApiRateLimiter: RateLimiter = mock()
   private val service = BulkUserJobItemRoleAssignmentService(
     bulkUserJobItemRepository,
     userRolesService,
     bulkUserJobReconciliationService,
+    rolesApiRateLimiter,
   )
 
   @Test
@@ -48,6 +52,28 @@ class BulkUserJobItemRoleAssignmentServiceTest {
     verify(userRolesService).addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")
     verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(item.id, BulkUserJobItemStatus.STARTED, BulkUserJobItemStatus.SUCCESS, null, null)
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+  }
+
+  @Test
+  fun `acquires a rate limiter permit before calling the roles api`() {
+    val (message, item) = createMessageAndItem()
+    stubClaimAndLoad(item)
+    whenever(userRolesService.addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")).thenReturn(createUserRoleDetail(item.username))
+    whenever(
+      bulkUserJobItemRepository.updateStatusAndResultIfCurrent(
+        item.id,
+        BulkUserJobItemStatus.STARTED,
+        BulkUserJobItemStatus.SUCCESS,
+        null,
+        null,
+      ),
+    ).thenReturn(1)
+
+    service.processRoleAssignmentMessage(message)
+
+    val ordered = inOrder(rolesApiRateLimiter, userRolesService)
+    ordered.verify(rolesApiRateLimiter).acquire()
+    ordered.verify(userRolesService).addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")
   }
 
   @Test

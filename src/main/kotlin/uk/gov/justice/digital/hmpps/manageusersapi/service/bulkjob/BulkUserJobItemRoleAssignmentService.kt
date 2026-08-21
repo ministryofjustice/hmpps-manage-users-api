@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.google.common.util.concurrent.RateLimiter
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -16,6 +17,7 @@ class BulkUserJobItemRoleAssignmentService(
   private val bulkUserJobItemRepository: BulkUserJobItemRepository,
   private val userRolesService: UserRolesService,
   private val bulkUserJobReconciliationService: BulkUserJobReconciliationService,
+  private val rolesApiRateLimiter: RateLimiter,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -48,6 +50,8 @@ class BulkUserJobItemRoleAssignmentService(
     val username = item.username.uppercase()
     val roleCode = item.rolename.uppercase()
 
+    throttleRolesApi(item.id)
+
     try {
       userRolesService.addRolesToUserAsSystem(username, listOf(roleCode), DPS_CASELOAD)
       markSuccess(item.id)
@@ -64,6 +68,13 @@ class BulkUserJobItemRoleAssignmentService(
       markError(item.id, SYSTEM_ISSUE)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
       log.error("Role assignment failed for bulk user job item {}", item.id, e)
+    }
+  }
+
+  private fun throttleRolesApi(jobItemId: UUID) {
+    val waitedSeconds = rolesApiRateLimiter.acquire()
+    if (waitedSeconds > 0) {
+      log.debug("Throttled Roles API call for bulk user job item {} - waited {}s for a permit", jobItemId, waitedSeconds)
     }
   }
 
