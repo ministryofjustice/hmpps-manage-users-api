@@ -35,6 +35,9 @@ class BulkUserJobService(
   private val telemetryClient: TelemetryClient,
   @param:Value("\${application.bulk-jobs.throttling.large-batch-warning-threshold}") private val largeBatchWarningThreshold: Int,
 ) {
+  init {
+    require(largeBatchWarningThreshold > 0) { "large-batch-warning-threshold must be positive, got $largeBatchWarningThreshold" }
+  }
   companion object {
     private const val USER_ID_HEADER = "userId"
     private const val LARGE_BATCH_EVENT = "BulkRoleAssignmentLargeBatch"

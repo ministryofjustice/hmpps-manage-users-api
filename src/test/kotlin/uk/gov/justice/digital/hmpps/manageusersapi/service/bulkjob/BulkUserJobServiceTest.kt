@@ -5,6 +5,7 @@ import jakarta.validation.ValidationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.within
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,6 +32,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobRepository
@@ -59,6 +61,24 @@ class BulkUserJobServiceTest {
   private val bulkUserJobService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, telemetryClient, 5000)
   private var jiraReference: String = "JIRA-123"
   private var roles: List<String> = listOf("ROLE_ONE", "ROLE_TWO")
+
+  @AfterEach
+  fun cleanUpTransactionSynchronization() {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.clearSynchronization()
+    }
+  }
+
+  private fun triggerAfterCommit() {
+    TransactionSynchronizationManager.getSynchronizations().forEach { it.afterCommit() }
+  }
+
+  @Test
+  fun `throws when large-batch-warning-threshold is not positive`() {
+    assertThrows<IllegalArgumentException> {
+      BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, telemetryClient, 0)
+    }
+  }
 
   @Nested
   inner class CreateBulkUserRoleAdditionsJob {
@@ -161,6 +181,39 @@ class BulkUserJobServiceTest {
       )
 
       verify(warningTelemetryClient, never()).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job defers large-batch telemetry to afterCommit when inside a transaction`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val lowThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 3)
+
+      TransactionSynchronizationManager.initSynchronization()
+
+      lowThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient, never()).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+
+      triggerAfterCommit()
+
+      verify(warningTelemetryClient).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job defers SQS publish to afterCommit when inside a transaction`() {
+      TransactionSynchronizationManager.initSynchronization()
+
+      whenCreateBulkUserRoleAdditionsJobWithCsvContent("USER123\nUSER456".toByteArray())
+
+      verify(bulkJobPublisher, never()).publishBulkUserJobEvent(any())
+
+      triggerAfterCommit()
+
+      verify(bulkJobPublisher).publishBulkUserJobEvent(any())
     }
 
     private fun whenCreateBulkUserRoleAdditionsJobWithCsvContent(contentBytes: ByteArray): UUID = bulkUserJobService

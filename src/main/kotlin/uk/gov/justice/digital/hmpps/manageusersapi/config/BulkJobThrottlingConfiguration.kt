@@ -10,6 +10,7 @@ class BulkJobThrottlingConfiguration {
 
   /**
    * Rate limiter that throttles bulk role-assignment calls to the nomis user roles api.
+   * Note: RateLimiter.create() enforces permitsPerSecond > 0.
    */
   @Bean
   fun rolesApiRateLimiter(
