@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class BulkJobConfiguration {
+class BulkJobThrottlingConfiguration {
 
   /**
    * Rate limiter that throttles bulk role-assignment calls to the nomis user roles api.
