@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.7"
   kotlin("plugin.spring") version "2.4.10"
   kotlin("plugin.jpa") version "2.4.10"
 }
@@ -15,7 +15,7 @@ dependencyCheck {
 }
 
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -25,13 +25,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.0")
-  // Temporarily pin spring doc at 3.0.2 whilst waiting for 3.0.4 upgrade
-  val springDocVersion = "3.0.2"
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
-  constraints {
-    implementation("org.webjars:swagger-ui:5.32.11")
-  }
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.1")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
+
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.pauldijou:jwt-core_2.11:5.0.0")
   implementation("com.google.code.gson:gson:2.14.0")
@@ -47,7 +43,7 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.13")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.0-beta2")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.1")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
