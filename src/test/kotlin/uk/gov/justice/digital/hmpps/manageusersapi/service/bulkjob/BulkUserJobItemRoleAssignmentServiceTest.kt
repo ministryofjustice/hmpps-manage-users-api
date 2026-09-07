@@ -1,12 +1,16 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.util.concurrent.RateLimiter
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -17,6 +21,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobI
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
+import uk.gov.justice.hmpps.sqs.audit.HmppsAuditService
 import java.nio.charset.StandardCharsets
 import java.util.Optional
 
@@ -25,11 +30,15 @@ class BulkUserJobItemRoleAssignmentServiceTest {
   private val userRolesService: UserRolesService = mock()
   private val bulkUserJobReconciliationService: BulkUserJobReconciliationService = mock()
   private val rolesApiRateLimiter: RateLimiter = mock()
+  private val auditService: HmppsAuditService = mock()
+  private val objectMapper = ObjectMapper()
   private val service = BulkUserJobItemRoleAssignmentService(
     bulkUserJobItemRepository,
     userRolesService,
     bulkUserJobReconciliationService,
     rolesApiRateLimiter,
+    auditService,
+    objectMapper,
   )
 
   @Test
@@ -52,6 +61,37 @@ class BulkUserJobItemRoleAssignmentServiceTest {
     verify(userRolesService).addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")
     verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(item.id, BulkUserJobItemStatus.STARTED, BulkUserJobItemStatus.SUCCESS, null, null)
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+  }
+
+  @Test
+  fun `publishes an audit event on successful role assignment`(): Unit = kotlinx.coroutines.runBlocking {
+    val (message, item) = createMessageAndItem()
+    stubClaimAndLoad(item)
+    whenever(userRolesService.addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")).thenReturn(createUserRoleDetail(item.username))
+    whenever(
+      bulkUserJobItemRepository.updateStatusAndResultIfCurrent(
+        item.id,
+        BulkUserJobItemStatus.STARTED,
+        BulkUserJobItemStatus.SUCCESS,
+        null,
+        null,
+      ),
+    ).thenReturn(1)
+
+    service.processRoleAssignmentMessage(message)
+
+    verify(auditService).publishEvent(
+      what = eq("BULK_USER_ROLES_ADD_ROLE"),
+      subjectId = eq(item.username),
+      subjectType = eq("USERNAME"),
+      correlationId = eq(null),
+      `when` = any(),
+      who = eq(message.requestedBy),
+      service = anyOrNull(),
+      details = eq(
+        """{"role":"${item.rolename}","bulkUserJobId":"${message.jobId}","jiraReference":"${message.jiraReference}"}""",
+      ),
+    )
   }
 
   @Test
@@ -185,6 +225,7 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       null,
     )
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+    verifyNoInteractions(auditService)
   }
 
   @Test

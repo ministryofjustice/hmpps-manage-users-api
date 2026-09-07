@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.util.concurrent.RateLimiter
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -10,6 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRep
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
+import uk.gov.justice.hmpps.sqs.audit.HmppsAuditService
 import java.util.UUID
 
 @Service
@@ -18,6 +21,8 @@ class BulkUserJobItemRoleAssignmentService(
   private val userRolesService: UserRolesService,
   private val bulkUserJobReconciliationService: BulkUserJobReconciliationService,
   private val rolesApiRateLimiter: RateLimiter,
+  private val auditService: HmppsAuditService,
+  private val objectMapper: ObjectMapper,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -55,6 +60,7 @@ class BulkUserJobItemRoleAssignmentService(
     try {
       userRolesService.addRolesToUserAsSystem(username, listOf(roleCode), DPS_CASELOAD)
       markSuccess(item.id)
+      publishRoleAssignmentAuditEvent(message, username, roleCode)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: WebClientResponseException.NotFound) {
       markError(item.id, USER_NOT_FOUND)
@@ -68,6 +74,25 @@ class BulkUserJobItemRoleAssignmentService(
       markError(item.id, SYSTEM_ISSUE)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
       log.error("Role assignment failed for bulk user job item {}", item.id, e)
+    }
+  }
+
+  private fun publishRoleAssignmentAuditEvent(message: BulkUserJobItemMessage, username: String, roleCode: String) {
+    runBlocking {
+      auditService.publishEvent(
+        what = "BULK_USER_ROLES_ADD_ROLE",
+        who = message.requestedBy,
+        subjectId = username,
+        subjectType = "USERNAME",
+        correlationId = null,
+        details = objectMapper.writeValueAsString(
+          BulkRoleAssignmentAuditDetails(
+            role = roleCode,
+            bulkUserJobId = message.jobId.toString(),
+            jiraReference = message.jiraReference,
+          ),
+        ),
+      )
     }
   }
 
@@ -118,3 +143,9 @@ class BulkUserJobItemRoleAssignmentService(
     message.username.equals(item.username, ignoreCase = true) &&
     message.rolename.equals(item.rolename, ignoreCase = true)
 }
+
+data class BulkRoleAssignmentAuditDetails(
+  val role: String,
+  val bulkUserJobId: String,
+  val jiraReference: String,
+)
