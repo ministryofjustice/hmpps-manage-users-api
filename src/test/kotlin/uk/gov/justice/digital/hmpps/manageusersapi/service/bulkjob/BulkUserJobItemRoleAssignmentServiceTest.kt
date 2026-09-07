@@ -89,7 +89,9 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       who = eq(message.requestedBy),
       service = anyOrNull(),
       details = eq(
-        """{"role":"${item.rolename}","bulkUserJobId":"${message.jobId}","jiraReference":"${message.jiraReference}"}""",
+        objectMapper.writeValueAsString(
+          mapOf("role" to item.rolename, "bulkUserJobId" to message.jobId.toString(), "jiraReference" to message.jiraReference),
+        ),
       ),
     )
   }
