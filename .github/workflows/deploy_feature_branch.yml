@@ -13,6 +13,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: ${{ github.workflow }}-stage
+  cancel-in-progress: true
+
 jobs:
   helm_lint:
     if: ${{ inputs['deploy-to-stage'] == true }}
