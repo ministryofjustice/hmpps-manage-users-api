@@ -59,8 +59,10 @@ class BulkUserJobItemRoleAssignmentService(
 
     try {
       userRolesService.addRolesToUserAsSystem(username, listOf(roleCode), DPS_CASELOAD)
-      markSuccess(item.id)
+      // Publish the audit event before marking success so that, if auditing fails, the item is still STARTED and can
+      // be transitioned to ERROR consistently (rather than being left SUCCESS while the listener retries/fails).
       publishRoleAssignmentAuditEvent(message, username, roleCode)
+      markSuccess(item.id)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: WebClientResponseException.NotFound) {
       markError(item.id, USER_NOT_FOUND)
@@ -144,7 +146,7 @@ class BulkUserJobItemRoleAssignmentService(
     message.rolename.equals(item.rolename, ignoreCase = true)
 }
 
-data class BulkRoleAssignmentAuditDetails(
+private data class BulkRoleAssignmentAuditDetails(
   val role: String,
   val bulkUserJobId: String,
   val jiraReference: String,
