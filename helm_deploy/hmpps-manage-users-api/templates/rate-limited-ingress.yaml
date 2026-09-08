@@ -1,0 +1,66 @@
+{{- if and .Values.rateLimitingIngress.enabled (index .Values "generic-service") }}
+
+{{- $genericValues := index .Values "generic-service" -}}
+
+{{- $generic := dict
+  "Chart" ((index .Subcharts "generic-service").Chart)
+  "Values" $genericValues
+  "Release" .Release
+  "Capabilities" .Capabilities
+  "Files" .Files
+  "Template" .Template
+-}}
+
+{{- $fullName := include "generic-service.fullname" $generic -}}
+{{- $ingressName := printf "%s-rate-limiting-v1-2" $fullName -}}
+{{- $svcPort := $genericValues.service.port -}}
+{{- $hosts := or $genericValues.ingress.hosts (list $genericValues.ingress.host) -}}
+{{- $paths := .Values.rateLimitingIngress.paths | default (list) -}}
+
+{{- if $paths }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $ingressName }}
+  labels:
+    {{- include "generic-service.labels" $generic | nindent 4 }}
+  annotations:
+    {{- with .Values.rateLimitingIngress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if $genericValues.allowlist }}
+    {{- include "app.makeIpAllowList" $generic | nindent 4 }}
+    {{- end }}
+    external-dns.alpha.kubernetes.io/set-identifier: {{ $ingressName }}-{{ .Release.Namespace }}-green
+    external-dns.alpha.kubernetes.io/aws-weight: "100"
+
+spec:
+  ingressClassName: {{ .Values.rateLimitingIngress.className | default "default" }}
+
+  tls:
+    - hosts:
+        {{- range $hosts }}
+        - {{ . }}
+        {{- end }}
+      {{- if $genericValues.ingress.tlsSecretName }}
+      secretName: {{ $genericValues.ingress.tlsSecretName }}
+      {{- end }}
+
+  rules:
+    {{- range $host := $hosts }}
+    - host: {{ $host }}
+      http:
+        paths:
+          {{- range $path := $paths }}
+          - path: {{ $path }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+
+{{- end }}
+{{- end }}

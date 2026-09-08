@@ -109,3 +109,11 @@ generic-service:
 
 generic-prometheus-alerts:
   targetApplication: hmpps-manage-users-api
+
+rateLimitingIngress:
+  enabled: true
+  paths:
+    - /users/search
+  annotations:
+    nginx.ingress.kubernetes.io/limit-rpm: "40"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "1"
