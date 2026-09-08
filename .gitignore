@@ -75,3 +75,4 @@ helm_deploy/*/Chart.lock
 helm_deploy/*/charts/
 
 .DS_Store
+.java-version
