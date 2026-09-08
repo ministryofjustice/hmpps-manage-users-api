@@ -185,3 +185,5 @@ hmpps:
         asyncQueueClient: true
       bulkuserjobitemqueue:
         asyncQueueClient: true
+      audit:
+        asyncQueueClient: true
