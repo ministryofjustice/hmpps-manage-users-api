@@ -10,7 +10,6 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -80,20 +79,8 @@ class BulkUserJobItemRoleAssignmentServiceTest {
 
     service.processRoleAssignmentMessage(message)
 
-    verify(auditService).publishEvent(
-      what = eq("BULK_USER_ROLES_ADD_ROLE"),
-      subjectId = eq(item.username),
-      subjectType = eq("USERNAME"),
-      correlationId = eq(null),
-      `when` = any(),
-      who = eq(message.requestedBy),
-      service = anyOrNull(),
-      details = eq(
-        objectMapper.writeValueAsString(
-          mapOf("role" to item.rolename, "bulkUserJobId" to message.jobId.toString(), "jiraReference" to message.jiraReference),
-        ),
-      ),
-    )
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_SUCCESS", message, item)
   }
 
   @Test
@@ -200,6 +187,8 @@ class BulkUserJobItemRoleAssignmentServiceTest {
 
     verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(item.id, BulkUserJobItemStatus.STARTED, BulkUserJobItemStatus.ERROR, "User not found", null)
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_FAILURE", message, item, "User not found")
   }
 
   @Test
@@ -227,7 +216,10 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       null,
     )
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
-    verifyNoInteractions(auditService)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_REDUNDANT", message, item)
+    verifyAuditEventNotPublished("BULK_USER_ROLES_ASSIGN_ROLE_SUCCESS")
+    verifyAuditEventNotPublished("BULK_USER_ROLES_ASSIGN_ROLE_FAILURE")
   }
 
   @Test
@@ -255,6 +247,48 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       null,
     )
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_FAILURE", message, item, "System issue")
+  }
+
+  private fun verifyAuditEventPublished(
+    what: String,
+    message: BulkUserJobItemMessage,
+    item: BulkUserJobItem,
+    error: String? = null,
+  ): Unit = kotlinx.coroutines.runBlocking {
+    verify(auditService).publishEvent(
+      what = eq(what),
+      subjectId = eq(item.username.uppercase()),
+      subjectType = eq("USERNAME"),
+      correlationId = eq(null),
+      `when` = any(),
+      who = eq(message.requestedBy),
+      service = anyOrNull(),
+      details = eq(
+        objectMapper.writeValueAsString(
+          buildMap<String, Any?> {
+            put("role", item.rolename.uppercase())
+            put("bulkUserJobId", message.jobId.toString())
+            put("jiraReference", message.jiraReference)
+            put("error", error)
+          },
+        ),
+      ),
+    )
+  }
+
+  private fun verifyAuditEventNotPublished(what: String): Unit = kotlinx.coroutines.runBlocking {
+    verify(auditService, never()).publishEvent(
+      what = eq(what),
+      subjectId = anyOrNull(),
+      subjectType = anyOrNull(),
+      correlationId = anyOrNull(),
+      `when` = any(),
+      who = anyOrNull(),
+      service = anyOrNull(),
+      details = anyOrNull(),
+    )
   }
 
   private fun stubClaimAndLoad(item: BulkUserJobItem) {

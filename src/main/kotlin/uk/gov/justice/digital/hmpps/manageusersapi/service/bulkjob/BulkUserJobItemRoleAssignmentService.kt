@@ -28,6 +28,10 @@ class BulkUserJobItemRoleAssignmentService(
     private val log = LoggerFactory.getLogger(this::class.java)
     private const val USER_NOT_FOUND = "User not found"
     private const val SYSTEM_ISSUE = "System issue"
+    private const val ASSIGN_ROLE_ATTEMPT = "BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT"
+    private const val ASSIGN_ROLE_SUCCESS = "BULK_USER_ROLES_ASSIGN_ROLE_SUCCESS"
+    private const val ASSIGN_ROLE_FAILURE = "BULK_USER_ROLES_ASSIGN_ROLE_FAILURE"
+    private const val ASSIGN_ROLE_REDUNDANT = "BULK_USER_ROLES_ASSIGN_ROLE_REDUNDANT"
   }
 
   fun processRoleAssignmentMessage(message: BulkUserJobItemMessage) {
@@ -57,32 +61,43 @@ class BulkUserJobItemRoleAssignmentService(
 
     throttleRolesApi(item.id)
 
+    publishRoleAssignmentAuditEvent(ASSIGN_ROLE_ATTEMPT, message, username, roleCode)
+
     try {
       userRolesService.addRolesToUserAsSystem(username, listOf(roleCode), DPS_CASELOAD)
       // Publish the audit event before marking success so that, if auditing fails, the item is still STARTED and can
       // be transitioned to ERROR consistently (rather than being left SUCCESS while the listener retries/fails).
-      publishRoleAssignmentAuditEvent(message, username, roleCode)
+      publishRoleAssignmentAuditEvent(ASSIGN_ROLE_SUCCESS, message, username, roleCode)
       markSuccess(item.id)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: WebClientResponseException.NotFound) {
+      publishRoleAssignmentAuditEvent(ASSIGN_ROLE_FAILURE, message, username, roleCode, USER_NOT_FOUND)
       markError(item.id, USER_NOT_FOUND)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: WebClientResponseException.Conflict) {
+      publishRoleAssignmentAuditEvent(ASSIGN_ROLE_REDUNDANT, message, username, roleCode)
       // The user already has the role (either pre-existing, or assigned by a previous processing of this message that
       // failed before recording success), so treat it as a successful assignment
       markSuccess(item.id)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
     } catch (e: Exception) {
+      publishRoleAssignmentAuditEvent(ASSIGN_ROLE_FAILURE, message, username, roleCode, SYSTEM_ISSUE)
       markError(item.id, SYSTEM_ISSUE)
       bulkUserJobReconciliationService.reconcileBulkJob(item.bulkUserJob.id)
       log.error("Role assignment failed for bulk user job item {}", item.id, e)
     }
   }
 
-  private fun publishRoleAssignmentAuditEvent(message: BulkUserJobItemMessage, username: String, roleCode: String) {
+  private fun publishRoleAssignmentAuditEvent(
+    event: String,
+    message: BulkUserJobItemMessage,
+    username: String,
+    roleCode: String,
+    error: String? = null,
+  ) {
     runBlocking {
       auditService.publishEvent(
-        what = "BULK_USER_ROLES_ADD_ROLE",
+        what = event,
         who = message.requestedBy,
         subjectId = username,
         subjectType = "USERNAME",
@@ -92,6 +107,7 @@ class BulkUserJobItemRoleAssignmentService(
             role = roleCode,
             bulkUserJobId = message.jobId.toString(),
             jiraReference = message.jiraReference,
+            error = error,
           ),
         ),
       )
@@ -150,4 +166,5 @@ private data class BulkRoleAssignmentAuditDetails(
   val role: String,
   val bulkUserJobId: String,
   val jiraReference: String,
+  val error: String? = null,
 )
