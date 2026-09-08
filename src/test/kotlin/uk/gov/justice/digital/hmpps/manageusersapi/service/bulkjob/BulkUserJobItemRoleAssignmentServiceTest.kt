@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.util.concurrent.RateLimiter
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -17,6 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobI
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
+import uk.gov.justice.hmpps.sqs.audit.HmppsAuditService
 import java.nio.charset.StandardCharsets
 import java.util.Optional
 
@@ -25,11 +29,15 @@ class BulkUserJobItemRoleAssignmentServiceTest {
   private val userRolesService: UserRolesService = mock()
   private val bulkUserJobReconciliationService: BulkUserJobReconciliationService = mock()
   private val rolesApiRateLimiter: RateLimiter = mock()
+  private val auditService: HmppsAuditService = mock()
+  private val objectMapper = ObjectMapper()
   private val service = BulkUserJobItemRoleAssignmentService(
     bulkUserJobItemRepository,
     userRolesService,
     bulkUserJobReconciliationService,
     rolesApiRateLimiter,
+    auditService,
+    objectMapper,
   )
 
   @Test
@@ -52,6 +60,27 @@ class BulkUserJobItemRoleAssignmentServiceTest {
     verify(userRolesService).addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")
     verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(item.id, BulkUserJobItemStatus.STARTED, BulkUserJobItemStatus.SUCCESS, null, null)
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+  }
+
+  @Test
+  fun `publishes an audit event on successful role assignment`(): Unit = kotlinx.coroutines.runBlocking {
+    val (message, item) = createMessageAndItem()
+    stubClaimAndLoad(item)
+    whenever(userRolesService.addRolesToUserAsSystem(item.username, listOf(item.rolename), "NWEB")).thenReturn(createUserRoleDetail(item.username))
+    whenever(
+      bulkUserJobItemRepository.updateStatusAndResultIfCurrent(
+        item.id,
+        BulkUserJobItemStatus.STARTED,
+        BulkUserJobItemStatus.SUCCESS,
+        null,
+        null,
+      ),
+    ).thenReturn(1)
+
+    service.processRoleAssignmentMessage(message)
+
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_SUCCESS", message, item)
   }
 
   @Test
@@ -158,6 +187,8 @@ class BulkUserJobItemRoleAssignmentServiceTest {
 
     verify(bulkUserJobItemRepository).updateStatusAndResultIfCurrent(item.id, BulkUserJobItemStatus.STARTED, BulkUserJobItemStatus.ERROR, "User not found", null)
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_FAILURE", message, item, "User not found")
   }
 
   @Test
@@ -185,6 +216,10 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       null,
     )
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_REDUNDANT", message, item)
+    verifyAuditEventNotPublished("BULK_USER_ROLES_ASSIGN_ROLE_SUCCESS")
+    verifyAuditEventNotPublished("BULK_USER_ROLES_ASSIGN_ROLE_FAILURE")
   }
 
   @Test
@@ -212,6 +247,48 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       null,
     )
     verify(bulkUserJobReconciliationService).reconcileBulkJob(item.bulkUserJob.id)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_ATTEMPT", message, item)
+    verifyAuditEventPublished("BULK_USER_ROLES_ASSIGN_ROLE_FAILURE", message, item, "System issue")
+  }
+
+  private fun verifyAuditEventPublished(
+    what: String,
+    message: BulkUserJobItemMessage,
+    item: BulkUserJobItem,
+    error: String? = null,
+  ): Unit = kotlinx.coroutines.runBlocking {
+    verify(auditService).publishEvent(
+      what = eq(what),
+      subjectId = eq(item.username.uppercase()),
+      subjectType = eq("USERNAME"),
+      correlationId = eq(null),
+      `when` = any(),
+      who = eq(message.requestedBy),
+      service = anyOrNull(),
+      details = eq(
+        objectMapper.writeValueAsString(
+          buildMap<String, Any?> {
+            put("role", item.rolename.uppercase())
+            put("bulkUserJobId", message.jobId.toString())
+            put("jiraReference", message.jiraReference)
+            put("error", error)
+          },
+        ),
+      ),
+    )
+  }
+
+  private fun verifyAuditEventNotPublished(what: String): Unit = kotlinx.coroutines.runBlocking {
+    verify(auditService, never()).publishEvent(
+      what = eq(what),
+      subjectId = anyOrNull(),
+      subjectType = anyOrNull(),
+      correlationId = anyOrNull(),
+      `when` = any(),
+      who = anyOrNull(),
+      service = anyOrNull(),
+      details = anyOrNull(),
+    )
   }
 
   private fun stubClaimAndLoad(item: BulkUserJobItem) {
