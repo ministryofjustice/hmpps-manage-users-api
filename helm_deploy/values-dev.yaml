@@ -14,6 +14,7 @@ generic-service:
     NOMIS_ENDPOINT_URL: https://nomis-user-roles-api-dev.prison.service.justice.gov.uk
     EXTERNAL_USERS_ENDPOINT_URL: https://external-users-api-dev.hmpps.service.justice.gov.uk
     DELIUS_ENDPOINT_URL: https://hmpps-auth-and-delius-dev.hmpps.service.justice.gov.uk
+    APPLICATION_BULK_JOBS_THROTTLING_API_PERMITS_PER_SECOND: "5" # 2 pods in dev so 5 results in 10 overall per second
     SPRINGDOC_API-DOCS_ENABLED: "true"
     SPRINGDOC_SWAGGER-UI_ENABLED: "true"
     BANNER_ROLES:

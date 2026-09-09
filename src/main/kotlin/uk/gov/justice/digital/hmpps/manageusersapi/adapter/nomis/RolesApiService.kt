@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserRoleDetai
 class RolesApiService(
   @Qualifier("nomisUserWebClientUtils") val userWebClientUtils: WebClientUtils,
   @Qualifier("nomisWebClientUtils") val serviceWebClientUtils: WebClientUtils,
+  @Qualifier("nomisSystemWebClientUtils") val systemWebClientUtils: WebClientUtils,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -61,6 +62,14 @@ class RolesApiService(
   fun getCaseloads() = userWebClientUtils.get("/me/caseloads", UserCaseloadDetail::class.java)
 
   fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null) = userWebClientUtils.postWithResponse(
+    "/users/{username}/roles?caseloadId={caseloadId}",
+    roles,
+    UserRoleDetail::class.java,
+    username,
+    caseloadId,
+  )
+
+  fun addRolesToUserAsSystem(username: String, roles: List<String>, caseloadId: String? = null) = systemWebClientUtils.postWithResponse(
     "/users/{username}/roles?caseloadId={caseloadId}",
     roles,
     UserRoleDetail::class.java,

@@ -25,6 +25,9 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) : AbstractWebC
   fun nomisWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) = getWebClient(builder, authorizedClientManager)
 
   @Bean
+  fun nomisSystemWebClient(builder: Builder, authorizedClientManager: OAuth2AuthorizedClientManager) = getSystemTokenWebClient(builder, authorizedClientManager)
+
+  @Bean
   fun nomisUserWebClient(builder: Builder) = getWebClientWithCurrentUserToken(builder)
 
   @Bean
@@ -35,6 +38,9 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) : AbstractWebC
 
   @Bean
   fun nomisWebClientUtils(nomisWebClient: WebClient) = WebClientUtils(nomisWebClient, maxRetryAttempts)
+
+  @Bean
+  fun nomisSystemWebClientUtils(nomisSystemWebClient: WebClient) = WebClientUtils(nomisSystemWebClient, maxRetryAttempts)
 
   @Bean
   fun nomisUserWebClientUtils(nomisUserWebClient: WebClient) = WebClientUtils(nomisUserWebClient, maxRetryAttempts)

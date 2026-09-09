@@ -81,9 +81,14 @@ class UserAllowlistController(
       defaultValue = "ALL",
     )
     status: Status,
+    @Parameter(description = "Digital or General user filter")
+    @RequestParam(
+      required = false,
+    )
+    userType: UserAllowlistUserType?,
     @PageableDefault(sort = ["allowlistEndDate"], direction = Sort.Direction.ASC)
     pageable: Pageable,
-  ): PagedResponse<UserAllowlistDetail> = userAllowlistService.getAllUsers(name, status, pageable)
+  ): PagedResponse<UserAllowlistDetail> = userAllowlistService.getAllUsers(name, status, userType, pageable)
 
   @PatchMapping("/{id}")
   @PreAuthorize("hasRole('ROLE_MANAGE_USER_ALLOW_LIST')")
@@ -266,6 +271,13 @@ data class UserAllowlistDetail(
     example = "SYNDYRBP1",
   )
   val lastUpdatedBy: String,
+
+  @Schema(
+    required = true,
+    description = "The type of allowlist user",
+    examples = ["DIGITAL", "GENERAL"],
+  )
+  val userType: UserAllowlistUserType,
 )
 
 enum class AccessPeriod {
@@ -275,4 +287,9 @@ enum class AccessPeriod {
   SIX_MONTHS,
   TWELVE_MONTHS,
   NO_RESTRICTION,
+}
+
+enum class UserAllowlistUserType {
+  DIGITAL,
+  GENERAL,
 }

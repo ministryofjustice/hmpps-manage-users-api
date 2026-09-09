@@ -538,7 +538,8 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                   "createdOn": "${LocalDateTime.now()}",
                   "allowlistEndDate": "${LocalDate.now().plusMonths(1)}",
                   "lastUpdated": "${LocalDateTime.now()}",
-                  "lastUpdatedBy": "QUINTASHAVL"
+                  "lastUpdatedBy": "QUINTASHAVL",
+                  "userType": "DIGITAL"
                 }
               """.trimIndent(),
             ),
@@ -567,7 +568,8 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "createdOn": "${LocalDateTime.now()}",
                     "allowlistEndDate": "${LocalDate.now().plusMonths(1)}",
                     "lastUpdated": "${LocalDateTime.now()}",
-                    "lastUpdatedBy": "QUINTASHAVL"
+                    "lastUpdatedBy": "QUINTASHAVL",
+                    "userType": "DIGITAL"
                   }
                 ],
                 "pageable": {

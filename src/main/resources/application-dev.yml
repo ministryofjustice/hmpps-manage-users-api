@@ -79,3 +79,11 @@ hmpps:
         queueName: bulkUserJobQueue
         asyncQueueClient: true
         dlqName: bulkUserJobDlq
+      bulkuserjobitemqueue:
+        queueName: bulkUserJobItemQueue
+        asyncQueueClient: true
+        dlqName: bulkUserJobItemDlq
+      audit:
+        queueName: audit-queue
+        asyncQueueClient: true
+        dlqName: auditDlq

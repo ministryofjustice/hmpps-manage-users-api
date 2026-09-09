@@ -1,9 +1,71 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
+import java.time.Instant
+import java.time.LocalDateTime
 import java.util.UUID
+import java.util.stream.Stream
 
 @Repository
-interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID>
+interface BulkUserJobItemRepository : JpaRepository<BulkUserJobItem, UUID> {
+
+  fun streamByBulkUserJobId(jobId: UUID): Stream<BulkUserJobItem>
+  fun findByBulkUserJobIdAndStatusAndClaimedAtBefore(jobId: UUID, status: BulkUserJobItemStatus, claimedAt: Instant): List<BulkUserJobItem>
+
+  @Query(
+    """
+      SELECT i FROM BulkUserJobItem i
+      WHERE i.bulkUserJob.id = :jobId
+        AND i.status = :status
+        AND i.bulkUserJob.requestDateTime < :requestedBefore
+    """,
+  )
+  fun findByBulkUserJobIdAndStatusAndJobRequestedBefore(
+    @Param("jobId") jobId: UUID,
+    @Param("status") status: BulkUserJobItemStatus,
+    @Param("requestedBefore") requestedBefore: LocalDateTime,
+  ): List<BulkUserJobItem>
+
+  @Transactional
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+    """
+      UPDATE BulkUserJobItem i
+      SET i.status = :newStatus
+        , i.claimedAt = :claimedAt
+      WHERE i.id = :jobItemId AND i.status = :currentStatus
+    """,
+  )
+  fun updateStatusIfCurrent(
+    @Param("jobItemId") jobItemId: UUID,
+    @Param("currentStatus") currentStatus: BulkUserJobItemStatus,
+    @Param("newStatus") newStatus: BulkUserJobItemStatus,
+    @Param("claimedAt") claimedAt: Instant? = null,
+  ): Int
+
+  @Transactional
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+    """
+      UPDATE BulkUserJobItem i
+      SET i.status = :newStatus
+        , i.result = :result
+        , i.claimedAt = :claimedAt
+      WHERE i.id = :jobItemId AND i.status = :currentStatus
+    """,
+  )
+  fun updateStatusAndResultIfCurrent(
+    @Param("jobItemId") jobItemId: UUID,
+    @Param("currentStatus") currentStatus: BulkUserJobItemStatus,
+    @Param("newStatus") newStatus: BulkUserJobItemStatus,
+    @Param("result") result: String? = null,
+    @Param("claimedAt") claimedAt: Instant? = null,
+  ): Int
+}

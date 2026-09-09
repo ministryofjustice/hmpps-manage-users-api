@@ -1,8 +1,12 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob
 
-import jakarta.transaction.Transactional
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.matching
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -18,17 +22,20 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
+import org.springframework.test.web.reactive.server.EntityExchangeResult
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.manageusersapi.config.SqsConfig
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
-import uk.gov.justice.hmpps.sqs.HmppsQueue
-import uk.gov.justice.hmpps.sqs.HmppsQueueService
-import uk.gov.justice.hmpps.sqs.countAllMessagesOnQueue
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.SECONDS
@@ -42,9 +49,7 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
   private lateinit var bulkUserJobRepository: BulkUserJobRepository
 
   @Autowired
-  protected lateinit var hmppsQueueService: HmppsQueueService
-
-  internal val auditQueue by lazy { hmppsQueueService.findByQueueId("bulkuserjobqueue") as HmppsQueue }
+  private lateinit var bulkUserJobItemRepository: BulkUserJobItemRepository
 
   companion object {
     @JvmStatic
@@ -124,33 +129,60 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .expectBody().jsonPath("$.userMessage").isEqualTo(expectedMessage)
     }
 
-    @Transactional
     @Test
     open fun `bulk user additions job accepted`() {
+      listOf("USER123", "USER654").forEach { username ->
+        nomisApiMockServer.stubPostUserRoles(username, "ROLE_ONE")
+        nomisApiMockServer.stubPostUserRoles(username, "ROLE_FOUR")
+      }
+
       val response = webTestClient.post().uri("/bulk-jobs/user-role-additions")
         .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
         .contentType(MediaType.MULTIPART_FORM_DATA)
         .body(buildValidMultipart())
         .exchange()
         .expectStatus().isAccepted
-        .returnResult(BulkUserRoleAdditionsResponse::class.java)
+        .returnResult<BulkUserRoleAdditionsResponse>()
         .responseBody.blockFirst()
 
       assertThat(response).isNotNull
-      val bulkJob = bulkUserJobRepository.findById(response!!.id)
+      await.untilAsserted {
+        val job = bulkUserJobRepository.findById(response!!.id)
+        assertThat(job).isPresent.hasValueSatisfying {
+          assertThat(it.status).isEqualTo(BulkUserJobStatus.COMPLETE)
+        }
+      }
+
+      val bulkJob = bulkUserJobRepository.findWithJobItemsById(response!!.id)
       assertThat(bulkJob).isPresent.hasValueSatisfying {
-        assertThat(it).usingRecursiveComparison().ignoringFields("jobItems", "requestDateTime").isEqualTo(
-          BulkUserJob(response.id, "JIRA-1234", BulkUserJobStatus.PENDING, "TEST_USR"),
-        )
+        assertThat(it.jiraReference).isEqualTo("JIRA-1234")
+        assertThat(it.requestedBy).isEqualTo("TEST_USR")
         assertThat(it.requestDateTime).isCloseTo(LocalDateTime.now(ZoneId.systemDefault()), within(5, SECONDS))
-        assertThat(it.jobItems).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id").containsExactlyInAnyOrder(
-          BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CREATED, bulkUserJob = it),
-          BulkUserJobItem(username = "USER654", rolename = "ROLE_ONE", status = BulkUserJobItemStatus.CREATED, bulkUserJob = it),
-          BulkUserJobItem(username = "USER123", rolename = "ROLE_FOUR", status = BulkUserJobItemStatus.CREATED, bulkUserJob = it),
-          BulkUserJobItem(username = "USER654", rolename = "ROLE_FOUR", status = BulkUserJobItemStatus.CREATED, bulkUserJob = it),
+        assertThat(it.jobItems)
+          .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id", "status", "result", "claimedAt")
+          .containsExactlyInAnyOrder(
+            BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", bulkUserJob = it),
+            BulkUserJobItem(username = "USER654", rolename = "ROLE_ONE", bulkUserJob = it),
+            BulkUserJobItem(username = "USER123", rolename = "ROLE_FOUR", bulkUserJob = it),
+            BulkUserJobItem(username = "USER654", rolename = "ROLE_FOUR", bulkUserJob = it),
+          )
+        assertThat(it.jobItems).allSatisfy { item ->
+          assertThat(item.status).isEqualTo(BulkUserJobItemStatus.SUCCESS)
+        }
+      }
+
+      listOf("USER123", "USER654").forEach { username ->
+        nomisApiMockServer.verify(
+          postRequestedFor(urlEqualTo("/users/$username/roles?caseloadId=NWEB"))
+            .withHeader("Authorization", matching("Bearer .+"))
+            .withRequestBody(containing("ROLE_ONE")),
+        )
+        nomisApiMockServer.verify(
+          postRequestedFor(urlEqualTo("/users/$username/roles?caseloadId=NWEB"))
+            .withHeader("Authorization", matching("Bearer .+"))
+            .withRequestBody(containing("ROLE_FOUR")),
         )
       }
-      assertThat(auditQueue.sqsClient.countAllMessagesOnQueue(auditQueue.queueUrl).get()).isEqualTo(1)
     }
 
     private fun buildValidMultipart(): BodyInserters.MultipartInserter = MultipartBuilder().usersCsv().bulkJobDetailsJson().build()
@@ -244,10 +276,11 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
         .exchange()
         .expectStatus().isOk
-        .returnResult(object : ParameterizedTypeReference<List<BulkUserRoleAdditionsJobSummary>>() {})
+        .returnResult(object : ParameterizedTypeReference<PagedResponse<BulkUserRoleAdditionsJobSummary>>() {})
         .responseBody.blockFirst()
 
-      assertThat(response).containsExactly(
+      assertThat(response).isNotNull
+      assertThat(response!!.content).containsExactly(
         BulkUserRoleAdditionsJobSummary(
           id = UUID.fromString("22222222-2222-2222-2222-222222222222"),
           jiraReference = "DEF-456",
@@ -263,6 +296,28 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
           requestDateTime = LocalDateTime.parse("2026-06-01T11:11:11"),
         ),
       )
+      assertThat(response.pageable).isNotNull
+      assertThat(response.pageable.sort).isNotNull
+      assertThat(response.pageable.sort.sorted).isTrue
+      assertThat(response.pageable.sort.unsorted).isFalse
+      assertThat(response.pageable.sort.empty).isFalse
+      assertThat(response.pageable.offset).isEqualTo(0)
+      assertThat(response.pageable.pageNumber).isEqualTo(0)
+      assertThat(response.pageable.pageSize).isEqualTo(0)
+      assertThat(response.pageable.paged).isFalse
+      assertThat(response.pageable.unpaged).isTrue
+      assertThat(response.last).isTrue
+      assertThat(response.totalPages).isEqualTo(1)
+      assertThat(response.totalElements).isEqualTo(2)
+      assertThat(response.size).isEqualTo(2)
+      assertThat(response.number).isEqualTo(0)
+      assertThat(response.sort).isNotNull
+      assertThat(response.sort.empty).isFalse
+      assertThat(response.sort.unsorted).isFalse
+      assertThat(response.sort.sorted).isTrue
+      assertThat(response.numberOfElements).isEqualTo(2)
+      assertThat(response.first).isTrue
+      assertThat(response.empty).isFalse
     }
 
     @Test
@@ -278,10 +333,11 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
         .exchange()
         .expectStatus().isOk
-        .returnResult(object : ParameterizedTypeReference<List<BulkUserRoleAdditionsJobSummary>>() {})
+        .returnResult(object : ParameterizedTypeReference<PagedResponse<BulkUserRoleAdditionsJobSummary>>() {})
         .responseBody.blockFirst()
 
-      assertThat(response).containsExactly(
+      assertThat(response).isNotNull
+      assertThat(response!!.content).containsExactly(
         BulkUserRoleAdditionsJobSummary(
           id = UUID.fromString("11111111-1111-1111-1111-111111111111"),
           jiraReference = "ABC-123",
@@ -290,6 +346,28 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
           requestDateTime = LocalDateTime.parse("2026-06-01T11:11:11"),
         ),
       )
+      assertThat(response.pageable).isNotNull
+      assertThat(response.pageable.sort).isNotNull
+      assertThat(response.pageable.sort.sorted).isTrue
+      assertThat(response.pageable.sort.unsorted).isFalse
+      assertThat(response.pageable.sort.empty).isFalse
+      assertThat(response.pageable.offset).isEqualTo(2)
+      assertThat(response.pageable.pageNumber).isEqualTo(1)
+      assertThat(response.pageable.pageSize).isEqualTo(2)
+      assertThat(response.pageable.paged).isTrue
+      assertThat(response.pageable.unpaged).isFalse
+      assertThat(response.last).isTrue
+      assertThat(response.totalPages).isEqualTo(2)
+      assertThat(response.totalElements).isEqualTo(3)
+      assertThat(response.size).isEqualTo(2)
+      assertThat(response.number).isEqualTo(1)
+      assertThat(response.sort).isNotNull
+      assertThat(response.sort.empty).isFalse
+      assertThat(response.sort.unsorted).isFalse
+      assertThat(response.sort.sorted).isTrue
+      assertThat(response.numberOfElements).isEqualTo(1)
+      assertThat(response.first).isFalse
+      assertThat(response.empty).isFalse
     }
 
     @Test
@@ -301,10 +379,34 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
         .exchange()
         .expectStatus().isOk
-        .returnResult(object : ParameterizedTypeReference<List<BulkUserRoleAdditionsJobSummary>>() {})
+        .returnResult(object : ParameterizedTypeReference<PagedResponse<BulkUserRoleAdditionsJobSummary>>() {})
         .responseBody.blockFirst()
 
-      assertThat(response).isEmpty()
+      assertThat(response).isNotNull
+      assertThat(response!!.content).isEmpty()
+
+      assertThat(response.pageable).isNotNull
+      assertThat(response.pageable.sort).isNotNull
+      assertThat(response.pageable.sort.sorted).isTrue
+      assertThat(response.pageable.sort.unsorted).isFalse
+      assertThat(response.pageable.sort.empty).isFalse
+      assertThat(response.pageable.offset).isEqualTo(0)
+      assertThat(response.pageable.pageNumber).isEqualTo(0)
+      assertThat(response.pageable.pageSize).isEqualTo(0)
+      assertThat(response.pageable.paged).isFalse
+      assertThat(response.pageable.unpaged).isTrue
+      assertThat(response.last).isTrue
+      assertThat(response.totalPages).isEqualTo(1)
+      assertThat(response.totalElements).isEqualTo(0)
+      assertThat(response.size).isEqualTo(0)
+      assertThat(response.number).isEqualTo(0)
+      assertThat(response.sort).isNotNull
+      assertThat(response.sort.empty).isFalse
+      assertThat(response.sort.unsorted).isFalse
+      assertThat(response.sort.sorted).isTrue
+      assertThat(response.numberOfElements).isEqualTo(0)
+      assertThat(response.first).isTrue
+      assertThat(response.empty).isTrue
     }
   }
 
@@ -443,6 +545,184 @@ class BulkJobsControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.successCount").isEqualTo(0)
         .jsonPath("$.errorCount").isEqualTo(0)
     }
+  }
+
+  @Nested
+  inner class GetBulkUserJobAdditionsCsvDownload {
+    private val requestTime = LocalDateTime.parse("2026-06-01T11:11:11")
+
+    private val job = BulkUserJob(
+      id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+      status = BulkUserJobStatus.COMPLETE,
+      jiraReference = "GHI-789",
+      requestedBy = "Test",
+      requestDateTime = requestTime,
+    )
+
+    @BeforeEach
+    fun setUp() {
+      bulkUserJobItemRepository.deleteAll()
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @AfterEach
+    fun tearDown() {
+      bulkUserJobItemRepository.deleteAll()
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}/download")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}/download")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/bulk-jobs/user-role-additions/${UUID.randomUUID()}/download")
+        .headers(setAuthorisation(roles = listOf("ROLE_AUDIT")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should download a csv when job is complete and all items are successful`() {
+      job.addItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addItemWithStatus(2, BulkUserJobItemStatus.SUCCESS)
+      job.addItemWithStatus(3, BulkUserJobItemStatus.SUCCESS)
+
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual: EntityExchangeResult<String> = webTestClient.downloadBulkJobAdditionsCsv(job.id)
+
+      assertThat(actual).isNotNull
+      assertThat(actual.responseBody).isNotNull
+
+      val rows = actual.toCsvRows()
+
+      assertThat(rows).hasSize(4)
+      assertThat(rows[0]).isEqualTo("userId,roleCode,status,reason")
+      assertThat(rows[1]).isEqualTo("user_1,role_1,SUCCESS,")
+      assertThat(rows[2]).isEqualTo("user_2,role_2,SUCCESS,")
+      assertThat(rows[3]).isEqualTo("user_3,role_3,SUCCESS,")
+    }
+
+    @Test
+    fun `should download a csv when job is complete and all items are error`() {
+      job.addItemWithStatus(1, BulkUserJobItemStatus.ERROR)
+      job.addItemWithStatus(2, BulkUserJobItemStatus.ERROR)
+      job.addItemWithStatus(3, BulkUserJobItemStatus.ERROR)
+
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual: EntityExchangeResult<String> = webTestClient.downloadBulkJobAdditionsCsv(job.id)
+
+      assertThat(actual).isNotNull
+      assertThat(actual.responseBody).isNotNull
+
+      val rows = actual.toCsvRows()
+      assertThat(rows).hasSize(4)
+      assertThat(rows[0]).isEqualTo("userId,roleCode,status,reason")
+      assertThat(rows[1]).isEqualTo("user_1,role_1,ERROR,error_desc_1")
+      assertThat(rows[2]).isEqualTo("user_2,role_2,ERROR,error_desc_2")
+      assertThat(rows[3]).isEqualTo("user_3,role_3,ERROR,error_desc_3")
+    }
+
+    @Test
+    fun `should download a csv when job is complete and items are success and error`() {
+      job.addItemWithStatus(1, BulkUserJobItemStatus.ERROR)
+      job.addItemWithStatus(2, BulkUserJobItemStatus.SUCCESS)
+      job.addItemWithStatus(3, BulkUserJobItemStatus.ERROR)
+
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual: EntityExchangeResult<String> = webTestClient.downloadBulkJobAdditionsCsv(job.id)
+
+      assertThat(actual).isNotNull
+      assertThat(actual.responseBody).isNotNull
+
+      val rows = actual.toCsvRows()
+      assertThat(rows).hasSize(4)
+      assertThat(rows[0]).isEqualTo("userId,roleCode,status,reason")
+      assertThat(rows[1]).isEqualTo("user_1,role_1,ERROR,error_desc_1")
+      assertThat(rows[2]).isEqualTo("user_2,role_2,SUCCESS,")
+      assertThat(rows[3]).isEqualTo("user_3,role_3,ERROR,error_desc_3")
+    }
+
+    @Test
+    fun `should download a csv with header only when job has no items`() {
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val actual: EntityExchangeResult<String> = webTestClient.downloadBulkJobAdditionsCsv(job.id)
+
+      assertThat(actual).isNotNull
+      assertThat(actual.responseBody).isNotNull
+
+      val rows = actual.toCsvRows()
+      assertThat(rows).hasSize(1)
+      assertThat(rows[0]).isEqualTo("userId,roleCode,status,reason")
+    }
+
+    @Test
+    fun `should return status 400 when bulk user additions job is not complete`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+        status = BulkUserJobStatus.PENDING,
+        jiraReference = "GHI-789",
+        requestedBy = "Test",
+        requestDateTime = requestTime,
+      )
+
+      bulkUserJobRepository.saveAndFlush(job)
+
+      webTestClient.get()
+        .uri("/bulk-jobs/user-role-additions/${job.id}/download")
+        .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(400)
+        .jsonPath("$.userMessage").isEqualTo("unable to generate bulk user download csv: job ${job.id} is not complete")
+    }
+
+    private fun WebTestClient.downloadBulkJobAdditionsCsv(id: UUID): EntityExchangeResult<String> = this.get()
+      .uri("/bulk-jobs/user-role-additions/$id/download")
+      .headers(setAuthorisation(user = "TEST_USR", roles = listOf("ROLE_MANAGE_USER_BULK_JOBS")))
+      .exchange()
+      .expectStatus().isOk
+      .expectHeader()
+      .contentTypeCompatibleWith("text/csv")
+      .expectHeader()
+      .valueEquals("Content-Disposition", "attachment; filename=bulk-roles-assignments-$id.csv")
+      .expectBody<String>()
+      .returnResult()
+
+    private fun BulkUserJob.addItemWithStatus(index: Int, status: BulkUserJobItemStatus) {
+      this.jobItems.add(
+        BulkUserJobItem(
+          username = "user_$index",
+          rolename = "role_$index",
+          status = status,
+          bulkUserJob = this,
+          result = if (status == BulkUserJobItemStatus.ERROR) "error_desc_$index" else null,
+        ),
+      )
+    }
+
+    private fun EntityExchangeResult<String>.toCsvRows(): List<String> = this.responseBody!!
+      .trim()
+      .split("\n")
   }
 }
 

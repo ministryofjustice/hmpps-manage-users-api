@@ -1,43 +1,84 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob
 
+import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.validation.ValidationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.within
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentCaptor
+import org.mockito.Captor
+import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.atLeast
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.firstValue
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import uk.gov.justice.digital.hmpps.manageusersapi.event.BulkJobPublisher
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobItemRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.BulkUserJobRepository
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJob
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItem
+import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobItemStatus.CREATED
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.bulkjob.BulkUserRoleAdditionsRequest
+import java.io.Writer
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.SECONDS
+import java.util.Optional
 import java.util.UUID
+import java.util.stream.Stream
 
+@ExtendWith(MockitoExtension::class)
 class BulkUserJobServiceTest {
   private val bulkUserJobRepository: BulkUserJobRepository = mock()
+  private val bulkUserJobItemRepository: BulkUserJobItemRepository = mock()
   private val bulkJobPublisher: BulkJobPublisher = mock()
+  private val telemetryClient: TelemetryClient = mock()
   private val bulkUserJobCaptor = argumentCaptor<BulkUserJob>()
-  private val bulkUserJobService = BulkUserJobService(bulkUserJobRepository, bulkJobPublisher)
+  private val bulkUserJobService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, telemetryClient, 5000)
   private var jiraReference: String = "JIRA-123"
   private var roles: List<String> = listOf("ROLE_ONE", "ROLE_TWO")
+
+  @AfterEach
+  fun cleanUpTransactionSynchronization() {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.clearSynchronization()
+    }
+  }
+
+  private fun triggerAfterCommit() {
+    TransactionSynchronizationManager.getSynchronizations().forEach { it.afterCommit() }
+  }
+
+  @Test
+  fun `throws when large-batch-warning-threshold is not positive`() {
+    assertThrows<IllegalArgumentException> {
+      BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, telemetryClient, 0)
+    }
+  }
 
   @Nested
   inner class CreateBulkUserRoleAdditionsJob {
@@ -75,12 +116,104 @@ class BulkUserJobServiceTest {
         .hasMessage("Users csv does not contain any rows")
     }
 
+    @Test
+    fun `Bulk user role additions job skips the userId header row when present`() {
+      whenCreateBulkUserRoleAdditionsJobWithCsvContent("userId\nUSER123\nUSER456".toByteArray())
+
+      verify(bulkUserJobRepository).save(bulkUserJobCaptor.capture())
+      val bulkUserJob = bulkUserJobCaptor.firstValue
+      assertThat(bulkUserJob.jobItems).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+        .containsExactlyInAnyOrder(
+          BulkUserJobItem(username = "USER123", rolename = "ROLE_ONE", status = CREATED, bulkUserJob = bulkUserJob),
+          BulkUserJobItem(username = "USER123", rolename = "ROLE_TWO", status = CREATED, bulkUserJob = bulkUserJob),
+          BulkUserJobItem(username = "USER456", rolename = "ROLE_ONE", status = CREATED, bulkUserJob = bulkUserJob),
+          BulkUserJobItem(username = "USER456", rolename = "ROLE_TWO", status = CREATED, bulkUserJob = bulkUserJob),
+        )
+    }
+
+    @Test
+    fun `Bulk user role additions ignores the userId header regardless of case`() {
+      whenCreateBulkUserRoleAdditionsJobWithCsvContent("USERID\nUSER123".toByteArray())
+
+      verify(bulkUserJobRepository).save(bulkUserJobCaptor.capture())
+      val bulkUserJob = bulkUserJobCaptor.firstValue
+      assertThat(bulkUserJob.jobItems.map { it.username }).containsOnly("USER123")
+    }
+
+    @Test
+    fun `Bulk user role additions validation error when only the header row is present`() {
+      assertThatThrownBy { whenCreateBulkUserRoleAdditionsJobWithCsvContent("userId".toByteArray()) }
+        .isInstanceOf(ValidationException::class.java)
+        .hasMessage("Users csv does not contain any rows")
+    }
+
     @ParameterizedTest
     @ValueSource(strings = ["USER123,USER456", "USER123\nUSER456,USER789"])
     fun `Bulk user role additions validation error when not exactly one column`(csvContent: String) {
       assertThatThrownBy { whenCreateBulkUserRoleAdditionsJobWithCsvContent(csvContent.toByteArray()) }
         .isInstanceOf(ValidationException::class.java)
         .hasMessage("Users csv row does not have exactly 1 column")
+    }
+
+    @Test
+    fun `Bulk user role additions job tracks a telemetry event when the batch exceeds the warning threshold`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val lowThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 3)
+
+      lowThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job does not track a telemetry event when the batch is within the warning threshold`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val highThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 5000)
+
+      highThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient, never()).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job defers large-batch telemetry to afterCommit when inside a transaction`() {
+      val warningTelemetryClient: TelemetryClient = mock()
+      val lowThresholdService = BulkUserJobService(bulkUserJobRepository, bulkUserJobItemRepository, bulkJobPublisher, warningTelemetryClient, 3)
+
+      TransactionSynchronizationManager.initSynchronization()
+
+      lowThresholdService.createBulkUserRoleAdditionsJob(
+        MockMultipartFile("users.csv", "USER123\nUSER456".toByteArray()),
+        BulkUserRoleAdditionsRequest(jiraReference, roles),
+        "userone",
+      )
+
+      verify(warningTelemetryClient, never()).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+
+      triggerAfterCommit()
+
+      verify(warningTelemetryClient).trackEvent(eq("BulkRoleAssignmentLargeBatch"), any(), anyOrNull())
+    }
+
+    @Test
+    fun `Bulk user role additions job defers SQS publish to afterCommit when inside a transaction`() {
+      TransactionSynchronizationManager.initSynchronization()
+
+      whenCreateBulkUserRoleAdditionsJobWithCsvContent("USER123\nUSER456".toByteArray())
+
+      verify(bulkJobPublisher, never()).publishBulkUserJobEvent(any())
+
+      triggerAfterCommit()
+
+      verify(bulkJobPublisher).publishBulkUserJobEvent(any())
     }
 
     private fun whenCreateBulkUserRoleAdditionsJobWithCsvContent(contentBytes: ByteArray): UUID = bulkUserJobService
@@ -98,6 +231,8 @@ class BulkUserJobServiceTest {
       BulkUserJob(jiraReference = "ABC-123", requestedBy = "user1"),
       BulkUserJob(jiraReference = "DEF-456", requestedBy = "user2"),
     )
+
+    private val pageResult = PageImpl(jobs)
 
     @Test
     fun `Can get bulk user jobs with no search or pagination when no arguments are given`() {
@@ -118,7 +253,7 @@ class BulkUserJobServiceTest {
         "",
         Pageable.unpaged(Sort.by("RequestDateTime").descending()),
       )
-      assertThat(result).isEqualTo(jobs)
+      assertThat(result).isEqualTo(pageResult)
     }
 
     @Test
@@ -140,7 +275,7 @@ class BulkUserJobServiceTest {
         "test",
         Pageable.unpaged(Sort.by("RequestDateTime").descending()),
       )
-      assertThat(result).isEqualTo(jobs)
+      assertThat(result).isEqualTo(pageResult)
     }
 
     @Test
@@ -160,7 +295,7 @@ class BulkUserJobServiceTest {
         "",
         PageRequest.of(0, 1, Sort.by("RequestDateTime").descending()),
       )
-      assertThat(result).isEqualTo(jobs)
+      assertThat(result).isEqualTo(pageResult)
     }
 
     @Test
@@ -180,7 +315,7 @@ class BulkUserJobServiceTest {
         "test",
         PageRequest.of(0, 1, Sort.by("RequestDateTime").descending()),
       )
-      assertThat(result).isEqualTo(jobs)
+      assertThat(result).isEqualTo(pageResult)
     }
   }
 
@@ -217,6 +352,128 @@ class BulkUserJobServiceTest {
 
       assertThat(actual).isNull()
       verify(bulkUserJobRepository, times(1)).findDetailsById(id)
+    }
+  }
+
+  @Nested
+  inner class WriteJobResultsToCsv {
+
+    @Captor
+    private lateinit var writerCaptor: ArgumentCaptor<String>
+
+    private val writer: Writer = mock()
+    private val job: BulkUserJob = BulkUserJob(jiraReference = "ABC-123", requestedBy = "user1")
+
+    private val jobId = UUID.randomUUID()
+
+    @Test
+    fun `should throw exception when job does not exist`() {
+      whenever(bulkUserJobRepository.findById(jobId))
+        .thenReturn(Optional.empty())
+
+      val actual = assertThrows<BulkUserJobNotFoundException> {
+        bulkUserJobService.writeJobResultsToCsv(writer, jobId)
+      }
+
+      assertThat(actual).isNotNull
+      assertThat(actual.message).isEqualTo("Bulk user job $jobId not found")
+
+      verify(bulkUserJobRepository, times(1)).findById(jobId)
+      verifyNoInteractions(writer, bulkUserJobItemRepository)
+    }
+
+    @Test
+    fun `should throw exception when job exists but is not complete`() {
+      whenever(bulkUserJobRepository.findById(jobId))
+        .thenReturn(Optional.of(job))
+
+      whenever(bulkUserJobRepository.findCompletedJobById(jobId))
+        .thenReturn(null)
+
+      val actual = assertThrows<BulkUserJobNotCompleteException> {
+        bulkUserJobService.writeJobResultsToCsv(writer, jobId)
+      }
+
+      assertThat(actual).isNotNull
+      assertThat(actual.message).isEqualTo("unable to generate bulk user download csv: job $jobId is not complete")
+
+      verify(bulkUserJobRepository, times(1)).findById(jobId)
+      verify(bulkUserJobRepository, times(1)).findCompletedJobById(jobId)
+      verifyNoInteractions(writer)
+    }
+
+    @Test
+    fun `should write header when no items exist for job`() {
+      whenever(bulkUserJobRepository.findById(jobId))
+        .thenReturn(Optional.of(job))
+
+      whenever(bulkUserJobRepository.findCompletedJobById(jobId))
+        .thenReturn(jobId)
+
+      whenever(bulkUserJobItemRepository.streamByBulkUserJobId(jobId))
+        .thenReturn(Stream.empty())
+
+      bulkUserJobService.writeJobResultsToCsv(writer, jobId)
+
+      verify(bulkUserJobRepository, times(1)).findById(jobId)
+      verify(bulkUserJobRepository, times(1)).findCompletedJobById(jobId)
+      verify(writer).write(writerCaptor.capture())
+      verify(writer, atLeast(1)).flush()
+
+      assertThat(writerCaptor.allValues).hasSize(1)
+      assertThat(writerCaptor.firstValue).isEqualTo("userId,roleCode,status,reason\n")
+    }
+
+    @Test
+    fun `should write all items when items stream is not empty`() {
+      whenever(bulkUserJobRepository.findById(jobId))
+        .thenReturn(Optional.of(job))
+
+      whenever(bulkUserJobRepository.findCompletedJobById(jobId))
+        .thenReturn(jobId)
+
+      whenever(bulkUserJobItemRepository.streamByBulkUserJobId(jobId))
+        .thenReturn(
+          Stream.of(
+            BulkUserJobItem(
+              id = UUID.randomUUID(),
+              username = "user1",
+              rolename = "role1",
+              status = BulkUserJobItemStatus.SUCCESS,
+              result = null,
+              bulkUserJob = job,
+            ),
+            BulkUserJobItem(
+              id = UUID.randomUUID(),
+              username = "user2",
+              rolename = "role2",
+              status = BulkUserJobItemStatus.SUCCESS,
+              result = null,
+              bulkUserJob = job,
+            ),
+            BulkUserJobItem(
+              id = UUID.randomUUID(),
+              username = "user3",
+              rolename = "role3",
+              status = BulkUserJobItemStatus.ERROR,
+              result = "role already assigned",
+              bulkUserJob = job,
+            ),
+          ),
+        )
+
+      bulkUserJobService.writeJobResultsToCsv(writer, jobId)
+
+      verify(bulkUserJobRepository, times(1)).findById(jobId)
+      verify(bulkUserJobRepository, times(1)).findCompletedJobById(jobId)
+      verify(writer, times(4)).write(writerCaptor.capture())
+      verify(writer, atLeast(1)).flush()
+
+      assertThat(writerCaptor.allValues).hasSize(4)
+      assertThat(writerCaptor.allValues[0]).isEqualTo("userId,roleCode,status,reason\n")
+      assertThat(writerCaptor.allValues[1]).isEqualTo("user1,role1,SUCCESS,\n")
+      assertThat(writerCaptor.allValues[2]).isEqualTo("user2,role2,SUCCESS,\n")
+      assertThat(writerCaptor.allValues[3]).isEqualTo("user3,role3,ERROR,role already assigned\n")
     }
   }
 }

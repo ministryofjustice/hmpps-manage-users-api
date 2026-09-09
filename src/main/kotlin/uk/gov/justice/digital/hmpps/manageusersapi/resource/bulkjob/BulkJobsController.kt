@@ -9,6 +9,7 @@ import jakarta.validation.ValidationException
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -24,11 +25,16 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AcceptedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.bulkjob.BulkUserJobService
+import java.io.OutputStreamWriter
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -68,18 +74,19 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
     @RequestParam(required = false, name = "search") search: String = "",
     @RequestParam(required = false, name = "pageNumber") pageNumber: Int? = null,
     @RequestParam(required = false, name = "pageSize") pageSize: Int? = null,
-  ): List<BulkUserRoleAdditionsJobSummary> {
-    val jobs = bulkUserJobService.getBulkUserRoleAdditionsJobs(search, pageNumber, pageSize)
-    return jobs.map {
-      BulkUserRoleAdditionsJobSummary(
-        id = it.id,
-        jiraReference = it.jiraReference,
-        status = it.status.name,
-        requestedBy = it.requestedBy,
-        requestDateTime = it.requestDateTime,
-      )
-    }
-  }
+  ): PagedResponse<BulkUserRoleAdditionsJobSummary> = bulkUserJobService.getBulkUserRoleAdditionsJobs(
+    search,
+    pageNumber,
+    pageSize,
+  ).map {
+    BulkUserRoleAdditionsJobSummary(
+      id = it.id,
+      jiraReference = it.jiraReference,
+      status = it.status.name,
+      requestedBy = it.requestedBy,
+      requestDateTime = it.requestDateTime,
+    )
+  }.toPagedResponse()
 
   @GetMapping(path = ["/user-role-additions/{id}"])
   @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")
@@ -93,6 +100,25 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
   ): ResponseEntity<BulkUserRolesAdditionsDetails> = bulkUserJobService.getBulkUserRoleAdditionsJobDetails(id)?.let {
     ResponseEntity.ok(it.toBulkUserRolesAdditionsDetails())
   } ?: ResponseEntity.notFound().build()
+
+  @GetMapping(path = ["/user-role-additions/{id}/download"])
+  @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")
+  @Operation(
+    summary = "Provides a CSV download of the bulk job results.",
+    description = "Provides a CSV download of the bulk job results.",
+  )
+  @StandardApiResponses
+  fun getUserRoleAdditionsCsvDownload(@PathVariable("id") id: UUID): ResponseEntity<StreamingResponseBody> {
+    val body = StreamingResponseBody { outputStream ->
+      OutputStreamWriter(outputStream, "utf-8").use { writer ->
+        bulkUserJobService.writeJobResultsToCsv(writer, id)
+      }
+    }
+    return ResponseEntity.ok()
+      .contentType(MediaType.parseMediaType("text/csv"))
+      .header("Content-Disposition", "attachment; filename=bulk-roles-assignments-$id.csv")
+      .body(body)
+  }
 
   private fun validateCsvFile(file: MultipartFile) {
     if (file.isEmpty) {
@@ -112,6 +138,35 @@ class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
     totalCount = this.totalCount,
     successCount = this.successCount,
     errorCount = this.errorCount,
+  )
+
+  internal fun Page<BulkUserRoleAdditionsJobSummary>.toPagedResponse() = PagedResponse(
+    content = content,
+    pageable = PageDetails(
+      sort = PageSort(
+        sorted = pageable.sort.isSorted,
+        unsorted = pageable.sort.isUnsorted,
+        empty = pageable.sort.isEmpty,
+      ),
+      offset = pageable.takeIf { it.isPaged }?.offset?.toInt() ?: 0,
+      pageNumber = pageable.takeIf { it.isPaged }?.pageNumber ?: 0,
+      pageSize = pageable.takeIf { it.isPaged }?.pageSize ?: 0,
+      paged = pageable.isPaged,
+      unpaged = pageable.isUnpaged,
+    ),
+    last = isLast,
+    totalPages = totalPages,
+    totalElements = totalElements,
+    size = size,
+    number = number,
+    sort = PageSort(
+      sorted = sort.isSorted,
+      unsorted = sort.isUnsorted,
+      empty = sort.isEmpty,
+    ),
+    numberOfElements = numberOfElements,
+    first = isFirst,
+    empty = isEmpty,
   )
 }
 

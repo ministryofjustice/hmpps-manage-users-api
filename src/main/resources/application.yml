@@ -98,7 +98,6 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-    version: 5.32.2
 
 api:
   health-timeout-ms: 1000
@@ -110,6 +109,19 @@ application:
     enable-user.template: 440b362b-5fd1-4b0e-b962-382da6539402
 
   smoketest.enabled: false
+
+  bulk-jobs:
+    stale-claimed-threshold: PT1H
+    reconciliation-interval: PT5M
+    throttling:
+      # Maximum sustained rate of API calls as part of the bulk job processing
+      api-permits-per-second: 5
+      # Maximum number of bulk job item messages processed concurrently
+      max-concurrent-messages: 3
+      # Must be <= max-concurrent-messages
+      max-messages-per-poll: 3
+      # Any jobs larger than this will log a warning for visibility but otherwise get processed as normal
+      large-batch-warning-threshold: 5000
 
 authorization-server:
   token:
@@ -170,4 +182,8 @@ hmpps:
   sqs:
     queues:
       bulkuserjobqueue:
+        asyncQueueClient: true
+      bulkuserjobitemqueue:
+        asyncQueueClient: true
+      audit:
         asyncQueueClient: true

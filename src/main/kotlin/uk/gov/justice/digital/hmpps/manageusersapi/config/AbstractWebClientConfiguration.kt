@@ -20,6 +20,7 @@ import reactor.netty.Connection
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
 import uk.gov.justice.digital.hmpps.manageusersapi.utils.UserContext
+import uk.gov.justice.hmpps.kotlin.auth.authorisedWebClient
 import java.time.Duration
 import java.time.Duration.ofSeconds
 
@@ -64,6 +65,24 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
         ),
       )
       .build()
+  }
+
+  /**
+   * Builds a web client that authenticates with a client-credentials token when no user token or active request exists
+   */
+  fun getSystemTokenWebClient(
+    builder: WebClient.Builder,
+    authorizedClientManager: OAuth2AuthorizedClientManager,
+  ): WebClient {
+    val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java)
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
+
+    return builder.authorisedWebClient(
+      authorizedClientManager,
+      registrationId = clientId,
+      url = endpointUrl,
+      timeout = apiTimeout,
+    )
   }
 
   fun getWebClientWithCurrentUserToken(

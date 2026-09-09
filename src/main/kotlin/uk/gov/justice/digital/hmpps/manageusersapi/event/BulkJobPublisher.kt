@@ -32,7 +32,7 @@ class BulkJobPublisher(
         .queueUrl(bulkUserJobQueueUrl)
         .messageBody(objectMapper.writeValueAsString(bulkUserJobEvent))
         .build(),
-    )
+    ).join()
     log.info("Published bulk user job event: ${job.id}")
   }
 }

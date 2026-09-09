@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.AccessPeriod
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistAddRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistPatchRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserAllowlistUserType
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.auth.UserAllowlistService
 import java.util.*
@@ -55,9 +56,10 @@ class UserAllowlistServiceTest {
   fun `getting all allow list users calls the auth API`() {
     val name = null
     val status = Status.ALL
+    val userType = UserAllowlistUserType.DIGITAL
     val pageable = Pageable.unpaged()
 
-    userAllowlistService.getAllUsers(name, status, pageable)
-    verify(authApiService).getAllAllowlistUsers(name, status, pageable)
+    userAllowlistService.getAllUsers(name, status, userType, pageable)
+    verify(authApiService).getAllAllowlistUsers(name, status, userType, pageable)
   }
 }

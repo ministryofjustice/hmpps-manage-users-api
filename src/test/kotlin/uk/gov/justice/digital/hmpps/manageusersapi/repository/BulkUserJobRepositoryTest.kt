@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -174,6 +175,50 @@ class BulkUserJobRepositoryTest {
   }
 
   @Nested
+  inner class FindWithJobItemsById {
+
+    @Test
+    fun `should return job with job items when id exists`() {
+      val job = BulkUserJob(
+        id = UUID.fromString("55555555-5555-5555-5555-555555555555"),
+        status = BulkUserJobStatus.PENDING,
+        jiraReference = "JKL-123",
+        requestedBy = "Test",
+        requestDateTime = requestTime.plusHours(3),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user1",
+          rolename = "role1",
+          status = BulkUserJobItemStatus.CREATED,
+          bulkUserJob = job,
+        ),
+      )
+      job.jobItems.add(
+        BulkUserJobItem(
+          username = "user2",
+          rolename = "role2",
+          status = BulkUserJobItemStatus.PUBLISHED,
+          bulkUserJob = job,
+        ),
+      )
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findWithJobItemsById(job.id)
+
+      assertThat(actual).isPresent
+      assertThat(actual.get()).usingRecursiveComparison().ignoringFields("jobItems").isEqualTo(job)
+      assertThat(actual.get().jobItems).usingRecursiveFieldByFieldElementComparatorIgnoringFields("bulkUserJob")
+        .containsExactlyInAnyOrderElementsOf(job.jobItems)
+    }
+
+    @Test
+    fun `should return empty when id does not exist`() {
+      assertThat(bulkUserJobRepository.findWithJobItemsById(UUID.randomUUID())).isEmpty
+    }
+  }
+
+  @Nested
   inner class FindDetailsById {
 
     @Test
@@ -261,5 +306,221 @@ class BulkUserJobRepositoryTest {
       assertThat(actual.successCount).isEqualTo(0)
       assertThat(actual.errorCount).isEqualTo(0)
     }
+  }
+
+  @Nested
+  inner class FindCompletedJobById {
+
+    @BeforeEach
+    fun setup() {
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @AfterEach
+    fun teardown() {
+      bulkUserJobRepository.deleteAll()
+    }
+
+    @Test
+    fun `should return ID when job exists and all items have status SUCCESS`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.COMPLETE)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.SUCCESS)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNotNull
+      assertThat(actual).isEqualTo(job.id)
+    }
+
+    @Test
+    fun `should return ID when job exists and all items have status ERROR`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.COMPLETE)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.ERROR)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.ERROR)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.ERROR)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNotNull
+      assertThat(actual).isEqualTo(job.id)
+    }
+
+    @Test
+    fun `should return id when job has status COMPLETE has zero items`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.COMPLETE)
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNotNull
+      assertThat(actual).isEqualTo(job.id)
+    }
+
+    @Test
+    fun `should return null when job has status PENDING but items have status SUCCESS`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.SUCCESS)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+
+    @Test
+    fun `should return null when job has status PENDING but items have status ERROR`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.ERROR)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.ERROR)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.ERROR)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+
+    @Test
+    fun `should return null when job has status PENDING but items have status CREATED`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.CREATED)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.CREATED)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.CREATED)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+
+    @Test
+    fun `should return null when job has status PENDING but items have status STARTED`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.STARTED)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.STARTED)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.STARTED)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+
+    @Test
+    fun `should return null when job has status COMPLETE but items have status CREATED`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.COMPLETE)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.CREATED)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.CREATED)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.CREATED)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+
+    @Test
+    fun `should return null when job has status COMPLETE but items have status STARTED`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.COMPLETE)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.STARTED)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.STARTED)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.STARTED)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+
+    @Test
+    fun `should return null when job has status COMPLETE but at least 1 item is NOT SUCCESS or ERROR`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.COMPLETE)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.STARTED)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(3, BulkUserJobItemStatus.ERROR)
+
+      bulkUserJobRepository.save(job)
+
+      val actual = bulkUserJobRepository.findCompletedJobById(job.id)
+      assertThat(actual).isNull()
+    }
+  }
+
+  @Nested
+  inner class MarkCompleteIfAllItemsTerminal {
+    @Test
+    fun `marks pending job complete when all items are success or error`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.ERROR)
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val updatedRows = bulkUserJobRepository.markCompleteIfAllItemsTerminal(job.id)
+
+      assertThat(updatedRows).isEqualTo(1)
+      assertThat(bulkUserJobRepository.findById(job.id)).isPresent.hasValueSatisfying {
+        assertThat(it.status).isEqualTo(BulkUserJobStatus.COMPLETE)
+      }
+    }
+
+    @Test
+    fun `does not mark complete when non-terminal items remain`() {
+      val job = createBulkUserJobWithStatus(BulkUserJobStatus.PENDING)
+      job.addJobItemWithStatus(1, BulkUserJobItemStatus.SUCCESS)
+      job.addJobItemWithStatus(2, BulkUserJobItemStatus.STARTED)
+      bulkUserJobRepository.saveAndFlush(job)
+
+      val updatedRows = bulkUserJobRepository.markCompleteIfAllItemsTerminal(job.id)
+
+      assertThat(updatedRows).isEqualTo(0)
+      assertThat(bulkUserJobRepository.findById(job.id)).isPresent.hasValueSatisfying {
+        assertThat(it.status).isEqualTo(BulkUserJobStatus.PENDING)
+      }
+    }
+  }
+
+  @Nested
+  inner class FindIncompleteJobIds {
+    @Test
+    fun `returns ids of jobs that are not complete`() {
+      givenBulkJobsExist()
+
+      val actual = bulkUserJobRepository.findIncompleteJobIds()
+
+      assertThat(actual).containsExactlyInAnyOrder(pendingBulkUserJob.id, pendingBulkUserJobTwo.id)
+    }
+
+    @Test
+    fun `returns empty list when all jobs are complete`() {
+      bulkUserJobRepository.save(completedBulkUserJob)
+
+      val actual = bulkUserJobRepository.findIncompleteJobIds()
+
+      assertThat(actual).isEmpty()
+    }
+  }
+
+  private fun createBulkUserJobWithStatus(status: BulkUserJobStatus) = BulkUserJob(
+    id = UUID.fromString("33333333-3333-3333-3333-333333333333"),
+    status = status,
+    jiraReference = "GHI-789",
+    requestedBy = "Test",
+    requestDateTime = requestTime.plusHours(2),
+  )
+
+  internal fun BulkUserJob.addJobItemWithStatus(index: Int, status: BulkUserJobItemStatus) {
+    this.jobItems.add(
+      BulkUserJobItem(
+        username = "user$index",
+        rolename = "role$index",
+        status = status,
+        bulkUserJob = this,
+      ),
+    )
   }
 }
