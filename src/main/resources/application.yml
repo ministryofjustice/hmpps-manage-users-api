@@ -98,7 +98,6 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-    version: 5.32.11
 
 api:
   health-timeout-ms: 1000
@@ -185,4 +184,6 @@ hmpps:
       bulkuserjobqueue:
         asyncQueueClient: true
       bulkuserjobitemqueue:
+        asyncQueueClient: true
+      audit:
         asyncQueueClient: true

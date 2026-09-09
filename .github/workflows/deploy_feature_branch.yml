@@ -1,0 +1,60 @@
+name: Deploy feature branch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-stage
+  cancel-in-progress: true
+
+jobs:
+  helm_lint:
+    name: helm lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: stage
+  app_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.app_version.outputs.version }}
+    steps:
+      - id: app_version
+        name: Application version creators
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/create_app_version@1061afed0f02c82850314e2fc29711523139e574 # v1.1.2
+  create-artifact:
+    name: Build the artifact for deployment to stage for testing
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
+    needs: app_version
+    with:
+      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version }} ./gradlew assemble check'
+      upload-build-artifacts: true
+      build-artifact-name: 'build-results'
+      upload-test-artifacts: false
+      java-version: "25"
+  build_image:
+    name: Build docker image
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
+    needs: create-artifact
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      push: true
+      docker_multiplatform: true
+      tag_latest: false
+      download_build_artifacts: true
+  deploy_stage:
+    if: ${{ !failure() && !cancelled() }}
+    name: Deploy to stage
+    needs:
+      - build_image
+      - helm_lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: stage
+      app_version: ${{ needs.build_image.outputs.app_version }}
