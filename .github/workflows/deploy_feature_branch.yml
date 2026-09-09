@@ -31,7 +31,7 @@ jobs:
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     needs: app_version
     with:
-      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version }} ./gradlew assemble'
+      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version }} ./gradlew assemble check'
       upload-build-artifacts: true
       build-artifact-name: 'build-results'
       upload-test-artifacts: false
