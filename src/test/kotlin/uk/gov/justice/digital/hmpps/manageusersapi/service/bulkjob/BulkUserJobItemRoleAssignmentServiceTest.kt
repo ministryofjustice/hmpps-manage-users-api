@@ -264,7 +264,7 @@ class BulkUserJobItemRoleAssignmentServiceTest {
       correlationId = eq(null),
       `when` = any(),
       who = eq(message.requestedBy),
-      service = anyOrNull(),
+      service = eq("hmpps-manage-users-api"),
       details = eq(
         objectMapper.writeValueAsString(
           buildMap<String, Any?> {
