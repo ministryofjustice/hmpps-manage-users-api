@@ -19,7 +19,6 @@ jobs:
     with:
       environment: stage
   app_version:
-    if: ${{ inputs['deploy-to-stage'] == true }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.app_version.outputs.version }}
