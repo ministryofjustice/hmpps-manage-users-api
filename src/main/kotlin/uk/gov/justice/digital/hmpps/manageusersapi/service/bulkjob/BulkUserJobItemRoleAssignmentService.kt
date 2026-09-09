@@ -102,6 +102,7 @@ class BulkUserJobItemRoleAssignmentService(
         subjectId = username,
         subjectType = "USERNAME",
         correlationId = null,
+        service = "hmpps-manage-users-api",
         details = objectMapper.writeValueAsString(
           BulkRoleAssignmentAuditDetails(
             role = roleCode,
