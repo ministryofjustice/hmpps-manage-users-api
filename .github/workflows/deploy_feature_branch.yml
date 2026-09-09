@@ -2,12 +2,6 @@ name: Deploy feature branch
 
 on:
   workflow_dispatch:
-    inputs:
-      deploy-to-stage:
-        description: Deploy the branch to stage?
-        default: true
-        required: false
-        type: boolean
 
 permissions:
   contents: read
@@ -19,7 +13,6 @@ concurrency:
 
 jobs:
   helm_lint:
-    if: ${{ inputs['deploy-to-stage'] == true }}
     name: helm lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
@@ -55,7 +48,7 @@ jobs:
       tag_latest: false
       download_build_artifacts: true
   deploy_stage:
-    if: ${{ !failure() && !cancelled() && inputs['deploy-to-stage'] == true }}
+    if: ${{ !failure() && !cancelled() }}
     name: Deploy to stage
     needs:
       - build_image
