@@ -119,3 +119,14 @@ generic-service:
 
 generic-prometheus-alerts:
   targetApplication: hmpps-manage-users-api
+
+rateLimitingIngress:
+  enabled: true
+  paths:
+    - /users/search
+  annotations:
+    # setting to 429 (default is 503) so we can alert on this
+    nginx.ingress.kubernetes.io/server-snippet: |
+      limit_req_status 429;
+    nginx.ingress.kubernetes.io/limit-rps: "1"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "1"

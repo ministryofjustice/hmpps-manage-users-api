@@ -1,0 +1,43 @@
+{{- $genericAlertsValues := index .Values "generic-prometheus-alerts" -}}
+  {{- if .Values.rateLimitingIngress.enabled }}
+
+  {{- $genericAlerts := dict
+        "Chart" ((index .Subcharts "generic-prometheus-alerts").Chart)
+        "Values" $genericAlertsValues
+        "Release" .Release
+        "Capabilities" .Capabilities
+        "Files" .Files
+        "Template" .Template
+    -}}
+
+  {{- $targetNamespace := .Release.Namespace }}
+  {{- $targetApplication := required "A value for targetApplication must be set" $genericAlertsValues.targetApplication }}
+  {{- $targetIngress := printf "%s-rate-limiting-v1-2" $targetApplication -}}
+  {{- $targetApplicationBusinessHours := printf "and ON() %s:business_hours" $genericAlertsValues.targetApplication | replace "-" "_" }}
+  {{- $businessOrAllHoursExpression := ternary $targetApplicationBusinessHours "" $genericAlertsValues.businessHoursOnly}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $targetApplication }}-rate-limiting-ingress
+  labels:
+    {{- $genericAlertsWithParentChart := merge (dict "Chart" .Chart) $genericAlerts -}}
+    {{ include "generic-prometheus-alerts.labels" $genericAlertsWithParentChart | nindent 4 }}
+spec:
+  groups:
+    - name: {{ $targetApplication }}-rate-limiting-ingress
+      rules:
+          - alert: RatelimitBlocking
+            annotations:
+              summary: Ingress is being rate limited.
+              message: Rate limit is being applied on ingress {{`{{`}} $labels.exported_namespace {{`}}`}}/{{`{{`}} $labels.ingress {{`}}`}}.
+              runbook_url: {{ $genericAlertsValues.runbookUrl }}ingress-rate-limiting
+              dashboard_url: {{ $genericAlertsValues.grafanaUrl }}/d/golden-signals/golden-signals?orgId=1&var-namespace={{ $targetNamespace }}&var-service={{ $targetApplication }}
+            expr: |-
+              avg(rate(nginx_ingress_controller_requests{exported_namespace=~"{{ $targetNamespace }}", ingress=~"{{ $targetIngress }}", status="429"}[1m]) > 0) by (ingress, exported_namespace)
+              {{ $businessOrAllHoursExpression }}
+            for: 1m
+            labels:
+              {{- include "generic-prometheus-alerts.ruleLabels" $genericAlerts | nindent 12 }}
+
+  {{- end }}
