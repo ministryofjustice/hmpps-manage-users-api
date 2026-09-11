@@ -22,7 +22,8 @@ kind: Ingress
 metadata:
   name: {{ $ingressName }}
   labels:
-    {{- include "generic-service.labels" $generic | nindent 4 }}
+    { { - $genericWithParentChart := merge (dict "Chart" .Chart) $generic - } }
+      { { - include "generic-service.labels" $genericWithParentChart | nindent 4 } }
   annotations:
     {{- with .Values.rateLimitingIngress.annotations }}
     {{- toYaml . | nindent 4 }}
