@@ -1,0 +1,33 @@
+{{- if .Values.ingressAlertsEnabled -}}
+  {{- $targetNamespace := .Release.Namespace }}
+  {{- $targetApplication := required "A value for targetApplication must be set" .Values.targetApplication }}
+  {{- $defaultTargetIngress := print .Values.targetApplication "(-v1-2)" }}
+  {{- $targetIngress := default $defaultTargetIngress .Values.ingressTargetOverride }}
+  {{- $modSecBlockingStatusCode := default "406" .Values.modSecBlockingStatusCodeOverride }}
+  {{- $targetApplicationBusinessHours := printf "and ON() %s:business_hours" .Values.targetApplication | replace "-" "_" }}
+  {{- $businessOrAllHoursExpression := ternary $targetApplicationBusinessHours "" .Values.businessHoursOnly}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $targetApplication }}-ingress
+  labels:
+    {{- include "generic-prometheus-alerts.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: { { $targetApplication } }-ingress
+      rules:
+          - alert: RatelimitBlocking
+            annotations:
+              summary: Ingress is being rate limited.
+              message: Rate limit is being applied on ingress {{`{{`}} $labels.exported_namespace {{`}}`}}/{{`{{`}} $labels.ingress {{`}}`}}.
+              runbook_url: {{ .Values.runbookUrl }}ingress-rate-limiting
+              dashboard_url: {{ $.Values.grafanaUrl }}/d/golden-signals/golden-signals?orgId=1&var-namespace={{ $targetNamespace }}&var-service={{ $targetApplication }}
+            expr: |-
+              avg(rate(nginx_ingress_controller_requests{exported_namespace=~"{{ $targetNamespace }}", ingress=~"{{ $targetIngress }}", status="429"}[1m]) > 0) by (ingress, exported_namespace)
+              {{ $businessOrAllHoursExpression }}
+            for: 1m
+            labels:
+              {{- include "generic-prometheus-alerts.ruleLabels" $ | nindent 12 }}
+
+  {{- end }}
