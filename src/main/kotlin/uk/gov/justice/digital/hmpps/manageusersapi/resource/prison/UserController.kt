@@ -484,12 +484,12 @@ class UserController(
   ) = prisonUserService.findUserDetailsByUsername(username)
 
   @GetMapping("/prisonusers/by-email/{email}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
-  @PreAuthorize("hasAnyRole( 'ROLE_MANANGE_USERS__USER_ACCOUNT__RO')")
+  @PreAuthorize("hasAnyRole('ROLE_MANAGE_USERS__USER_ACCOUNT__RO')")
   @Operation(
     summary = "Get user details by email",
-    description = "Return account Information for all accounts that match the email. Requires role ROLE_MANANGE_USERS__USER_ACCOUNT__RO",
+    description = "Return account Information for all accounts that match the email. Requires role ROLE_MANAGE_USERS__USER_ACCOUNT__RO",
     security = [
-      SecurityRequirement(name = "MANANGE_USERS__USER_ACCOUNT__RO"),
+      SecurityRequirement(name = "MANAGE_USERS__USER_ACCOUNT__RO"),
     ],
   )
   @StandardApiResponses
