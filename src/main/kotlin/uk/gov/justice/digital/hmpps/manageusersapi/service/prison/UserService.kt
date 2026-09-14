@@ -79,6 +79,7 @@ class UserService(
   fun findUsersByUsernames(usernames: List<String>) = prisonUserApiService.findUserBasicDetailsByUsernames(usernames)
 
   fun findUserDetailsByUsername(username: String) = prisonUserApiService.findUserDetailsByUsername(username)
+  fun findUserDetailsByEmail(email: String) = prisonUserApiService.findUserDetailsByEmail(email)
 
   fun createLinkedCentralAdminUser(linkUserRequest: CreateLinkedCentralAdminUserRequest): PrisonStaffUser {
     val prisonStaffUser = prisonUserApiService.linkCentralAdminUser(linkUserRequest)

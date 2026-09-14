@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
@@ -533,6 +534,56 @@ class UserServiceTest {
       }
 
       verify(prisonUserApiService).findUserBasicDetailsByUsernames(usernames)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+  }
+
+  @Nested
+  inner class FindUserDetailsByEmail {
+    @Test
+    fun `returns user details when email exists`() {
+      val email = "bob@justice.gov.uk"
+      val expected = PrisonUserDetailsList().apply { add(UserFixture.createPrisonUserFullDetails()) }
+      whenever(prisonUserApiService.findUserDetailsByEmail(email)).thenReturn(expected)
+
+      val actual = prisonUserService.findUserDetailsByEmail(email)
+
+      assertThat(actual).isEqualTo(expected)
+      verify(prisonUserApiService).findUserDetailsByEmail(email)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `returns empty list when email has no matching users`() {
+      val email = "unknown@justice.gov.uk"
+      val expected = PrisonUserDetailsList()
+      whenever(prisonUserApiService.findUserDetailsByEmail(email)).thenReturn(expected)
+
+      val actual = prisonUserService.findUserDetailsByEmail(email)
+
+      assertThat(actual).isEqualTo(expected)
+      verify(prisonUserApiService).findUserDetailsByEmail(email)
+      verifyNoInteractions(authApiService)
+      verifyNoInteractions(notificationService)
+      verifyNoInteractions(verifyEmailDomainService)
+      verifyNoInteractions(verifyEmailService)
+    }
+
+    @Test
+    fun `returns null when api service returns null for email`() {
+      val email = "missing@justice.gov.uk"
+      whenever(prisonUserApiService.findUserDetailsByEmail(email)).thenReturn(null)
+
+      val actual = prisonUserService.findUserDetailsByEmail(email)
+
+      assertThat(actual).isNull()
+      verify(prisonUserApiService).findUserDetailsByEmail(email)
       verifyNoInteractions(authApiService)
       verifyNoInteractions(notificationService)
       verifyNoInteractions(verifyEmailDomainService)

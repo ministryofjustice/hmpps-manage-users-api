@@ -16,6 +16,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import com.google.gson.Gson
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.OK
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedCentralAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
@@ -696,6 +697,41 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                 "active": true,
                 "staffStatus": "ACTIVE"
               }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubFindUserByEmail(email: String) {
+    stubFor(
+      get(urlPathEqualTo("/users/user"))
+        .withQueryParam("email", equalTo(email))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(OK.value())
+            .withBody(
+              """
+                [
+                  {
+                    "username": "NUSER_GEN",
+                    "staffId": 123456,
+                    "firstName": "Nomis",
+                    "lastName": "Take",
+                    "activeCaseloadId": "MDI",
+                    "accountStatus": "OPEN",
+                    "accountType": "GENERAL",
+                    "primaryEmail": "$email",
+                    "dpsRoleCodes": ["MAINTAIN_ACCESS_ROLES"],
+                    "accountNonLocked": true,
+                    "credentialsNonExpired": false,
+                    "enabled": true,
+                    "admin": false,
+                    "active": true,
+                    "staffStatus": "ACTIVE"
+                  }
+                ]
               """.trimIndent(),
             ),
         ),

@@ -49,3 +49,5 @@ data class PrisonUserDetails(
 
   override fun emailAddress(): EmailAddress = EmailAddress(username, primaryEmail, !primaryEmail.isNullOrEmpty())
 }
+
+class PrisonUserDetailsList : MutableList<PrisonUserDetails> by ArrayList()

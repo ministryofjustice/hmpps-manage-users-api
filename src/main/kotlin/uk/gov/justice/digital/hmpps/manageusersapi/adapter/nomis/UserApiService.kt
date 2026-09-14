@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
@@ -145,6 +146,20 @@ class UserApiService(
       throw EntityNotFoundException("Prison username $username not allowed")
     }
     return serviceWebClientUtils.get("/users/{username}", PrisonUserDetails::class.java, username.uppercase())
+  }
+
+  fun findUserDetailsByEmail(email: String): PrisonUserDetailsList? {
+    if ("@" !in email) {
+      log.error("Nomis not called with email as does not contain @: {}", email)
+      throw EntityNotFoundException("Prison user email $email not allowed")
+    }
+    return serviceWebClientUtils.getWithParams(
+      "/users/user",
+      PrisonUserDetailsList::class.java,
+      mapOf(
+        "email" to email,
+      ),
+    )
   }
 
   fun findUsersByFirstAndLastName(firstName: String, lastName: String): List<PrisonUserSummary> = userWebClientUtils.getWithParams(

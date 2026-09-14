@@ -1,11 +1,14 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
+import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -20,6 +23,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.expectBodyList
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
@@ -1456,6 +1460,54 @@ class UserControllerIntTest : IntegrationTestBase() {
 
       nomisApiMockServer.verify(
         getRequestedFor(urlEqualTo("/users/$username")),
+      )
+    }
+  }
+
+  @Nested
+  inner class FindUserDetailsByEmail {
+    private val email = "bob@justice.gov.uk"
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/prisonusers/by-email/$email/details")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/prisonusers/by-email/$email/details")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden when wrong role`() {
+      webTestClient.get().uri("/prisonusers/by-email/$email/details")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `find user details by email with allowed role`() {
+      nomisApiMockServer.stubFindUserByEmail(email)
+
+      val prisonUserDetails = webTestClient.get().uri("/prisonusers/by-email/$email/details")
+        .headers(setAuthorisation(roles = listOf("ROLE_MANAGE_USERS__USER_ACCOUNT__RO")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList<PrisonUserDetails>()
+        .returnResult().responseBody!!
+
+      assertThat(prisonUserDetails).hasSize(1)
+      assertThat(prisonUserDetails[0].username).isEqualTo("NUSER_GEN")
+      assertThat(prisonUserDetails[0].primaryEmail).isEqualTo(email)
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlPathEqualTo("/users/user")).withQueryParam("email", equalTo(email)),
       )
     }
   }

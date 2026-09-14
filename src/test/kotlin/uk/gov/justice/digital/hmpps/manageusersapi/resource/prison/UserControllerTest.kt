@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companio
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
@@ -120,6 +121,36 @@ class UserControllerTest {
       )
       assertThat(userController.getUserDetails("NUSER_GEN")).isNotNull
       verify(userService).findUserDetailsByUsername("NUSER_GEN")
+    }
+  }
+
+  @Nested
+  inner class FindUserDetailsByEmail {
+    @Test
+    fun `returns user details for matching email`() {
+      val details = UserFixture.createPrisonUserFullDetails()
+      val expected = PrisonUserDetailsList().apply { add(details) }
+      whenever(userService.findUserDetailsByEmail("bob@justice.gov.uk")).thenReturn(expected)
+
+      assertThat(userController.getUserDetailsByEmail("bob@justice.gov.uk")).isEqualTo(expected)
+      verify(userService).findUserDetailsByEmail("bob@justice.gov.uk")
+    }
+
+    @Test
+    fun `returns empty list when no users match email`() {
+      val expected = PrisonUserDetailsList()
+      whenever(userService.findUserDetailsByEmail("unknown@justice.gov.uk")).thenReturn(expected)
+
+      assertThat(userController.getUserDetailsByEmail("unknown@justice.gov.uk")).isEqualTo(expected)
+      verify(userService).findUserDetailsByEmail("unknown@justice.gov.uk")
+    }
+
+    @Test
+    fun `returns null when service has no matching email record`() {
+      whenever(userService.findUserDetailsByEmail("missing@justice.gov.uk")).thenReturn(null)
+
+      assertThat(userController.getUserDetailsByEmail("missing@justice.gov.uk")).isNull()
+      verify(userService).findUserDetailsByEmail("missing@justice.gov.uk")
     }
   }
 
