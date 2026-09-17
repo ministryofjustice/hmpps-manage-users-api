@@ -26,6 +26,7 @@ class UserAllowlistServiceTest {
       "Tapscott",
       "testing",
       AccessPeriod.ONE_MONTH,
+      "Ania Acevedo",
     )
 
     userAllowlistService.addUser(allowListAddRequest)

@@ -18,6 +18,7 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
         "Tapscott",
         "testing",
         AccessPeriod.ONE_MONTH,
+        "Ania Acevedo",
       )
 
       webTestClient
@@ -38,6 +39,7 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
         "Tapscott",
         "testing",
         AccessPeriod.THREE_MONTHS,
+        "Ania Acevedo",
       )
 
       webTestClient
@@ -57,6 +59,7 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
         "Tapscott",
         "testing",
         AccessPeriod.SIX_MONTHS,
+        "Ania Acevedo",
       )
 
       webTestClient
@@ -76,6 +79,7 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
         "Tapscott",
         "testing",
         AccessPeriod.TWELVE_MONTHS,
+        "Ania Acevedo",
       )
 
       webTestClient
@@ -164,6 +168,15 @@ class UserAllowlistControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("AUTH_MANAGE_USER_ALLOW_LIST", listOf("ROLE_MANAGE_USER_ALLOW_LIST")))
         .exchange()
         .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.username").isEqualTo("AUTH_ADM")
+        .jsonPath("$.firstName").isEqualTo("Sharayah")
+        .jsonPath("$.lastName").isEqualTo("Beasley")
+        .jsonPath("$.email").isEqualTo("sharayah.beasley@justice.gov.uk")
+        .jsonPath("$.reason").isEqualTo("for testing purposes")
+        .jsonPath("$.lastUpdatedBy").isEqualTo("QUINTASHAVL")
+        .jsonPath("$.userType").isEqualTo("DIGITAL")
+        .jsonPath("$.approver").isEqualTo("Jamie Carillo")
     }
 
     @Test

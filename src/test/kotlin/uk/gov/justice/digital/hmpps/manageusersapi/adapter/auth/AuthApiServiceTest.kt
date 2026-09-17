@@ -403,6 +403,7 @@ class AuthApiServiceTest {
         lastName = "Last",
         reason = "Access required for support",
         accessPeriod = AccessPeriod.SIX_MONTHS,
+        approver = "Ania Acevedo",
       )
 
       authApiService.addUserToAllowlist(request)
