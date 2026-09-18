@@ -38,6 +38,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseload
@@ -497,7 +498,7 @@ class UserController(
     @Schema(description = "Email", example = "bob@justice.gov.uk", required = true)
     @PathVariable("email")
     email: String,
-  ) = prisonUserService.findUserDetailsByEmail(email)
+  ): List<PrisonUserDetails>? = prisonUserService.findUserDetailsByEmail(email)
 
   @PostMapping("/linkedprisonusers/admin", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")
