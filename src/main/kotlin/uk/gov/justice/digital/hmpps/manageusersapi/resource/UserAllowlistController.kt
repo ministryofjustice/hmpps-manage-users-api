@@ -182,6 +182,13 @@ data class UserAllowlistAddRequest(
     description = "The access period required, this can also be used to expire the access if needed",
   )
   val accessPeriod: AccessPeriod,
+
+  @Schema(
+    required = true,
+    description = "The name of the approver for this access request",
+    example = "Natilee Tiernan",
+  )
+  val approver: String,
 )
 
 @Schema(description = "Update user's access on allow list")
@@ -278,6 +285,13 @@ data class UserAllowlistDetail(
     examples = ["DIGITAL", "GENERAL"],
   )
   val userType: UserAllowlistUserType,
+
+  @Schema(
+    required = true,
+    description = "The name of the approver for this access request",
+    example = "Natilee Tiernan",
+  )
+  val approver: String,
 )
 
 enum class AccessPeriod {
