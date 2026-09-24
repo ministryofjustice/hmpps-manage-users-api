@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.8"
-  kotlin("plugin.spring") version "2.4.10"
-  kotlin("plugin.jpa") version "2.4.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.10"
+  kotlin("plugin.spring") version "2.4.20"
+  kotlin("plugin.jpa") version "2.4.20"
 }
 
 configurations {
@@ -15,7 +15,7 @@ dependencyCheck {
 }
 
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.2")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -33,7 +33,7 @@ dependencies {
   implementation("com.google.code.gson:gson:2.14.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-  implementation("uk.gov.service.notify:notifications-java-client:6.2.0-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:6.2.1-RELEASE")
   implementation("com.google.guava:guava:33.7.1-jre")
   implementation("org.apache.commons:commons-csv:1.14.1")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -43,7 +43,7 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.13")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.1")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.2")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -52,9 +52,9 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
-  testImplementation("org.mockito:mockito-core:5.23.0")
+  testImplementation("org.mockito:mockito-core:5.24.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.37") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.48") {
     exclude(group = "io.swagger.core.v3")
   }
 
