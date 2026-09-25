@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.manageusersapi.resource
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.matching
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
@@ -12,8 +13,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
+import org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.manageusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.auth
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource.azuread
@@ -856,6 +859,112 @@ class UserControllerIntTest : IntegrationTestBase() {
              }
           """.trimIndent(),
         )
+    }
+  }
+
+  @Nested
+  inner class UpdateMyActiveCaseload {
+
+    @Test
+    fun `update active caseload is not accessible without a valid token`() {
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .body(fromValue(mapOf("caseLoadId" to "WWI")))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `update active caseload when user has access`() {
+      val username = "NUSER_GEN"
+      nomisApiMockServer.stubFindUserCaseloads(username)
+      nomisApiMockServer.stubPut("/users/$username/default-caseload/wwi", OK)
+
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .headers(setAuthorisation(username))
+        .body(fromValue(mapOf("caseLoadId" to "wwi")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().isEmpty
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/me/caseloads"))
+          .withHeader("Authorization", matching(".+")),
+      )
+      nomisApiMockServer.verify(
+        1,
+        putRequestedFor(urlEqualTo("/users/$username/default-caseload/wwi"))
+          .withHeader("Authorization", matching(".+")),
+      )
+    }
+
+    @Test
+    fun `update active caseload is forbidden when user does not have access`() {
+      val username = "NUSER_GEN"
+      val caseLoadId = "MDI"
+      nomisApiMockServer.stubFindUserCaseloads(username)
+
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .headers(setAuthorisation(username))
+        .body(fromValue(mapOf("caseLoadId" to caseLoadId)))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(403)
+        .jsonPath("$.userMessage").isEqualTo("The user does not have access to the caseLoadId = $caseLoadId")
+        .jsonPath("$.developerMessage").isEqualTo("The user does not have access to the caseLoadId = $caseLoadId")
+
+      nomisApiMockServer.verify(
+        0,
+        putRequestedFor(urlEqualTo("/users/$username/default-caseload/$caseLoadId")),
+      )
+    }
+
+    @Test
+    fun `update active caseload rejects a request without a caseload ID`() {
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .headers(setAuthorisation("NUSER_GEN"))
+        .body(fromValue(emptyMap<String, String>()))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+    }
+
+    @Test
+    fun `update active caseload rejects a blank caseload ID`() {
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .headers(setAuthorisation("NUSER_GEN"))
+        .body(fromValue(mapOf("caseLoadId" to "   ")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(400)
+        .jsonPath("$.userMessage").isEqualTo("Validation failure: caseLoadId must not be blank")
+    }
+
+    @Test
+    fun `update active caseload propagates a NOMIS failure`() {
+      val username = "NUSER_GEN"
+      nomisApiMockServer.stubFindUserCaseloads(username)
+      nomisApiMockServer.stubPut("/users/$username/default-caseload/WWI", SERVICE_UNAVAILABLE)
+
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .headers(setAuthorisation(username))
+        .body(fromValue(mapOf("caseLoadId" to "WWI")))
+        .exchange()
+        .expectStatus().isEqualTo(SERVICE_UNAVAILABLE)
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(SERVICE_UNAVAILABLE.value())
+        .jsonPath("$.userMessage").isEqualTo("Nomis User message for PUT failed")
+        .jsonPath("$.developerMessage").isEqualTo("Developer Nomis user message for PUT failed")
     }
   }
 
