@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -212,7 +215,35 @@ class UserController(
   fun getMyCaseloads(): UserCaseloadDetail? = hmppsAuthenticationHolder.username?.run {
     userService.getCaseloads()
   }
+
+  @PutMapping("/users/me/activeCaseLoad")
+  @Operation(
+    summary = "Update working caseload for current user.",
+    description = "Update working caseload for current user.",
+  )
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(
+      responseCode = "401",
+      description = "Invalid username or password",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "403",
+      description = "the user does not have permission to view the caseload.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  fun updateMyActiveCaseload(@RequestBody @Parameter(required = true) requestedActiveCaseload: ActiveCaseLoad) {
+    userService.updateMyActiveCaseload(requestedActiveCaseload)
+  }
 }
+
+@Schema(description = "Active Case Load")
+data class ActiveCaseLoad(
+  @Schema(requiredMode = REQUIRED, description = "Case Load ID", example = "MDI")
+  val caseLoadId: String,
+)
 
 @Schema(description = "User Role")
 data class UserRole(
