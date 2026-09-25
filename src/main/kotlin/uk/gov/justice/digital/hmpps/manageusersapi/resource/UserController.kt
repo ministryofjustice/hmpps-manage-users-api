@@ -226,6 +226,11 @@ class UserController(
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(
+      responseCode = "400",
+      description = "Bad Request",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
       responseCode = "401",
       description = "Invalid username or password",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
