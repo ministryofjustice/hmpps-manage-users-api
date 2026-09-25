@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -234,7 +236,7 @@ class UserController(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
   )
-  fun updateMyActiveCaseload(@RequestBody @Parameter(required = true) requestedActiveCaseload: ActiveCaseLoad) {
+  fun updateMyActiveCaseload(@Valid @RequestBody @Parameter(required = true) requestedActiveCaseload: ActiveCaseLoad) {
     userService.updateMyActiveCaseload(requestedActiveCaseload)
   }
 }
@@ -242,6 +244,7 @@ class UserController(
 @Schema(description = "Active Case Load")
 data class ActiveCaseLoad(
   @Schema(requiredMode = REQUIRED, description = "Case Load ID", example = "MDI")
+  @NotBlank
   val caseLoadId: String,
 )
 

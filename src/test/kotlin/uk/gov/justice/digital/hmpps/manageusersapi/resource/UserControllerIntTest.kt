@@ -935,6 +935,20 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `update active caseload rejects a blank caseload ID`() {
+      webTestClient
+        .put().uri("/users/me/activeCaseLoad")
+        .headers(setAuthorisation("NUSER_GEN"))
+        .body(fromValue(mapOf("caseLoadId" to "   ")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(400)
+        .jsonPath("$.userMessage").isEqualTo("Validation failure: caseLoadId must not be blank")
+    }
+
+    @Test
     fun `update active caseload propagates a NOMIS failure`() {
       val username = "NUSER_GEN"
       nomisApiMockServer.stubFindUserCaseloads(username)
