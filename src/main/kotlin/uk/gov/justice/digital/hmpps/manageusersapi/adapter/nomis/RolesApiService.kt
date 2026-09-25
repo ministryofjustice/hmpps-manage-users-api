@@ -61,7 +61,7 @@ class RolesApiService(
 
   fun getCaseloads() = userWebClientUtils.get("/me/caseloads", UserCaseloadDetail::class.java)
 
-  fun setDefaultCaseload(username: String?, caseloadId: String) = serviceWebClientUtils.put("/users/{username}/default-caseload/{defaultCaseloadId}", username, caseloadId)
+  fun setDefaultCaseload(username: String, caseloadId: String) = serviceWebClientUtils.put("/users/{username}/default-caseload/{defaultCaseloadId}", username, caseloadId)
 
   fun addRolesToUser(username: String, roles: List<String>, caseloadId: String? = null) = userWebClientUtils.postWithResponse(
     "/users/{username}/roles?caseloadId={caseloadId}",

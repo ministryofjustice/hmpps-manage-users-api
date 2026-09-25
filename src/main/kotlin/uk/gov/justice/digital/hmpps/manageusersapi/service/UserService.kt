@@ -105,7 +105,7 @@ class UserService(
         )
       }
     ) {
-      nomisRolesApiService.setDefaultCaseload(hmppsAuthenticationHolder.username, requestedActiveCaseload.caseLoadId)
+      nomisRolesApiService.setDefaultCaseload(hmppsAuthenticationHolder.username!!, requestedActiveCaseload.caseLoadId)
     } else {
       throw AccessDeniedException(String.format("The user does not have access to the caseLoadId = %s", requestedActiveCaseload.caseLoadId))
     }
