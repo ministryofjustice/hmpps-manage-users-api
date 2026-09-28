@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.delius.UserApiService
@@ -11,6 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.ActiveCaseLoad
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
@@ -93,6 +95,21 @@ class UserService(
     .mapNotNull { it.authority }
     .filter { it.startsWith("ROLE_") }
     .map { ExternalUserRole(it.substring(5)) }
+
+  fun updateMyActiveCaseload(requestedActiveCaseload: ActiveCaseLoad) {
+    val myCaseloads = getCaseloads()
+    if (myCaseloads.caseloads.stream().anyMatch { cl ->
+        cl.id.equals(
+          requestedActiveCaseload.caseLoadId,
+          ignoreCase = true,
+        )
+      }
+    ) {
+      nomisRolesApiService.setDefaultCaseload(hmppsAuthenticationHolder.username!!, requestedActiveCaseload.caseLoadId)
+    } else {
+      throw AccessDeniedException(String.format("The user does not have access to the caseLoadId = %s", requestedActiveCaseload.caseLoadId))
+    }
+  }
 
   fun getCaseloads(): UserCaseloadDetail = nomisRolesApiService.getCaseloads()
 }
