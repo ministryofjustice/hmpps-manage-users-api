@@ -13,7 +13,7 @@ NOMIS/prison-api, Delius) behind a single API.
 - Apply ktlint formatting and install a pre-commit hook: `./gradlew addKtlintFormatGitPreCommitHook`
 - The full test suite and integration tests need Postgres and localstack (SQS) running; isolated unit tests such as
   the examples above do not. CI starts these as services; locally use `docker-compose -f docker-compose-test.yml up -d`
-  `docker-compose -f docker-compose-full.yml up -d` (HMPPS Auth, Delius mock via WireMock, etc.).
+  to start those dependencies.
 - Integration tests use WireMock stubs under `wiremock/mappings` (not the docker-compose auth service) and a
   `test` Spring profile — see `src/test/kotlin/.../integration/IntegrationTestBase.kt` and
   `integration/wiremock/*MockServer.kt` for `NomisApiMockServer`, `HmppsAuthMockServer`,
