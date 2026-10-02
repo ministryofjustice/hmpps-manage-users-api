@@ -11,8 +11,8 @@ NOMIS/prison-api, Delius) behind a single API.
 - Run a single test class: `./gradlew test --tests "uk.gov.justice.digital.hmpps.manageusersapi.service.UserServiceTest"`
 - Run a single test method (names are backtick strings): `./gradlew test --tests "uk.gov.justice.digital.hmpps.manageusersapi.service.UserServiceTest.find external user"`
 - Apply ktlint formatting and install a pre-commit hook: `./gradlew addKtlintFormatGitPreCommitHook`
-- Tests need Postgres and localstack (SQS) running. CI starts these as services; locally use
-  `docker-compose -f docker-compose-test.yml up -d` before running tests, or run the full stack with
+- The full test suite and integration tests need Postgres and localstack (SQS) running; isolated unit tests such as
+  the examples above do not. CI starts these as services; locally use `docker-compose -f docker-compose-test.yml up -d`
   `docker-compose -f docker-compose-full.yml up -d` (HMPPS Auth, Delius mock via WireMock, etc.).
 - Integration tests use WireMock stubs under `wiremock/mappings` (not the docker-compose auth service) and a
   `test` Spring profile — see `src/test/kotlin/.../integration/IntegrationTestBase.kt` and
@@ -33,7 +33,7 @@ The codebase proxies/combines four identity "sources", modelled by the `AuthSour
   (`UserService`, `RolesService`, `UserSearchService`); source-specific services live in subpackages
   `service/external` (HMPPS Auth), `service/prison` (NOMIS), and `service/bulkjob`. There is no dedicated
   `service/delius` package — Delius logic sits directly in `adapter/delius`. Several classes share the same
-  name (e.g. `UserService`, `RolesService`) across different packages, so always check the package, not just
+  name (for example, `UserService`) across different packages, so always check the package, not just
   the class name, when searching.
 - `adapter/` — outbound `WebClient`-based clients to the real upstream services, one subpackage per
   source: `adapter/auth`, `adapter/nomis`, `adapter/delius`, `adapter/external`, plus `adapter/email`
