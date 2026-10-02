@@ -11,9 +11,9 @@ NOMIS/prison-api, Delius) behind a single API.
 - Run a single test class: `./gradlew test --tests "uk.gov.justice.digital.hmpps.manageusersapi.service.UserServiceTest"`
 - Run a single test method (names are backtick strings): `./gradlew test --tests "uk.gov.justice.digital.hmpps.manageusersapi.service.UserServiceTest.find external user"`
 - Apply ktlint formatting and install a pre-commit hook: `./gradlew addKtlintFormatGitPreCommitHook`
-- The full test suite and integration tests need Postgres and localstack (SQS) running; isolated unit tests such as
-  the examples above do not. CI starts these as services; locally use `docker-compose -f docker-compose-test.yml up -d`
-  to start those dependencies.
+- The full test suite requires localstack (SQS); the `test` profile uses an in-memory H2 database. Isolated unit tests such
+  as the examples above do not need localstack. CI starts it; locally use
+  `docker-compose -f docker-compose-test.yml up -d localstack`.
 - Integration tests use WireMock stubs under `wiremock/mappings` (not the docker-compose auth service) and a
   `test` Spring profile — see `src/test/kotlin/.../integration/IntegrationTestBase.kt` and
   `integration/wiremock/*MockServer.kt` for `NomisApiMockServer`, `HmppsAuthMockServer`,
