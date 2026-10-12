@@ -22,10 +22,19 @@ class UserApiService(
 
   fun findUserByUsername(username: String): DeliusUser? {
     if ("@" in username) {
-      log.debug("Delius not called with username as contained @: {}", username)
+      log.info("Delius not called with username as contained @: {}", username)
       return null
     }
     return serviceWebClientUtils.getIgnoreError("/user/{username}", DeliusUser::class.java, username)
+      ?.let { user -> mapUserDetailsToDeliusUser(user) }
+  }
+
+  fun findUserByUsernameIfPresent(username: String): DeliusUser? {
+    if ("@" in username) {
+      log.info("Delius not called with username as contained @: {}", username)
+      return null
+    }
+    return serviceWebClientUtils.getIfPresent("/user/{username}", DeliusUser::class.java, username)
       ?.let { user -> mapUserDetailsToDeliusUser(user) }
   }
 
