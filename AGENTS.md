@@ -6,11 +6,12 @@ NOMIS/prison-api, Delius) behind a single API.
 
 ## Build, test, lint
 
-- Build: `./gradlew build`
-- Run all checks (tests + ktlint + detekt etc., as used in CI): `./gradlew check`
+- Use Java 25 with the standard Gradle wrapper.
+- Assemble without running checks: `./gradlew assemble`
+- Run tests with `./gradlew test`; do not run `./gradlew check` locally because it includes ktlint tasks.
 - Run a single test class: `./gradlew test --tests "uk.gov.justice.digital.hmpps.manageusersapi.service.UserServiceTest"`
 - Run a single test method (names are backtick strings): `./gradlew test --tests "uk.gov.justice.digital.hmpps.manageusersapi.service.UserServiceTest.find external user"`
-- Apply ktlint formatting and install a pre-commit hook: `./gradlew addKtlintFormatGitPreCommitHook`
+- Do not run any ktlint Gradle task, including formatting, checks, or pre-commit hook setup. Skip ktlint validation entirely.
 - The full test suite requires localstack (SQS); the `test` profile uses an in-memory H2 database. Isolated unit tests such
   as the examples above do not need localstack. CI starts it; locally use
   `docker-compose -f docker-compose-test.yml up -d localstack`.
