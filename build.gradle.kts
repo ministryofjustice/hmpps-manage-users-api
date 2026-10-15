@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.11"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.12"
   kotlin("plugin.spring") version "2.4.20"
   kotlin("plugin.jpa") version "2.4.20"
 }
@@ -15,7 +15,7 @@ dependencyCheck {
 }
 
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.3")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -34,16 +34,16 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("uk.gov.service.notify:notifications-java-client:6.2.1-RELEASE")
-  implementation("com.google.guava:guava:33.7.1-jre")
+  implementation("com.google.guava:guava:33.7.2-jre")
   implementation("org.apache.commons:commons-csv:1.14.1")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
   runtimeOnly("org.flywaydb:flyway-core")
-  runtimeOnly("com.h2database:h2:2.5.250")
-  runtimeOnly("org.postgresql:postgresql:42.7.13")
+  runtimeOnly("com.h2database:h2:2.5.252")
+  runtimeOnly("org.postgresql:postgresql:42.7.14")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.2")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.3")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
