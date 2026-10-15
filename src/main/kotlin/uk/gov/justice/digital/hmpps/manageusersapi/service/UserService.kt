@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service
 
 import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
@@ -13,6 +16,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.GenericUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.ActiveCaseLoad
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserHasRoleResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.external.UserGroupDto
 import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserGroupService
@@ -82,6 +86,24 @@ class UserService(
       }
     }
 
+  /**
+   * Says whether each user on one page of [usernames] has the IMS_USER role.
+   *
+   * Duplicates are removed before paging and the original order is kept, so the same list and page always give the
+   * same users. Only the users on the requested page are looked up upstream. A user who isn't found gets false.
+   */
+  fun usersHaveIMSRole(usernames: List<String>, pageable: Pageable): Page<UserHasRoleResponse> {
+    val distinctUsernames = usernames.distinct()
+    val from = minOf(pageable.offset, distinctUsernames.size.toLong()).toInt()
+    val to = minOf(from + pageable.pageSize, distinctUsernames.size)
+
+    val results = distinctUsernames.subList(from, to).map { username ->
+      val roles = findRolesByUsername(username).orEmpty()
+      UserHasRoleResponse(username = username, hasRole = roles.any { it.roleCode == IMS_USER_ROLE })
+    }
+    return PageImpl(results, pageable, distinctUsernames.size.toLong())
+  }
+
   fun findRolesByUsername(username: String): List<UserRole>? {
     return externalRolesApiService.findRolesByUsernameOrNull(username)?.map { UserRole(it.roleCode) }
       ?: run { prisonApiService.findUserByUsername(username)?.roles?.map { UserRole(it) } }
@@ -119,3 +141,5 @@ data class ExternalUserRole(
   @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
   val roleCode: String,
 )
+
+private const val IMS_USER_ROLE = "IMS_USER"
