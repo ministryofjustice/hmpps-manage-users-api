@@ -703,7 +703,26 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
-  fun stubFindUserByEmail(email: String) {
+  fun stubFindAdministeredBy(username: String, localAdministratorUsername: String, administered: Boolean) {
+    stubFor(
+      get("/users/${username.uppercase()}/administered-by/${localAdministratorUsername.uppercase()}")
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """ 
+                {
+                  "username": "${username.uppercase()}",
+                  "localAdministratorUsername": "${localAdministratorUsername.uppercase()}",
+                  "administered": $administered
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
+  fun stubFindUserByEmail(email: String, accountType: String = "GENERAL") {
     stubFor(
       get(urlPathEqualTo("/users/user"))
         .withQueryParam("email", equalTo(email))
@@ -721,7 +740,7 @@ class NomisApiMockServer : WireMockServer(WIREMOCK_PORT) {
                     "lastName": "Take",
                     "activeCaseloadId": "MDI",
                     "accountStatus": "OPEN",
-                    "accountType": "GENERAL",
+                    "accountType": "$accountType",
                     "primaryEmail": "$email",
                     "dpsRoleCodes": ["MAINTAIN_ACCESS_ROLES"],
                     "accountNonLocked": true,

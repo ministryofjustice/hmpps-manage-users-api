@@ -14,6 +14,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.access.AccessDeniedException
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.nomis.UserApiService
@@ -22,12 +23,14 @@ import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companio
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDownloadSummary
+import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserFullDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EmailAddress
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserAdministeredBy
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
@@ -38,6 +41,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedC
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
@@ -66,6 +70,7 @@ class UserServiceTest {
   inner class ChangeEmail {
     private val userName = "testy"
     private val newEmailAddress = "new.testy@testing.com"
+    private val localAdministrator = "LSA_USER"
 
     @Test
     fun `should throw exception when prison user not present in prison system`() {
@@ -130,6 +135,83 @@ class UserServiceTest {
       val verifyLink = prisonUserService.changeEmail(userName, newEmailAddress)
 
       assertThat(verifyLink).isEqualTo("link")
+    }
+
+    @Test
+    fun `should not check local administrator authority for central admins`() {
+      val prisonUser = createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
+      whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, userName),
+      )
+
+      prisonUserService.changeEmail(userName, newEmailAddress)
+
+      verify(prisonUserApiService, never()).findUserDetailsByUsername(any())
+      verify(prisonUserApiService, never()).findUserAdministeredBy(any(), any())
+    }
+
+    @Test
+    fun `should allow local administrator to change email of general user in their authority`() {
+      val prisonUser = createPrisonUserDetails()
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(prisonUser)
+      whenever(prisonUserApiService.findUserDetailsByUsername(userName)).thenReturn(createPrisonUserFullDetails())
+      whenever(prisonUserApiService.findUserAdministeredBy(userName, localAdministrator)).thenReturn(
+        PrisonUserAdministeredBy(userName, localAdministrator, administered = true),
+      )
+      whenever(verifyEmailService.requestVerification(prisonUser, newEmailAddress)).thenReturn(
+        LinkEmailAndUsername("link", newEmailAddress, userName),
+      )
+
+      prisonUserService.changeEmail(userName, newEmailAddress, localAdministratorUsername = localAdministrator)
+
+      verify(prisonUserApiService).findUserAdministeredBy(userName, localAdministrator)
+      verify(authApiService).updateEmail(userName, newEmailAddress)
+    }
+
+    @Test
+    fun `should deny local administrator when a user is not in their authority`() {
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createPrisonUserDetails())
+      whenever(prisonUserApiService.findUserDetailsByUsername(userName)).thenReturn(createPrisonUserFullDetails())
+      whenever(prisonUserApiService.findUserAdministeredBy(userName, localAdministrator)).thenReturn(
+        PrisonUserAdministeredBy(userName, localAdministrator, administered = false),
+      )
+
+      assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress, localAdministratorUsername = localAdministrator) }
+        .isInstanceOf(AccessDeniedException::class.java)
+        .hasMessage("User $userName is not in the local administrator authority")
+
+      verify(authApiService, never()).confirmRecognised(any())
+      verify(verifyEmailService, never()).requestVerification(any(), any())
+      verify(authApiService, never()).updateEmail(any(), any())
+    }
+
+    @Test
+    fun `should deny local administrator when a user is not a general user`() {
+      whenever(prisonUserApiService.findUserByUsername(userName)).thenReturn(createPrisonUserDetails())
+      whenever(prisonUserApiService.findUserDetailsByUsername(userName))
+        .thenReturn(createPrisonUserFullDetails().copy(accountType = UsageType.ADMIN))
+
+      assertThatThrownBy { prisonUserService.changeEmail(userName, newEmailAddress, localAdministratorUsername = localAdministrator) }
+        .isInstanceOf(AccessDeniedException::class.java)
+        .hasMessage("Local administrator can only manage general users.")
+
+      verify(prisonUserApiService, never()).findUserAdministeredBy(any(), any())
+      verify(authApiService, never()).updateEmail(any(), any())
+      verify(verifyEmailService, never()).requestVerification(any(), any())
+      verify(authApiService, never()).confirmRecognised(any())
+    }
+  }
+
+  @Nested
+  inner class FindUserAdministeredBy {
+    @Test
+    fun `should return whether the local administrator looks after the user`() {
+      val expected = PrisonUserAdministeredBy("TEST", "LSA_USER", administered = true)
+      whenever(prisonUserApiService.findUserAdministeredBy("TEST", "LSA_USER"))
+        .thenReturn(expected)
+
+      assertThat(prisonUserService.findUserAdministeredBy("TEST", "LSA_USER")).isEqualTo(expected)
     }
   }
 

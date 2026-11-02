@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -38,6 +39,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserAdministeredBy
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
@@ -343,15 +345,32 @@ class UserSearchController(
 @Validated
 class UserController(
   private val prisonUserService: UserService,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
 
+  @GetMapping("/prisonusers/{username}/administered-by")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @Operation(
+    summary = "Check if you look after a user as their local administrator",
+    description = """
+      Tells you whether the user belongs to a local admin authority. Uses the username in your token, 
+      so you can only check your own authorities. Requires role MAINTAIN_ACCESS_ROLES.
+    """,
+    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES")],
+  )
+  @StandardApiResponses
+  fun findUserAdministeredBy(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+  ): PrisonUserAdministeredBy = prisonUserService.findUserAdministeredBy(username, localAdministratorUsername())
+
   @PostMapping("/prisonusers/{username}/email")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Amend a prison user email address.",
-    description = "Amend a prison user email address. Requires role MAINTAIN_ACCESS_ROLES_ADMIN",
-    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN")],
+    description = "Amend a prison user email address. Requires role MAINTAIN_ACCESS_ROLES_ADMIN, " +
+      "or MAINTAIN_ACCESS_ROLES for a general user in a local administrator authority the caller administers",
+    security = [SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES_ADMIN"), SecurityRequirement(name = "MAINTAIN_ACCESS_ROLES")],
   )
   @StandardApiResponses
   @ApiResponses(
@@ -372,9 +391,16 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
     @Valid @RequestBody amendEmail: AmendEmail,
   ): String? {
-    val link = prisonUserService.changeEmail(username, amendEmail.email!!)
+    val link = prisonUserService.changeEmail(
+      username,
+      amendEmail.email!!,
+      localAdministratorUsername = if (HmppsAuthenticationHolder.hasRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")) null else localAdministratorUsername(),
+    )
     return if (smokeTestEnabled) link else ""
   }
+
+  private fun localAdministratorUsername(): String = hmppsAuthenticationHolder.username
+    ?: throw AccessDeniedException("A username is needed in the token to act as a local administrator")
 
   @PostMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasRole('ROLE_CREATE_USER')")

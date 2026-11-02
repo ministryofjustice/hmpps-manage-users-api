@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.mapNonNull
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserAdministeredBy
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
@@ -103,6 +104,13 @@ class UserApiService(
     }
     return serviceWebClientUtils.getIfPresent("/users/{username}", PrisonUser::class.java, username.uppercase())
   }
+
+  fun findUserAdministeredBy(username: String, localAdministratorUsername: String): PrisonUserAdministeredBy = userWebClientUtils.get(
+    "/users/{username}/administered-by/{localAdministratorUsername}",
+    PrisonUserAdministeredBy::class.java,
+    username.uppercase(),
+    localAdministratorUsername.uppercase(),
+  )
 
   fun findUserBasicDetailsByUsername(username: String): PrisonUserBasicDetails? {
     if ("@" in username) {
