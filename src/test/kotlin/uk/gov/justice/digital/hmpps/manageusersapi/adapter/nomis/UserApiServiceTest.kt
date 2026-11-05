@@ -10,6 +10,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.WebClientUtils
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserFullDetails
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserAdministeredBy
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
 import uk.gov.justice.digital.hmpps.manageusersapi.service.EntityNotFoundException
@@ -106,6 +107,26 @@ class UserApiServiceTest {
         .isInstanceOf(EntityNotFoundException::class.java)
         .hasMessage("Prison username $invalidUsername not allowed")
 
+      verifyNoInteractions(serviceWebClientUtils)
+    }
+  }
+
+  @Nested
+  inner class FindUserAdministeredBy {
+    @Test
+    fun `call Nomis with the caller's token and uppercase usernames`() {
+      val expected = PrisonUserAdministeredBy("TEST", "LSA_USER", administered = true)
+      whenever(
+        userWebClientUtils.get(
+          "/users/{username}/administered-by/{localAdministratorUsername}",
+          PrisonUserAdministeredBy::class.java,
+          "TEST",
+          "LSA_USER",
+        ),
+      ).thenReturn(expected)
+
+      val actual = userApiService.findUserAdministeredBy("test", "lsa_user")
+      assertThat(actual).isEqualTo(expected)
       verifyNoInteractions(serviceWebClientUtils)
     }
   }

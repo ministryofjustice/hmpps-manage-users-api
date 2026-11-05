@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.service.prison
 
 import org.springframework.data.domain.Pageable
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.auth.AuthApiService
 import uk.gov.justice.digital.hmpps.manageusersapi.adapter.email.NotificationService
@@ -9,6 +10,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonStaffUser
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserAdministeredBy
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDownloadSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserSummary
@@ -18,6 +20,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedC
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedGeneralUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateLinkedLocalAdminUserRequest
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.CreateUserRequest
+import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UsageType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_ADM
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.prison.UserType.DPS_GEN
@@ -35,14 +38,27 @@ class UserService(
   private val verifyEmailService: VerifyEmailService,
 ) {
 
-  fun changeEmail(username: String, newEmailAddress: String): String {
+  fun changeEmail(username: String, newEmailAddress: String, localAdministratorUsername: String? = null): String {
     val prisonUser = prisonUserApiService.findUserByUsername(username)
     prisonUser?.let {
+      localAdministratorUsername?.let { checkLocalAdministratorCanManageUser(username, it) }
       authApiService.confirmRecognised(username)
       val verifyLinkEmailAndUsername = verifyEmailService.requestVerification(prisonUser, newEmailAddress)
       authApiService.updateEmail(username, verifyLinkEmailAndUsername.email)
       return verifyLinkEmailAndUsername.link
     } ?: throw EntityNotFoundException("Prison username $username not found")
+  }
+
+  fun findUserAdministeredBy(username: String, localAdministratorUsername: String): PrisonUserAdministeredBy = prisonUserApiService.findUserAdministeredBy(username, localAdministratorUsername)
+
+  private fun checkLocalAdministratorCanManageUser(username: String, localAdministratorUsername: String) {
+    val userDetails = prisonUserApiService.findUserDetailsByUsername(username)
+    if (userDetails?.accountType != UsageType.GENERAL) {
+      throw AccessDeniedException("Local administrator can only manage general users.")
+    }
+    if (!prisonUserApiService.findUserAdministeredBy(username, localAdministratorUsername).administered) {
+      throw AccessDeniedException("User $username is not in the local administrator authority")
+    }
   }
 
   fun enableUser(username: String) {

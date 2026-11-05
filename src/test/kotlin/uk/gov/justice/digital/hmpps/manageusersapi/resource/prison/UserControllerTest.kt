@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.manageusersapi.resource.prison
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -8,24 +10,40 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserBasicDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.fixtures.UserFixture.Companion.createPrisonUserSearchSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.EnhancedPrisonUser
+import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserAdministeredBy
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonUserDetailsList
 import uk.gov.justice.digital.hmpps.manageusersapi.model.filter.PrisonUserFilter
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PageSort
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 
 class UserControllerTest {
 
   private val userService: UserService = mock()
-  private val userController = UserController(userService, false)
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder = mock()
+  private val userController = UserController(userService, hmppsAuthenticationHolder, false)
+
+  @AfterEach
+  fun clearSecurityContext() {
+    SecurityContextHolder.clearContext()
+  }
+
+  private fun signInWithRoles(vararg roles: String) {
+    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("caller", null, *roles)
+  }
 
   @Nested
   inner class CreateUser {
@@ -241,6 +259,66 @@ class UserControllerTest {
       userController.disableUser("NUSER_GEN")
 
       verify(userService).disableUser("NUSER_GEN")
+    }
+  }
+
+  @Nested
+  inner class AmendUserEmail {
+    @Test
+    fun `central administrator changes email without a local administrator check`() {
+      signInWithRoles("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")
+      whenever(userService.changeEmail("TEST", "new@justice.gov.uk")).thenReturn("link")
+
+      userController.amendUserEmail("TEST", AmendEmail("new@justice.gov.uk"))
+
+      verify(userService).changeEmail("TEST", "new@justice.gov.uk", null)
+      verifyNoInteractions(hmppsAuthenticationHolder)
+    }
+
+    @Test
+    fun `local administrator changes email as themselves`() {
+      signInWithRoles("ROLE_MAINTAIN_ACCESS_ROLES")
+      whenever(hmppsAuthenticationHolder.username).thenReturn("LSA_USER")
+      whenever(userService.changeEmail("TEST", "new@justice.gov.uk", "LSA_USER")).thenReturn("link")
+
+      userController.amendUserEmail("TEST", AmendEmail("new@justice.gov.uk"))
+
+      verify(userService).changeEmail("TEST", "new@justice.gov.uk", "LSA_USER")
+    }
+
+    @Test
+    fun `local administrator without a username in the token is refused`() {
+      signInWithRoles("ROLE_MAINTAIN_ACCESS_ROLES")
+      whenever(hmppsAuthenticationHolder.username).thenReturn(null)
+
+      assertThatThrownBy {
+        userController.amendUserEmail("TEST", AmendEmail("new@justice.gov.uk"))
+      }.isInstanceOf(AccessDeniedException::class.java)
+
+      verifyNoInteractions(userService)
+    }
+  }
+
+  @Nested
+  inner class FindUserAdministeredBy {
+    @Test
+    fun `check the user against the caller's username`() {
+      val expected = PrisonUserAdministeredBy("TEST", "LSA_USER", administered = true)
+      whenever(hmppsAuthenticationHolder.username).thenReturn("LSA_USER")
+      whenever(userService.findUserAdministeredBy("TEST", "LSA_USER")).thenReturn(expected)
+
+      assertThat(userController.findUserAdministeredBy("TEST")).isEqualTo(expected)
+    }
+
+    @Test
+    fun `caller without a username in the token is refused`() {
+      whenever(hmppsAuthenticationHolder.username).thenReturn(null)
+
+      assertThatThrownBy {
+        userController.findUserAdministeredBy("TEST")
+      }.isInstanceOf(AccessDeniedException::class.java)
+
+      verifyNoInteractions(userService)
     }
   }
 

@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -37,6 +38,12 @@ class UserControllerIntTest : IntegrationTestBase() {
     private val username = "testy"
     private val domain = "testing.com"
     private val newEmailAddress = "new.testy@$domain"
+
+    @BeforeEach
+    fun beforeEach() {
+      hmppsAuthMockServer.resetRequests()
+      nomisApiMockServer.resetRequests()
+    }
 
     @Test
     fun `access forbidden when no authority`() {
@@ -93,6 +100,48 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isOk
+
+      nomisApiMockServer.verify(0, getRequestedFor(urlPathMatching("/users/.*/administered-by/.*")))
+    }
+
+    @Test
+    fun `local administrator can amend email of general user in their authority`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      nomisApiMockServer.stubFindAdministeredBy(username, "LSA_USER", administered = true)
+      hmppsAuthMockServer.stubConfirmRecognised(username)
+      externalUsersApiMockServer.stubValidateEmailDomain(domain, true)
+      hmppsAuthMockServer.stubForTokenByEmailType()
+      hmppsAuthMockServer.stubUpdatePrisonUserEmail(username, newEmailAddress)
+
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(user = "LSA_USER", roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isOk
+
+      nomisApiMockServer.verify(1, getRequestedFor(urlEqualTo("/users/TESTY/administered-by/LSA_USER")))
+    }
+
+    @Test
+    fun `local administrator cannot amend email of user outside their authority`() {
+      nomisApiMockServer.stubFindUserByUsername(username)
+      nomisApiMockServer.stubFindAdministeredBy(username, "LSA_USER", administered = false)
+
+      webTestClient.post().uri("/prisonusers/$username/email")
+        .headers(setAuthorisation(user = "LSA_USER", roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .body(
+          fromValue(
+            mapOf("email" to newEmailAddress),
+          ),
+        )
+        .exchange()
+        .expectStatus().isForbidden
+
+      hmppsAuthMockServer.verify(0, putRequestedFor(urlEqualTo("/auth/api/prisonuser/$username/email")))
     }
 
     @Test
@@ -545,6 +594,79 @@ class UserControllerIntTest : IntegrationTestBase() {
         )
         .exchange()
         .expectStatus().isBadRequest
+    }
+  }
+
+  @Nested
+  inner class FindUserAdministeredBy {
+    private val username = "testy"
+
+    @BeforeEach
+    fun resetRequestLogs() {
+      nomisApiMockServer.resetRequests()
+    }
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/prisonusers/$username/administered-by")
+        .exchange()
+        .expectStatus().isUnauthorized
+
+      nomisApiMockServer.verify(0, getRequestedFor(urlPathMatching("/users/.*/administered-by/.*")))
+    }
+
+    @Test
+    fun `access forbidden with wrong role`() {
+      webTestClient.get().uri("/prisonusers/$username/administered-by")
+        .headers(setAuthorisation(user = "LSA_USER", roles = listOf("ROLE_WRONG_ROLE")))
+        .exchange()
+        .expectStatus().isForbidden
+
+      nomisApiMockServer.verify(0, getRequestedFor(urlPathMatching("/users/.*/administered-by/.*")))
+    }
+
+    @Test
+    fun `access forbidden for central admin role only`() {
+      webTestClient.get().uri("/prisonusers/$username/administered-by")
+        .headers(setAuthorisation(user = "LSA_USER", roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return true when the user is in an authority the caller can administer`() {
+      nomisApiMockServer.stubFindAdministeredBy(username, "LSA_USER", administered = true)
+      val token = jwtAuthHelper.createJwtAccessToken(username = "LSA_USER", roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES"))
+
+      webTestClient.get().uri("/prisonusers/$username/administered-by")
+        .headers { it.setBearerAuth(token) }
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("username").isEqualTo("TESTY")
+        .jsonPath("localAdministratorUsername").isEqualTo("LSA_USER")
+        .jsonPath("administered").isEqualTo(true)
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/TESTY/administered-by/LSA_USER"))
+          .withHeader("Authorization", equalTo("Bearer $token")),
+      )
+    }
+
+    @Test
+    fun `false when the user is not in an authority the caller administers`() {
+      nomisApiMockServer.stubFindAdministeredBy(username, "LSA_USER", administered = false)
+
+      webTestClient.get().uri("/prisonusers/$username/administered-by")
+        .headers(setAuthorisation(user = "LSA_USER", roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("administered").isEqualTo(false)
+
+      nomisApiMockServer.verify(
+        getRequestedFor(urlEqualTo("/users/TESTY/administered-by/LSA_USER")),
+      )
     }
   }
 
