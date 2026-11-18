@@ -60,4 +60,52 @@ class OpenApiDocsTest : IntegrationTestBase() {
     val result = OpenAPIV3Parser().readLocation("http://localhost:$port/v3/api-docs", null, null)
     assertThat(result.messages).isEmpty()
   }
+
+  @Test
+  fun `internal and external groups are valid`() {
+    listOf("internal", "external").forEach {
+      val result = OpenAPIV3Parser().readLocation("http://localhost:$port/v3/api-docs/$it", null, null)
+      assertThat(result.messages).isEmpty()
+    }
+  }
+
+  @Test
+  fun `groups describe their audience`() {
+    apiDocs("internal").jsonPath("info.description").value<String> {
+      assertThat(it).contains("only by HMPPS Auth and Manage Users")
+    }
+    apiDocs("external").jsonPath("info.description").value<String> {
+      assertThat(it).contains("other than HMPPS Auth and Manage Users")
+    }
+  }
+
+  @Test
+  fun `class level audience is respected`() {
+    apiDocs("internal")
+      .jsonPath("$.paths['/roles']").exists()
+      .jsonPath("$.paths['/users/me']").doesNotExist()
+    apiDocs("external")
+      .jsonPath("$.paths['/users/me']").exists()
+      .jsonPath("$.paths['/roles']").doesNotExist()
+  }
+
+  @Test
+  fun `method level audience overrides class level`() {
+    // GET roles is external, POST roles is internal, on the same path
+    apiDocs("external")
+      .jsonPath("$.paths['/prisonusers/{username}/roles'].get").exists()
+      .jsonPath("$.paths['/prisonusers/{username}/roles'].post").doesNotExist()
+      .jsonPath("$.paths['/roles/delius']").doesNotExist()
+    apiDocs("internal")
+      .jsonPath("$.paths['/prisonusers/{username}/roles'].post").exists()
+      .jsonPath("$.paths['/prisonusers/{username}/roles'].get").doesNotExist()
+      .jsonPath("$.paths['/roles/delius']").exists()
+  }
+
+  private fun apiDocs(group: String) = webTestClient.get()
+    .uri("/v3/api-docs/$group")
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus().isOk
+    .expectBody()
 }
