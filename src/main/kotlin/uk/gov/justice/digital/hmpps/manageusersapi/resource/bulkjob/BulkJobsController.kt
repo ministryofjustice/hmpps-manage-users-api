@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobDetails
 import uk.gov.justice.digital.hmpps.manageusersapi.repository.model.BulkUserJobStatus
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.PagedResponse
@@ -38,6 +40,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/bulk-jobs")
+@ApiAudience(Audience.INTERNAL)
 class BulkJobsController(private val bulkUserJobService: BulkUserJobService) {
   @PostMapping(path = ["/user-role-additions"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
   @PreAuthorize("hasRole('ROLE_MANAGE_USER_BULK_JOBS')")

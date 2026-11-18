@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AdminTypeReturn
@@ -32,6 +34,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.RolesService
 
 @Validated
 @RestController
+@ApiAudience(Audience.INTERNAL)
 class RolesController(
   private val rolesService: RolesService,
 ) {
