@@ -72,10 +72,10 @@ class OpenApiDocsTest : IntegrationTestBase() {
   @Test
   fun `groups describe their audience`() {
     apiDocs("internal").jsonPath("info.description").value<String> {
-      assertThat(it).contains("only by HMPPS Auth and Manage Users")
+      assertThat(it).contains("Internal API")
     }
     apiDocs("external").jsonPath("info.description").value<String> {
-      assertThat(it).contains("other than HMPPS Auth and Manage Users")
+      assertThat(it).contains("External API")
     }
   }
 
