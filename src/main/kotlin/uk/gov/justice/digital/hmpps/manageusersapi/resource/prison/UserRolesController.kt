@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.DPS_CASELOAD
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseloadRole
@@ -30,6 +32,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiR
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserRolesService
 
 @RestController("PrisonUserRolesController")
+@ApiAudience(Audience.INTERNAL)
 @Validated
 @RequestMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserRolesController(
@@ -37,6 +40,7 @@ class UserRolesController(
 ) {
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/{username}/roles")
   @ResponseStatus(HttpStatus.OK)
   @Operation(

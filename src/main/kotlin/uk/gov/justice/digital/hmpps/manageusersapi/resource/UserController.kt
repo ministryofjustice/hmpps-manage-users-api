@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
@@ -43,6 +45,7 @@ import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import java.util.UUID
 
 @RestController("UserController")
+@ApiAudience(Audience.EXTERNAL)
 class UserController(
   private val userService: UserService,
   private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
@@ -233,6 +236,7 @@ class UserController(
     return userService.usersHaveIMSRole(request.usernames, PageRequest.of(page, size)).toPagedResponse()
   }
 
+  @ApiAudience(Audience.INTERNAL)
   @GetMapping("/roles/delius")
   @Operation(
     summary = "List of mapped delius roles",

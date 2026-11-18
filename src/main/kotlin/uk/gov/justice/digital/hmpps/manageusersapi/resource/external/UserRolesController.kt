@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.CreateApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.DeleteApiResponses
@@ -31,6 +33,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserRolesSer
 import java.util.UUID
 
 @RestController("ExternalUserRolesController")
+@ApiAudience(Audience.INTERNAL)
 @Validated
 @RequestMapping("/externalusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserRolesController(

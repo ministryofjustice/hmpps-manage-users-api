@@ -20,18 +20,22 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.UserCaseloadDetail
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserCaseloadService
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload as PrisonCaseloadDomain
 
 @RestController("PrisonUserCaseloadsController")
+@ApiAudience(Audience.INTERNAL)
 @Validated
 @RequestMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserCaseloadsController(
   private val userCaseloadService: UserCaseloadService,
 ) {
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_USER_PERMISSIONS__RO')")
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/{username}/caseloads")
   @ResponseStatus(HttpStatus.OK)
   @Operation(

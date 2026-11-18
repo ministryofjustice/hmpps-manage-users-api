@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
@@ -30,6 +32,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.UserService
 import java.util.UUID
 
 @RestController("ExternalUserController")
+@ApiAudience(Audience.INTERNAL)
 class UserController(
   private val userService: UserService,
   private val userGroupService: UserGroupService,

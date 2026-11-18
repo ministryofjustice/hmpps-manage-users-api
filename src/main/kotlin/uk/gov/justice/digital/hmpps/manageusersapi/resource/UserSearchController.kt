@@ -7,12 +7,15 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.model.AuthSource
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.StandardApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.Status
 import uk.gov.justice.digital.hmpps.manageusersapi.service.UserSearchService
 
 @RestController("lUserSearchController")
+@ApiAudience(Audience.EXTERNAL)
 class UserSearchController(
   private val userSearchService: UserSearchService,
 ) {

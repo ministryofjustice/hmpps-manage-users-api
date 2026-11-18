@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.DeleteApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.FailApiResponses
@@ -27,6 +29,7 @@ import java.util.UUID
 
 @Validated
 @RestController
+@ApiAudience(Audience.INTERNAL)
 class UserGroupController(
   private val userGroupsService: UserGroupService,
 ) {
@@ -115,6 +118,7 @@ class UserGroupController(
     log.info("Add group succeeded for userId {} and group {}", userId, group)
   }
 
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/externalusers/{userId}/groups")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER','ROLE_VIEW_USER_GROUPS')")
   @Operation(

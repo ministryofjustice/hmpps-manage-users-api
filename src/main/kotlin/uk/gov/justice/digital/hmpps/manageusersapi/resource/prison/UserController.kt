@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonAdminUserSummary
 import uk.gov.justice.digital.hmpps.manageusersapi.model.PrisonCaseload
@@ -53,6 +55,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.UserService
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 
 @RestController("PrisonSearchController")
+@ApiAudience(Audience.EXTERNAL)
 @Validated
 class UserSearchController(
   private val prisonUserService: UserService,
@@ -209,6 +212,7 @@ class UserSearchController(
   }
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @ApiAudience(Audience.INTERNAL)
   @GetMapping("/prisonusers/download")
   fun downloadUsersByFilters(
     @RequestParam(value = "nameFilter", required = false)
@@ -274,6 +278,7 @@ class UserSearchController(
   )
 
   @PreAuthorize("hasRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN') or hasRole('ROLE_MAINTAIN_ACCESS_ROLES')")
+  @ApiAudience(Audience.INTERNAL)
   @GetMapping("/prisonusers/download/admins")
   fun downloadPrisonAdminsByFilter(
     @RequestParam(value = "nameFilter", required = false)
@@ -342,6 +347,7 @@ class UserSearchController(
 }
 
 @RestController("PrisonUserController")
+@ApiAudience(Audience.INTERNAL)
 @Validated
 class UserController(
   private val prisonUserService: UserService,
@@ -431,6 +437,7 @@ class UserController(
     @RequestBody @Valid createUserRequest: CreateUserRequest,
   ) = NewPrisonUserDto.fromDomain(prisonUserService.createUser(createUserRequest))
 
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/prisonusers/{username}", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT', 'ROLE_STAFF_SEARCH')")
   @Operation(
@@ -451,6 +458,7 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ) = prisonUserService.findUserByUsername(username)?.let { NewPrisonUserDto.fromDomain(it) }
 
+  @ApiAudience(Audience.EXTERNAL)
   @PostMapping("/prisonusers/find-by-usernames", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT', 'ROLE_STAFF_SEARCH')")
   @Operation(
@@ -471,6 +479,7 @@ class UserController(
     @Parameter(description = "The usernames of the users.", required = true) @RequestBody usernames: List<String>,
   ) = prisonUserService.findUsersByUsernames(usernames)
 
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/prisonusers/{username}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MANAGE_NOMIS_USER_ACCOUNT')")
   @Operation(
@@ -510,6 +519,7 @@ class UserController(
     username: String,
   ) = prisonUserService.findUserDetailsByUsername(username)
 
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/prisonusers/by-email/{email}/details", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_MANAGE_USERS__USER_ACCOUNT__RO')")
   @Operation(
@@ -640,6 +650,7 @@ class UserController(
     @RequestBody @Valid createLinkedGeneralUserRequest: CreateLinkedGeneralUserRequest,
   ) = PrisonStaffUserDto.fromDomain(prisonUserService.createLinkedGeneralUser(createLinkedGeneralUserRequest))
 
+  @ApiAudience(Audience.EXTERNAL)
   @GetMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
   @Operation(

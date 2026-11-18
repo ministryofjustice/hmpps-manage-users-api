@@ -6,10 +6,13 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
 import uk.gov.justice.digital.hmpps.manageusersapi.service.NotificationBannerService
 
 @RestController
+@ApiAudience(Audience.INTERNAL)
 class NotificationBannerController(
   private val notificationBannerService: NotificationBannerService,
 ) {

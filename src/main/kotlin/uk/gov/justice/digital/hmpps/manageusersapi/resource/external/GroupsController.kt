@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.manageusersapi.model.Group
@@ -32,6 +34,7 @@ import uk.gov.justice.digital.hmpps.manageusersapi.service.external.GroupsServic
 
 @Validated
 @RestController
+@ApiAudience(Audience.INTERNAL)
 class GroupsController(
   private val groupsService: GroupsService,
 ) {
