@@ -10,10 +10,13 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.service.prison.ReferenceDataService
 
 @RestController("ReferenceDataController")
+@ApiAudience(Audience.EXTERNAL)
 @Validated
 @RequestMapping("/prisonusers", produces = [MediaType.APPLICATION_JSON_VALUE])
 class ReferenceDataController(private val referenceDataService: ReferenceDataService) {

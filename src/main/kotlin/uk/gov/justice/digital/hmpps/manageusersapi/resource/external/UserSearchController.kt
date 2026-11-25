@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.manageusersapi.config.ApiAudience
+import uk.gov.justice.digital.hmpps.manageusersapi.config.Audience
 import uk.gov.justice.digital.hmpps.manageusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.manageusersapi.model.ExternalUser
 import uk.gov.justice.digital.hmpps.manageusersapi.resource.swagger.AuthenticatedApiResponses
@@ -27,11 +29,13 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @RestController("ExternalUserSearchController")
+@ApiAudience(Audience.EXTERNAL)
 @RequestMapping("/externalusers")
 class UserSearchController(
   private val userSearchService: UserSearchService,
 ) {
 
+  @ApiAudience(Audience.INTERNAL)
   @GetMapping("/crsgroup/{crsgroupcode}")
   @Operation(
     summary = "Find members of a CRS Group.",
