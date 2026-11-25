@@ -279,14 +279,15 @@ class AuthApiServiceTest {
   @Nested
   inner class ConfirmRecognised {
     @Test
-    fun `passes correct URI and username to userWebClientUtils`() {
-      whenever(userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/{username}/recognised", "user1"))
+    fun `passes correct URI and username to serviceWebClientUtils`() {
+      whenever(serviceWebClientUtils.getWithEmptyResponseSucceeds("/api/user/{username}/recognised", "user1"))
         .thenReturn(true)
 
       val result = authApiService.confirmRecognised("user1")
 
       assertThat(result).isTrue()
-      verify(userWebClientUtils).getWithEmptyResponseSucceeds("/api/user/{username}/recognised", "user1")
+      verify(serviceWebClientUtils).getWithEmptyResponseSucceeds("/api/user/{username}/recognised", "user1")
+      verifyNoInteractions(userWebClientUtils)
     }
   }
 
@@ -318,14 +319,15 @@ class AuthApiServiceTest {
   @Nested
   inner class UpdateEmail {
     @Test
-    fun `passes correct URI, email body and username to userWebClientUtils`() {
+    fun `passes correct URI, email body and username to serviceWebClientUtils`() {
       authApiService.updateEmail("user1", "updated@example.com")
 
-      verify(userWebClientUtils).putWithBody(
+      verify(serviceWebClientUtils).putWithBody(
         mapOf("email" to "updated@example.com"),
         "/api/prisonuser/{username}/email",
         "user1",
       )
+      verifyNoInteractions(userWebClientUtils)
     }
   }
 

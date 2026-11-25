@@ -124,6 +124,14 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
 
       nomisApiMockServer.verify(1, getRequestedFor(urlEqualTo("/users/TESTY/administered-by/LSA_USER")))
+      hmppsAuthMockServer.verify(
+        getRequestedFor(urlEqualTo("/auth/api/user/$username/recognised"))
+          .withHeader("Authorization", equalTo("Bearer ABCDE")),
+      )
+      hmppsAuthMockServer.verify(
+        putRequestedFor(urlEqualTo("/auth/api/prisonuser/$username/email"))
+          .withHeader("Authorization", equalTo("Bearer ABCDE")),
+      )
     }
 
     @Test
