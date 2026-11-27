@@ -88,11 +88,11 @@ class AuthApiService(
 
   fun syncUserDisabled(username: String, inactiveReason: String) = serviceWebClientUtils.putWithBody(mapOf("enabled" to false, "inactiveReason" to inactiveReason), "/api/externaluser/sync/{username}/enabled", username)
 
-  fun confirmRecognised(username: String) = userWebClientUtils.getWithEmptyResponseSucceeds("/api/user/{username}/recognised", username)
+  fun confirmRecognised(username: String) = serviceWebClientUtils.getWithEmptyResponseSucceeds("/api/user/{username}/recognised", username)
 
   fun syncEmailWithNomis(username: String, nomisEmail: String?) = userWebClientUtils.postWithBody(mapOf("email" to nomisEmail), "/api/prisonuser/{username}/email/sync", username)
 
-  fun updateEmail(username: String, newEmailAddress: String) = userWebClientUtils.putWithBody(mapOf("email" to newEmailAddress), "/api/prisonuser/{username}/email", username)
+  fun updateEmail(username: String, newEmailAddress: String) = serviceWebClientUtils.putWithBody(mapOf("email" to newEmailAddress), "/api/prisonuser/{username}/email", username)
 
   fun findUserEmails(usernames: List<String>): List<EmailAddress> = serviceWebClientUtils.postWithResponse(
     "/api/prisonuser/email",
